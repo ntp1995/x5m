@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0b0f14">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <title>FitCoach 5M</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent
+        }
+
+        :root {
+            --bg: #0b0f14;
+            --card: #151b24;
+            --card2: #1d2531;
+            --line: #263041;
+            --tx: #e8edf5;
+            --dim: #8b98ab;
+            --acc: #22d3a6;
+            --acc2: #3b82f6;
+            --warn: #f59e0b;
+            --red: #ef4444;
+            --vio: #a78bfa;
+            --sat: env(safe-area-inset-bottom, 0px)
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--tx);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif;
+            padding-bottom: calc(76px + var(--sat));
+            overflow-x: hidden
+        }
+
+        .wrap {
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 16px
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -.3px
+        }
+
+        h2 {
+            font-size: 17px;
+            font-weight: 700;
+            margin: 20px 0 10px
+        }
+
+        h3 {
+            font-size: 15px;
+            font-weight: 700
+        }
+
+        .sub {
+            color: var(--dim);
+            font-size: 13px;
+            line-height: 1.65
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .g2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px
+        }
+
+        .g3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px
+        }
+
+        .stat {
+            background: var(--card2);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center
+        }
+
+        .stat .v {
+            font-size: 19px;
+            font-weight: 800;
+            color: var(--acc)
+        }
+
+        .stat .l {
+            font-size: 11px;
+            color: var(--dim);
+            margin-top: 3px
+        }
+
+        .btn {
+            background: var(--acc);
+            color: #04231c;
+            border: 0;
+            border-radius: 14px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 800;
+            width: 100%;
+            font-family: inherit
+        }
+
+        .btn:active {
+            transform: scale(.98)
+        }
+
+        .btn.g {
+            background: var(--card2);
+            color: var(--tx);
+            border: 1px solid var(--line)
+        }
+
+        .btn.b {
+            background: var(--acc2);
+            color: #fff
+        }
+
+        .btn.v {
+            background: var(--vio);
+            color: #1a1035
+        }
+
+        .btn.sm {
+            padding: 11px;
+            font-size: 14px
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 11px;
+            padding: 4px 9px;
+            border-radius: 99px;
+            background: rgba(34, 211, 166, .14);
+            color: var(--acc);
+            font-weight: 700
+        }
+
+        .tag.o {
+            background: rgba(245, 158, 11, .15);
+            color: var(--warn)
+        }
+
+        .tag.b {
+            background: rgba(59, 130, 246, .16);
+            color: #7dabff
+        }
+
+        .tag.v {
+            background: rgba(167, 139, 250, .16);
+            color: var(--vio)
+        }
+
+        .tag.gr {
+            background: #232c3a;
+            color: var(--dim)
+        }
+
+        .bar {
+            height: 8px;
+            background: var(--card2);
+            border-radius: 99px;
+            overflow: hidden
+        }
+
+        .bar>i {
+            display: block;
+            height: 100%;
+            background: linear-gradient(90deg, var(--acc), var(--acc2));
+            border-radius: 99px;
+            transition: .5s
+        }
+
+        nav {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(13, 18, 25, .94);
+            backdrop-filter: blur(14px);
+            border-top: 1px solid var(--line);
+            display: flex;
+            padding-bottom: var(--sat);
+            z-index: 50
+        }
+
+        nav button {
+            flex: 1;
+            background: 0;
+            border: 0;
+            color: var(--dim);
+            padding: 10px 0 12px;
+            font-size: 10px;
+            font-family: inherit;
+            font-weight: 600
+        }
+
+        nav button b {
+            display: block;
+            font-size: 20px;
+            font-weight: 400;
+            line-height: 1.3
+        }
+
+        nav button.on {
+            color: var(--acc)
+        }
+
+        .page {
+            display: none
+        }
+
+        .page.on {
+            display: block
+        }
+
+        .day {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 13px;
+            margin-bottom: 9px
+        }
+
+        .day.today {
+            border-color: var(--acc);
+            box-shadow: 0 0 0 3px rgba(34, 211, 166, .09)
+        }
+
+        .dot {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: var(--card2);
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+            flex: 0 0 auto
+        }
+
+        .sec {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 16px 0 6px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--dim)
+        }
+
+        .sec:before {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--line);
+            order: 2
+        }
+
+        .exi {
+            display: flex;
+            gap: 11px;
+            padding: 11px 0;
+            border-bottom: 1px solid var(--line)
+        }
+
+        .exi:last-child {
+            border: 0
+        }
+
+        .num {
+            width: 25px;
+            height: 25px;
+            border-radius: 8px;
+            background: var(--card2);
+            display: grid;
+            place-items: center;
+            font-size: 11px;
+            font-weight: 800;
+            flex: 0 0 auto
+        }
+
+        ul.cue {
+            margin: 6px 0 0 16px;
+            color: var(--dim);
+            font-size: 12.5px;
+            line-height: 1.75
+        }
+
+        input,
+        select {
+            background: var(--card2);
+            border: 1px solid var(--line);
+            color: var(--tx);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 15px;
+            width: 100%;
+            font-family: inherit
+        }
+
+        label.sw {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--card2);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 10px
+        }
+
+        label.sw input {
+            width: auto;
+            transform: scale(1.35);
+            accent-color: var(--acc)
+        }
+
+        #pl {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            padding: calc(12px + env(safe-area-inset-top, 0px)) 16px calc(14px + var(--sat))
+        }
+
+        #pl.on {
+            display: flex
+        }
+
+        .plhd {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12.5px;
+            color: var(--dim)
+        }
+
+        .ring {
+            position: relative;
+            margin: auto;
+            width: min(74vw, 270px);
+            aspect-ratio: 1;
+            display: grid;
+            place-items: center
+        }
+
+        .ring svg {
+            position: absolute;
+            inset: 0;
+            transform: rotate(-90deg)
+        }
+
+        .ring circle {
+            fill: none;
+            stroke-width: 11;
+            stroke-linecap: round
+        }
+
+        .tim {
+            font-size: 56px;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -2px
+        }
+
+        .mode {
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px
+        }
+
+        .exname {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 800;
+            margin: 6px 0 3px;
+            line-height: 1.3
+        }
+
+        .ctrl {
+            display: flex;
+            gap: 9px;
+            margin-top: 12px
+        }
+
+        .ctrl button {
+            flex: 1
+        }
+
+        .ic {
+            flex: 0 0 60px !important;
+            font-size: 21px
+        }
+
+        .nx {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 9px 12px;
+            font-size: 12.5px;
+            color: var(--dim);
+            margin-top: 9px
+        }
+
+        a.yt {
+            color: #7dabff;
+            font-size: 12px;
+            text-decoration: none;
+            font-weight: 600
+        }
+
+        .beat {
+            animation: bt .9s infinite
+        }
+
+        @keyframes bt {
+            50% {
+                opacity: .5
+            }
+        }
+
+        .chips {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 6px
+        }
+
+        .chips button {
+            white-space: nowrap;
+            background: var(--card2);
+            border: 1px solid var(--line);
+            color: var(--dim);
+            border-radius: 99px;
+            padding: 8px 14px;
+            font-size: 12.5px;
+            font-weight: 700;
+            font-family: inherit
+        }
+
+        .chips button.on {
+            background: var(--acc);
+            color: #04231c;
+            border-color: var(--acc)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px
+        }
+
+        td,
+        th {
+            padding: 8px 4px;
+            border-bottom: 1px solid var(--line);
+            text-align: left
+        }
+
+        th {
+            color: var(--dim);
+            font-size: 11px
+        }
+
+        .dotst {
+            width: 8px;
+            height: 8px;
+            border-radius: 99px;
+            display: inline-block;
+            margin-right: 6px
+        }
+
+        .fig {
+            background: #0f1620;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            flex: 0 0 auto
+        }
+
+        .fig .gr {
+            stroke: #2b3646;
+            stroke-width: 1.6
+        }
+
+        .fig .pp {
+            fill: #242e3c;
+            stroke: #3c4a5e;
+            stroke-width: .8
+        }
+
+        .fig .eqp {
+            fill: #5b93f0
+        }
+
+        .fig .lf {
+            fill: none;
+            stroke: #414f64;
+            stroke-width: 3.6;
+            stroke-linecap: round;
+            stroke-linejoin: round
+        }
+
+        .fig .ln {
+            fill: none;
+            stroke: var(--acc);
+            stroke-width: 4.2;
+            stroke-linecap: round;
+            stroke-linejoin: round
+        }
+
+        .fig .hd {
+            fill: var(--acc)
+        }
+
+        .fig.warm .ln {
+            stroke: var(--warn)
+        }
+
+        .fig.warm .hd {
+            fill: var(--warn)
+        }
+
+        .fig.cool .ln {
+            stroke: var(--vio)
+        }
+
+        .fig.cool .hd {
+            fill: var(--vio)
+        }
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);z-index:200;display:none;justify-content:center;align-items:center;padding:16px}
+        .modal-overlay.on{display:flex}
+        .modal-box{background:var(--card);border:1px solid var(--line);border-radius:18px;max-width:400px;width:100%;max-height:88vh;overflow-y:auto;padding:20px;position:relative;animation:modalIn .25s ease}
+        @keyframes modalIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+        .modal-box .modal-close{position:absolute;top:12px;right:14px;background:0;border:0;color:var(--dim);font-size:22px;cursor:pointer;font-family:inherit;line-height:1}
+        .modal-box .modal-close:hover{color:var(--tx)}
+        .modal-fig{display:flex;justify-content:center;margin:10px 0}
+        .modal-name{text-align:center;font-size:20px;font-weight:800;margin:8px 0 4px}
+        .modal-eq{text-align:center;font-size:13px;color:var(--dim);margin-bottom:10px}
+        .modal-cue{margin:8px 0 8px 16px;color:var(--dim);font-size:12.5px;line-height:1.75}
+        .modal-yt{display:block;text-align:center;margin-top:12px;color:#7dabff;font-size:13px;text-decoration:none;font-weight:700}
+        .modal-yt:hover{text-decoration:underline}
+
+        .tracker-row{display:flex;gap:10px;margin:8px 0;align-items:center}
+        .tracker-icon{font-size:22px;width:36px;text-align:center;flex:0 0 36px}
+        .tracker-bar{flex:1;height:10px;background:var(--card2);border-radius:99px;overflow:hidden}
+        .tracker-bar i{display:block;height:100%;border-radius:99px;transition:.5s}
+        .tracker-val{font-size:13px;font-weight:700;min-width:100px;text-align:right}
+        .streak-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(34,211,166,.12);color:var(--acc);padding:6px 12px;border-radius:99px;font-size:13px;font-weight:700}
+        .streak-badge.warn{background:rgba(245,158,11,.15);color:var(--warn)}
+        .streak-badge.danger{background:rgba(239,68,68,.15);color:var(--red)}
+        .qbtn{background:var(--card2);border:1px solid var(--line);color:var(--tx);border-radius:12px;padding:10px;font-size:13px;font-weight:700;font-family:inherit;flex:1;cursor:pointer}
+        .qbtn:active{transform:scale(.97)}
+        .tracker-divider{height:1px;background:var(--line);margin:10px 0}
+    </style>
+</head>
+
+<body>
+
+    <!-- ================= HOME ================= -->
+    <div class="page on" id="p-home">
+        <div class="wrap">
+            <div class="row" style="margin-bottom:14px">
+                <div>
+                    <h1>สวัสดี 👋</h1>
+                    <div class="sub" id="hsub"></div>
+                </div>
+                <div class="tag" id="phaseTag">Phase 1</div>
+            </div>
+
+            <div class="card">
+                <div class="row">
+                    <h3>เป้าหมาย 5 เดือน</h3><span class="sub" id="wkTxt"></span>
+                </div>
+                <div style="display:flex;align-items:baseline;gap:8px;margin:12px 0 8px">
+                    <span style="font-size:34px;font-weight:800" id="curW">80.0</span><span class="sub">กก.</span>
+                    <span style="margin-left:auto" class="tag" id="delta">-0.0 กก.</span>
+                </div>
+                <div class="bar"><i id="wBar"></i></div>
+                <div class="row sub" style="margin-top:7px"><span>เริ่ม 80.0</span><span>เป้า 72.0 กก.</span></div>
+            </div>
+
+            <div class="g3">
+                <div class="stat">
+                    <div class="v" id="sBF">27.1%</div>
+                    <div class="l">ไขมัน</div>
+                </div>
+                <div class="stat">
+                    <div class="v" id="sPain">–</div>
+                    <div class="l">ปวดหลังวันนี้</div>
+                </div>
+                <div class="stat">
+                    <div class="v" id="sSync">📴</div>
+                    <div class="l">คลาวด์</div>
+                </div>
+            </div>
+
+            <div class="card" id="dailyTracker" style="margin-top:12px"></div>
+
+            <label class="sw"><input type="checkbox" id="bsMode" onchange="toggleBS()">
+                <span><b style="font-size:14px">โหมดหลังปลอดภัย</b>
+                    <div class="sub">สลับท่าเสี่ยงหลังล่างอัตโนมัติ — เปิดไว้จนกว่าจะหายปวด 2 สัปดาห์ติด</div>
+                </span></label>
+
+            <h2>🔥 วันนี้</h2>
+            <div id="todayBox"></div>
+            <h2>📅 สัปดาห์นี้</h2>
+            <div id="weekBox"></div>
+
+            <div class="card">
+                <h3>💚 โซนหัวใจ</h3>
+                <table style="margin-top:8px">
+                    <tr>
+                        <th>โซน</th>
+                        <th>bpm</th>
+                        <th>ใช้ตอน</th>
+                    </tr>
+                    <tr>
+                        <td>Zone 2</td>
+                        <td><b>130-144</b></td>
+                        <td>คาร์ดิโอเผาไขมัน</td>
+                    </tr>
+                    <tr>
+                        <td>Zone 3</td>
+                        <td>144-158</td>
+                        <td>Tempo / เซอร์กิต</td>
+                    </tr>
+                    <tr>
+                        <td>Zone 4</td>
+                        <td><b>158-172</b></td>
+                        <td>HIIT</td>
+                    </tr>
+                </table>
+                <div class="sub" style="margin-top:9px">RHR 47 • HRV 78 ms — เช้าไหน HRV &lt; 62 ms หรือปวดหลัง ≥ 5
+                    ให้สลับเป็นวัน Recovery</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= PROGRAM ================= -->
+    <div class="page" id="p-prog">
+        <div class="wrap">
+            <h1>โปรแกรม 22 สัปดาห์</h1>
+            <div class="sub" style="margin-bottom:14px">ทุกเซสชันมี Warm-up 9 นาที + Cool-down 8 นาที อัตโนมัติ</div>
+            <div id="phaseList"></div>
+            <h2>🏋️ รายละเอียดแต่ละวัน</h2>
+            <div class="chips" id="wSel"></div>
+            <div id="wDetail"></div>
+        </div>
+    </div>
+
+    <!-- ================= STATS ================= -->
+    <div class="page" id="p-stat">
+        <div class="wrap">
+            <h1>สถิติ</h1>
+            <div class="card" style="margin-top:12px">
+                <h3>เช็กอินประจำวัน</h3>
+                <div class="g2" style="margin-top:10px">
+                    <input id="inW" type="number" step="0.1" placeholder="น้ำหนัก (กก.)">
+                    <input id="inBF" type="number" step="0.1" placeholder="ไขมัน %">
+                    <input id="inHRV" type="number" placeholder="HRV (ms)">
+                    <input id="inPain" type="number" min="0" max="10" placeholder="ปวดหลัง 0-10">
+                    <input id="inCal" type="number" placeholder="แคลอรี่ (kcal)">
+                    <input id="inProtein" type="number" placeholder="โปรตีน (กรัม)">
+                    <input id="inWater" type="number" min="0" max="20" placeholder="น้ำ (แก้ว)">
+                </div>
+                <button class="btn" style="margin-top:10px" onclick="addCheck()">บันทึก</button>
+            </div>
+            <div class="card">
+                <h3>น้ำหนัก</h3>
+                <div id="chart" style="margin-top:10px"></div>
+            </div>
+            <div class="card">
+                <h3>แนวโน้มอาการปวดหลัง</h3>
+                <div id="painChart" style="margin-top:10px"></div>
+            </div>
+            <div class="card">
+                <h3>แคลอรี่ต่อวัน</h3>
+                <div id="calChart" style="margin-top:10px"></div>
+            </div>
+            <div class="g2">
+                <div class="stat">
+                    <div class="v" id="stDone">0</div>
+                    <div class="l">เซสชันสำเร็จ</div>
+                </div>
+                <div class="stat">
+                    <div class="v" id="stKcal">0</div>
+                    <div class="l">kcal รวม</div>
+                </div>
+            </div>
+            <div class="card">
+                <h3>ประวัติการฝึก</h3>
+                <div id="log" style="margin-top:8px"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= SYNC ================= -->
+    <div class="page" id="p-sync">
+        <div class="wrap">
+            <h1>ซิงก์ข้อมูล</h1>
+            <div class="sub" style="margin:6px 0 14px">ตั้งค่าครั้งเดียว แล้วใช้รหัสเดิมบนเครื่องอื่นได้ทันที</div>
+            <div class="card">
+                <h3>1. เชื่อมต่อฐานข้อมูล</h3>
+                <div style="display:grid;gap:9px;margin-top:10px">
+                    <input id="sbUrl" placeholder="Supabase Project URL">
+                    <input id="sbKey" placeholder="anon public key">
+                    <button class="btn g sm" onclick="saveCfg()">บันทึกการตั้งค่า</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3>2. รหัสส่วนตัว</h3>
+                <div class="sub" style="margin:6px 0 10px">คือกุญแจของข้อมูลคุณ — จดเก็บไว้ให้ดี</div>
+                <input id="sbCode" placeholder="เช่น fit-a8k2n9x4">
+                <div class="g2" style="margin-top:9px">
+                    <button class="btn v sm" onclick="newCode()">สร้างรหัสใหม่</button>
+                    <button class="btn b sm" onclick="copyCode()">คัดลอกรหัส</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3>3. ซิงก์</h3>
+                <div class="g2" style="margin-top:10px">
+                    <button class="btn sm" onclick="syncNow()">⇅ ซิงก์ตอนนี้</button>
+                    <button class="btn g sm" onclick="pullOnly()">⬇ ดึงข้อมูล (เครื่องใหม่)</button>
+                </div>
+                <div class="sub" id="syncMsg" style="margin-top:10px">ยังไม่ได้เชื่อมต่อ</div>
+            </div>
+            <div class="card">
+                <h3>ข้อมูลในเครื่อง</h3>
+                <div class="sub" style="margin-top:6px" id="localInfo"></div>
+                <div class="g2" style="margin-top:10px">
+                    <button class="btn g sm" onclick="exportJSON()">ส่งออกไฟล์สำรอง</button>
+                    <button class="btn g sm"
+                        onclick="if(confirm('ล้างข้อมูลในเครื่อง? (คลาวด์ยังอยู่)')){localStorage.removeItem('fit');location.reload()}">ล้างเครื่องนี้</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= PLAYER ================= -->
+    <div id="pl">
+        <div class="plhd">
+            <span id="plPhase" class="tag">WARM-UP</span>
+            <span id="plProg">1/1</span>
+            <button onclick="quitW()"
+                style="background:0;border:0;color:var(--red);font-size:13px;font-weight:700;font-family:inherit">ออก
+                ✕</button>
+        </div>
+        <div class="ring">
+            <svg viewBox="0 0 240 240">
+                <circle cx="120" cy="120" r="108" stroke="#1d2531" />
+                <circle cx="120" cy="120" r="108" id="arc" stroke="var(--acc)" stroke-dasharray="678.6"
+                    stroke-dashoffset="0" />
+            </svg>
+            <div style="text-align:center">
+                <div class="mode" id="plMode">พร้อม</div>
+                <div class="tim" id="plTime">00:00</div>
+                <div class="sub" id="plSet"></div>
+            </div>
+        </div>
+        <div class="exname" id="plEx">—</div>
+        <div id="plFig" style="display:flex;justify-content:center;margin:4px 0"></div>
+        <div class="sub" id="plTarget" style="text-align:center;font-weight:700;color:var(--acc)"></div>
+        <ul class="cue" id="plCue"></ul>
+        <div style="text-align:center;margin-top:6px"><a class="yt" id="plYt" target="_blank" rel="noopener">▶
+                ดูตัวอย่างท่านี้</a></div>
+        <div class="nx" id="plNext"></div>
+        <div class="ctrl">
+            <button class="btn g ic" onclick="prevStep()">⏮</button>
+            <button class="btn" id="plMain" onclick="togglePlay()">หยุดชั่วคราว</button>
+            <button class="btn g ic" onclick="nextStep(1)">⏭</button>
+        </div>
+        <button class="btn b" style="margin-top:8px" id="plAdd" onclick="addTime()">+20 วินาที</button>
+    </div>
+
+    <nav>
+        <button class="on" data-p="home"><b>🏠</b>หน้าหลัก</button>
+        <button data-p="prog"><b>📋</b>โปรแกรม</button>
+        <button data-p="stat"><b>📈</b>สถิติ</button>
+        <button data-p="sync"><b>☁️</b>ซิงก์</button>
+    </nav>
+
+    <!-- ================= EXERCISE MODAL ================= -->
+    <div class="modal-overlay" id="exModal" onclick="if(event.target===this)closeExModal()">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeExModal()">✕</button>
+            <div class="modal-fig" id="exModalFig"></div>
+            <div class="modal-name" id="exModalName"></div>
+            <div class="modal-eq" id="exModalEq"></div>
+            <ul class="modal-cue" id="exModalCue"></ul>
+            <a class="modal-yt" id="exModalYt" target="_blank" rel="noopener">▶ ดูวิดีโอ YouTube</a>
+        </div>
+    </div>
+
+    <script>
+        /* ============ EXERCISE DB ============ */
+        const EX = {
+            /* ---------- WARM-UP (เน้นหลัง/คนนั่งนาน) ---------- */
+            w_walk: { n: 'เดินอุ่นเครื่อง', eq: 'ลู่วิ่ง • ชัน 2%', cue: ['5.5 km/h ชัน 2% ให้เลือดไปเลี้ยงกล้ามเนื้อ', 'แกว่งแขนเต็มช่วง เปิดหัวไหล่', 'เป้าหมาย HR 105-120 bpm'], yt: 'treadmill warm up walk' },
+            w_cat: { n: 'Cat-Cow', eq: 'พื้น', cue: ['คุกเข่า 4 จุด มือใต้ไหล่ เข่าใต้สะโพก', 'หายใจออก+โก่งหลังขึ้น → หายใจเข้า+แอ่นลง', 'เคลื่อนไหวทีละข้อกระดูก ช้าๆ 8-10 รอบ', 'ท่านี้ปลุกน้ำหล่อเลี้ยงหมอนรองกระดูก'], yt: 'cat cow stretch spine' },
+            w_thor: { n: 'Thoracic Extension (พาดเก้าอี้)', eq: 'เก้าอี้', cue: ['คุกเข่า วางศอกบนเบาะเก้าอี้ มือประกบกัน', 'ดันหน้าอกลงพื้น ก้นค้างอยู่เหนือส้นเท้า', 'รู้สึกยืดที่หลังส่วนบน ไม่ใช่หลังล่าง', 'คลายท่าค้อมหน้าคอมโดยตรง'], yt: 'thoracic extension chair stretch' },
+            w_9090: { n: '90/90 Hip Switch', eq: 'พื้น', cue: ['นั่งพื้น เข่าหน้า 90° เข่าหลัง 90°', 'สลับข้างโดยหมุนสะโพก อกตั้งตรง', 'ห้ามใช้มือช่วยดัน ใช้แรงสะโพกล้วน', '8 ครั้ง/ข้าง ช้าๆ'], yt: '90 90 hip switch mobility' },
+            w_hipflex: { n: 'Kneeling Hip Flexor Stretch', eq: 'พื้น', cue: ['คุกเข่าข้างเดียว เท้าหน้าตั้ง 90°', 'เก็บก้น (posterior tilt) แล้วดันสะโพกไปหน้า', 'ยกแขนข้างเดียวกับเข่าที่คุกขึ้นเหนือหัว', 'นี่คือท่าสำคัญที่สุดสำหรับคนนั่งนาน'], yt: 'kneeling hip flexor stretch', side: 1 },
+            w_bridge: { n: 'Glute Bridge', eq: 'พื้น', cue: ['นอนหงาย ชันเข่า เท้าห่างเท่าสะโพก', 'ดันสะโพกขึ้นด้วยการ "บีบก้น" ไม่ใช่แอ่นหลัง', 'ค้างบนสุด 2 วินาที ลงช้า 15 ครั้ง', 'ปลุกกล้ามเนื้อก้นที่หลับจากการนั่ง'], yt: 'glute bridge form' },
+            w_bird: { n: 'Bird Dog (McGill Big 3)', eq: 'พื้น', cue: ['ท่า 4 จุด เหยียดแขนขวา + ขาซ้ายพร้อมกัน', 'ลำตัวนิ่งสนิท วางแก้วน้ำบนหลังไม่ให้หก', 'ค้าง 6 วินาที/ครั้ง 8 ครั้ง/ข้าง', 'สร้างความมั่นคงหลังล่างก่อนยกน้ำหนัก'], yt: 'bird dog exercise mcgill', side: 1 },
+            w_deadbug: { n: 'Dead Bug (McGill Big 3)', eq: 'พื้น', cue: ['นอนหงาย แขนชี้เพดาน เข่างอ 90°', 'กดหลังล่างแนบพื้นตลอด ห้ามมีช่องว่าง', 'เหยียดแขน+ขาตรงข้ามช้าๆ 8 ครั้ง/ข้าง'], yt: 'dead bug exercise' },
+            w_side: { n: 'Side Plank (McGill Big 3)', eq: 'พื้น', cue: ['ตะแคง ศอกใต้ไหล่ เข่างอ (ระดับง่าย) หรือขาเหยียด', 'ดันสะโพกขึ้นเป็นเส้นตรง บีบก้น', 'ค้าง 20-30 วินาที/ข้าง', 'ฝึกกล้ามเนื้อข้างลำตัวที่พยุงหลัง'], yt: 'side plank form', side: 1 },
+            w_wall: { n: 'Wall Slide + Chin Tuck', eq: 'ผนัง', cue: ['ยืนพิงผนัง หลังล่างแนบ ศอกและหลังมือแตะผนัง', 'เลื่อนแขนขึ้น-ลงโดยไม่ให้หลุดจากผนัง 12 ครั้ง', 'จบด้วยเก็บคาง (ดันท้ายทอยไปหลัง) ค้าง 5 วิ × 8', 'แก้ท่าไหล่ห่อ-คอยื่นจากจอคอม'], yt: 'wall slide scapular exercise' },
+            /* ---------- COOL-DOWN ---------- */
+            c_walk: { n: 'เดินคูลดาวน์', eq: 'ลู่วิ่ง', cue: ['4.5 km/h ไม่มีความชัน', 'หายใจเข้าจมูก 4 จังหวะ ออก 6 จังหวะ', 'ให้ HR ค่อยๆ ลงต่ำกว่า 110 bpm'], yt: 'cool down walk' },
+            c_child: { n: "Child's Pose + เอื้อมข้าง", eq: 'พื้น', cue: ['นั่งทับส้นเท้า เหยียดแขนไปหน้าให้สุด', 'หายใจเข้าไปที่หลังส่วนล่างให้รู้สึกขยาย', 'เอื้อมแขนไปด้านซ้าย 20 วิ แล้วขวา 20 วิ'], yt: 'childs pose stretch' },
+            c_fig4: { n: 'Supine Figure-4 (ยืดสะโพก/ก้น)', eq: 'พื้น', cue: ['นอนหงาย ไขว้ข้อเท้าขวาบนเข่าซ้าย', 'ดึงต้นขาซ้ายเข้าหาอกจนตึงก้นขวา', 'ค้าง 40 วินาที หายใจลึก', 'กล้ามเนื้อก้นตึงคือสาเหตุปวดหลังอันดับต้นๆ'], yt: 'figure 4 piriformis stretch', side: 1 },
+            c_ham: { n: 'Hamstring Stretch (ใช้ผ้าขนหนู)', eq: 'ผ้าขนหนู', cue: ['นอนหงาย คล้องผ้าที่ฝ่าเท้า ยกขาขึ้นตรง', 'เข่างอเล็กน้อยได้ หลังล่างแนบพื้นเสมอ', 'ค้าง 40 วินาที/ข้าง', 'ต้นขาหลังตึงจะดึงเชิงกรานทำให้หลังล่างเจ็บ'], yt: 'supine hamstring stretch strap', side: 1 },
+            c_hip: { n: 'Couch Stretch (สะโพกหน้า)', eq: 'เก้าอี้/ผนัง', cue: ['คุกเข่า วางหลังเท้าพาดเก้าอี้ด้านหลัง', 'เก็บก้นแล้วดันสะโพกไปหน้า อกตั้งตรง', 'ค้าง 45 วินาที/ข้าง หายใจช้า'], yt: 'couch stretch hip flexor', side: 1 },
+            c_thread: { n: 'Thread the Needle', eq: 'พื้น', cue: ['ท่า 4 จุด สอดแขนขวาลอดใต้ลำตัวไปทางซ้าย', 'วางไหล่และแก้มขวาลงพื้น', 'ค้าง 30 วินาที/ข้าง คลายหลังส่วนอก'], yt: 'thread the needle stretch', side: 1 },
+            c_door: { n: 'Doorway Chest Stretch', eq: 'กรอบประตู', cue: ['วางแขนบนกรอบประตู ศอก 90° ระดับไหล่', 'ก้าวขาไปหน้า 1 ก้าว เปิดหน้าอก', 'ค้าง 40 วินาที/ข้าง แก้ไหล่ห่อ'], yt: 'doorway pec stretch', side: 1 },
+            c_twist: { n: 'Supine Spinal Twist (เบามาก)', eq: 'พื้น', cue: ['นอนหงาย ดึงเข่าขวาข้ามไปทางซ้ายช้าๆ', 'ไหล่ทั้งสองข้างแนบพื้น หันหน้าไปทางขวา', 'ค้าง 40 วินาที ห้ามฝืนถ้ารู้สึกจี๊ด'], yt: 'supine spinal twist stretch', side: 1 },
+            c_legs: { n: 'Legs Up The Wall + หายใจ 4-7-8', eq: 'ผนัง', cue: ['นอนหงาย ยกขาพาดผนัง ก้นชิดผนัง', 'หายใจเข้า 4 วิ กลั้น 7 วิ ออก 8 วิ', 'ทำ 8-10 รอบ ลดแรงกดหมอนรองกระดูก', 'ช่วยดึง HRV กลับขึ้นเร็วขึ้นหลังฝึกหนัก'], yt: 'legs up the wall pose' },
+            /* ---------- MAIN ---------- */
+            goblet: { n: 'Goblet Squat', eq: 'เคทเทิลบอล 8 กก.', cue: ['ถือเคทเทิลบอลชิดอก ศอกชี้ลง', 'เท้ากว้างเท่าไหล่ ปลายเท้าเฉียง 15°', 'ย่อลงจนต้นขาขนานพื้น อกเปิด หลังตรง', 'ดันส้นเท้า บีบก้นบนสุด'], yt: 'goblet squat form' },
+            rdl: { n: 'DB Romanian Deadlift', eq: 'ดัมเบล 10 กก.×2', cue: ['ดัมเบลชิดต้นขา เข่างอเล็กน้อยค้างไว้', 'ดันสะโพกไปหลัง ไม่ใช่ก้มหลัง', 'หยุดที่กลางหน้าแข้ง หลังตรงเป็นไม้บรรทัด', 'ถ้ารู้สึกตึงหลังล่างแทนต้นขาหลัง = ฟอร์มผิด'], yt: 'dumbbell romanian deadlift form' },
+            thrust: { n: 'DB Hip Thrust', eq: 'ดัมเบล + เก้าอี้', cue: ['พิงสะบักบนขอบเก้าอี้ วางดัมเบลบนสะโพก', 'เก็บคาง เก็บซี่โครง ดันขึ้นด้วยการบีบก้น', 'ค้างบนสุด 2 วินาที ห้ามแอ่นหลัง', 'ปลอดภัยต่อหลังล่างที่สุดในบรรดาท่าก้น'], yt: 'dumbbell hip thrust form' },
+            bmarch: { n: 'Glute Bridge March', eq: 'พื้น', cue: ['ยกสะพานก้นค้างไว้', 'ยกเข่าสลับข้างช้าๆ สะโพกไม่บิดตก', '10 ครั้ง/ข้าง ควบคุมทุกจังหวะ'], yt: 'glute bridge march' },
+            bench: { n: 'DB Bench Press', eq: 'ดัมเบล + เก้าอี้', cue: ['นอนบนเก้าอี้ เท้าแนบพื้น บีบสะบัก', 'ลงช้า 3 วินาที ศอก 45° กับลำตัว', 'ดันขึ้นจนแขนเกือบตรง ไม่ล็อกศอก'], yt: 'dumbbell bench press form' },
+            bss: { n: 'Bulgarian Split Squat', eq: 'ดัมเบล + เก้าอี้', cue: ['วางหลังเท้าบนเก้าอี้ เท้าหน้าห่าง 60-70 ซม.', 'ย่อลงตรงๆ เข่าหลังเกือบแตะพื้น', 'เอนลำตัวหน้าเล็กน้อยเพื่อเน้นก้น'], yt: 'bulgarian split squat form', side: 1 },
+            press: { n: 'DB Shoulder Press (นั่ง)', eq: 'ดัมเบล + เก้าอี้', cue: ['นั่งพิงพนัก เกร็งแกนกลาง เก็บซี่โครง', 'ดัมเบลระดับหู ดันขึ้นเหนือศีรษะ', 'ห้ามแอ่นหลังเพื่อดันน้ำหนัก'], yt: 'seated dumbbell shoulder press' },
+            row: { n: 'One-Arm DB Row', eq: 'ดัมเบล + เก้าอี้', cue: ['เข่าและมือวางบนเก้าอี้ หลังขนานพื้น', 'ดึงดัมเบลเข้าหาสะโพก ศอกชิดลำตัว', 'บีบสะบักค้าง 1 วินาที'], yt: 'one arm dumbbell row', side: 1 },
+            csrow: { n: 'Chest-Supported Row', eq: 'ดัมเบล + เก้าอี้เอียง', cue: ['นอนคว่ำอกบนพนักเก้าอี้เอียง 45°', 'ดึงดัมเบลขึ้นพร้อมบีบสะบัก', 'หลังไม่ต้องรับภาระเลย — เหมาะกับคนปวดหลัง'], yt: 'chest supported dumbbell row' },
+            pullover: { n: 'DB Pullover', eq: 'ดัมเบล 1 ตัว + เก้าอี้', cue: ['นอนหงาย ถือดัมเบล 2 มือเหนืออก', 'ลดลงหลังศีรษะจนตึง หลังล่างแนบเบาะ', 'ดึงกลับด้วยกล้ามเนื้อหลัง'], yt: 'dumbbell pullover form' },
+            curl: { n: 'DB Hammer Curl', eq: 'ดัมเบล 10 กก.×2', cue: ['ฝ่ามือหันเข้าหากันตลอด', 'ศอกล็อกข้างลำตัว ไม่แกว่งตัวช่วย', 'ลงช้า 3 วินาที'], yt: 'hammer curl form' },
+            lat: { n: 'DB Lateral Raise', eq: 'ดัมเบล (เบา/ครึ่งช่วง)', cue: ['ยกออกข้างถึงระดับไหล่', 'ศอกงอเล็กน้อย ลงช้ามาก 3-4 วินาที'], yt: 'lateral raise form' },
+            swing: { n: 'Kettlebell Swing', eq: 'เคทเทิลบอล 8 กก.', cue: ['Hip hinge ไม่ใช่ squat — ดีดด้วยสะโพก', 'เคทเทิลบอลลอยถึงระดับอกด้วยแรงสะโพก', 'บีบก้นสุดตอนยืนตรง หลังตรงตลอด', 'ถ้าปวดหลังอยู่ ให้ข้ามไปใช้โหมดหลังปลอดภัย'], yt: 'kettlebell swing hardstyle' },
+            thruster: { n: 'DB Thruster', eq: 'ดัมเบล 10 กก.×2', cue: ['ดัมเบลระดับไหล่ → ย่อสควอท', 'ยืนขึ้นแล้วดันเหนือหัวเป็นจังหวะเดียว', 'ท่าเผาผลาญสูงสุดของโปรแกรม'], yt: 'dumbbell thruster form' },
+            pushup: { n: 'Push-Up', eq: 'ไม่ใช้อุปกรณ์', cue: ['มือกว้างกว่าไหล่เล็กน้อย ลำตัวตรง บีบก้น', 'ลงจนอกเกือบแตะพื้น', 'หนักเกินให้ยันมือบนเก้าอี้'], yt: 'push up proper form' },
+            wheel: { n: 'Ab Wheel Rollout', eq: 'ลูกกลิ้งออกกำลัง', cue: ['คุกเข่าบนผ้าขนหนู เกร็งหน้าท้องก่อนออกตัว', 'กลิ้งออกเท่าที่หลังไม่แอ่นเด็ดขาด', 'ดึงกลับด้วยหน้าท้อง ไม่ใช่แขน'], yt: 'ab wheel rollout beginner' },
+            plank: { n: 'Plank', eq: 'ไม่ใช้อุปกรณ์', cue: ['ศอกใต้ไหล่ ลำตัวเป็นเส้นตรง', 'บีบก้น+หน้าท้อง สะโพกไม่ตก', 'หายใจสม่ำเสมอ ห้ามกลั้น'], yt: 'plank proper form' },
+            mtn: { n: 'Mountain Climber', eq: 'ไม่ใช้อุปกรณ์', cue: ['ท่าแพลงก์มือเหยียด สะโพกไม่ยกสูง', 'ดึงเข่าเข้าอกสลับเร็ว หลังไม่แอ่น'], yt: 'mountain climbers form' },
+            z2: { n: 'วิ่ง/เดินเร็ว Zone 2', eq: 'ลู่วิ่ง', cue: ['คุมชีพจร 130-144 bpm ตลอด', 'เกินให้ลดความเร็ว/ความชันทันที', 'ควรพูดเป็นประโยคได้แต่ร้องเพลงไม่ได้', 'ชัน 2-4% ลดแรงกระแทกเข่าและหลัง'], yt: 'zone 2 training treadmill' },
+            hiitR: { n: 'Interval — เร่ง', eq: 'ลู่วิ่ง', cue: ['เร่งจน HR แตะ 158-172 bpm', 'ก้าวสั้นถี่ ลำตัวตั้ง ไม่ก้มหลัง'], yt: 'treadmill hiit intervals' },
+            hiitW: { n: 'Interval — เดินฟื้นตัว', eq: 'ลู่วิ่ง', cue: ['เดิน 4.5-5 km/h ให้ HR ลงต่ำกว่า 140', 'เดินต่อเนื่อง อย่าหยุดนิ่ง'], yt: 'active recovery walking' },
+            hula: { n: 'ฮูล่าฮูป', eq: 'ฮูล่าฮูป', cue: ['ดันสะโพกหน้า-หลัง ไม่ใช่หมุนวน', 'สลับทิศทุก 2 นาที', 'ถ้าปวดหลังเพิ่มขึ้นให้หยุดทันที'], yt: 'hula hoop workout' },
+            walk: { n: 'เดินฟื้นตัว', eq: 'ลู่วิ่ง/นอกบ้าน', cue: ['ชีพจร 100-120 bpm', 'เพิ่ม NEAT โดยไม่กระทบการฟื้นตัว'], yt: 'recovery walk' }
+        };
+
+        /* ============ WARM-UP / COOL-DOWN BLOCKS ============ */
+        const WARM_FULL = [
+            { e: 'w_walk', sets: 1, type: 'time', t: 180, after: 10 },
+            { e: 'w_cat', sets: 1, type: 'time', t: 60, after: 10 },
+            { e: 'w_thor', sets: 1, type: 'time', t: 60, after: 10 },
+            { e: 'w_9090', sets: 1, type: 'time', t: 60, after: 10 },
+            { e: 'w_hipflex', sets: 1, type: 'time', t: 40, after: 10 },
+            { e: 'w_bridge', sets: 1, type: 'reps', r: '15 ครั้ง', after: 10 },
+            { e: 'w_bird', sets: 1, type: 'reps', r: '8 ครั้ง/ข้าง', after: 10 },
+            { e: 'w_deadbug', sets: 1, type: 'reps', r: '8 ครั้ง/ข้าง', after: 10 },
+            { e: 'w_side', sets: 1, type: 'time', t: 25, after: 10 },
+            { e: 'w_wall', sets: 1, type: 'reps', r: '12 + เก็บคาง 8', after: 45 }
+        ];
+        const WARM_LITE = [
+            { e: 'w_walk', sets: 1, type: 'time', t: 240, after: 10 },
+            { e: 'w_cat', sets: 1, type: 'time', t: 45, after: 10 },
+            { e: 'w_hipflex', sets: 1, type: 'time', t: 35, after: 10 },
+            { e: 'w_bridge', sets: 1, type: 'reps', r: '15 ครั้ง', after: 10 },
+            { e: 'w_deadbug', sets: 1, type: 'reps', r: '8 ครั้ง/ข้าง', after: 30 }
+        ];
+        const COOL = [
+            { e: 'c_walk', sets: 1, type: 'time', t: 180, after: 10 },
+            { e: 'c_child', sets: 1, type: 'time', t: 60, after: 10 },
+            { e: 'c_fig4', sets: 1, type: 'time', t: 40, after: 10 },
+            { e: 'c_ham', sets: 1, type: 'time', t: 40, after: 10 },
+            { e: 'c_hip', sets: 1, type: 'time', t: 45, after: 10 },
+            { e: 'c_thread', sets: 1, type: 'time', t: 30, after: 10 },
+            { e: 'c_door', sets: 1, type: 'time', t: 40, after: 10 },
+            { e: 'c_twist', sets: 1, type: 'time', t: 40, after: 10 },
+            { e: 'c_legs', sets: 1, type: 'time', t: 180, after: 0 }
+        ];
+        /* โหมดหลังปลอดภัย: ท่าเดิม -> ท่าแทน */
+        const SAFE = { rdl: 'thrust', swing: 'bmarch', wheel: 'w_deadbug', row: 'csrow' };
+
+        /* ============ WORKOUTS (ส่วนหลักเท่านั้น) ============ */
+        const W = {
+            A: {
+                n: 'Strength A — ขา + ดัน', ic: '🦵', warm: 'full', kcal: 400, items: [
+                    { e: 'goblet', sets: 4, type: 'reps', r: '12 ครั้ง', rest: 60, after: 90, log: 1 },
+                    { e: 'rdl', sets: 4, type: 'reps', r: '12 ครั้ง', rest: 60, after: 90, log: 1 },
+                    { e: 'bench', sets: 3, type: 'reps', r: '12 ครั้ง', rest: 60, after: 90, log: 1 },
+                    { e: 'bss', sets: 3, type: 'reps', r: '10 ครั้ง/ข้าง', rest: 60, after: 90, log: 1 },
+                    { e: 'press', sets: 3, type: 'reps', r: '12 ครั้ง', rest: 60, after: 75, log: 1 },
+                    { e: 'wheel', sets: 3, type: 'reps', r: '8 ครั้ง', rest: 45, after: 60 },
+                    { e: 'plank', sets: 3, type: 'time', t: 40, rest: 40, after: 60 },
+                    { e: 'z2', sets: 1, type: 'time', t: 900, after: 30 }]
+            },
+            B: {
+                n: 'Strength B — หลัง + ดึง', ic: '💪', warm: 'full', kcal: 380, items: [
+                    { e: 'row', sets: 4, type: 'reps', r: '12 ครั้ง/ข้าง', rest: 60, after: 90, log: 1 },
+                    { e: 'csrow', sets: 3, type: 'reps', r: '12 ครั้ง', rest: 60, after: 90, log: 1 },
+                    { e: 'pullover', sets: 3, type: 'reps', r: '12 ครั้ง', rest: 60, after: 75, log: 1 },
+                    { e: 'curl', sets: 3, type: 'reps', r: '12 ครั้ง', rest: 45, after: 60, log: 1 },
+                    { e: 'lat', sets: 3, type: 'reps', r: '15 ครั้ง', rest: 45, after: 75, log: 1 },
+                    { e: 'swing', sets: 4, type: 'time', t: 30, rest: 45, after: 60 },
+                    { e: 'w_deadbug', sets: 3, type: 'reps', r: '10 ครั้ง/ข้าง', rest: 40, after: 60 },
+                    { e: 'hula', sets: 2, type: 'time', t: 300, rest: 60, after: 30 }]
+            },
+            C: {
+                n: 'Metabolic Circuit', ic: '⚡', warm: 'full', kcal: 440, items: [
+                    { e: 'swing', sets: 4, type: 'time', t: 40, rest: 20, after: 20 },
+                    { e: 'goblet', sets: 4, type: 'time', t: 40, rest: 20, after: 20 },
+                    { e: 'pushup', sets: 4, type: 'time', t: 40, rest: 20, after: 20 },
+                    { e: 'thruster', sets: 4, type: 'time', t: 40, rest: 20, after: 20 },
+                    { e: 'mtn', sets: 4, type: 'time', t: 40, rest: 90, after: 90 },
+                    { e: 'plank', sets: 3, type: 'time', t: 45, rest: 40, after: 45 }]
+            },
+            Z: {
+                n: 'Cardio Zone 2', ic: '🏃', warm: 'lite', kcal: 420, items: [
+                    { e: 'z2', sets: 1, type: 'time', t: 2100, after: 60 },
+                    { e: 'w_side', sets: 3, type: 'time', t: 30, rest: 30, after: 45 },
+                    { e: 'plank', sets: 3, type: 'time', t: 45, rest: 40, after: 45 }]
+            },
+            H: { n: 'HIIT Intervals', ic: '🔥', warm: 'lite', kcal: 400, items: (() => { const a = []; for (let i = 0; i < 8; i++) { a.push({ e: 'hiitR', sets: 1, type: 'time', t: 60, after: 0 }); a.push({ e: 'hiitW', sets: 1, type: 'time', t: 90, after: i === 7 ? 30 : 0 }) } return a })() },
+            R: {
+                n: 'Active Recovery', ic: '🧘', warm: 'lite', kcal: 200, items: [
+                    { e: 'walk', sets: 1, type: 'time', t: 1500, after: 60 },
+                    { e: 'hula', sets: 2, type: 'time', t: 300, rest: 60, after: 60 }]
+            }
+        };
+        const SCHED = ['R', 'A', 'Z', 'B', 'R', 'C', 'H'];
+        const DN = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+        const PHASES = [
+            { w: '1-4', n: 'Phase 1 · Foundation', d: 'ปรับตัว เรียนฟอร์ม + ฟื้นฟูหลังด้วย McGill Big 3 ทุกวัน', v: 'พัก 60-75 วิ • Z2 30 นาที', tgt: '-1.6 กก.' },
+            { w: '5-8', n: 'Phase 2 · Build', d: 'เพิ่มปริมาณ 15% เริ่มอินเทอร์วัลจริงจัง', v: '+1 เซ็ตท่าหลัก • HIIT 8 รอบ', tgt: '-1.5 กก.' },
+            { w: '9-13', n: 'Phase 3 · Metabolic', d: 'ลดเวลาพัก เพิ่มความหนาแน่นการฝึก', v: 'พัก 45 วิ • เซอร์กิต 5 รอบ', tgt: '-1.5 กก.' },
+            { w: '14-18', n: 'Phase 4 · Intensify', d: 'เพิ่ม tempo ลงช้า 3 วินาที ชดเชยดัมเบลจำกัด 10 กก.', v: 'Tempo 3-1-1 • Z2 45 นาที', tgt: '-1.5 กก.' },
+            { w: '19-22', n: 'Phase 5 · Peak Cut', d: 'เร่งขั้นสุดท้าย + เดิน 10,000 ก้าว/วัน', v: 'Drop set • คาร์ดิโอ 6 วัน', tgt: '-1.9 กก.' }
+        ];
+
+        /* ============ STATE ============ */
+        const D = JSON.parse(localStorage.getItem('fit') || 'null') || { start: iso(), bs: false, checks: [{ d: iso(), w: 80, bf: 27.1, hrv: 78, pain: null }], sessions: [], sets: [], cfg: { url: '', key: '', code: '' } };
+        D.cfg = D.cfg || { url: '', key: '', code: '' };
+        const CAL_TARGET = 1800, PROTEIN_TARGET = 140, WATER_TARGET = 8, WEIGH_WARN_DAYS = 2;
+        function save() { localStorage.setItem('fit', JSON.stringify(D)) }
+        function iso() { return new Date().toISOString().slice(0, 10) }
+        function wkNo() { return Math.min(22, Math.floor((new Date(iso()) - new Date(D.start)) / 864e5 / 7) + 1) }
+        function phIdx() { const w = wkNo(); return w <= 4 ? 0 : w <= 8 ? 1 : w <= 13 ? 2 : w <= 18 ? 3 : 4 }
+        function fmt(s) { s = Math.max(0, Math.round(s)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0') }
+        function exOf(k) { return (D.bs && SAFE[k]) ? SAFE[k] : k }
+        function todayCheck() { return D.checks.find(x => x.d === iso()) || null }
+        function weighStreak() {
+            let streak = 0;
+            const today = new Date(iso());
+            for (let i = 0; i < 365; i++) {
+                const d = new Date(today); d.setDate(d.getDate() - i);
+                const ds = d.toISOString().slice(0, 10);
+                if (D.checks.some(x => x.d === ds)) streak++; else break;
+            }
+            return streak;
+        }
+        function daysSinceWeigh() {
+            const sorted = D.checks.filter(x => x.w).sort((a, b) => b.d.localeCompare(a.d));
+            if (!sorted.length) return 999;
+            return Math.floor((new Date(iso()) - new Date(sorted[0].d)) / 864e5);
+        }
+
+        /* ============ BUILD FULL SESSION ============ */
+        function fullItems(k) {
+            const w = W[k];
+            const warm = (w.warm === 'full' ? WARM_FULL : WARM_LITE).map(x => ({ ...x, ph: 'warm' }));
+            const main = w.items.map(x => ({ ...x, e: exOf(x.e), ph: 'main' }));
+            const cool = COOL.map(x => ({ ...x, ph: 'cool' }));
+            if (main.length) main[main.length - 1] = { ...main[main.length - 1], after: 60 };
+            return [...warm, ...main, ...cool];
+        }
+        function estMin(k) { let s = 0; fullItems(k).forEach(it => { const n = it.sets || 1; s += n * (it.t || 35) + (n - 1) * (it.rest || 0) + (it.after || 0) }); return Math.round(s / 60) }
+
+        /* ============ RENDER ============ */
+        function render() {
+            const last = D.checks[D.checks.length - 1];
+            document.getElementById('wkTxt').textContent = 'สัปดาห์ ' + wkNo() + '/22';
+            document.getElementById('phaseTag').textContent = PHASES[phIdx()].n.split(' · ')[0];
+            document.getElementById('hsub').textContent = PHASES[phIdx()].d;
+            document.getElementById('curW').textContent = (+last.w).toFixed(1);
+            document.getElementById('sBF').textContent = (last.bf || 27.1).toFixed(1) + '%';
+            document.getElementById('sPain').textContent = last.pain == null ? '–' : last.pain + '/10';
+            document.getElementById('sSync').textContent = D.cfg.url && D.cfg.code ? '☁️' : '📴';
+            const lost = 80 - last.w, dl = document.getElementById('delta');
+            dl.textContent = (lost >= 0 ? '-' : '+') + Math.abs(lost).toFixed(1) + ' กก.';
+            dl.className = 'tag' + (lost >= 0 ? '' : ' o');
+            document.getElementById('wBar').style.width = Math.max(2, Math.min(100, lost / 8 * 100)) + '%';
+            document.getElementById('bsMode').checked = !!D.bs;
+
+            /* --- Daily Tracker Card --- */
+            const tc = todayCheck();
+            const cal = tc?.cal || 0, pro = tc?.protein || 0, wat = tc?.water || 0;
+            const calPct = Math.min(100, cal / CAL_TARGET * 100);
+            const proPct = Math.min(100, pro / PROTEIN_TARGET * 100);
+            const watPct = Math.min(100, wat / WATER_TARGET * 100);
+            const calColor = cal > CAL_TARGET ? 'var(--red)' : cal > CAL_TARGET * 0.9 ? 'var(--warn)' : 'var(--acc)';
+            const streak = weighStreak(), daysAgo = daysSinceWeigh();
+            const lastW = D.checks.filter(x => x.w).sort((a, b) => b.d.localeCompare(a.d))[0];
+            let streakClass = '', streakIcon = '🔥';
+            if (daysAgo > WEIGH_WARN_DAYS) { streakClass = ' danger'; streakIcon = '⚠️' }
+            else if (daysAgo === WEIGH_WARN_DAYS) { streakClass = ' warn'; streakIcon = '⏰' }
+
+            document.getElementById('dailyTracker').innerHTML = `
+    <h3>📊 ติดตามประจำวัน</h3>
+    <div class="tracker-row"><div class="tracker-icon">🍽️</div>
+    <div class="tracker-bar"><i style="width:${calPct}%;background:${calColor}"></i></div>
+    <div class="tracker-val" style="color:${calColor}">${cal.toLocaleString()} / ${CAL_TARGET.toLocaleString()}</div></div>
+    <div class="tracker-row"><div class="tracker-icon">🥩</div>
+    <div class="tracker-bar"><i style="width:${proPct}%;background:var(--acc2)"></i></div>
+    <div class="tracker-val">${pro} / ${PROTEIN_TARGET} g</div></div>
+    <div class="tracker-row"><div class="tracker-icon">💧</div>
+    <div class="tracker-bar"><i style="width:${watPct}%;background:var(--vio)"></i></div>
+    <div class="tracker-val">${wat} / ${WATER_TARGET} แก้ว</div></div>
+    <div class="tracker-divider"></div>
+    <div class="row" style="margin:8px 0">
+    <div style="flex:1"><div style="font-size:13px;color:var(--dim)">⚖️ ชั่งน้ำหนัก</div>
+    <div style="font-size:12px;color:var(--dim);margin-top:2px">${lastW ? 'ล่าสุด: ' + lastW.d.slice(5) + ' (' + (+lastW.w).toFixed(1) + ' กก.)' : 'ยังไม่เคยชั่ง'}</div></div>
+    <span class="streak-badge${streakClass}">${streakIcon} ${daysAgo === 0 ? streak + ' วันติด' : 'ไม่ได้ชั่ง ' + daysAgo + ' วัน'}</span></div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+    <button class="qbtn" onclick="quickAdd('cal')">+ แคลอรี่</button>
+    <button class="qbtn" onclick="quickAdd('protein')">+ โปรตีน</button>
+    <button class="qbtn" onclick="quickAdd('water')">+ น้ำ 💧</button></div>`;
+
+            const dow = new Date().getDay(), tk = SCHED[dow], t = W[tk];
+            const done = D.sessions.some(s => s.date === iso());
+            document.getElementById('todayBox').innerHTML = `<div class="card" style="border-color:var(--acc)">
+    <div class="row"><div><h3>${t.ic} ${t.n}</h3>
+    <div class="sub">วัน${DN[dow]} • ~${estMin(tk)} นาที (รวมวอร์ม+คูลดาวน์) • ~${t.kcal} kcal</div></div>
+    ${done ? '<span class="tag">✓ เสร็จแล้ว</span>' : ''}</div>
+    <div style="margin-top:8px"><span class="tag o">🔥 Warm-up ${t.warm === 'full' ? '9' : '6'} นาที</span> <span class="tag v">🧊 Cool-down 8 นาที</span>${D.bs ? ' <span class="tag b">🛡 หลังปลอดภัย</span>' : ''}</div>
+    <button class="btn" style="margin-top:12px" onclick="startW('${tk}')">▶ เริ่มออกกำลังกาย</button>
+    <button class="btn g" style="margin-top:8px" onclick="showW('${tk}');go('prog')">ดูรายละเอียดท่า</button></div>`;
+
+            document.getElementById('weekBox').innerHTML = SCHED.map((k, i) => `
+    <div class="day ${i === dow ? 'today' : ''}" onclick="showW('${k}');go('prog')">
+      <div class="dot">${W[k].ic}</div>
+      <div style="flex:1"><h3 style="font-size:14px">${W[k].n}</h3><div class="sub">วัน${DN[i]} • ~${estMin(k)} นาที</div></div>
+      ${i === dow ? '<span class="tag">วันนี้</span>' : '<span class="sub">›</span>'}</div>`).join('');
+
+            document.getElementById('phaseList').innerHTML = PHASES.map((p, i) => `
+    <div class="card" style="${i === phIdx() ? 'border-color:var(--acc)' : ''}">
+      <div class="row"><h3>${p.n}</h3><span class="tag ${i === phIdx() ? '' : 'gr'}">สัปดาห์ ${p.w}</span></div>
+      <div class="sub" style="margin-top:6px">${p.d}</div>
+      <div class="sub" style="margin-top:8px;color:var(--acc)">⚙ ${p.v}</div>
+      <div class="sub">🎯 เป้าลด ${p.tgt}</div></div>`).join('');
+            document.getElementById('wSel').innerHTML = Object.keys(W).map(k =>
+                `<button data-w="${k}" onclick="showW('${k}')">${W[k].ic} ${W[k].n.split(' — ')[0]}</button>`).join('');
+
+            document.getElementById('stDone').textContent = D.sessions.length;
+            document.getElementById('stKcal').textContent = D.sessions.reduce((a, b) => a + (b.kcal || 0), 0).toLocaleString();
+            document.getElementById('log').innerHTML = D.sessions.length ? D.sessions.slice(-14).reverse().map(s =>
+                `<div class="row" style="padding:7px 0;border-bottom:1px solid var(--line)">
+     <span style="font-size:13px">${W[s.workout_key] ? W[s.workout_key].ic : '•'} ${s.workout_name}</span>
+     <span class="sub">${s.date.slice(5)} • ${s.kcal} kcal</span></div>`).join('') : '<div class="sub">ยังไม่มีบันทึก</div>';
+            document.getElementById('sbUrl').value = D.cfg.url; document.getElementById('sbKey').value = D.cfg.key; document.getElementById('sbCode').value = D.cfg.code;
+            document.getElementById('localInfo').textContent = `เช็กอิน ${D.checks.length} วัน • เซสชัน ${D.sessions.length} • เซ็ตที่บันทึก ${D.sets.length}`;
+            charts(); showW(document.querySelector('#wSel button.on')?.dataset.w || 'A');
+        }
+
+        function showW(k) {
+            document.querySelectorAll('#wSel button').forEach(b => b.classList.toggle('on', b.dataset.w === k));
+            const items = fullItems(k), lab = { warm: '🔥 WARM-UP · เตรียมหลังและสะโพก', main: '💪 ส่วนหลัก', cool: '🧊 COOL-DOWN · คลายและฟื้นฟู' };
+            let cur = '', h = '';
+            items.forEach((it,i)=>{
+                if(it.ph!==cur){cur=it.ph;h+=`<div class="sec">${lab[cur]}</div>`}
+                const e=EX[it.e];
+                h+=`<div class="exi"><div class="num" style="color:${cur==='main'?'var(--acc)':cur==='warm'?'var(--warn)':'var(--vio)'}">${i+1}</div>
+    ${fig(it.e,76)}
+    <div style="flex:1"><h3 style="font-size:14.5px">${e.n}</h3>
+    <div class="sub">${e.eq}</div>
+    <div style="margin-top:5px;font-size:12.5px;font-weight:700;color:var(--acc)">
+      ${it.sets>1?it.sets+' เซ็ต × ':''}${it.type==='time'?fmt(it.t):it.r}${e.side?' (ทั้ง 2 ข้าง)':''}${it.rest?' • พัก '+it.rest+' วิ':''}</div>
+    <ul class="cue">${e.cue.map(c=>'<li>'+c+'</li>').join('')}</ul>
+    <a class="yt" href="javascript:void(0)" onclick="showExModal('${it.e}')">▶ ดูตัวอย่างท่านี้</a>
+    </div></div>`;
+            });
+            document.getElementById('wDetail').innerHTML = `<div class="card">
+    <div class="row"><h3>${W[k].ic} ${W[k].n}</h3><span class="tag b">~${estMin(k)} นาที</span></div>${h}
+    <button class="btn" style="margin-top:14px" onclick="startW('${k}')">▶ เริ่มเลย</button></div>`;
+        }
+        function toggleBS() { D.bs = document.getElementById('bsMode').checked; save(); render() }
+
+        /* ============ PLAYER ============ */
+        let ST = [], idx = 0, left = 0, up = 0, tick = null, playing = false, curK = '', t0 = 0, lock = null;
+        function buildSteps(k) {
+            const items = fullItems(k), out = [];
+            items.forEach((it, ii) => {
+                const e = EX[it.e], last = ii === items.length - 1;
+                for (let s = 1; s <= (it.sets || 1); s++) {
+                    (e.side ? ['ขวา', 'ซ้าย'] : [null]).forEach((sd, si) => {
+                        out.push({
+                            k: 'work', ph: it.ph, e: it.e, name: e.n + (sd ? ' — ข้าง' + sd : ''), type: it.type, dur: it.t || 0,
+                            tgt: it.type === 'time' ? fmt(it.t) : it.r, set: s, sets: it.sets || 1, log: it.log
+                        });
+                        if (sd && si === 0) out.push({ k: 'rest', ph: it.ph, dur: 15, name: 'สลับข้าง', next: e.n });
+                    });
+                    if (s < (it.sets || 1)) out.push({ k: 'rest', ph: it.ph, dur: it.rest || 45, name: 'พักระหว่างเซ็ต', next: e.n });
+                }
+                if (!last && (it.after || 0) > 0) out.push({ k: 'rest', ph: it.ph, dur: it.after, name: 'พักก่อนท่าถัดไป', next: EX[items[ii + 1].e].n });
+            });
+            return out;
+        }
+        function startW(k) {
+            curK = k; ST = buildSteps(k); idx = 0; t0 = Date.now();
+            document.getElementById('pl').classList.add('on');
+            try { navigator.wakeLock && navigator.wakeLock.request('screen').then(l => lock = l) } catch (e) { }
+            loadStep(); playing = true; run();
+        }
+        const PHL = { warm: ['WARM-UP', 'var(--warn)'], main: ['ส่วนหลัก', 'var(--acc)'], cool: ['COOL-DOWN', 'var(--vio)'] };
+        function loadStep() {
+            const s = ST[idx]; if (!s) return finishW();
+            left = s.dur; up = 0;
+            const isW = s.k === 'work', rest = !isW, col = PHL[s.ph][1];
+            const tg = document.getElementById('plPhase'); tg.textContent = PHL[s.ph][0];
+            tg.className = 'tag ' + (s.ph === 'warm' ? 'o' : s.ph === 'cool' ? 'v' : '');
+            document.getElementById('plMode').textContent = rest ? 'พัก' : (s.type === 'reps' ? 'ทำให้ครบ' : 'ทำต่อเนื่อง');
+            document.getElementById('plMode').style.color = rest ? 'var(--dim)' : col;
+            document.getElementById('arc').setAttribute('stroke', rest ? '#4b5768' : col);
+            document.getElementById('plEx').textContent = s.name;
+            document.getElementById('plTarget').textContent = isW ? '🎯 ' + s.tgt : '';
+            document.getElementById('plSet').textContent = isW && s.sets > 1 ? `เซ็ต ${s.set}/${s.sets}` : '';
+            document.getElementById('plProg').textContent = (idx + 1) + '/' + ST.length;
+            const e = isW ? EX[s.e] : null, yt = document.getElementById('plYt');
+            document.getElementById('plCue').innerHTML = e ? e.cue.map(c => '<li>' + c + '</li>').join('') : '';
+            document.getElementById('plFig').innerHTML=e?fig(s.e,150):(s.next&&AMAP[Object.keys(EX).find(x=>EX[x].n===s.next)]?'':'');
+            document.getElementById('plFig').className=e?figClass(s.e):'';
+            yt.style.display = e ? 'inline' : 'none'; if (e) { yt.href = 'javascript:void(0)'; yt.onclick = function(){ showExModal(s.e) }; }
+            const nx = ST[idx + 1];
+            document.getElementById('plNext').textContent = nx ? 'ถัดไป: ' + (nx.k === 'rest' ? 'พัก ' + nx.dur + ' วิ' + (nx.next ? ' → ' + nx.next : '') : nx.name) : '🏁 ท่าสุดท้าย!';
+            document.getElementById('plAdd').style.display = rest ? 'block' : 'none';
+            document.getElementById('plMain').textContent = (isW && s.type === 'reps') ? '✓ เสร็จเซ็ตนี้' : 'หยุดชั่วคราว';
+            paint();
+        }
+        function paint() {
+            const s = ST[idx], C = 678.6;
+            if (s.k === 'work' && s.type === 'reps') { document.getElementById('plTime').textContent = fmt(up); document.getElementById('arc').style.strokeDashoffset = 0 }
+            else { document.getElementById('plTime').textContent = fmt(left); document.getElementById('arc').style.strokeDashoffset = C * (1 - (s.dur ? left / s.dur : 0)) }
+            document.getElementById('plTime').className = 'tim' + (left <= 3 && left > 0 && s.dur ? ' beat' : '');
+        }
+        function run() {
+            clearInterval(tick); tick = setInterval(() => {
+                if (!playing) return; const s = ST[idx];
+                if (s.k === 'work' && s.type === 'reps') { up++; paint(); return }
+                left--; if (left <= 3 && left > 0) beep(880, 90);
+                if (left <= 0) { beep(1320, 260); nextStep(); return } paint();
+            }, 1000)
+        }
+        function togglePlay() {
+            const s = ST[idx];
+            if (s.k === 'work' && s.type === 'reps') { logSet(s); nextStep(1); return }
+            playing = !playing; document.getElementById('plMain').textContent = playing ? 'หยุดชั่วคราว' : '▶ เล่นต่อ'
+        }
+        function logSet(s) {
+            if (!s.log) return;
+            const kg = prompt('น้ำหนักที่ใช้ ' + s.name + ' (กก.) — เว้นว่างได้', '10');
+            if (kg === null) return;
+            D.sets.push({
+                id: curSid() + '|' + s.e + '|' + s.set, session_id: curSid(), code: D.cfg.code || 'local',
+                exercise_key: s.e, exercise_name: EX[s.e].n, set_no: s.set, weight_kg: parseFloat(kg) || null, reps: parseInt(s.tgt) || null, seconds: null
+            });
+            save();
+        }
+        let _sid = ''; function curSid() { return _sid || (_sid = (D.cfg.code || 'local') + '|' + iso() + '|' + curK + '|' + Date.now()) }
+        function nextStep(m) { if (m) beep(1046, 120); idx++; idx >= ST.length ? finishW() : (loadStep(), playing = true, document.getElementById('plMain').textContent = 'หยุดชั่วคราว') }
+        function prevStep() { if (idx > 0) { idx--; loadStep(); playing = true } }
+        function addTime() { left += 20; ST[idx].dur += 20; paint() }
+        function quitW() { if (confirm('ออกจากการฝึก? ความคืบหน้าจะไม่ถูกบันทึก')) { clearInterval(tick); _sid = ''; document.getElementById('pl').classList.remove('on') } }
+        function finishW() {
+            clearInterval(tick); document.getElementById('pl').classList.remove('on'); lock && lock.release && lock.release();
+            const dur = Math.round((Date.now() - t0) / 1000);
+            const rpe = parseInt(prompt('เหนื่อยระดับไหน? (RPE 1-10)', '7')) || null;
+            const pain = parseInt(prompt('หลังเป็นยังไงหลังฝึก? (0=ไม่ปวดเลย, 10=ปวดมาก)', '2'));
+            D.sessions.push({
+                id: curSid(), code: D.cfg.code || 'local', date: iso(), workout_key: curK, workout_name: W[curK].n,
+                duration_sec: dur, kcal: W[curK].kcal, rpe, back_safe: !!D.bs, pain_after: isNaN(pain) ? null : pain
+            });
+            _sid = ''; save(); render(); autoSync();
+            beep(660, 150); setTimeout(() => beep(880, 150), 160); setTimeout(() => beep(1320, 300), 320);
+            alert('🎉 จบ ' + W[curK].n + '\nใช้เวลา ' + fmt(dur) + ' • ~' + W[curK].kcal + ' kcal\n\nโปรตีน 35-40 g ภายใน 90 นาที');
+        }
+        let ac; function beep(f, d) {
+            try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); const o = ac.createOscillator(), g = ac.createGain(); o.connect(g); g.connect(ac.destination); o.frequency.value = f; g.gain.setValueAtTime(.28, ac.currentTime); g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + d / 1000); o.start(); o.stop(ac.currentTime + d / 1000) } catch (e) { }
+            if (navigator.vibrate) navigator.vibrate(60)
+        }
+
+        /* ============ CHECK-IN + CHARTS ============ */
+        function addCheck() {
+            const w = parseFloat(document.getElementById('inW').value);
+            if (!w || w < 40 || w > 200) return alert('กรอกน้ำหนักให้ถูกต้อง');
+            const prev = D.checks[D.checks.length - 1];
+            const existing = D.checks.find(x => x.d === iso());
+            const rec = {
+                d: iso(), w, bf: parseFloat(document.getElementById('inBF').value) || prev.bf,
+                hrv: parseInt(document.getElementById('inHRV').value) || null,
+                pain: document.getElementById('inPain').value === '' ? null : parseInt(document.getElementById('inPain').value),
+                cal: parseInt(document.getElementById('inCal').value) || (existing?.cal || null),
+                protein: parseInt(document.getElementById('inProtein').value) || (existing?.protein || null),
+                water: parseInt(document.getElementById('inWater').value) || (existing?.water || null)
+            };
+            const i = D.checks.findIndex(x => x.d === iso());
+            i >= 0 ? D.checks[i] = rec : D.checks.push(rec);
+            save(); render(); autoSync();
+            ['inW', 'inBF', 'inHRV', 'inPain', 'inCal', 'inProtein', 'inWater'].forEach(id => document.getElementById(id).value = '');
+        }
+        function quickAdd(type) {
+            let val, label;
+            if (type === 'cal') { val = parseInt(prompt('เพิ่มแคลอรี่กี่ kcal?', '500')); label = 'แคลอรี่' }
+            else if (type === 'protein') { val = parseInt(prompt('เพิ่มโปรตีนกี่กรัม?', '30')); label = 'โปรตีน' }
+            else if (type === 'water') { val = 1; label = 'น้ำ' }
+            if (!val || isNaN(val) || val <= 0) return;
+            let rec = D.checks.find(x => x.d === iso());
+            if (!rec) {
+                const prev = D.checks[D.checks.length - 1];
+                rec = { d: iso(), w: prev?.w || 80, bf: prev?.bf || null, hrv: null, pain: null, cal: null, protein: null, water: null };
+                D.checks.push(rec);
+            }
+            if (type === 'cal') rec.cal = (rec.cal || 0) + val;
+            else if (type === 'protein') rec.protein = (rec.protein || 0) + val;
+            else if (type === 'water') rec.water = (rec.water || 0) + val;
+            save(); render(); autoSync();
+        }
+        function charts() {
+            const d = D.checks.slice(-40);
+            const box = document.getElementById('chart');
+            if (d.length < 2) box.innerHTML = '<div class="sub">บันทึกอย่างน้อย 2 วันเพื่อดูกราฟ</div>';
+            else {
+                const Wd = 300, H = 110, mx = Math.max(...d.map(x => x.w)) + .5, mn = Math.min(...d.map(x => x.w), 71.5) - .5;
+                const pt = d.map((x, i) => [i / (d.length - 1) * Wd, H - (x.w - mn) / (mx - mn) * H]), gy = H - (72 - mn) / (mx - mn) * H;
+                box.innerHTML = `<svg viewBox="-4 -8 ${Wd + 8} ${H + 22}" style="width:100%">
+    <line x1="0" y1="${gy}" x2="${Wd}" y2="${gy}" stroke="#3b82f6" stroke-dasharray="4 4" stroke-width="1.5"/>
+    <text x="${Wd}" y="${gy - 4}" fill="#7dabff" font-size="9" text-anchor="end">เป้า 72</text>
+    <polyline points="${pt.map(p => p.join(',')).join(' ')}" fill="none" stroke="#22d3a6" stroke-width="2.5"/>
+    ${pt.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#22d3a6"/>`).join('')}</svg>`
+            }
+            const pd = D.checks.filter(x => x.pain != null).slice(-40), pb = document.getElementById('painChart');
+            if (pd.length < 2) pb.innerHTML = '<div class="sub">กรอกระดับปวดหลังทุกเช้าเพื่อดูแนวโน้ม (0-10)</div>';
+            else {
+                const Wd = 300, H = 80; const pt = pd.map((x, i) => [i / (pd.length - 1) * Wd, H - x.pain / 10 * H]);
+                pb.innerHTML = `<svg viewBox="-4 -8 ${Wd + 8} ${H + 18}" style="width:100%">
+    <polyline points="${pt.map(p => p.join(',')).join(' ')}" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+    ${pt.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#f59e0b"/>`).join('')}
+    <text x="0" y="${H + 14}" fill="#8b98ab" font-size="9">0 = ไม่ปวด • 10 = ปวดมาก</text></svg>`
+            }
+            /* --- Calorie Chart --- */
+            const cd = D.checks.filter(x => x.cal > 0).slice(-40), cb = document.getElementById('calChart');
+            if (cd.length < 2) cb.innerHTML = '<div class="sub">บันทึกแคลอรี่อย่างน้อย 2 วันเพื่อดูกราฟ</div>';
+            else {
+                const Wd = 300, H = 90, mx = Math.max(...cd.map(x => x.cal), CAL_TARGET + 200), mn = 0;
+                const pt = cd.map((x, i) => [i / (cd.length - 1) * Wd, H - x.cal / mx * H]);
+                const tgtY = H - CAL_TARGET / mx * H;
+                const avg7 = cd.slice(-7).reduce((a, x) => a + x.cal, 0) / Math.min(7, cd.length);
+                cb.innerHTML = `<svg viewBox="-4 -8 ${Wd + 8} ${H + 28}" style="width:100%">
+    <line x1="0" y1="${tgtY}" x2="${Wd}" y2="${tgtY}" stroke="#a78bfa" stroke-dasharray="4 4" stroke-width="1.5"/>
+    <text x="${Wd}" y="${tgtY - 4}" fill="#a78bfa" font-size="9" text-anchor="end">เป้า ${CAL_TARGET}</text>
+    <polyline points="${pt.map(p => p.join(',')).join(' ')}" fill="none" stroke="#a78bfa" stroke-width="2.5"/>
+    ${pt.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#a78bfa"/>`).join('')}
+    <text x="0" y="${H + 18}" fill="#8b98ab" font-size="9">เฉลี่ย 7 วัน: ${Math.round(avg7).toLocaleString()} kcal</text></svg>`
+            }
+        }
+
+        /* ============ CLOUD SYNC (Supabase REST) ============ */
+        function msg(t) { document.getElementById('syncMsg').textContent = t }
+        function saveCfg() {
+            D.cfg.url = document.getElementById('sbUrl').value.trim().replace(/\/$/, '');
+            D.cfg.key = document.getElementById('sbKey').value.trim(); save(); msg('บันทึกการตั้งค่าแล้ว'); render()
+        }
+        function newCode() { const c = 'fit-' + Math.random().toString(36).slice(2, 10); document.getElementById('sbCode').value = c; D.cfg.code = c; save(); msg('รหัสใหม่: ' + c + ' — จดเก็บไว้!') }
+        function copyCode() {
+            D.cfg.code = document.getElementById('sbCode').value.trim(); save();
+            navigator.clipboard && navigator.clipboard.writeText(D.cfg.code); msg('คัดลอกแล้ว: ' + D.cfg.code)
+        }
+        async function sb(path, opt = {}) {
+            const { url, key } = D.cfg; if (!url || !key) throw new Error('ยังไม่ได้ตั้งค่า URL/Key');
+            const r = await fetch(url + '/rest/v1/' + path, {
+                ...opt, headers: {
+                    apikey: key, Authorization: 'Bearer ' + key,
+                    'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal', ...(opt.headers || {})
+                }
+            });
+            if (!r.ok) throw new Error(await r.text());
+            return r.status === 204 ? null : r.json();
+        }
+        async function syncNow() {
+            try {
+                D.cfg.code = document.getElementById('sbCode').value.trim(); save();
+                if (!D.cfg.code) return msg('⚠️ ยังไม่มีรหัสส่วนตัว');
+                msg('กำลังซิงก์...');
+                await sb('fit_profile', { method: 'POST', body: JSON.stringify({ code: D.cfg.code, start_date: D.start }) });
+                if (D.checks.length) await sb('fit_weight', {
+                    method: 'POST', body: JSON.stringify(
+                        D.checks.map(c => ({ code: D.cfg.code, date: c.d, weight: c.w, bodyfat: c.bf, hrv: c.hrv, back_pain: c.pain })))
+                });
+                if (D.sessions.length) await sb('fit_session', {
+                    method: 'POST', body: JSON.stringify(
+                        D.sessions.map(s => ({ ...s, code: D.cfg.code })))
+                });
+                if (D.sets.length) await sb('fit_set', {
+                    method: 'POST', body: JSON.stringify(
+                        D.sets.map(s => ({ ...s, code: D.cfg.code })))
+                });
+                await pullOnly(1);
+                msg('✅ ซิงก์สำเร็จ ' + new Date().toLocaleTimeString('th-TH'));
+            } catch (e) { msg('❌ ' + e.message.slice(0, 120)) }
+        }
+        async function pullOnly(q) {
+            try {
+                D.cfg.code = document.getElementById('sbCode').value.trim(); save();
+                if (!q) msg('กำลังดึงข้อมูล...');
+                const c = encodeURIComponent(D.cfg.code);
+                const [pf, wt, ss, st] = await Promise.all([
+                    sb('fit_profile?code=eq.' + c + '&select=*', { headers: { Prefer: '' } }),
+                    sb('fit_weight?code=eq.' + c + '&select=*&order=date', { headers: { Prefer: '' } }),
+                    sb('fit_session?code=eq.' + c + '&select=*&order=date', { headers: { Prefer: '' } }),
+                    sb('fit_set?code=eq.' + c + '&select=*', { headers: { Prefer: '' } })]);
+                if (pf && pf[0]) D.start = pf[0].start_date;
+                const m = new Map(D.checks.map(x => [x.d, x]));
+                (wt || []).forEach(r => m.set(r.date, { d: r.date, w: +r.weight, bf: r.bodyfat ? +r.bodyfat : null, hrv: r.hrv, pain: r.back_pain }));
+                D.checks = [...m.values()].sort((a, b) => a.d < b.d ? -1 : 1);
+                const sm = new Map(D.sessions.map(x => [x.id, x])); (ss || []).forEach(r => sm.set(r.id, r));
+                D.sessions = [...sm.values()].sort((a, b) => a.date < b.date ? -1 : 1);
+                const tm = new Map(D.sets.map(x => [x.id, x])); (st || []).forEach(r => tm.set(r.id, r)); D.sets = [...tm.values()];
+                save(); render(); if (!q) msg('✅ ดึงข้อมูลสำเร็จ ' + D.checks.length + ' เช็กอิน / ' + D.sessions.length + ' เซสชัน');
+            } catch (e) { msg('❌ ' + e.message.slice(0, 120)) }
+        }
+        function autoSync() { if (D.cfg.url && D.cfg.key && D.cfg.code) syncNow() }
+        function exportJSON() {
+            const b = new Blob([JSON.stringify(D, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'fitcoach-backup-' + iso() + '.json'; a.click()
+        }
+
+        /* ============ NAV ============ */
+        function go(p) {
+            document.querySelectorAll('.page').forEach(x => x.classList.remove('on'));
+            document.getElementById('p-' + p).classList.add('on');
+            document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.p === p)); window.scrollTo(0, 0)
+        }
+        document.querySelectorAll('nav button').forEach(b => b.onclick = () => go(b.dataset.p));
+
+        /* ============ EXERCISE MODAL ============ */
+        function showExModal(k){
+            const e=EX[k]; if(!e) return;
+            document.getElementById('exModalFig').innerHTML=fig(k,240);
+            document.getElementById('exModalName').textContent=e.n;
+            document.getElementById('exModalEq').textContent='🏋️ '+e.eq;
+            document.getElementById('exModalCue').innerHTML=e.cue.map(c=>'<li>'+c+'</li>').join('');
+            const yt=document.getElementById('exModalYt');
+            yt.href='https://www.youtube.com/results?search_query='+encodeURIComponent(e.yt);
+            document.getElementById('exModal').classList.add('on');
+        }
+        function closeExModal(){document.getElementById('exModal').classList.remove('on')}
+        document.addEventListener('keydown',e=>{if(e.key==='Escape')closeExModal()});
+
+        /* ==================================================
+           ANIMATED FIGURE ENGINE
+           pose = [hx,hy, nx,ny, px,py,  feX,feY,fwX,fwY,  neX,neY,nwX,nwY,
+                   fkX,fkY,faX,faY,  nkX,nkY,naX,naY]
+           h=head n=neck p=pelvis  f=far n=near  e=elbow w=wrist k=knee a=ankle
+           ================================================== */
+        const PR={
+         tread:'<rect x="22" y="91" width="68" height="4" rx="2" class="pp"/><rect x="86" y="56" width="4" height="35" class="pp"/><rect x="80" y="50" width="16" height="6" rx="2" class="pp"/>',
+         benchH:'<rect x="14" y="70" width="60" height="5" rx="2" class="pp"/><rect x="18" y="75" width="4" height="16" class="pp"/><rect x="64" y="75" width="4" height="16" class="pp"/>',
+         benchE:'<rect x="6" y="62" width="30" height="6" rx="2" class="pp"/><rect x="9" y="68" width="4" height="22" class="pp"/>',
+         chairR:'<rect x="54" y="66" width="34" height="5" rx="2" class="pp"/><rect x="57" y="71" width="4" height="19" class="pp"/><rect x="81" y="71" width="4" height="19" class="pp"/>',
+         chairB:'<rect x="64" y="70" width="28" height="5" rx="2" class="pp"/><rect x="67" y="75" width="4" height="15" class="pp"/>',
+         chairT:'<rect x="58" y="54" width="34" height="5" rx="2" class="pp"/><rect x="61" y="59" width="4" height="27" class="pp"/><rect x="86" y="59" width="4" height="27" class="pp"/>',
+         incline:'<polygon points="38,90 70,40 78,45 46,92" class="pp"/>',
+         wallL:'<rect x="36" y="5" width="4" height="89" class="pp"/>',
+         wallR:'<rect x="76" y="5" width="4" height="89" class="pp"/>',
+         door:'<rect x="26" y="5" width="4" height="89" class="pp"/>'
+        };
+        const AN={
+         walk:{st:PR.tread,a:[50,15,50,26,50,54,55,39,59,47,45,38,41,32,57,70,61,88,43,70,37,84],b:[50,15,50,26,50,54,45,38,41,32,55,39,59,47,43,70,37,86,57,70,61,86]},
+         run:{st:PR.tread,a:[50,14,50,25,50,53,57,38,62,44,43,36,38,28,60,66,68,84,40,72,32,80],b:[50,14,50,25,50,53,43,36,38,28,57,38,62,44,40,68,34,86,60,64,66,74]},
+         catcow:{a:[76,50,68,54,42,58,70,68,72,86,70,68,72,86,40,74,38,88,40,74,38,88],b:[74,62,68,62,42,50,70,70,72,86,70,70,72,86,40,72,38,88,40,72,38,88]},
+         thor:{st:PR.chairT,a:[70,58,62,56,40,60,68,52,78,50,68,52,78,50,38,74,32,84,38,74,32,84],b:[70,66,62,62,40,58,68,56,78,52,68,56,78,52,38,74,32,84,38,74,32,84]},
+         p9090:{a:[46,40,46,50,46,70,40,60,36,70,40,60,36,70,34,78,22,72,60,76,74,72],b:[46,40,46,50,46,70,40,60,36,70,40,60,36,70,34,74,20,80,60,74,72,82]},
+         hipflex:{a:[50,24,50,34,50,58,46,46,44,58,46,46,44,58,40,84,28,88,62,66,62,88],b:[52,20,52,30,55,56,50,36,48,22,50,36,48,22,38,86,26,90,60,66,60,88]},
+         bridge:{a:[22,80,30,80,52,84,30,86,40,88,30,86,40,88,66,66,66,88,66,66,66,88],b:[22,78,30,78,52,68,30,84,40,88,30,84,40,88,66,60,66,88,66,60,66,88]},
+         bmarch:{a:[22,78,30,78,52,68,30,84,40,88,30,84,40,88,66,60,66,88,66,60,66,88],b:[22,78,30,78,52,68,30,84,40,88,30,84,40,88,66,60,66,88,60,50,64,66]},
+         birddog:{a:[76,52,68,56,42,58,70,66,72,86,70,66,72,86,40,74,38,88,40,74,38,88],b:[76,50,68,54,42,58,80,50,90,46,70,66,72,86,40,74,38,88,30,60,18,54]},
+         deadbug:{a:[20,78,28,78,56,80,30,64,30,52,30,66,30,54,64,62,76,62,66,60,78,60],b:[20,78,28,78,56,80,26,60,18,50,30,66,30,54,70,72,86,78,66,60,78,60]},
+         sideplank:{a:[76,50,70,54,44,74,70,74,62,80,70,74,62,80,30,84,20,90,30,84,20,90],b:[76,48,70,52,44,70,70,74,62,80,70,74,62,80,30,82,20,88,30,82,20,88]},
+         wallslide:{st:PR.wallL,a:[48,18,48,28,48,56,40,38,40,26,40,38,40,26,48,74,48,90,48,74,48,90],b:[48,18,48,28,48,56,42,28,42,14,42,28,42,14,48,74,48,90,48,74,48,90]},
+         child:{a:[74,74,66,70,38,66,78,72,88,76,78,72,88,76,34,80,26,84,34,80,26,84],b:[78,78,68,74,38,68,82,76,92,80,82,76,92,80,34,82,26,86,34,82,26,86]},
+         fig4:{a:[18,80,26,80,54,82,34,74,46,68,34,74,46,68,62,68,74,64,66,64,60,50],b:[18,80,26,80,54,82,32,70,44,62,32,70,44,62,58,60,70,54,62,56,54,44]},
+         hamstr:{dy:'strap',a:[18,80,26,80,54,82,34,74,48,68,34,74,48,68,64,80,78,82,66,72,78,74],b:[18,80,26,80,54,82,34,70,50,54,34,70,50,54,64,80,78,82,62,58,66,38]},
+         thread:{a:[76,52,68,56,42,58,70,66,72,86,70,66,72,86,40,74,38,88,40,74,38,88],b:[70,72,64,66,42,58,56,72,44,76,70,66,72,86,40,74,38,88,40,74,38,88]},
+         door:{st:PR.door,a:[48,18,48,28,48,56,40,38,34,32,40,38,34,32,48,74,48,90,48,74,48,90],b:[54,18,54,28,54,56,44,38,34,30,44,38,34,30,42,74,38,90,58,74,62,90]},
+         twist:{a:[20,80,28,80,54,82,34,74,46,72,34,74,46,72,66,74,78,78,66,74,78,78],b:[20,80,28,80,54,80,34,72,46,70,34,72,46,70,62,64,72,58,62,64,72,58]},
+         legswall:{st:PR.wallR,a:[18,84,26,84,54,86,32,78,44,74,32,78,44,74,64,64,70,44,64,64,70,44],b:[18,84,26,84,54,86,32,78,44,74,32,78,44,74,66,62,72,40,66,62,72,40]},
+         goblet:{dy:'kb',a:[50,16,50,27,50,56,43,38,47,31,43,38,47,31,50,74,50,92,50,74,50,92],b:[46,30,47,40,44,64,40,50,45,43,40,50,45,43,57,72,50,92,57,72,50,92]},
+         hinge:{dy:'db',a:[50,16,50,27,50,55,48,41,47,55,48,41,47,55,50,74,50,92,50,74,50,92],b:[64,32,58,38,42,54,55,52,55,68,55,52,55,68,47,74,50,92,47,74,50,92]},
+         hipthrust:{st:PR.benchE,dy:'db',a:[26,62,33,60,52,76,33,68,42,74,33,68,42,74,62,62,62,88,62,62,62,88],b:[26,58,33,56,52,58,33,64,42,60,33,64,42,60,62,58,62,88,62,58,62,88]},
+         benchpress:{st:PR.benchH,dy:'db',a:[24,64,32,64,58,66,40,64,34,58,40,64,34,58,70,66,74,88,70,66,74,88],b:[24,64,32,64,58,66,34,54,34,42,34,54,34,42,70,66,74,88,70,66,74,88]},
+         bss:{st:PR.chairB,dy:'db',a:[50,18,50,28,50,56,48,42,47,56,48,42,47,56,62,66,74,70,44,74,42,92],b:[50,26,50,36,50,64,48,50,47,64,48,50,47,64,60,78,74,72,42,78,40,92]},
+         ohp:{dy:'db',a:[50,17,50,28,50,56,42,40,45,30,42,40,45,30,50,74,50,92,50,74,50,92],b:[50,17,50,28,50,56,46,26,47,13,46,26,47,13,50,74,50,92,50,74,50,92]},
+         row:{st:PR.chairR,dy:'db1',a:[74,44,68,48,42,54,66,56,72,64,66,64,66,80,34,70,34,90,42,72,42,90],b:[74,44,68,48,42,54,66,56,72,64,58,58,62,64,34,70,34,90,42,72,42,90]},
+         csrow:{st:PR.incline,dy:'db',a:[66,38,62,46,44,64,62,60,62,76,62,60,62,76,44,78,44,92,46,78,46,92],b:[66,38,62,46,44,64,54,54,58,62,54,54,58,62,44,78,44,92,46,78,46,92]},
+         pullover:{st:PR.benchH,dy:'db1',a:[26,62,34,62,60,66,30,52,24,44,30,52,24,44,72,66,76,88,72,66,76,88],b:[26,62,34,62,60,66,38,54,42,44,38,54,42,44,72,66,76,88,72,66,76,88]},
+         curl:{dy:'db',a:[50,16,50,27,50,55,48,43,47,57,48,43,47,57,50,74,50,92,50,74,50,92],b:[50,16,50,27,50,55,48,43,44,33,48,43,44,33,50,74,50,92,50,74,50,92]},
+         lat:{dy:'db',a:[50,16,50,27,50,55,53,42,54,55,47,42,46,55,50,74,50,92,50,74,50,92],b:[50,16,50,27,50,55,60,32,71,29,40,32,29,29,50,74,50,92,50,74,50,92]},
+         swing:{dy:'kb',a:[62,34,58,40,42,56,54,56,52,70,54,56,52,70,46,74,50,92,46,74,50,92],b:[50,16,50,27,50,55,52,38,62,36,52,38,62,36,50,74,50,92,50,74,50,92]},
+         thruster:{dy:'db',a:[46,30,47,40,44,64,40,50,45,43,40,50,45,43,57,72,50,92,57,72,50,92],b:[50,17,50,28,50,56,46,26,47,13,46,26,47,13,50,74,50,92,50,74,50,92]},
+         pushup:{a:[76,58,70,60,46,68,72,72,74,86,72,72,74,86,30,76,22,88,30,76,22,88],b:[76,68,70,70,46,76,64,76,74,86,64,76,74,86,30,82,22,90,30,82,22,90]},
+         abwheel:{dy:'wheel',a:[62,46,56,52,44,64,66,56,74,62,66,56,74,62,42,80,30,84,42,80,30,84],b:[74,62,68,64,46,70,80,68,90,74,80,68,90,74,32,84,22,88,32,84,22,88]},
+         plank:{a:[76,62,70,64,44,70,70,80,60,86,70,80,60,86,28,78,20,88,28,78,20,88],b:[76,64,70,66,44,72,70,80,60,86,70,80,60,86,28,80,20,88,28,80,20,88]},
+         mtn:{a:[76,58,70,60,46,68,72,72,74,86,72,72,74,86,30,76,22,88,30,76,22,88],b:[76,58,70,60,46,68,72,72,74,86,72,72,74,86,30,76,22,88,52,72,60,80]},
+         hula:{dy:'hoop',a:[50,15,50,26,48,54,58,34,62,22,42,34,38,22,52,72,54,90,46,72,46,90],b:[50,15,50,26,52,54,58,34,62,22,42,34,38,22,56,72,56,90,50,72,48,90]}
+        };
+        /* จับคู่ท่า -> แอนิเมชัน */
+        const AMAP={w_walk:'walk',c_walk:'walk',walk:'walk',z2:'walk',hiitW:'walk',hiitR:'run',
+         w_cat:'catcow',w_thor:'thor',w_9090:'p9090',w_hipflex:'hipflex',c_hip:'hipflex',
+         w_bridge:'bridge',bmarch:'bmarch',w_bird:'birddog',w_deadbug:'deadbug',w_side:'sideplank',
+         w_wall:'wallslide',c_child:'child',c_fig4:'fig4',c_ham:'hamstr',c_thread:'thread',
+         c_door:'door',c_twist:'twist',c_legs:'legswall',goblet:'goblet',rdl:'hinge',thrust:'hipthrust',
+         bench:'benchpress',bss:'bss',press:'ohp',row:'row',csrow:'csrow',pullover:'pullover',
+         curl:'curl',lat:'lat',swing:'swing',thruster:'thruster',pushup:'pushup',wheel:'abwheel',
+         plank:'plank',mtn:'mtn',hula:'hula'};
+
+        function figClass(k){return k.startsWith('w_')?'warm':k.startsWith('c_')?'cool':''}
+        function fig(k,sz){const a=AMAP[k];if(!a)return '';
+         return `<svg class="fig ${figClass(k)}" data-a="${a}" viewBox="0 0 100 100" style="width:${sz}px;height:${sz}px"></svg>`}
+
+        function eqp(t,p){
+         const dumb=(x,y)=>`<rect class="eqp" x="${x-6}" y="${y-1.4}" width="12" height="2.8" rx="1.4"/><rect class="eqp" x="${x-7.5}" y="${y-3.6}" width="3" height="7.2" rx="1.4"/><rect class="eqp" x="${x+4.5}" y="${y-3.6}" width="3" height="7.2" rx="1.4"/>`;
+         if(t==='db')return dumb(p[8],p[9])+dumb(p[12],p[13]);
+         if(t==='db1')return dumb(p[12],p[13]);
+         if(t==='kb')return `<circle class="eqp" cx="${p[12]}" cy="${p[13]+4}" r="5"/><path class="eqp" d="M${p[12]-4} ${p[13]} q4 -5 8 0 v2 h-2 q-2 -3 -4 0 z"/>`;
+         if(t==='wheel')return `<circle class="eqp" cx="${p[12]}" cy="${p[13]+3}" r="6"/><rect class="eqp" x="${p[12]-8}" y="${p[13]+1.8}" width="16" height="2.4" rx="1.2"/>`;
+         if(t==='hoop')return `<ellipse cx="${p[4]}" cy="${p[5]+3}" rx="18" ry="5.5" fill="none" stroke="#5b93f0" stroke-width="2.4"/>`;
+         if(t==='strap')return `<line x1="${p[12]}" y1="${p[13]}" x2="${p[20]}" y2="${p[21]}" stroke="#5b93f0" stroke-width="1.8" stroke-dasharray="3 2"/>`;
+         return '';
+        }
+        function paintFig(el,t){
+         const a=AN[el.dataset.a]; if(!a) return;
+         const p=a.a.map((v,i)=>v+(a.b[i]-v)*t);
+         el.innerHTML=`<line class="gr" x1="3" y1="94" x2="97" y2="94"/>${a.st||''}`
+         +`<polyline class="lf" points="${p[2]},${p[3]} ${p[6]},${p[7]} ${p[8]},${p[9]}"/>`
+         +`<polyline class="lf" points="${p[4]},${p[5]} ${p[14]},${p[15]} ${p[16]},${p[17]}"/>`
+         +`<line class="ln" x1="${p[2]}" y1="${p[3]}" x2="${p[4]}" y2="${p[5]}"/>`
+         +`<circle class="hd" cx="${p[0]}" cy="${p[1]}" r="6.4"/>`
+         +`<polyline class="ln" points="${p[4]},${p[5]} ${p[18]},${p[19]} ${p[20]},${p[21]}"/>`
+         +`<polyline class="ln" points="${p[2]},${p[3]} ${p[10]},${p[11]} ${p[12]},${p[13]}"/>`
+         +(a.dy?eqp(a.dy,p):'');
+        }
+        let _ft=0;
+        setInterval(()=>{
+         _ft+=0.045; const t=(1-Math.cos(_ft*Math.PI*2))/2, vh=innerHeight;
+         document.querySelectorAll('.fig').forEach(el=>{
+           const r=el.getBoundingClientRect();
+           if(r.bottom>-40&&r.top<vh+40)paintFig(el,t);});
+        },80);
+
+        render();
+        if (D.cfg.url && D.cfg.key && D.cfg.code) pullOnly();
+        
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js');
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "FitCoach 5M",
+  "short_name": "FitCoach",
+  "description": "Fitness tracking and workout app",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f1620",
+  "theme_color": "#0f1620",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

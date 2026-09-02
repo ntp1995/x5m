@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <defs>
+        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2a3c5a" />
+            <stop offset="100%" stop-color="#0f1620" />
+        </linearGradient>
+        <linearGradient id="acc" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#7dabff" />
+            <stop offset="100%" stop-color="#3b82f6" />
+        </linearGradient>
+    </defs>
+    <!-- Background -->
+    <rect width="512" height="512" rx="112" fill="url(#bg)" />
+    
+    <!-- Dumbbell Handle -->
+    <rect x="190" y="232" width="132" height="48" rx="8" fill="#414f64" />
+    
+    <!-- Dumbbell Inner Plates -->
+    <rect x="146" y="176" width="44" height="160" rx="12" fill="url(#acc)" />
+    <rect x="322" y="176" width="44" height="160" rx="12" fill="url(#acc)" />
+    
+    <!-- Dumbbell Outer Plates -->
+    <rect x="110" y="200" width="36" height="112" rx="10" fill="#22d3a6" />
+    <rect x="366" y="200" width="36" height="112" rx="10" fill="#22d3a6" />
+</svg>
