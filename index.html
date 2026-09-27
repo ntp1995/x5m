@@ -1522,7 +1522,7 @@ document.getElementById('schCtrls').innerHTML = `
         }
 
         /* ============ CLOUD SYNC (Supabase REST) ============ */
-        function msg(t) { document.getElementById('syncMsg').textContent = t }
+        function msg(t) { document.getElementById('syncMsg').innerHTML = t }
         function saveCfg() {
             D.cfg.url = document.getElementById('sbUrl').value.trim().replace(/\/$/, '');
             D.cfg.key = document.getElementById('sbKey').value.trim(); save(); msg('บันทึกการตั้งค่าแล้ว'); render()
@@ -1541,7 +1541,8 @@ document.getElementById('schCtrls').innerHTML = `
                 }
             });
             if (!r.ok) throw new Error(await r.text());
-            return r.status === 204 ? null : r.json();
+            const text = await r.text();
+            return text ? JSON.parse(text) : null;
         }
         async function syncNow() {
             try {
