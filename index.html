@@ -840,15 +840,23 @@
             <h1>ซิงก์ข้อมูล</h1>
             <div class="sub" style="margin:6px 0 14px">ตั้งค่าครั้งเดียว แล้วใช้รหัสเดิมบนเครื่องอื่นได้ทันที</div>
             <div class="card">
-                <h3>1. เชื่อมต่อฐานข้อมูล</h3>
+                <h3>1. เชื่อมต่อฐานข้อมูล (Supabase)</h3>
                 <div style="display:grid;gap:9px;margin-top:10px">
                     <input id="sbUrl" placeholder="Supabase Project URL">
-                    <input id="sbKey" placeholder="anon public key">
+                    <input id="sbKey" placeholder="anon public key" type="password">
                     <button class="btn g sm" onclick="saveCfg()">บันทึกการตั้งค่า</button>
                 </div>
             </div>
             <div class="card">
-                <h3>2. รหัสส่วนตัว</h3>
+                <h3>2. ตั้งค่า AI (Gemini)</h3>
+                <div class="sub" style="margin-bottom:10px">ใส่ API Key เพื่อใช้ฟีเจอร์กล้องสแกนอาหาร</div>
+                <div style="display:grid;gap:9px;">
+                    <input id="aiKey" placeholder="Gemini API Key" type="password">
+                    <button class="btn g sm" onclick="saveCfg()">บันทึกการตั้งค่า</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3>3. รหัสส่วนตัว</h3>
                 <div class="sub" style="margin:6px 0 10px">คือกุญแจของข้อมูลคุณ — จดเก็บไว้ให้ดี</div>
                 <input id="sbCode" placeholder="เช่น fit-a8k2n9x4">
                 <div class="g2" style="margin-top:9px">
@@ -857,7 +865,7 @@
                 </div>
             </div>
             <div class="card">
-                <h3>3. ซิงก์</h3>
+                <h3>4. ซิงก์</h3>
                 <div class="g2" style="margin-top:10px">
                     <button class="btn sm" onclick="syncNow()">⇅ ซิงก์ตอนนี้</button>
                     <button class="btn g sm" onclick="pullOnly()">⬇ ดึงข้อมูล (เครื่องใหม่)</button>
@@ -927,7 +935,7 @@
                 </div>
                 
                 <div class="row" style="color:var(--dim); font-size:13px; margin-bottom:20px;">
-                    <div>เริ่ม: <span id="ifStartTime">--:--</span></div>
+                    <div>เริ่ม: <span id="ifStartTime" onclick="editIFStart()" style="cursor:pointer; text-decoration:underline; color:var(--acc);" title="คลิกเพื่อแก้ไขเวลา">--:--</span></div>
                     <div>เป้าหมาย: <span id="ifGoalText">16</span> ชม.</div>
                 </div>
 
@@ -1031,6 +1039,73 @@
         window.fcAlert = (desc) => fcShow('alert', 'แจ้งเตือน', desc);
         window.fcConfirm = (desc) => fcShow('confirm', 'ยืนยันการดำเนินการ', desc);
         window.fcPrompt = (desc, defVal) => fcShow('prompt', 'ระบุข้อมูล', desc, defVal);
+        
+        async function calcBMR() {
+            const lastW = D.checks[D.checks.length-1]?.w || 70;
+            const saved = D.cfg.bmrInfo || { gender: 'M', age: 25, height: 170, activity: 1.375, goal: 0 };
+            
+            const html = `<div style="text-align:left; font-size:14px; line-height:1.5;">
+                <label style="display:block;margin-top:8px;font-weight:bold;">เพศ</label>
+                <select id="bmrGender" style="width:100%; margin-top:4px; padding:10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:15px; outline:none;">
+                    <option value="M" ${saved.gender === 'M' ? 'selected' : ''}>ชาย</option>
+                    <option value="F" ${saved.gender === 'F' ? 'selected' : ''}>หญิง</option>
+                </select>
+                <div style="display:flex; gap:8px; margin-top:12px">
+                    <div style="flex:1"><label style="font-weight:bold;">อายุ (ปี)</label><input type="number" id="bmrAge" value="${saved.age}" style="width:100%; font-size:15px; text-align:left; padding:10px; margin-top:4px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; outline:none;"></div>
+                    <div style="flex:1"><label style="font-weight:bold;">ส่วนสูง (ซม.)</label><input type="number" id="bmrHeight" value="${saved.height}" style="width:100%; font-size:15px; text-align:left; padding:10px; margin-top:4px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; outline:none;"></div>
+                </div>
+                <label style="display:block;margin-top:12px;font-weight:bold;">น้ำหนักปัจจุบัน (กก.)</label>
+                <input type="number" id="bmrWeight" value="${lastW}" style="width:100%; font-size:15px; text-align:left; padding:10px; margin-top:4px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; outline:none;">
+                <label style="display:block;margin-top:12px;font-weight:bold;">ระดับการออกกำลังกาย</label>
+                <select id="bmrActivity" style="width:100%; margin-top:4px; padding:10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:15px; outline:none;">
+                    <option value="1.2" ${saved.activity == 1.2 ? 'selected' : ''}>ไม่ออกกำลังกาย (1.2)</option>
+                    <option value="1.375" ${saved.activity == 1.375 ? 'selected' : ''}>1-3 วัน/สัปดาห์ (1.375)</option>
+                    <option value="1.55" ${saved.activity == 1.55 ? 'selected' : ''}>3-5 วัน/สัปดาห์ (1.55)</option>
+                    <option value="1.725" ${saved.activity == 1.725 ? 'selected' : ''}>6-7 วัน/สัปดาห์ (1.725)</option>
+                </select>
+                <label style="display:block;margin-top:12px;font-weight:bold;">เป้าหมายของคุณ</label>
+                <select id="bmrGoal" style="width:100%; margin-top:4px; padding:10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:15px; outline:none;">
+                    <option value="-500" ${saved.goal == -500 ? 'selected' : ''}>ลดไขมัน (-500 kcal)</option>
+                    <option value="-300" ${saved.goal == -300 ? 'selected' : ''}>ลดไขมันช้าๆ (-300 kcal)</option>
+                    <option value="0" ${saved.goal == 0 ? 'selected' : ''}>รักษาน้ำหนัก (TDEE)</option>
+                    <option value="300" ${saved.goal == 300 ? 'selected' : ''}>สร้างกล้ามเนื้อ (+300 kcal)</option>
+                </select>
+            </div>`;
+            
+            const confirmed = await fcConfirm(html);
+            if (!confirmed) return;
+            
+            const gender = document.getElementById('bmrGender').value;
+            const age = parseInt(document.getElementById('bmrAge').value) || 25;
+            const h = parseInt(document.getElementById('bmrHeight').value) || 170;
+            const w = parseFloat(document.getElementById('bmrWeight').value) || lastW;
+            const act = parseFloat(document.getElementById('bmrActivity').value) || 1.2;
+            const goal = parseInt(document.getElementById('bmrGoal').value) || 0;
+            
+            // Save info for next time
+            D.cfg.bmrInfo = { gender, age, height: h, activity: act, goal };
+            
+            let bmr = (10 * w) + (6.25 * h) - (5 * age);
+            bmr += (gender === 'M') ? 5 : -161;
+            
+            let tdee = bmr * act;
+            let targetCal = Math.round(tdee + goal);
+            if (targetCal < 1200) targetCal = 1200;
+            
+            let proteinMult = goal < 0 ? 2.0 : 1.8;
+            let targetPro = Math.round(w * proteinMult);
+            
+            D.cfg.calTarget = targetCal;
+            D.cfg.proteinTarget = targetPro;
+            CAL_TARGET = targetCal;
+            PROTEIN_TARGET = targetPro;
+            save();
+            render();
+            
+            setTimeout(() => {
+                fcAlert(`<div style="font-size:16px;"><b>ผลการคำนวณ</b></div><br>BMR (เผาผลาญพื้นฐาน): <b>${Math.round(bmr)}</b> kcal<br>TDEE (ใช้พลังงานรวม): <b>${Math.round(tdee)}</b> kcal<br><br><div style="color:var(--acc);font-weight:bold;">เป้าหมายใหม่ของคุณ:</div>พลังงาน: <b>${targetCal}</b> kcal/วัน<br>โปรตีน: <b>${targetPro}</b> g/วัน`);
+            }, 300);
+        }
 
         /* ============ LANDING PAGE LOGIC ============ */
         function enterApp() {
@@ -1183,7 +1258,8 @@
         /* ============ STATE ============ */
         const D = JSON.parse(localStorage.getItem('fit') || 'null') || { start: iso(), bs: false, checks: [{ d: iso(), w: 80, bf: 27.1, hrv: 78, pain: null }], sessions: [], sets: [], cfg: { url: '', key: '', code: '' } };
         D.cfg = D.cfg || { url: '', key: '', code: '' };
-        const CAL_TARGET = 1800, PROTEIN_TARGET = 140, WATER_TARGET = 8, WEIGH_WARN_DAYS = 2;
+        let CAL_TARGET = D.cfg.calTarget || 1800, PROTEIN_TARGET = D.cfg.proteinTarget || 140;
+        const WATER_TARGET = 8, WEIGH_WARN_DAYS = 2;
         function save() { localStorage.setItem('fit', JSON.stringify(D)) }
         function iso() { return new Date().toISOString().slice(0, 10) }
         function wkNo() { return Math.min(22, Math.floor((new Date(iso()) - new Date(D.start)) / 864e5 / 7) + 1) }
@@ -1266,7 +1342,8 @@
     <div style="display:flex;gap:8px;margin-top:10px">
     <button class="qbtn" onclick="quickAdd('cal')">+ แคลอรี่</button>
     <button class="qbtn" onclick="quickAdd('protein')">+ โปรตีน</button>
-    <button class="qbtn" onclick="quickAdd('water')">+ น้ำ <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></button></div>`;
+    <button class="qbtn" onclick="quickAdd('water')">+ น้ำ <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></button></div>
+    <button class="btn" onclick="calcBMR()" style="width:100%; margin-top:8px; border: 1px solid var(--acc); background: transparent; color: var(--acc);">🧮 คำนวณเป้าหมายรายวัน (BMR/TDEE)</button>`;
 
             let offs = D.schOffs || 0; const actualD = new Date().getDay(); const dow = (actualD - offs + 7) % 7, tk = SCHED[dow], t = W[tk];
             const done = D.sessions.some(s => s.date === iso());
@@ -1308,6 +1385,7 @@ document.getElementById('schCtrls').innerHTML = `
      <span style="font-size:13px">${W[s.workout_key] ? W[s.workout_key].ic : '•'} ${s.workout_name}</span>
      <span class="sub">${s.date.slice(5)} • ${s.kcal} kcal</span></div>`).join('') : '<div class="sub">ยังไม่มีบันทึก</div>';
             document.getElementById('sbUrl').value = D.cfg.url; document.getElementById('sbKey').value = D.cfg.key; document.getElementById('sbCode').value = D.cfg.code;
+            if (document.getElementById('aiKey')) document.getElementById('aiKey').value = D.cfg.aiKey || '';
             document.getElementById('localInfo').textContent = `เช็กอิน ${D.checks.length} วัน • เซสชัน ${D.sessions.length} • เซ็ตที่บันทึก ${D.sets.length}`;
             charts(); showW(document.querySelector('#wSel button.on')?.dataset.w || 'A');
         }
@@ -1457,12 +1535,172 @@ document.getElementById('schCtrls').innerHTML = `
             save(); render(); autoSync();
             ['inW', 'inBF', 'inHRV', 'inPain', 'inCal', 'inProtein', 'inWater'].forEach(id => document.getElementById(id).value = '');
         }
+        async function aiFoodScanner(mode) {
+            if (!D.cfg.aiKey) {
+                fcAlert('กรุณาใส่ Gemini API Key ในหน้าซิงก์ก่อนใช้งานครับ');
+                return;
+            }
+            if (mode === 'text') {
+                const text = await fcPrompt('พิมพ์บอก AI ว่ากินอะไรไปบ้าง?', 'ข้าวกะเพราหมูสับไข่ดาว 1 จาน');
+                if (!text) return;
+                processAIFood(null, text);
+            } else {
+                let input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = e => {
+                    let file = e.target.files[0];
+                    if(file) processAIFood(file, null);
+                }
+                input.click();
+            }
+        }
+        
+        async function processAIFood(file, text) {
+            fcClose();
+            // Show loading and hide buttons
+            fcAlert('<div style="text-align:center;">🤖 AI กำลังวิเคราะห์...<br><br><div style="font-size:24px; animation: spin 1s linear infinite;">⏳</div><style>.fc-modal-actions { display:none !important; }</style></div>');
+            
+            const processRequest = async (parts) => {
+                try {
+                    const payload = { contents: [{ parts }] };
+                    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=' + D.cfg.aiKey, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!res.ok) {
+                        const eTxt = await res.text();
+                        throw new Error(`API Error: ${res.status} ${eTxt.substring(0,50)}`);
+                    }
+                    const data = await res.json();
+                    if (!data.candidates) throw new Error('AI Error: No data');
+                    
+                    let resText = data.candidates[0].content.parts[0].text;
+                    resText = resText.replace(/```json/g, '').replace(/```/g, '').trim();
+                    const result = JSON.parse(resText);
+                    
+                    fcClose();
+                    setTimeout(() => {
+                        fcConfirm(`<div style="font-size:16px;"><b>🤖 AI วิเคราะห์ได้ว่า:</b></div><br>เมนู: <b>${result.name}</b><br>พลังงาน: <b>${result.calories}</b> kcal<br>โปรตีน: <b>${result.protein}</b> กรัม<br><br><div style="color:var(--acc);">ต้องการบันทึกเลยหรือไม่?</div><div style="margin-top:12px; text-align:center;"><button class="btn" style="padding:6px 12px; font-size:13px; border:1px solid var(--line); background:transparent; color:var(--tx);" onclick="saveAIFoodAsFavorite('${result.name}', ${result.calories}, event)">⭐ บันทึกเป็นเมนูโปรด</button></div>`).then(yes => {
+                            if (yes) {
+                                let rec = D.checks.find(x => x.d === iso());
+                                if (!rec) {
+                                    const prev = D.checks[D.checks.length - 1];
+                                    rec = { d: iso(), w: prev?.w || 80, bf: prev?.bf || null, hrv: null, pain: null, cal: null, protein: null, water: null };
+                                    D.checks.push(rec);
+                                }
+                                rec.cal = (rec.cal || 0) + result.calories;
+                                rec.protein = (rec.protein || 0) + result.protein;
+                                save(); render(); autoSync();
+                                setTimeout(()=>fcAlert('บันทึกเรียบร้อย!'), 200);
+                            }
+                        });
+                    }, 300);
+                } catch (err) {
+                    fcClose();
+                    setTimeout(() => fcAlert('เกิดข้อผิดพลาด: ' + err.message), 300);
+                }
+            };
+
+            let parts = [
+                { text: 'Analyze this food. Estimate the calories and protein. If the user provides a specific food name, use that exact name in the "name" field. Respond ONLY in valid JSON format exactly like this: {"name": "Thai name of food", "calories": 500, "protein": 20}' }
+            ];
+            
+            if (text) {
+                parts.push({ text: "The user described their meal as: " + text });
+                processRequest(parts);
+            } else if (file) {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width, h = img.height;
+                    const max = 1000;
+                    if (w > max || h > max) {
+                        if (w > h) { h = h * (max / w); w = max; }
+                        else { w = w * (max / h); h = max; }
+                    }
+                    canvas.width = w; canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    const base64Image = dataUrl.split(',')[1];
+                    parts.push({ inlineData: { mimeType: 'image/jpeg', data: base64Image } });
+                    processRequest(parts);
+                };
+                img.onerror = () => {
+                    fcClose();
+                    setTimeout(() => fcAlert('ไม่สามารถอ่านไฟล์ภาพได้'), 300);
+                };
+                img.src = URL.createObjectURL(file);
+            }
+        }
+        
+        window.saveAIFoodAsFavorite = function(name, cal, event) {
+            if (!D.cfg.myFoods) D.cfg.myFoods = [];
+            D.cfg.myFoods.unshift({ n: name, c: cal });
+            save();
+            if (event) {
+                event.target.textContent = '⭐ บันทึกลงเมนูโปรดแล้ว!';
+                event.target.style.color = 'var(--acc)';
+                event.target.style.borderColor = 'var(--acc)';
+                event.target.onclick = null;
+            }
+        };
+        
+        async function addCustomFood() {
+            fcClose();
+            const name = await fcPrompt('ชื่อเมนูโปรดของคุณ (เช่น ข้าวผัด):', '');
+            if (!name) return setTimeout(() => quickAdd('cal'), 300);
+            const cal = await fcPrompt(`พลังงานของ ${name} (kcal):`, '350');
+            if (!cal || isNaN(cal)) return setTimeout(() => quickAdd('cal'), 300);
+            
+            if (!D.cfg.myFoods) D.cfg.myFoods = [];
+            D.cfg.myFoods.unshift({ n: name.trim(), c: parseInt(cal) });
+            save();
+            setTimeout(() => quickAdd('cal'), 300);
+        }
+        
+        window.removeCustomFood = function(idx, event) {
+            event.stopPropagation();
+            D.cfg.myFoods.splice(idx, 1);
+            save();
+            fcClose();
+            setTimeout(() => quickAdd('cal'), 300);
+        };
+
         async function quickAdd(type) {
             let val, label;
             if (type === 'cal') { 
-                let r = await fcPrompt('เพิ่มแคลอรี่กี่ kcal?', '500');
-                if(r===null) return;
-                val = parseInt(r); label = 'แคลอรี่'; 
+                const TF = [
+                    {n: 'ข้าวกะเพราหมู/ไก่', c: 580}, {n: 'ข้าวกะเพราไข่ดาว', c: 120}, {n: 'ข้าวมันไก่', c: 600}, {n: 'ข้าวหมูแดง', c: 540},
+                    {n: 'ข้าวขาหมู', c: 690}, {n: 'ข้าวไข่เจียว', c: 450}, {n: 'ก๋วยเตี๋ยวน้ำใส', c: 350},
+                    {n: 'ก๋วยเตี๋ยวต้มยำ', c: 450}, {n: 'ผัดไทย', c: 600}, {n: 'ส้มตำไทย', c: 150},
+                    {n: 'ไก่ย่าง 1 ไม้', c: 150}, {n: 'หมูปิ้ง 1 ไม้', c: 130}, {n: 'ข้าวเหนียว', c: 160},
+                    {n: 'โจ๊กหมูไข่', c: 250}, {n: 'ชาบู/หมูกระทะ', c: 1000}, {n: 'อเมริกาโน่', c: 15},
+                    {n: 'ลาเต้เย็น', c: 150}, {n: 'ชานมไข่มุก', c: 350}, {n: 'เวย์โปรตีน 1 scoop', c: 120}
+                ];
+                const allFoods = [...(D.cfg.myFoods || []), ...TF];
+                
+                const html = `<div style="display:flex; gap:8px; margin-bottom:10px;">
+                    <button class="btn" style="flex:1; border:1px solid var(--acc); background:transparent; color:var(--acc); font-size:13px; padding:8px;" onclick="aiFoodScanner('image')">📸 ถ่ายรูปให้ AI ดู</button>
+                    <button class="btn" style="flex:1; border:1px solid var(--acc); background:transparent; color:var(--acc); font-size:13px; padding:8px;" onclick="aiFoodScanner('text')">💬 พิมพ์บอก AI</button>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <div style="font-size:12px; color:var(--dim); text-align:left;">เมนูประจำ:</div>
+                    <button class="btn" style="padding:4px 8px; font-size:12px; border:1px solid var(--line); background:transparent; color:var(--tx);" onclick="addCustomFood()">➕ เพิ่มของโปรด</button>
+                </div>
+                <div style="text-align:left; font-size:14px; max-height:220px; overflow-y:auto; margin-bottom:10px; border:1px solid var(--line); border-radius:8px; padding:4px;">
+                    ${allFoods.map((f, i) => `<div onclick="document.getElementById('fcInput').value='${f.c}'; document.getElementById('fcOk').click();" style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid var(--line); cursor:pointer;">
+                        <span>${f.n}</span>
+                        <span style="color:var(--acc); font-weight:bold;">${f.c} ${i < (D.cfg.myFoods?.length||0) ? `<button onclick="removeCustomFood(${i}, event)" style="margin-left:8px; background:none; border:none; color:var(--red); font-size:12px; cursor:pointer; padding:0;">❌</button>` : ''}</span>
+                    </div>`).join('')}
+                </div><div style="font-size:12px; color:var(--dim); text-align:left;">หรือพิมพ์ตัวเลข (kcal) ด้วยตัวเอง:</div>`;
+                
+                let r = await fcPrompt('บันทึกแคลอรี่มื้อนี้<br><br>' + html, '');
+                if(r===null || r==='') return;
+                val = parseInt(r); label = 'แคล'; 
             }
             else if (type === 'protein') { 
                 let r = await fcPrompt('เพิ่มโปรตีนกี่กรัม?', '30');
@@ -1481,6 +1719,7 @@ document.getElementById('schCtrls').innerHTML = `
             else if (type === 'protein') rec.protein = (rec.protein || 0) + val;
             else if (type === 'water') rec.water = (rec.water || 0) + val;
             save(); render(); autoSync();
+            setTimeout(()=>fcAlert(`+${val} ${label} แล้ว!`), 200);
         }
         function charts() {
             const d = D.checks.slice(-40);
@@ -1525,7 +1764,9 @@ document.getElementById('schCtrls').innerHTML = `
         function msg(t) { document.getElementById('syncMsg').innerHTML = t }
         function saveCfg() {
             D.cfg.url = document.getElementById('sbUrl').value.trim().replace(/\/$/, '');
-            D.cfg.key = document.getElementById('sbKey').value.trim(); save(); msg('บันทึกการตั้งค่าแล้ว'); render()
+            D.cfg.key = document.getElementById('sbKey').value.trim(); 
+            if (document.getElementById('aiKey')) D.cfg.aiKey = document.getElementById('aiKey').value.trim();
+            save(); msg('บันทึกการตั้งค่าแล้ว'); render()
         }
         function newCode() { const c = 'fit-' + Math.random().toString(36).slice(2, 10); document.getElementById('sbCode').value = c; D.cfg.code = c; save(); msg('รหัสใหม่: ' + c + ' — จดเก็บไว้!') }
         function copyCode() {
@@ -1578,7 +1819,15 @@ document.getElementById('schCtrls').innerHTML = `
                     sb('fit_set?code=eq.' + c + '&select=*', { headers: { Prefer: '' } })]);
                 if (pf && pf[0]) D.start = pf[0].start_date;
                 const m = new Map(D.checks.map(x => [x.d, x]));
-                (wt || []).forEach(r => m.set(r.date, { d: r.date, w: +r.weight, bf: r.bodyfat ? +r.bodyfat : null, hrv: r.hrv, pain: r.back_pain }));
+                (wt || []).forEach(r => {
+                    const ex = m.get(r.date) || {};
+                    m.set(r.date, { 
+                        d: r.date, w: +r.weight, bf: r.bodyfat ? +r.bodyfat : null, hrv: r.hrv, pain: r.back_pain,
+                        cal: r.cal !== undefined ? r.cal : ex.cal,
+                        protein: r.protein !== undefined ? r.protein : ex.protein,
+                        water: r.water !== undefined ? r.water : ex.water
+                    });
+                });
                 D.checks = [...m.values()].sort((a, b) => a.d < b.d ? -1 : 1);
                 const sm = new Map(D.sessions.map(x => [x.id, x])); (ss || []).forEach(r => sm.set(r.id, r));
                 D.sessions = [...sm.values()].sort((a, b) => a.date < b.date ? -1 : 1);
@@ -1797,6 +2046,34 @@ document.getElementById('schCtrls').innerHTML = `
                 D.if.start = Date.now();
                 save();
             }
+            updateIFUI();
+        }
+
+        async function editIFStart() {
+            let curr = '';
+            if (D.if.start) {
+                const dDate = new Date(D.if.start);
+                curr = String(dDate.getHours()).padStart(2, '0') + ':' + String(dDate.getMinutes()).padStart(2, '0');
+            }
+            const p = await fcPrompt('ระบุเวลาที่เริ่มงดอาหาร (HH:MM)', curr || '18:30');
+            if (p === null) return;
+            const parts = p.trim().split(':');
+            if (parts.length !== 2) return alert('รูปแบบเวลาไม่ถูกต้อง (ใช้ HH:MM)');
+            const h = parseInt(parts[0]), m = parseInt(parts[1]);
+            if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) return alert('รูปแบบเวลาไม่ถูกต้อง');
+            
+            let d = new Date();
+            if (D.if.start) d = new Date(D.if.start);
+            d.setHours(h, m, 0, 0);
+            
+            if (!D.if.start && d.getTime() > Date.now()) {
+                d.setDate(d.getDate() - 1);
+            } else if (D.if.start && d.getTime() > Date.now() + 60000) {
+                d.setDate(d.getDate() - 1);
+            }
+            
+            D.if.start = d.getTime();
+            save();
             updateIFUI();
         }
 
