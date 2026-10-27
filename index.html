@@ -10,6 +10,10 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <title>FitCoach</title>
+    <!-- Firebase SDK (v10 compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -703,7 +707,10 @@
                     <h1>สวัสดี <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--acc);vertical-align:-4px"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v4M11 10c-.83 0-1.5-.67-1.5-1.5V6c0-.83-.67-1.5-1.5-1.5S6.5 5.17 6.5 6v5.5M8 11.5c-.83 0-1.5-.67-1.5-1.5v-3c0-.83-.67-1.5-1.5-1.5S3.5 6.17 3.5 7v9.5c0 4.14 3.36 7.5 7.5 7.5h2c4.14 0 7.5-3.36 7.5-7.5v-4.5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v2.5M17.5 10c-.83 0-1.5-.67-1.5-1.5v-4c0-.83-.67-1.5-1.5-1.5S13 3.67 13 4.5v6"/></svg></h1>
                     <div class="sub" id="hsub"></div>
                 </div>
-                <div class="tag" id="phaseTag">Phase 1</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div class="tag" id="phaseTag">Phase 1</div>
+                    <div id="userHeaderBadge" onclick="go('sync')" style="cursor:pointer; display:none;"></div>
+                </div>
             </div>
 
             <div class="card">
@@ -838,47 +845,31 @@
     <div class="page" id="p-sync">
         <div class="wrap">
             <h1>ซิงก์ข้อมูล</h1>
-            <div class="sub" style="margin:6px 0 14px">ตั้งค่าครั้งเดียว แล้วใช้รหัสเดิมบนเครื่องอื่นได้ทันที</div>
-            <div class="card">
-                <h3>1. เชื่อมต่อฐานข้อมูล (Supabase)</h3>
-                <div style="display:grid;gap:9px;margin-top:10px">
-                    <input id="sbUrl" placeholder="Supabase Project URL">
-                    <input id="sbKey" placeholder="anon public key" type="password">
-                    <button class="btn g sm" onclick="saveCfg()">บันทึกการตั้งค่า</button>
-                </div>
+            <div class="sub" style="margin:6px 0 14px">เข้าสู่ระบบด้วย Google เพื่อซิงก์ข้อมูลอัตโนมัติทุกอุปกรณ์</div>
+
+            <!-- Google Account Card -->
+            <div class="card" id="authCard">
+                <!-- Dynamically rendered by renderAuthUI() -->
             </div>
+
+            <!-- AI Settings -->
             <div class="card">
-                <h3>2. ตั้งค่า AI (Gemini)</h3>
-                <div class="sub" style="margin-bottom:10px">ใส่ API Key เพื่อใช้ฟีเจอร์กล้องสแกนอาหาร</div>
+                <h3>ตั้งค่า AI (Gemini)</h3>
+                <div class="sub" style="margin-bottom:10px">ใส่ API Key สำหรับฟีเจอร์กล้องสแกนอาหาร (ข้อมูลจะบันทึกลงบัญชีอัตโนมัติ)</div>
                 <div style="display:grid;gap:9px;">
-                    <input id="aiKey" placeholder="Gemini API Key" type="password">
+                    <input id="aiKey" placeholder="Gemini API Key (AIzaSy...)" type="password">
                     <button class="btn g sm" onclick="saveCfg()">บันทึกการตั้งค่า</button>
                 </div>
             </div>
+
+            <!-- Local Data & Backup -->
             <div class="card">
-                <h3>3. รหัสส่วนตัว</h3>
-                <div class="sub" style="margin:6px 0 10px">คือกุญแจของข้อมูลคุณ — จดเก็บไว้ให้ดี</div>
-                <input id="sbCode" placeholder="เช่น fit-a8k2n9x4">
-                <div class="g2" style="margin-top:9px">
-                    <button class="btn v sm" onclick="newCode()">สร้างรหัสใหม่</button>
-                    <button class="btn b sm" onclick="copyCode()">คัดลอกรหัส</button>
-                </div>
-            </div>
-            <div class="card">
-                <h3>4. ซิงก์</h3>
-                <div class="g2" style="margin-top:10px">
-                    <button class="btn sm" onclick="syncNow()">⇅ ซิงก์ตอนนี้</button>
-                    <button class="btn g sm" onclick="pullOnly()">⬇ ดึงข้อมูล (เครื่องใหม่)</button>
-                </div>
-                <div class="sub" id="syncMsg" style="margin-top:10px">ยังไม่ได้เชื่อมต่อ</div>
-            </div>
-            <div class="card">
-                <h3>ข้อมูลในเครื่อง</h3>
+                <h3>ข้อมูลในเครื่อง & สำรองข้อมูล</h3>
                 <div class="sub" style="margin-top:6px" id="localInfo"></div>
                 <div class="g2" style="margin-top:10px">
                     <button class="btn g sm" onclick="exportJSON()">ส่งออกไฟล์สำรอง</button>
                     <button class="btn g sm"
-                        onclick="fcConfirm('ล้างข้อมูลในเครื่อง? (คลาวด์ยังอยู่)').then(r=>{if(r){localStorage.removeItem('fit');location.reload()}})">ล้างเครื่องนี้</button>
+                        onclick="fcConfirm('ล้างข้อมูลในเครื่อง? (ข้อมูลบนคลาวด์ Google จะยังอยู่)').then(r=>{if(r){localStorage.removeItem('fit');location.reload()}})">ล้างเครื่องนี้</button>
                 </div>
             </div>
         </div>
@@ -1384,8 +1375,8 @@ document.getElementById('schCtrls').innerHTML = `
                 `<div class="row" style="padding:7px 0;border-bottom:1px solid var(--line)">
      <span style="font-size:13px">${W[s.workout_key] ? W[s.workout_key].ic : '•'} ${s.workout_name}</span>
      <span class="sub">${s.date.slice(5)} • ${s.kcal} kcal</span></div>`).join('') : '<div class="sub">ยังไม่มีบันทึก</div>';
-            document.getElementById('sbUrl').value = D.cfg.url; document.getElementById('sbKey').value = D.cfg.key; document.getElementById('sbCode').value = D.cfg.code;
             if (document.getElementById('aiKey')) document.getElementById('aiKey').value = D.cfg.aiKey || '';
+            renderAuthUI();
             document.getElementById('localInfo').textContent = `เช็กอิน ${D.checks.length} วัน • เซสชัน ${D.sessions.length} • เซ็ตที่บันทึก ${D.sets.length}`;
             charts(); showW(document.querySelector('#wSel button.on')?.dataset.w || 'A');
         }
@@ -1760,82 +1751,268 @@ document.getElementById('schCtrls').innerHTML = `
             }
         }
 
-        /* ============ CLOUD SYNC (Supabase REST) ============ */
-        function msg(t) { document.getElementById('syncMsg').innerHTML = t }
+        /* ============ FIREBASE & GOOGLE AUTH SYNC ============ */
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzvOYLYqCLsISDFxMP190RJ-c_UoZ5-cE",
+            authDomain: "fitcoachx5.firebaseapp.com",
+            projectId: "fitcoachx5",
+            storageBucket: "fitcoachx5.firebasestorage.app",
+            messagingSenderId: "829215967374",
+            appId: "1:829215967374:web:02f87a90452a65a61361df"
+        };
+
+        let fbApp = null, fbAuth = null, fbDb = null;
+        let currentUser = null, fbUnsubscribe = null;
+        let isSyncing = false;
+
+        try {
+            if (typeof firebase !== 'undefined') {
+                fbApp = firebase.initializeApp(firebaseConfig);
+                fbAuth = firebase.auth();
+                fbDb = firebase.firestore();
+                fbDb.enablePersistence({ synchronizeTabs: true }).catch(err => {
+                    console.warn("Firestore offline persistence:", err.code);
+                });
+            }
+        } catch (e) {
+            console.error("Firebase init error:", e);
+        }
+
+        function msg(t) {
+            const el = document.getElementById('syncMsg');
+            if (el) el.innerHTML = t;
+        }
+
         function saveCfg() {
-            D.cfg.url = document.getElementById('sbUrl').value.trim().replace(/\/$/, '');
-            D.cfg.key = document.getElementById('sbKey').value.trim(); 
-            if (document.getElementById('aiKey')) D.cfg.aiKey = document.getElementById('aiKey').value.trim();
-            save(); msg('บันทึกการตั้งค่าแล้ว'); render()
+            if (document.getElementById('aiKey')) {
+                D.cfg.aiKey = document.getElementById('aiKey').value.trim();
+                save();
+                autoSync();
+                fcAlert('บันทึก Gemini API Key เรียบร้อยแล้ว!');
+            }
         }
-        function newCode() { const c = 'fit-' + Math.random().toString(36).slice(2, 10); document.getElementById('sbCode').value = c; D.cfg.code = c; save(); msg('รหัสใหม่: ' + c + ' — จดเก็บไว้!') }
-        function copyCode() {
-            D.cfg.code = document.getElementById('sbCode').value.trim(); save();
-            navigator.clipboard && navigator.clipboard.writeText(D.cfg.code); msg('คัดลอกแล้ว: ' + D.cfg.code)
+
+        function renderAuthUI() {
+            const authCard = document.getElementById('authCard');
+            const userBadge = document.getElementById('userHeaderBadge');
+            if (!authCard) return;
+
+            if (currentUser) {
+                const photo = currentUser.photoURL || 'icon.svg';
+                const name = currentUser.displayName || 'ผู้ใช้งาน Google';
+                const email = currentUser.email || '';
+                authCard.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <img src="${photo}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--acc);" alt="Avatar">
+                        <div style="flex:1; min-width:0;">
+                            <div style="font-weight:700; font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</div>
+                            <div style="font-size:12.5px; color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${email}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:12px; padding:9px 12px; background:rgba(16,185,129,0.12); border-radius:10px; display:flex; align-items:center; gap:8px; font-size:13px; color:#059669; font-weight:600;">
+                        <span style="font-size:16px; line-height:1;">●</span> เชื่อมต่อ Google สำเร็จแล้ว
+                    </div>
+                    <div class="sub" id="syncMsg" style="margin-top:8px; font-size:12px;">ซิงก์ข้อมูลอัตโนมัติ</div>
+                    <div class="g2" style="margin-top:12px;">
+                        <button class="btn sm" onclick="syncNow()">⇅ ซิงก์ตอนนี้</button>
+                        <button class="btn g sm" onclick="logoutGoogle()">ออกจากระบบ</button>
+                    </div>
+                `;
+                if (userBadge) {
+                    userBadge.innerHTML = `<img src="${photo}" style="width:32px; height:32px; border-radius:50%; border:2px solid var(--acc); object-fit:cover;" title="${name}">`;
+                    userBadge.style.display = 'block';
+                }
+            } else {
+                authCard.innerHTML = `
+                    <h3>เข้าสู่ระบบด้วย Google</h3>
+                    <div class="sub" style="margin:6px 0 14px">กดปุ่มเดียวเพื่อเชื่อมต่อ ข้อมูลจะซิงก์ตรงกันทุกอุปกรณ์ทันที ไม่ต้องจำรหัส</div>
+                    <button type="button" class="btn" onclick="loginWithGoogle()" style="background:#ffffff; color:#374151; border:1px solid #d1d5db; font-weight:600; display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:12px; border-radius:10px; cursor:pointer; font-size:15px; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+                        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.55 10.78l7.98-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                        <span>เข้าสู่ระบบด้วย Google</span>
+                    </button>
+                    <div class="sub" id="syncMsg" style="margin-top:12px; font-size:12.5px; text-align:center;">ยังไม่ได้เชื่อมต่อบัญชี</div>
+                `;
+                if (userBadge) {
+                    userBadge.innerHTML = `<span style="font-size:12px; font-weight:600; padding:4px 8px; border-radius:12px; background:var(--card2); color:var(--dim); border:1px solid var(--line);">เข้าสู่ระบบ</span>`;
+                    userBadge.style.display = 'block';
+                }
+            }
         }
-        async function sb(path, opt = {}) {
-            const { url, key } = D.cfg; if (!url || !key) throw new Error('ยังไม่ได้ตั้งค่า URL/Key');
-            const r = await fetch(url + '/rest/v1/' + path, {
-                ...opt, headers: {
-                    apikey: key, Authorization: 'Bearer ' + key,
-                    'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal', ...(opt.headers || {})
+
+        async function loginWithGoogle() {
+            if (!fbAuth) return fcAlert('Firebase SDK ยังไม่พร้อมทำงาน กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต');
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                msg('กำลังเข้าสู่ระบบ Google...');
+                await fbAuth.signInWithPopup(provider);
+            } catch (err) {
+                console.error('Google Sign-in error:', err);
+                if (err.code === 'auth/popup-blocked') {
+                    await fbAuth.signInWithRedirect(provider);
+                } else if (err.code === 'auth/unauthorized-domain') {
+                    fcAlert(`โดเมนนี้ (${window.location.hostname}) ยังไม่ได้รับอนุญาตใน Firebase!
+
+กรุณาไปที่ Firebase Console > Authentication > Settings > Authorized domains แล้วเพิ่ม ${window.location.hostname} เข้าไปครับ`);
+                } else if (err.code !== 'auth/popup-closed-by-user') {
+                    fcAlert('เข้าสู่ระบบไม่สำเร็จ: ' + err.message);
+                }
+                renderAuthUI();
+            }
+        }
+
+        async function logoutGoogle() {
+            const ok = await fcConfirm('ต้องการออกจากระบบ Google หรือไม่? (ข้อมูลในเครื่องจะยังอยู่)');
+            if (!ok) return;
+            if (fbUnsubscribe) { fbUnsubscribe(); fbUnsubscribe = null; }
+            await fbAuth.signOut();
+            currentUser = null;
+            renderAuthUI();
+            msg('ออกจากระบบแล้ว');
+        }
+
+        function mergeCloudData(cloud) {
+            if (!cloud) return;
+            if (cloud.start && (!D.start || D.checks.length <= 1)) D.start = cloud.start;
+            if (cloud.bs !== undefined) D.bs = cloud.bs;
+
+            // Merge checks
+            const checkMap = new Map();
+            (D.checks || []).forEach(c => checkMap.set(c.d, { ...c }));
+            (cloud.checks || []).forEach(c => {
+                if (!checkMap.has(c.d)) {
+                    checkMap.set(c.d, c);
+                } else {
+                    const ex = checkMap.get(c.d);
+                    checkMap.set(c.d, {
+                        d: c.d,
+                        w: c.w != null ? c.w : ex.w,
+                        bf: c.bf != null ? c.bf : ex.bf,
+                        hrv: c.hrv != null ? c.hrv : ex.hrv,
+                        pain: c.pain != null ? c.pain : ex.pain,
+                        cal: c.cal != null ? c.cal : ex.cal,
+                        protein: c.protein != null ? c.protein : ex.protein,
+                        water: c.water != null ? c.water : ex.water
+                    });
                 }
             });
-            if (!r.ok) throw new Error(await r.text());
-            const text = await r.text();
-            return text ? JSON.parse(text) : null;
-        }
-        async function syncNow() {
-            try {
-                D.cfg.code = document.getElementById('sbCode').value.trim(); save();
-                if (!D.cfg.code) return msg('<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> ยังไม่มีรหัสส่วนตัว');
-                msg('กำลังซิงก์...');
-                await sb('fit_profile', { method: 'POST', body: JSON.stringify({ code: D.cfg.code, start_date: D.start }) });
-                if (D.checks.length) await sb('fit_weight', {
-                    method: 'POST', body: JSON.stringify(
-                        D.checks.map(c => ({ code: D.cfg.code, date: c.d, weight: c.w, bodyfat: c.bf, hrv: c.hrv, back_pain: c.pain })))
-                });
-                if (D.sessions.length) await sb('fit_session', {
-                    method: 'POST', body: JSON.stringify(
-                        D.sessions.map(s => ({ ...s, code: D.cfg.code })))
-                });
-                if (D.sets.length) await sb('fit_set', {
-                    method: 'POST', body: JSON.stringify(
-                        D.sets.map(s => ({ ...s, code: D.cfg.code })))
-                });
-                await pullOnly(1);
-                msg('<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ซิงก์สำเร็จ ' + new Date().toLocaleTimeString('th-TH'));
-            } catch (e) { msg('<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ' + e.message.slice(0, 120)) }
-        }
-        async function pullOnly(q) {
-            try {
-                D.cfg.code = document.getElementById('sbCode').value.trim(); save();
-                if (!q) msg('กำลังดึงข้อมูล...');
-                const c = encodeURIComponent(D.cfg.code);
-                const [pf, wt, ss, st] = await Promise.all([
-                    sb('fit_profile?code=eq.' + c + '&select=*', { headers: { Prefer: '' } }),
-                    sb('fit_weight?code=eq.' + c + '&select=*&order=date', { headers: { Prefer: '' } }),
-                    sb('fit_session?code=eq.' + c + '&select=*&order=date', { headers: { Prefer: '' } }),
-                    sb('fit_set?code=eq.' + c + '&select=*', { headers: { Prefer: '' } })]);
-                if (pf && pf[0]) D.start = pf[0].start_date;
-                const m = new Map(D.checks.map(x => [x.d, x]));
-                (wt || []).forEach(r => {
-                    const ex = m.get(r.date) || {};
-                    m.set(r.date, { 
-                        d: r.date, w: +r.weight, bf: r.bodyfat ? +r.bodyfat : null, hrv: r.hrv, pain: r.back_pain,
-                        cal: r.cal !== undefined ? r.cal : ex.cal,
-                        protein: r.protein !== undefined ? r.protein : ex.protein,
-                        water: r.water !== undefined ? r.water : ex.water
+            D.checks = [...checkMap.values()].sort((a, b) => a.d.localeCompare(b.d));
+
+            // Merge sessions
+            const sessionMap = new Map();
+            (D.sessions || []).forEach(s => sessionMap.set(s.id, s));
+            (cloud.sessions || []).forEach(s => sessionMap.set(s.id, s));
+            D.sessions = [...sessionMap.values()].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+            // Merge sets
+            const setMap = new Map();
+            (D.sets || []).forEach(st => setMap.set(st.id, st));
+            (cloud.sets || []).forEach(st => setMap.set(st.id, st));
+            D.sets = [...setMap.values()];
+
+            // Merge Config
+            if (cloud.cfg) {
+                if (cloud.cfg.aiKey && !D.cfg.aiKey) D.cfg.aiKey = cloud.cfg.aiKey;
+                if (cloud.cfg.calTarget) D.cfg.calTarget = cloud.cfg.calTarget;
+                if (cloud.cfg.proteinTarget) D.cfg.proteinTarget = cloud.cfg.proteinTarget;
+                if (cloud.cfg.myFoods && Array.isArray(cloud.cfg.myFoods)) {
+                    const existingNames = new Set((D.cfg.myFoods || []).map(f => f.n));
+                    cloud.cfg.myFoods.forEach(f => {
+                        if (!existingNames.has(f.n)) (D.cfg.myFoods = D.cfg.myFoods || []).push(f);
                     });
-                });
-                D.checks = [...m.values()].sort((a, b) => a.d < b.d ? -1 : 1);
-                const sm = new Map(D.sessions.map(x => [x.id, x])); (ss || []).forEach(r => sm.set(r.id, r));
-                D.sessions = [...sm.values()].sort((a, b) => a.date < b.date ? -1 : 1);
-                const tm = new Map(D.sets.map(x => [x.id, x])); (st || []).forEach(r => tm.set(r.id, r)); D.sets = [...tm.values()];
-                save(); render(); if (!q) msg('<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ดึงข้อมูลสำเร็จ ' + D.checks.length + ' เช็กอิน / ' + D.sessions.length + ' เซสชัน');
-            } catch (e) { msg('<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ' + e.message.slice(0, 120)) }
+                }
+            }
+
+            // Merge IF
+            if (cloud.if) {
+                if (!D.if) D.if = cloud.if;
+                else {
+                    if (cloud.if.goal) D.if.goal = cloud.if.goal;
+                    if (cloud.if.start) D.if.start = cloud.if.start;
+                }
+            }
+
+            save();
+            render();
+            updateIFUI();
         }
-        function autoSync() { if (D.cfg.url && D.cfg.key && D.cfg.code) syncNow() }
+
+        async function pushToCloud() {
+            if (!currentUser || !fbDb || isSyncing) return;
+            isSyncing = true;
+            try {
+                const userDocRef = fbDb.collection('users').doc(currentUser.uid);
+                const payload = {
+                    start: D.start,
+                    bs: !!D.bs,
+                    checks: D.checks || [],
+                    sessions: D.sessions || [],
+                    sets: D.sets || [],
+                    if: D.if || { goal: 16, start: null },
+                    cfg: {
+                        aiKey: D.cfg.aiKey || '',
+                        myFoods: D.cfg.myFoods || [],
+                        calTarget: D.cfg.calTarget || 1800,
+                        proteinTarget: D.cfg.proteinTarget || 140
+                    },
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                await userDocRef.set(payload, { merge: true });
+                msg(`✓ ซิงก์สำเร็จ ${new Date().toLocaleTimeString('th-TH')}`);
+            } catch (err) {
+                console.error("Cloud push error:", err);
+                msg('ซิงก์ขัดข้อง: ' + err.message.slice(0, 100));
+            } finally {
+                isSyncing = false;
+            }
+        }
+
+        let syncDebounceTimer = null;
+        function autoSync() {
+            if (!currentUser || !fbDb) return;
+            clearTimeout(syncDebounceTimer);
+            syncDebounceTimer = setTimeout(() => {
+                pushToCloud();
+            }, 600);
+        }
+
+        function syncNow() {
+            if (!currentUser) return fcAlert('กรุณาเข้าสู่ระบบ Google ก่อนทำการซิงก์');
+            pushToCloud().then(() => fcAlert('ซิงก์ข้อมูลขึ้น Google Cloud เรียบร้อยแล้ว!'));
+        }
+
+        if (fbAuth) {
+            fbAuth.onAuthStateChanged(async (user) => {
+                currentUser = user;
+                renderAuthUI();
+                if (user) {
+                    msg('กำลังเชื่อมต่อฐานข้อมูล...');
+                    try {
+                        const userDocRef = fbDb.collection('users').doc(user.uid);
+                        const docSnap = await userDocRef.get();
+                        if (docSnap.exists) {
+                            mergeCloudData(docSnap.data());
+                            await pushToCloud();
+                        } else {
+                            await pushToCloud();
+                            msg('ซิงก์ข้อมูลเริ่มต้นเข้าบัญชีใหม่สำเร็จ');
+                        }
+
+                        if (fbUnsubscribe) fbUnsubscribe();
+                        fbUnsubscribe = userDocRef.onSnapshot((snap) => {
+                            if (snap.exists && !snap.metadata.hasPendingWrites) {
+                                mergeCloudData(snap.data());
+                            }
+                        });
+                    } catch (err) {
+                        console.error("Auth state handling error:", err);
+                        msg('ดึงข้อมูลไม่สำเร็จ: ' + err.message.slice(0, 100));
+                    }
+                } else {
+                    if (fbUnsubscribe) { fbUnsubscribe(); fbUnsubscribe = null; }
+                }
+            });
+        }
+
         function exportJSON() {
             const b = new Blob([JSON.stringify(D, null, 2)], { type: 'application/json' });
             const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'fitcoach-backup-' + iso() + '.json'; a.click()
@@ -2145,7 +2322,7 @@ document.getElementById('schCtrls').innerHTML = `
 
         render();
         updateIFUI();
-        if (D.cfg.url && D.cfg.key && D.cfg.code) pullOnly();
+        renderAuthUI();
         
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
