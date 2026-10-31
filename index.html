@@ -667,16 +667,21 @@
         }
     
         /* ============ FC MODAL ============ */
-        .fc-modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:99999; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:0.2s ease; backdrop-filter:blur(3px); }
+        .fc-modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); z-index:99999; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:0.2s ease; backdrop-filter:blur(4px); padding:16px; box-sizing:border-box; }
         .fc-modal.on { opacity:1; pointer-events:auto; }
-        .fc-modal-box { background:var(--card); width:90%; max-width:340px; padding:24px; border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.3); transform:scale(0.95); transition:0.2s ease; text-align:center; }
+        .fc-modal-box { background:var(--card); width:100%; max-width:360px; max-height:88vh; max-height:88dvh; display:flex; flex-direction:column; padding:22px 20px 18px; border-radius:22px; box-shadow:0 12px 40px rgba(0,0,0,0.35); transform:scale(0.95); transition:0.2s ease; text-align:center; box-sizing:border-box; }
         .fc-modal.on .fc-modal-box { transform:scale(1); }
-        .fc-modal-box h3 { font-size:18px; font-weight:700; margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:6px; }
-        .fc-modal-box p { font-size:15px; color:var(--dim); line-height:1.5; white-space:pre-wrap; }
-        .fc-modal-box input { width:100%; margin-top:16px; font-size:24px; text-align:center; padding:12px; background:var(--bg); border:1px solid var(--line); border-radius:12px; font-weight:700; outline:none; color:var(--text); }
+        .fc-modal-box h3 { font-size:18px; font-weight:700; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:6px; flex-shrink:0; }
+        .fc-modal-body { overflow-y:auto; -webkit-overflow-scrolling:touch; flex:1; min-height:0; padding:2px 4px 6px; margin:2px 0 6px; overscroll-behavior:contain; }
+        .fc-modal-body::-webkit-scrollbar { width:4px; }
+        .fc-modal-body::-webkit-scrollbar-thumb { background:var(--line); border-radius:4px; }
+        #fcDesc { font-size:14.5px; color:var(--dim); line-height:1.55; white-space:pre-wrap; }
+        #fcDesc div, #fcDesc label, #fcDesc select, #fcDesc input { white-space:normal; }
+
+        .fc-modal-box input { width:100%; margin-top:14px; font-size:22px; text-align:center; padding:12px; background:var(--bg); border:1px solid var(--line); border-radius:12px; font-weight:700; outline:none; color:var(--tx); box-sizing:border-box; }
         .fc-modal-box input:focus { border-color:var(--acc); }
-        .fc-modal-actions { display:flex; gap:8px; margin-top:24px; }
-        .fc-modal-actions .btn { flex:1; margin:0; padding:14px; font-size:15px; border-radius:12px; }
+        .fc-modal-actions { display:flex; gap:8px; margin-top:14px; flex-shrink:0; }
+        .fc-modal-actions .btn { flex:1; margin:0; padding:13px; font-size:15px; border-radius:12px; }
 </style>
 </head>
 
@@ -987,15 +992,18 @@
     <div id="fcModal" class="fc-modal">
         <div class="fc-modal-box">
             <h3 id="fcTitle"></h3>
-            <p id="fcDesc"></p>
-            <div id="fcInputContainer" style="display:none;">
-                <input type="text" id="fcInput" autocomplete="off" />
+            <div class="fc-modal-body" id="fcModalBody">
+                <div id="fcDesc"></div>
+                <div id="fcInputContainer" style="display:none;">
+                    <input type="text" id="fcInput" autocomplete="off" />
+                </div>
             </div>
             <div class="fc-modal-actions">
                 <button class="btn g" id="fcCancel">ยกเลิก</button>
                 <button class="btn" id="fcOk">ตกลง</button>
             </div>
         </div>
+    </div>
     <script>
         
         /* ============ CUSTOM MODALS ============ */
@@ -1006,6 +1014,8 @@
                 const m = document.getElementById('fcModal');
                 document.getElementById('fcTitle').innerHTML = title;
                 document.getElementById('fcDesc').innerHTML = desc || '';
+                const b = document.getElementById('fcModalBody');
+                if (b) b.scrollTop = 0;
                 document.getElementById('fcInputContainer').style.display = type === 'prompt' ? 'block' : 'none';
                 document.getElementById('fcCancel').style.display = type === 'alert' ? 'none' : 'block';
                 const inp = document.getElementById('fcInput');
@@ -1028,7 +1038,7 @@
         };
         document.getElementById('fcInput').onkeyup = (e) => { if (e.key === 'Enter') document.getElementById('fcOk').click(); };
         window.fcAlert = (desc) => fcShow('alert', 'แจ้งเตือน', desc);
-        window.fcConfirm = (desc) => fcShow('confirm', 'ยืนยันการดำเนินการ', desc);
+        window.fcConfirm = (desc, title) => fcShow('confirm', title || 'ยืนยันการดำเนินการ', desc);
         window.fcPrompt = (desc, defVal) => fcShow('prompt', 'ระบุข้อมูล', desc, defVal);
         
         async function calcBMR() {
@@ -1063,7 +1073,7 @@
                 </select>
             </div>`;
             
-            const confirmed = await fcConfirm(html);
+            const confirmed = await fcConfirm(html, '⚡ คำนวณเป้าหมายรายวัน (BMR/TDEE)');
             if (!confirmed) return;
             
             const gender = document.getElementById('bmrGender').value;
@@ -1555,7 +1565,7 @@ document.getElementById('schCtrls').innerHTML = `
             const processRequest = async (parts) => {
                 try {
                     const payload = { contents: [{ parts }] };
-                    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=' + D.cfg.aiKey, {
+                    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + D.cfg.aiKey, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
@@ -1849,6 +1859,8 @@ document.getElementById('schCtrls').innerHTML = `
                 console.error('Google Sign-in error:', err);
                 if (err.code === 'auth/popup-blocked') {
                     await fbAuth.signInWithRedirect(provider);
+                } else if (err.code === 'auth/configuration-not-found') {
+                    fcAlert(`ยังไม่ได้เปิดใช้งาน Google Sign-In ใน Firebase!\n\nวิธีแก้ไข:\n1. ไปที่ Firebase Console (โปรเจกต์ fitcoachx5)\n2. ไปที่เมนู Authentication > แท็บ "Sign-in method"\n3. กดเปิดใช้งาน (Enable) Google แล้วกด Save ครับ`);
                 } else if (err.code === 'auth/unauthorized-domain') {
                     fcAlert(`โดเมนนี้ (${window.location.hostname}) ยังไม่ได้รับอนุญาตใน Firebase!
 
@@ -1911,7 +1923,7 @@ document.getElementById('schCtrls').innerHTML = `
 
             // Merge Config
             if (cloud.cfg) {
-                if (cloud.cfg.aiKey && !D.cfg.aiKey) D.cfg.aiKey = cloud.cfg.aiKey;
+                if (cloud.cfg.aiKey) D.cfg.aiKey = cloud.cfg.aiKey;
                 if (cloud.cfg.calTarget) D.cfg.calTarget = cloud.cfg.calTarget;
                 if (cloud.cfg.proteinTarget) D.cfg.proteinTarget = cloud.cfg.proteinTarget;
                 if (cloud.cfg.myFoods && Array.isArray(cloud.cfg.myFoods)) {
@@ -1960,7 +1972,11 @@ document.getElementById('schCtrls').innerHTML = `
                 msg(`✓ ซิงก์สำเร็จ ${new Date().toLocaleTimeString('th-TH')}`);
             } catch (err) {
                 console.error("Cloud push error:", err);
-                msg('ซิงก์ขัดข้อง: ' + err.message.slice(0, 100));
+                if (err.code === 'permission-denied' || (err.message && err.message.includes('permission'))) {
+                    msg('⚠️ ซิงก์ไม่สำเร็จ: ยังไม่ได้ตั้งค่า Rules ใน Firestore');
+                } else {
+                    msg('ซิงก์ขัดข้อง: ' + err.message.slice(0, 100));
+                }
             } finally {
                 isSyncing = false;
             }
@@ -2005,7 +2021,11 @@ document.getElementById('schCtrls').innerHTML = `
                         });
                     } catch (err) {
                         console.error("Auth state handling error:", err);
-                        msg('ดึงข้อมูลไม่สำเร็จ: ' + err.message.slice(0, 100));
+                        if (err.code === 'permission-denied' || (err.message && err.message.includes('permission'))) {
+                            msg('⚠️ ยังไม่ได้ตั้งค่า Rules ใน Firestore: ไปที่ Firebase Console > Firestore Database > Rules');
+                        } else {
+                            msg('ดึงข้อมูลไม่สำเร็จ: ' + err.message.slice(0, 100));
+                        }
                     }
                 } else {
                     if (fbUnsubscribe) { fbUnsubscribe(); fbUnsubscribe = null; }
