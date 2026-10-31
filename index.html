@@ -578,18 +578,19 @@
         .fig.cool .hd {
             fill: var(--vio)
         }
-        .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(8px);z-index:200;display:none;justify-content:center;align-items:center;padding:16px}
+        .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.65);backdrop-filter:blur(8px);z-index:250;display:none;justify-content:center;align-items:center;padding:16px}
         .modal-overlay.on{display:flex}
-        .modal-box{background:var(--card);border:0;box-shadow:0 20px 40px rgba(0,0,0,0.1);border-radius:24px;max-width:400px;width:100%;max-height:88vh;overflow-y:auto;padding:24px;position:relative;animation:modalIn .25s ease}
+        .modal-box{background:var(--card);border:1px solid var(--line);box-shadow:0 24px 48px rgba(0,0,0,0.14);border-radius:24px;max-width:420px;width:100%;max-height:88vh;overflow-y:auto;padding:22px 20px;position:relative;animation:modalIn .25s ease}
         @keyframes modalIn{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
-        .modal-box .modal-close{position:absolute;top:16px;right:16px;background:var(--card2);border:0;color:var(--dim);font-size:18px;width:32px;height:32px;border-radius:50%;cursor:pointer;font-family:inherit;line-height:1;display:grid;place-items:center}
+        .modal-box .modal-close{position:absolute;top:16px;right:16px;background:var(--card2);border:0;color:var(--dim);font-size:18px;width:34px;height:34px;border-radius:50%;cursor:pointer;font-family:inherit;line-height:1;display:grid;place-items:center;transition:background .2s}
         .modal-box .modal-close:hover{color:var(--tx);background:var(--line)}
-        .modal-fig{display:flex;justify-content:center;margin:10px 0}
-        .modal-name{text-align:center;font-size:22px;font-weight:800;margin:8px 0 4px;color:var(--acc)}
-        .modal-eq{text-align:center;font-size:13px;color:var(--dim);margin-bottom:16px}
-        .modal-cue{margin:8px 0 8px 16px;color:var(--dim);font-size:13.5px;line-height:1.75}
-        .modal-yt{display:block;text-align:center;margin-top:16px;color:var(--acc);font-size:14px;text-decoration:none;font-weight:800;background:rgba(27,89,248,0.1);padding:12px;border-radius:12px}
-        .modal-yt:hover{background:rgba(27,89,248,0.15)}
+        .modal-fig{display:flex;justify-content:center;align-items:center;gap:10px;margin:12px 0}
+        .modal-fig img, .modal-fig .fig, .modal-fig .ai-fig{width:clamp(100px, 36vw, 145px) !important;height:clamp(100px, 36vw, 145px) !important;margin:0 !important;border-radius:12px}
+        .modal-name{text-align:center;font-size:20px;font-weight:800;margin:10px 0 4px;color:var(--tx)}
+        .modal-eq{display:flex;align-items:center;justify-content:center;gap:6px;text-align:center;font-size:13px;color:var(--dim);margin-bottom:14px}
+        .modal-cue{margin:10px 0 10px 20px;color:var(--dim);font-size:13.5px;line-height:1.75}
+        .modal-yt{display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;margin-top:16px;color:#ffffff;font-size:14px;text-decoration:none;font-weight:700;background:#ef4444;border-radius:99px;padding:12px 18px;box-shadow:0 4px 14px rgba(239,68,68,0.28);transition:transform .15s}
+        .modal-yt:active{transform:scale(.98)}
 
         .tracker-row{display:flex;gap:10px;margin:8px 0;align-items:center}
         .tracker-icon{font-size:22px;width:36px;text-align:center;flex:0 0 36px}
@@ -912,8 +913,8 @@
         <div id="plFig" style="display:flex;justify-content:center;margin:4px 0"></div>
         <div class="sub" id="plTarget" style="text-align:center;font-weight:700;color:var(--acc)"></div>
         <ul class="cue" id="plCue"></ul>
-        <div style="text-align:center;margin-top:6px"><a class="yt" id="plYt" target="_blank" rel="noopener">▶
-                ดูตัวอย่างท่านี้</a></div>
+        <div style="text-align:center;margin-top:6px"><button type="button" class="yt" id="plYt" style="background:none;border:none;cursor:pointer;font-family:inherit;padding:4px 8px;">▶
+                ดูตัวอย่างท่านี้</button></div>
         <div class="nx" id="plNext"></div>
         <div class="ctrl">
             <button class="btn g ic" onclick="prevStep()">⏮</button>
@@ -989,7 +990,7 @@
             <div class="modal-name" id="exModalName"></div>
             <div class="modal-eq" id="exModalEq"></div>
             <ul class="modal-cue" id="exModalCue"></ul>
-            <a class="modal-yt" id="exModalYt" target="_blank" rel="noopener">▶ ดูวิดีโอ YouTube</a>
+            <a class="modal-yt" id="exModalYt" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg> ดูวิดีโอตัวอย่างบน YouTube</a>
         </div>
     </div>
 
@@ -1048,78 +1049,294 @@
         window.fcConfirm = (desc, title) => fcShow('confirm', title || 'ยืนยันการดำเนินการ', desc);
         window.fcPrompt = (desc, defVal) => fcShow('prompt', 'ระบุข้อมูล', desc, defVal);
         
-        async function calcBMR(titleOverride, isSilent) {
-            const lastW = D.checks[D.checks.length-1]?.w || 70;
-            const saved = D.cfg.bmrInfo || { gender: 'M', age: 25, height: 170, activity: 1.375, goal: 0 };
-            
-            const html = `<div style="text-align:left; font-size:14px; line-height:1.5;">
-                <label style="display:block;margin-top:8px;font-weight:bold;">เพศ</label>
-                <select id="bmrGender" style="width:100%; margin-top:4px; padding:10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:15px; outline:none;">
-                    <option value="M" ${saved.gender === 'M' ? 'selected' : ''}>ชาย</option>
-                    <option value="F" ${saved.gender === 'F' ? 'selected' : ''}>หญิง</option>
-                </select>
-                <div style="display:flex; gap:8px; margin-top:12px">
-                    <div style="flex:1"><label style="font-weight:bold;">อายุ (ปี)</label><input type="number" id="bmrAge" value="${saved.age}" style="width:100%; font-size:15px; text-align:left; padding:10px; margin-top:4px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; outline:none;"></div>
-                    <div style="flex:1"><label style="font-weight:bold;">ส่วนสูง (ซม.)</label><input type="number" id="bmrHeight" value="${saved.height}" style="width:100%; font-size:15px; text-align:left; padding:10px; margin-top:4px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; outline:none;"></div>
+        async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
+            const lastCheck = D.checks[D.checks.length - 1] || {};
+            const lastW = lastCheck.w || 77.3;
+            const bio = D.cfg.biometrics || {};
+            const saved = D.cfg.bmrInfo || {};
+
+            const curW = lastW;
+            const curH = bio.height || saved.height || 168;
+            const curAge = bio.age || saved.age || 31;
+            const curGender = bio.gender || saved.gender || 'M';
+            const curBF = bio.bf || lastCheck.bf || 25.9;
+            const curMuscle = bio.muscle || 54.3;
+            const curVisceral = bio.visceral || 11;
+            const curWater = bio.water || 50.7;
+            const curBone = bio.bone || 2.91;
+            const curRHR = bio.rhr || 45;
+            const curVO2 = bio.vo2max || 45;
+            const curHRV = bio.hrv || 73;
+            const curBMRCustom = bio.bmrCustom || 1630;
+            const targetW = D.cfg.targetWeight || 68.0;
+            const courseWeeks = D.cfg.courseWeeks || 20;
+            const curAct = saved.activity || 1.55;
+            const curGoalType = saved.goalType || 'recomp';
+
+            const html = `
+            <div style="text-align:left; font-size:13.5px; line-height:1.5;">
+                <div style="background:rgba(27,89,248,0.08); padding:10px 14px; border-radius:12px; margin-bottom:14px; border-left:4px solid var(--acc);">
+                    <div style="font-weight:bold; color:var(--acc); font-size:14px;">🎯 ตั้งค่าโปรแกรม & แผนสรีระส่วนตัว</div>
+                    <div style="font-size:12px; color:var(--dim); margin-top:2px;">กรอกข้อมูลร่างกายเพื่อคำนวณ BMR, TDEE, แคลอรี่ และจัดแผนลดน้ำหนักอัตโนมัติ</div>
                 </div>
-                <label style="display:block;margin-top:12px;font-weight:bold;">น้ำหนักตั้งต้น/ปัจจุบัน (กก.)</label>
-                <input type="number" id="bmrWeight" value="${lastW}" style="width:100%; font-size:15px; text-align:left; padding:10px; margin-top:4px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; outline:none;">
-                <label style="display:block;margin-top:12px;font-weight:bold;">ระดับการออกกำลังกาย</label>
-                <select id="bmrActivity" style="width:100%; margin-top:4px; padding:10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:15px; outline:none;">
-                    <option value="1.2" ${saved.activity == 1.2 ? 'selected' : ''}>ไม่ออกกำลังกาย (1.2)</option>
-                    <option value="1.375" ${saved.activity == 1.375 ? 'selected' : ''}>1-3 วัน/สัปดาห์ (1.375)</option>
-                    <option value="1.55" ${saved.activity == 1.55 ? 'selected' : ''}>3-5 วัน/สัปดาห์ (1.55)</option>
-                    <option value="1.725" ${saved.activity == 1.725 ? 'selected' : ''}>6-7 วัน/สัปดาห์ (1.725)</option>
-                </select>
-                <label style="display:block;margin-top:12px;font-weight:bold;">เป้าหมายของคุณ</label>
-                <select id="bmrGoal" style="width:100%; margin-top:4px; padding:10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:15px; outline:none;">
-                    <option value="-500" ${saved.goal == -500 ? 'selected' : ''}>ลดไขมัน (-500 kcal)</option>
-                    <option value="-300" ${saved.goal == -300 ? 'selected' : ''}>ลดไขมันช้าๆ (-300 kcal)</option>
-                    <option value="0" ${saved.goal == 0 ? 'selected' : ''}>รักษาน้ำหนัก (TDEE)</option>
-                    <option value="300" ${saved.goal == 300 ? 'selected' : ''}>สร้างกล้ามเนื้อ (+300 kcal)</option>
-                </select>
+
+                <!-- หมวด 1: ข้อมูลร่างกาย -->
+                <div style="font-weight:bold; color:var(--tx); margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+                    <span>🧍‍♂️ ข้อมูลสรีระและสุขภาพล่าสุด</span>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <div style="flex:1;">
+                        <label style="font-size:12px; color:var(--dim);">เพศ</label>
+                        <select id="bmrGender" onchange="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                            <option value="M" ${curGender === 'M' ? 'selected' : ''}>ชาย</option>
+                            <option value="F" ${curGender === 'F' ? 'selected' : ''}>หญิง</option>
+                        </select>
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:12px; color:var(--dim);">อายุ (ปี)</label>
+                        <input type="number" id="bmrAge" value="${curAge}" oninput="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:12px; color:var(--dim);">ส่วนสูง (ซม.)</label>
+                        <input type="number" id="bmrHeight" value="${curH}" oninput="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <div style="flex:1;">
+                        <label style="font-size:12px; color:var(--dim);">น้ำหนักปัจจุบัน (กก.)</label>
+                        <input type="number" step="0.1" id="bmrWeight" value="${curW}" oninput="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px; font-weight:bold;">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:12px; color:var(--dim);">ไขมันร่างกาย (%BF)</label>
+                        <input type="number" step="0.1" id="bmrBF" value="${curBF}" oninput="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:12px; color:var(--dim);">มวลกล้ามเนื้อ (กก.)</label>
+                        <input type="number" step="0.1" id="bmrMuscle" value="${curMuscle}" oninput="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <div style="flex:1;">
+                        <label style="font-size:12px; color:var(--dim);">BMR เครื่องชั่ง (kcal)</label>
+                        <input type="number" id="bmrCustom" value="${curBMRCustom}" oninput="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:12px; color:var(--dim);">ไขมันช่องท้อง</label>
+                        <input type="number" id="bmrVisceral" value="${curVisceral}" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:12px; color:var(--dim);">ชีพจรพัก (RHR bpm)</label>
+                        <input type="number" id="bmrRHR" value="${curRHR}" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <div style="flex:1;">
+                        <label style="font-size:12px; color:var(--dim);">VO2 Max</label>
+                        <input type="number" id="bmrVO2" value="${curVO2}" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:12px; color:var(--dim);">HRV เฉลี่ย (ms)</label>
+                        <input type="number" id="bmrHRV" value="${curHRV}" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                    </div>
+                </div>
+
+                <!-- หมวด 2: เป้าหมาย & คอร์ส -->
+                <div style="margin-top:14px; border-top:1px solid var(--line); padding-top:10px;">
+                    <div style="font-weight:bold; color:var(--tx); margin-bottom:6px;">🎯 วางแผนเป้าหมาย & ระยะเวลาคอร์ส</div>
+                    <div style="display:flex; gap:8px;">
+                        <div style="flex:1;">
+                            <label style="font-size:12px; color:var(--dim); font-weight:bold;">น้ำหนักเป้าหมาย (กก.)</label>
+                            <input type="number" step="0.5" id="bmrTargetW" value="${targetW}" oninput="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--acc); color:var(--acc); font-size:15px; font-weight:bold;">
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-size:12px; color:var(--dim); font-weight:bold;">ระยะเวลาคอร์ส</label>
+                            <select id="bmrWeeks" onchange="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px; font-weight:bold;">
+                                <option value="20" ${courseWeeks == 20 ? 'selected' : ''}>20 สัปดาห์ (~5 เดือน สำหรับเที่ยว)</option>
+                                <option value="16" ${courseWeeks == 16 ? 'selected' : ''}>16 สัปดาห์ (~4 เดือน)</option>
+                                <option value="12" ${courseWeeks == 12 ? 'selected' : ''}>12 สัปดาห์ (~3 เดือน)</option>
+                                <option value="8" ${courseWeeks == 8 ? 'selected' : ''}>8 สัปดาห์ (~2 เดือน สปีด)</option>
+                                <option value="22" ${courseWeeks == 22 ? 'selected' : ''}>22 สัปดาห์ (โปรแกรมเต็ม)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:8px;">
+                        <label style="font-size:12px; color:var(--dim);">เป้าหมายหลัก</label>
+                        <select id="bmrGoalType" onchange="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                            <option value="recomp" ${curGoalType === 'recomp' ? 'selected' : ''}>ลดไขมันรักษากล้ามเนื้อ (Body Recomposition) — แนะนำ</option>
+                            <option value="fatloss" ${curGoalType === 'fatloss' ? 'selected' : ''}>เน้นลดไขมัน/น้ำหนักเร็ว (Fat Loss Cut)</option>
+                            <option value="slowcut" ${curGoalType === 'slowcut' ? 'selected' : ''}>ลดไขมันช้าๆ สบายๆ ไม่เครียด (Slow Cut)</option>
+                            <option value="maintain" ${curGoalType === 'maintain' ? 'selected' : ''}>รักษาน้ำหนักและกล้ามเนื้อเดิม (Maintain)</option>
+                            <option value="bulk" ${curGoalType === 'bulk' ? 'selected' : ''}>เพิ่มกล้ามเนื้อ (Lean Bulk)</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-top:8px;">
+                        <label style="font-size:12px; color:var(--dim);">ระดับกิจกรรม / ออกกำลังกาย</label>
+                        <select id="bmrActivity" onchange="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                            <option value="1.375" ${curAct == 1.375 ? 'selected' : ''}>ออกกำลังกายเบา 1-3 วัน/สัปดาห์</option>
+                            <option value="1.55" ${curAct == 1.55 ? 'selected' : ''}>ออกกำลังกาย 3-5 วัน/สัปดาห์ (ตามโปรแกรม FitCoach)</option>
+                            <option value="1.725" ${curAct == 1.725 ? 'selected' : ''}>ออกกำลังกายหนัก 6-7 วัน/สัปดาห์ หรือเดินเช้า+เวทเย็น</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- หมวด 3: กล่องพรีวิวผลการคำนวณสด -->
+                <div style="margin-top:12px;">
+                    <div id="bmrPreviewBox"></div>
+                </div>
             </div>`;
-            
-            const confirmed = await fcConfirm(html, titleOverride || '⚡ คำนวณเป้าหมายรายวัน (BMR/TDEE)');
+
+            // Function to update preview live inside modal
+            window.updateBmrPreview = function() {
+                const w = parseFloat(document.getElementById('bmrWeight')?.value) || 77.3;
+                const h = parseFloat(document.getElementById('bmrHeight')?.value) || 168;
+                const age = parseInt(document.getElementById('bmrAge')?.value) || 31;
+                const gender = document.getElementById('bmrGender')?.value || 'M';
+                const targetW = parseFloat(document.getElementById('bmrTargetW')?.value) || 68.0;
+                const weeks = parseInt(document.getElementById('bmrWeeks')?.value) || 20;
+                const act = parseFloat(document.getElementById('bmrActivity')?.value) || 1.55;
+                const customBmr = parseFloat(document.getElementById('bmrCustom')?.value) || 0;
+                const gType = document.getElementById('bmrGoalType')?.value || 'recomp';
+
+                let bmr = customBmr > 1000 ? customBmr : (10 * w + 6.25 * h - 5 * age + (gender === 'M' ? 5 : -161));
+                let tdee = bmr * act;
+                let diff = Math.max(0, w - targetW);
+                let lossPerWk = weeks > 0 ? (diff / weeks) : 0;
+                let lossPerMonth = lossPerWk * 4.33;
+
+                let deficitNeeded = Math.round((lossPerWk * 7700) / 7);
+                if (gType === 'maintain') deficitNeeded = 0;
+                else if (gType === 'bulk') deficitNeeded = -300;
+                else if (gType === 'slowcut') deficitNeeded = Math.min(deficitNeeded, 350);
+
+                let calTgt = Math.max(1200, Math.round(tdee - deficitNeeded));
+                let proMultiplier = gType === 'maintain' ? 1.8 : 2.0;
+                let proTgt = Math.round(w * proMultiplier);
+                let waterTgt = Math.round((w * 35) / 250);
+
+                const previewEl = document.getElementById('bmrPreviewBox');
+                if (previewEl) {
+                    let safeStatus = lossPerWk <= 0.65 
+                        ? '<span style="color:var(--ok);font-weight:bold;">✓ ปลอดภัยสูงสุด ลีนไขมันรักษากล้ามเนื้อ</span>' 
+                        : (lossPerWk <= 0.9 ? '<span style="color:var(--warn);font-weight:bold;">⚡ อัตราเร่งปานกลาง ควรทานโปรตีนให้ครบ</span>' : '<span style="color:var(--red);font-weight:bold;">⚠ อัตราลดสูง อาจเสี่ยงสูญเสียมวลกล้ามเนื้อ</span>');
+
+                    previewEl.innerHTML = `
+                        <div style="background:var(--card2); border-radius:12px; padding:12px; border:1px solid var(--line); font-size:13px; line-height:1.6;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                                <span style="color:var(--dim);">เป้าหมายน้ำหนัก:</span>
+                                <b style="color:var(--acc);">${w.toFixed(1)} กก. → ${targetW.toFixed(1)} กก. (ลด ${diff.toFixed(1)} กก.)</b>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                                <span style="color:var(--dim);">ระยะเวลา & อัตราลด:</span>
+                                <b>${weeks} สัปดาห์ • <span style="color:var(--acc);">${lossPerWk.toFixed(2)} กก./สัปดาห์</span> (~${lossPerMonth.toFixed(1)} กก./เดือน)</b>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                                <span style="color:var(--dim);">การประเมิน:</span>
+                                <span>${safeStatus}</span>
+                            </div>
+                            <div style="border-top:1px dashed var(--line); margin:6px 0;"></div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                                <span style="color:var(--dim);">BMR / TDEE:</span>
+                                <span>${Math.round(bmr)} / ${Math.round(tdee)} kcal</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                                <span style="color:var(--dim);">เป้าหมายพลังงาน:</span>
+                                <b style="color:var(--acc); font-size:14px;">${calTgt} kcal/วัน</b>
+                            </div>
+                            <div style="display:flex; justify-content:space-between;">
+                                <span style="color:var(--dim);">เป้าหมายโปรตีน & น้ำ:</span>
+                                <b style="color:var(--acc); font-size:14px;">${proTgt} g/วัน • น้ำ ${waterTgt} แก้ว (~${(waterTgt*250/1000).toFixed(1)}L)</b>
+                            </div>
+                        </div>
+                    `;
+                }
+            };
+
+            setTimeout(() => { if (typeof window.updateBmrPreview === 'function') window.updateBmrPreview(); }, 80);
+
+            const confirmed = await fcConfirm(html, titleOverride || '⚡ คำนวณเป้าหมายและจัดโปรแกรมใหม่');
             if (!confirmed) return null;
-            
-            const gender = document.getElementById('bmrGender').value;
-            const age = parseInt(document.getElementById('bmrAge').value) || 25;
-            const h = parseInt(document.getElementById('bmrHeight').value) || 170;
-            const w = parseFloat(document.getElementById('bmrWeight').value) || lastW;
-            const act = parseFloat(document.getElementById('bmrActivity').value) || 1.2;
-            const goal = parseInt(document.getElementById('bmrGoal').value) || 0;
-            
-            // Save info for next time
-            D.cfg.bmrInfo = { gender, age, height: h, activity: act, goal };
-            
-            let bmr = (10 * w) + (6.25 * h) - (5 * age);
-            bmr += (gender === 'M') ? 5 : -161;
-            
+
+            // Extract values
+            const gender = document.getElementById('bmrGender')?.value || curGender;
+            const age = parseInt(document.getElementById('bmrAge')?.value) || curAge;
+            const h = parseInt(document.getElementById('bmrHeight')?.value) || curH;
+            const w = parseFloat(document.getElementById('bmrWeight')?.value) || curW;
+            const targetWVal = parseFloat(document.getElementById('bmrTargetW')?.value) || targetW;
+            const weeksVal = parseInt(document.getElementById('bmrWeeks')?.value) || courseWeeks;
+            const act = parseFloat(document.getElementById('bmrActivity')?.value) || curAct;
+            const goalType = document.getElementById('bmrGoalType')?.value || curGoalType;
+            const bfVal = parseFloat(document.getElementById('bmrBF')?.value) || curBF;
+            const muscleVal = parseFloat(document.getElementById('bmrMuscle')?.value) || curMuscle;
+            const customBmrVal = parseFloat(document.getElementById('bmrCustom')?.value) || curBMRCustom;
+            const visceralVal = parseInt(document.getElementById('bmrVisceral')?.value) || curVisceral;
+            const rhrVal = parseInt(document.getElementById('bmrRHR')?.value) || curRHR;
+            const vo2Val = parseInt(document.getElementById('bmrVO2')?.value) || curVO2;
+            const hrvVal = parseInt(document.getElementById('bmrHRV')?.value) || curHRV;
+
+            // Calculations
+            let bmr = customBmrVal > 1000 ? customBmrVal : (10 * w + 6.25 * h - 5 * age + (gender === 'M' ? 5 : -161));
             let tdee = bmr * act;
-            let targetCal = Math.round(tdee + goal);
-            if (targetCal < 1200) targetCal = 1200;
-            
-            let proteinMult = goal < 0 ? 2.0 : 1.8;
-            let targetPro = Math.round(w * proteinMult);
-            
+            let diff = Math.max(0, w - targetWVal);
+            let lossPerWk = weeksVal > 0 ? (diff / weeksVal) : 0;
+            let lossPerMonth = lossPerWk * 4.33;
+
+            let deficitNeeded = Math.round((lossPerWk * 7700) / 7);
+            if (goalType === 'maintain') deficitNeeded = 0;
+            else if (goalType === 'bulk') deficitNeeded = -300;
+            else if (goalType === 'slowcut') deficitNeeded = Math.min(deficitNeeded, 350);
+
+            let targetCal = Math.max(1200, Math.round(tdee - deficitNeeded));
+            let proMultiplier = goalType === 'maintain' ? 1.8 : 2.0;
+            let targetPro = Math.round(w * proMultiplier);
+            let targetWater = Math.round((w * 35) / 250);
+
+            // Save to D.cfg
+            D.cfg.courseWeeks = weeksVal;
+            D.cfg.targetWeight = targetWVal;
             D.cfg.calTarget = targetCal;
             D.cfg.proteinTarget = targetPro;
+            D.cfg.waterTarget = targetWater;
+            D.cfg.lossPerWk = lossPerWk;
+            D.cfg.lossPerMonth = lossPerMonth;
+            D.cfg.bmrInfo = { gender, age, height: h, activity: act, goalType };
+            D.cfg.biometrics = { 
+                gender, age, height: h, bf: bfVal, muscle: muscleVal, 
+                visceral: visceralVal, rhr: rhrVal, vo2max: vo2Val, hrv: hrvVal, 
+                bmrCustom: customBmrVal 
+            };
+
             CAL_TARGET = targetCal;
             PROTEIN_TARGET = targetPro;
             save();
             render();
-            
+
             if (!isSilent) {
                 setTimeout(() => {
-                    fcAlert(`<div style="font-size:16px;"><b>ผลการคำนวณ</b></div><br>BMR (เผาผลาญพื้นฐาน): <b>${Math.round(bmr)}</b> kcal<br>TDEE (ใช้พลังงานรวม): <b>${Math.round(tdee)}</b> kcal<br><br><div style="color:var(--acc);font-weight:bold;">เป้าหมายใหม่ของคุณ:</div>พลังงาน: <b>${targetCal}</b> kcal/วัน<br>โปรตีน: <b>${targetPro}</b> g/วัน`);
+                    fcAlert(`
+                        <div style="font-size:16px;"><b>🎉 ปรับแต่งโปรแกรมเรียบร้อย!</b></div><br>
+                        ระยะเวลาคอร์ส: <b>${weeksVal} สัปดาห์ (~${(weeksVal/4.33).toFixed(1)} เดือน)</b><br>
+                        เป้าหมายน้ำหนัก: <b>${w.toFixed(1)} กก. → ${targetWVal.toFixed(1)} กก.</b> (ลด ${diff.toFixed(1)} กก.)<br>
+                        อัตราลดเป้าหมาย: <b>${lossPerWk.toFixed(2)} กก./สัปดาห์ (~${lossPerMonth.toFixed(1)} กก./เดือน)</b><br><br>
+                        <div style="color:var(--acc);font-weight:bold;">เป้าหมายประจำวัน:</div>
+                        พลังงาน: <b>${targetCal}</b> kcal/วัน<br>
+                        โปรตีน: <b>${targetPro}</b> g/วัน<br>
+                        น้ำดื่ม: <b>${targetWater}</b> แก้ว (~${(targetWater*250/1000).toFixed(1)} ลิตร)
+                    `);
                 }, 300);
             }
-            
-            return { bmr, tdee, targetCal, targetPro, w };
+
+            return { 
+                w, bmr, tdee, targetCal, targetPro, targetWater, 
+                targetW: targetWVal, courseWeeks: weeksVal, lossPerWk, lossPerMonth,
+                bf: bfVal, muscle: muscleVal, visceral: visceralVal, rhr: rhrVal, vo2max: vo2Val, hrv: hrvVal 
+            };
         }
 
-        /* ============ LANDING PAGE LOGIC ============ */
         function enterApp() {
             const el = document.getElementById('p-landing');
             if(el) {
@@ -1251,6 +1468,10 @@
                     { e: 'plank', sets: 3, type: 'time', t: 45, rest: 40, after: 45 }]
             },
             H: { n: 'HIIT Intervals', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#f24e1e"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>', warm: 'lite', kcal: 400, items: (() => { const a = []; for (let i = 0; i < 8; i++) { a.push({ e: 'hiitR', sets: 1, type: 'time', t: 60, after: 0 }); a.push({ e: 'hiitW', sets: 1, type: 'time', t: 90, after: i === 7 ? 30 : 0 }) } return a })() },
+            M: {
+                n: 'Morning Cardio — เดินลู่ตอนเช้า', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#f59e0b"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="4.22" x2="19.78" y2="5.64"/></svg>', warm: 'lite', kcal: 180, items: [
+                    { e: 'z2', sets: 1, type: 'time', t: 1500, after: 30 }]
+            },
             R: {
                 n: 'Active Recovery', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--vio)"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>', warm: 'lite', kcal: 200, items: [
                     { e: 'walk', sets: 1, type: 'time', t: 1500, after: 60 },
@@ -1259,23 +1480,63 @@
         };
         const SCHED = ['R', 'A', 'Z', 'B', 'R', 'C', 'H'];
         const DN = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
-        const PHASES = [
-            { w: '1-4', n: 'Phase 1 · Foundation', d: 'ปรับตัว เรียนฟอร์ม + ฟื้นฟูหลังด้วย McGill Big 3 ทุกวัน', v: 'พัก 60-75 วิ • Z2 30 นาที', tgt: '-1.6 กก.' },
-            { w: '5-8', n: 'Phase 2 · Build', d: 'เพิ่มปริมาณ 15% เริ่มอินเทอร์วัลจริงจัง', v: '+1 เซ็ตท่าหลัก • HIIT 8 รอบ', tgt: '-1.5 กก.' },
-            { w: '9-13', n: 'Phase 3 · Metabolic', d: 'ลดเวลาพัก เพิ่มความหนาแน่นการฝึก', v: 'พัก 45 วิ • เซอร์กิต 5 รอบ', tgt: '-1.5 กก.' },
-            { w: '14-18', n: 'Phase 4 · Intensify', d: 'เพิ่ม tempo ลงช้า 3 วินาที ชดเชยดัมเบลจำกัด 10 กก.', v: 'Tempo 3-1-1 • Z2 45 นาที', tgt: '-1.5 กก.' },
-            { w: '19-22', n: 'Phase 5 · Peak Cut', d: 'เร่งขั้นสุดท้าย + เดิน 10,000 ก้าว/วัน', v: 'Drop set • คาร์ดิโอ 6 วัน', tgt: '-1.9 กก.' }
-        ];
+
+        function totalWeeks() { return D.cfg.courseWeeks || 20; }
+        function wkNo() { return Math.min(totalWeeks(), Math.max(1, Math.floor((new Date(iso()) - new Date(D.start)) / 864e5 / 7) + 1)); }
+
+        function getPhases() {
+            const tw = totalWeeks();
+            const startW = D.checks[0]?.w || 77.3;
+            const targetW = D.cfg.targetWeight || 68.0;
+            const lossTgt = Math.max(0.5, startW - targetW);
+            const perPhase = (lossTgt / 5).toFixed(1);
+
+            const w1 = Math.max(1, Math.round(tw * 0.20));
+            const w2 = Math.max(1, Math.round(tw * 0.20));
+            const w3 = Math.max(1, Math.round(tw * 0.20));
+            const w4 = Math.max(1, Math.round(tw * 0.20));
+            const p1 = w1, p2 = p1 + w2, p3 = p2 + w3, p4 = p3 + w4, p5 = tw;
+
+            return [
+                { w: `1-${p1}`, n: 'Phase 1 · Foundation', d: 'ปรับตัว เรียนฟอร์ม + ฟื้นฟูแกนกลางและหลังด้วย McGill Big 3', v: 'พัก 60-75 วิ • Z2 30 นาที', tgt: `-${perPhase} กก.` },
+                { w: `${p1 + 1}-${p2}`, n: 'Phase 2 · Build', d: 'เพิ่มปริมาณการฝึก + เริ่มอินเทอร์วัลเร่งการเผาผลาญ', v: '+1 เซ็ตท่าหลัก • HIIT 8 รอบ', tgt: `-${perPhase} กก.` },
+                { w: `${p2 + 1}-${p3}`, n: 'Phase 3 · Metabolic', d: 'ลดเวลาพัก เพิ่มความหนาแน่นการฝึก สลายไขมันสะสม', v: 'พัก 45 วิ • เซอร์กิต 5 รอบ', tgt: `-${perPhase} กก.` },
+                { w: `${p3 + 1}-${p4}`, n: 'Phase 4 · Intensify', d: 'เน้น Tempo คุมจังหวะกล้ามเนื้อ ล็อคมวลกล้ามเนื้อให้แน่น', v: 'Tempo 3-1-1 • Z2 45 นาที', tgt: `-${perPhase} กก.` },
+                { w: `${p4 + 1}-${p5}`, n: 'Phase 5 · Peak Cut', d: 'ลีนขั้นสุดท้ายสำหรับทริปเที่ยว + ร่อง 6-Pack ชัดเจน', v: 'Drop set • คาร์ดิโอสม่ำเสมอ', tgt: `-${perPhase} กก.` }
+            ];
+        }
+
+        function phIdx() {
+            const w = wkNo();
+            const phases = getPhases();
+            for (let i = 0; i < phases.length; i++) {
+                const parts = phases[i].w.split('-');
+                const endW = parseInt(parts[1]) || (i + 1) * 4;
+                if (w <= endW) return i;
+            }
+            return phases.length - 1;
+        }
+
+        function hasDoneMorningCardioToday() {
+            return D.sessions.some(s => s.date === iso() && (s.workout_key === 'M' || (s.workout_name && s.workout_name.includes('เช้า'))));
+        }
+
+        async function startMorningCardio() {
+            const mins = await fcPrompt('เลือกระยะเวลาเดินลู่ตอนเช้า (นาที)', '25', '🌅 เดินลู่ Zone 2 ตอนเช้า');
+            if (!mins) return;
+            const m = Math.max(10, Math.min(90, parseInt(mins) || 25));
+            W.M.items[0].t = m * 60;
+            W.M.kcal = Math.round(m * 7.5);
+            startW('M');
+        }
 
         /* ============ STATE ============ */
-        const D = JSON.parse(localStorage.getItem('fit') || 'null') || { start: iso(), bs: false, checks: [{ d: iso(), w: 80, bf: 27.1, hrv: 78, pain: null }], sessions: [], sets: [], cfg: { url: '', key: '', code: '' } };
+        const D = JSON.parse(localStorage.getItem('fit') || 'null') || { start: iso(), bs: false, checks: [{ d: iso(), w: 77.3, bf: 25.9, hrv: 73, pain: null }], sessions: [], sets: [], cfg: { url: '', key: '', code: '' } };
         D.cfg = D.cfg || { url: '', key: '', code: '' };
-        let CAL_TARGET = D.cfg.calTarget || 1800, PROTEIN_TARGET = D.cfg.proteinTarget || 140;
+        let CAL_TARGET = D.cfg.calTarget || 1800, PROTEIN_TARGET = D.cfg.proteinTarget || 155;
         const WATER_TARGET = 8, WEIGH_WARN_DAYS = 2;
         function save() { localStorage.setItem('fit', JSON.stringify(D)) }
         function iso() { return new Date().toISOString().slice(0, 10) }
-        function wkNo() { return Math.min(22, Math.floor((new Date(iso()) - new Date(D.start)) / 864e5 / 7) + 1) }
-        function phIdx() { const w = wkNo(); return w <= 4 ? 0 : w <= 8 ? 1 : w <= 13 ? 2 : w <= 18 ? 3 : 4 }
         function fmt(s) { s = Math.max(0, Math.round(s)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0') }
         function exOf(k) { return (D.bs && SAFE[k]) ? SAFE[k] : k }
         function todayCheck() { return D.checks.find(x => x.d === iso()) || null }
@@ -1299,7 +1560,12 @@
         function fullItems(k) {
             const w = W[k];
             const warm = (w.warm === 'full' ? WARM_FULL : WARM_LITE).map(x => ({ ...x, ph: 'warm' }));
-            const main = w.items.map(x => ({ ...x, e: exOf(x.e), ph: 'main' }));
+            let items = w.items;
+            // Smart Skip: If morning cardio was done today and this is Strength A, bypass trailing treadmill cardio unless forced
+            if (k === 'A' && hasDoneMorningCardioToday() && !D.forceEveningCardio) {
+                items = items.filter(x => x.e !== 'z2');
+            }
+            const main = items.map(x => ({ ...x, e: exOf(x.e), ph: 'main' }));
             const cool = COOL.map(x => ({ ...x, ph: 'cool' }));
             if (main.length) main[main.length - 1] = { ...main[main.length - 1], after: 60 };
             return [...warm, ...main, ...cool];
@@ -1309,20 +1575,23 @@
         /* ============ RENDER ============ */
         function render() {
             const last = D.checks[D.checks.length - 1] || null;
-            document.getElementById('wkTxt').textContent = 'สัปดาห์ ' + wkNo() + '/22';
-            document.getElementById('phaseTag').textContent = PHASES[phIdx()].n.split(' · ')[0];
-            document.getElementById('hsub').textContent = PHASES[phIdx()].d;
+            document.getElementById('wkTxt').textContent = 'สัปดาห์ ' + wkNo() + '/' + totalWeeks();
+            document.getElementById('phaseTag').textContent = getPhases()[phIdx()].n.split(' · ')[0];
+            document.getElementById('hsub').textContent = getPhases()[phIdx()].d;
             document.getElementById('curW').textContent = last ? (+last.w).toFixed(1) : '–';
             document.getElementById('sBF').textContent = last?.bf ? (+last.bf).toFixed(1) + '%' : '–';
             document.getElementById('sPain').textContent = last?.pain == null ? '–' : last.pain + '/10';
             document.getElementById('sSync').innerHTML = currentUser ? '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;color:var(--ok)"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' : '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>';
             const startW = D.checks[0]?.w || last?.w || null;
+            const targetW = D.cfg.targetWeight || 68.0;
             const lost = (startW && last) ? startW - last.w : 0;
+            const totalToLose = (startW && targetW) ? Math.max(0.5, startW - targetW) : 8.0;
             const dl = document.getElementById('delta');
             if (startW && last) {
                 dl.textContent = (lost >= 0 ? '-' : '+') + Math.abs(lost).toFixed(1) + ' กก.';
                 dl.className = 'tag' + (lost >= 0 ? '' : ' o');
-                document.getElementById('wBar').style.width = Math.max(2, Math.min(100, Math.abs(lost) / 8 * 100)) + '%';
+                const pct = Math.max(2, Math.min(100, (lost / totalToLose) * 100));
+                document.getElementById('wBar').style.width = pct + '%';
             } else {
                 dl.textContent = 'เริ่มต้น';
                 dl.className = 'tag';
@@ -1369,14 +1638,33 @@
     <button class="btn" onclick="calcBMR()" style="width:100%; margin-top:8px; border: 1px solid var(--acc); background: transparent; color: var(--acc);">🧮 คำนวณเป้าหมายรายวัน (BMR/TDEE)</button>`;
 
             let offs = D.schOffs || 0; const actualD = new Date().getDay(); const dow = (actualD - offs + 7) % 7, tk = SCHED[dow], t = W[tk];
-            const done = D.sessions.some(s => s.date === iso());
+            const done = D.sessions.some(s => s.date === iso() && s.workout_key !== 'M');
+            const morningDone = hasDoneMorningCardioToday();
+            
+            let cardioNote = '';
+            if (tk === 'A') {
+                if (morningDone) {
+                    cardioNote = `<div style="margin-top:6px;font-size:12px;color:var(--ok);font-weight:600;display:flex;align-items:center;gap:4px;">
+                        ✓ เช้านี้เดินลู่แล้ว • เย็นนี้ยกเวทเน้นๆ (ตัดลู่วิ่งท้ายเวทออกให้อัตโนมัติ)
+                    </div>`;
+                } else {
+                    cardioNote = `<div style="margin-top:6px;font-size:12px;color:var(--dim);">
+                        💡 ไม่ได้เดินเช้า • รวมเดินลู่ท้ายเวท 15 นาทีตามโปรแกรมปกติ
+                    </div>`;
+                }
+            }
+
             document.getElementById('todayBox').innerHTML = `<div class="card" style="border-color:var(--acc)">
     <div class="row"><div><h3>${t.ic} ${t.n}</h3>
     <div class="sub">วัน${DN[dow]} • ~${estMin(tk)} นาที (รวมวอร์ม+คูลดาวน์) • ~${t.kcal} kcal</div></div>
     ${done ? '<span class="tag">✓ เสร็จแล้ว</span>' : ''}</div>
     <div style="margin-top:8px"><span class="tag o"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="4.22" x2="19.78" y2="5.64"/></svg> Warm-up ${t.warm === 'full' ? '9' : '6'} นาที</span> <span class="tag v"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="20" y1="16" x2="16" y2="20"/><line x1="4" y1="8" x2="8" y2="4"/><line x1="20" y1="8" x2="16" y2="4"/><line x1="4" y1="16" x2="8" y2="20"/></svg> Cool-down 8 นาที</span>${D.bs ? ' <span class="tag b"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> หลังปลอดภัย</span>' : ''}</div>
-    <button class="btn" style="margin-top:12px" onclick="startW('${tk}')">▶ เริ่มออกกำลังกาย</button>
-    <button class="btn g" style="margin-top:8px" onclick="showW('${tk}');go('prog')">ดูรายละเอียดท่า</button></div>`;
+    ${cardioNote}
+    <button class="btn" style="margin-top:12px;" onclick="startW('${tk}')">▶ เริ่มออกกำลังกาย</button>
+    <div class="g2" style="margin-top:8px;">
+        <button class="btn g sm" style="background:rgba(245,158,11,0.12);color:#d97706;border:1px solid rgba(245,158,11,0.25);display:flex;align-items:center;justify-content:center;gap:4px;" onclick="startMorningCardio()">🌅 ${morningDone ? 'เดินลู่เช้า ✓' : 'เดินลู่เช้า'}</button>
+        <button class="btn g sm" style="display:flex;align-items:center;justify-content:center;" onclick="showW('${tk}');go('prog')">ดูรายละเอียดท่า</button>
+    </div></div>`;
 
             document.getElementById('weekBox').innerHTML = SCHED.map((k, i) => {
     let actualDay = (i + (D.schOffs || 0)) % 7;
@@ -1392,7 +1680,7 @@ document.getElementById('schCtrls').innerHTML = `
 <button class="qbtn" onclick="resetProgram()" style="background:rgba(14,165,233,0.15);color:var(--acc);border:1px solid rgba(14,165,233,0.3)"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีเซ็ตโปรแกรมใหม่</button>
 `;
 
-            document.getElementById('phaseList').innerHTML = PHASES.map((p, i) => `
+            document.getElementById('phaseList').innerHTML = getPhases().map((p, i) => `
     <div class="card" style="${i === phIdx() ? 'border-color:var(--acc)' : ''}">
       <div class="row"><h3>${p.n}</h3><span class="tag ${i === phIdx() ? '' : 'gr'}">สัปดาห์ ${p.w}</span></div>
       <div class="sub" style="margin-top:6px">${p.d}</div>
@@ -1480,7 +1768,7 @@ document.getElementById('schCtrls').innerHTML = `
             document.getElementById('plCue').innerHTML = e ? e.cue.map(c => '<li>' + c + '</li>').join('') : '';
             document.getElementById('plFig').innerHTML=e?fig(s.e,150):(s.next&&AMAP[Object.keys(EX).find(x=>EX[x].n===s.next)]?'':'');
             document.getElementById('plFig').className=e?figClass(s.e):'';
-            yt.style.display = e ? 'inline' : 'none'; if (e) { yt.href = 'javascript:void(0)'; yt.onclick = function(){ showExModal(s.e) }; }
+            yt.style.display = e ? 'inline-block' : 'none'; if (e) { yt.onclick = function(ev){ if(ev)ev.preventDefault(); showExModal(s.e) }; }
             const nx = ST[idx + 1];
             document.getElementById('plNext').innerHTML = nx ? 'ถัดไป: ' + (nx.k === 'rest' ? 'พัก ' + nx.dur + ' วิ' + (nx.next ? ' → ' + nx.next : '') : nx.name) : '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> ท่าสุดท้าย!';
             document.getElementById('plAdd').style.display = rest ? 'block' : 'none';
@@ -2193,13 +2481,19 @@ document.getElementById('schCtrls').innerHTML = `
         /* ============ EXERCISE MODAL ============ */
         function showExModal(k){
             const e=EX[k]; if(!e) return;
+            if (typeof playing !== 'undefined' && playing) {
+                togglePlay(); // Pause workout timer while reviewing exercise
+            }
             document.getElementById('exModalFig').innerHTML=fig(k,240);
             document.getElementById('exModalName').textContent=e.n;
-            document.getElementById('exModalEq').textContent='<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M14.4 14.4l-4.8-4.8"/><path d="M6.5 10.8l-4.3 4.3a2 2 0 0 0 2.8 2.8l4.3-4.3"/><path d="M17.5 13.2l4.3-4.3a2 2 0 0 0-2.8-2.8l-4.3 4.3"/><path d="M2.2 16.2l3 3"/><path d="M18.8 4.8l-3 3"/><path d="M7 9l8 8"/><path d="M9 7l8 8"/></svg>️ '+e.eq;
+            document.getElementById('exModalEq').innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M14.4 14.4l-4.8-4.8"/><path d="M6.5 10.8l-4.3 4.3a2 2 0 0 0 2.8 2.8l4.3-4.3"/><path d="M17.5 13.2l4.3-4.3a2 2 0 0 0-2.8-2.8l-4.3 4.3"/><path d="M2.2 16.2l3 3"/><path d="M18.8 4.8l-3 3"/><path d="M7 9l8 8"/><path d="M9 7l8 8"/></svg> ' + (e.eq || 'ไม่ต้องใช้อุปกรณ์');
             document.getElementById('exModalCue').innerHTML=e.cue.map(c=>'<li>'+c+'</li>').join('');
             const yt=document.getElementById('exModalYt');
             yt.href='https://www.youtube.com/results?search_query='+encodeURIComponent(e.yt);
             document.getElementById('exModal').classList.add('on');
+            setTimeout(()=>{
+                document.querySelectorAll('#exModalFig .fig').forEach(el=>paintFig(el,0));
+            },10);
         }
         function closeExModal(){document.getElementById('exModal').classList.remove('on')}
         document.addEventListener('keydown',e=>{if(e.key==='Escape')closeExModal()});
@@ -2344,18 +2638,31 @@ document.getElementById('schCtrls').innerHTML = `
 
             const clearStats = await fcConfirm('ต้องการล้างประวัติสถิติเดิมทั้งหมด (เช็คอิน, กราฟ, ประวัติซ้อม) ด้วยหรือไม่?\n\n• กด "ตกลง" = ล้างสถิติเก่า เริ่มนับ 1 ใหม่ทั้งหมด\n• กด "ยกเลิก" = เก็บสถิติเดิมไว้ แค่เริ่มโปรแกรมใหม่', '📊 ล้างสถิติเก่าหรือไม่?');
 
-            // Open full onboarding BMR/TDEE calculation modal
-            const res = await calcBMR('🎯 ข้อมูลตั้งต้นสำหรับโปรแกรมใหม่', true);
+            // Open full onboarding Smart Program Wizard
+            const res = await calcBMR('🎯 ตั้งค่าโปรแกรมและข้อมูลสุขภาพใหม่', true, true);
             if (!res) return; // User cancelled modal
 
-            const { w, bmr, tdee, targetCal, targetPro } = res;
+            const { w, bmr, tdee, targetCal, targetPro, targetWater, targetW, courseWeeks, lossPerWk, lossPerMonth, bf, muscle, visceral, rhr, vo2max, hrv } = res;
             
             // Apply Reset
             D.start = iso();
             D.schOffs = (new Date().getDay() - 1 + 7) % 7;
             
             const prev = D.checks.length > 0 ? D.checks[D.checks.length - 1] : null;
-            const rec = { d: iso(), w: w, bf: prev?.bf || null, hrv: null, pain: null, cal: null, protein: null, water: null };
+            const rec = { 
+                d: iso(), 
+                w: w, 
+                bf: bf || prev?.bf || null, 
+                muscle: muscle || null,
+                visceral: visceral || null,
+                rhr: rhr || null,
+                vo2max: vo2max || null,
+                hrv: hrv || null, 
+                pain: 0, 
+                cal: null, 
+                protein: null, 
+                water: null 
+            };
             
             if (clearStats) {
                 D.checks = [ rec ];
@@ -2364,7 +2671,7 @@ document.getElementById('schCtrls').innerHTML = `
             } else {
                 const existingIndex = D.checks.findIndex(x => x.d === iso());
                 if (existingIndex >= 0) {
-                    D.checks[existingIndex].w = w;
+                    D.checks[existingIndex] = { ...D.checks[existingIndex], ...rec };
                 } else {
                     D.checks.push(rec);
                 }
@@ -2376,7 +2683,17 @@ document.getElementById('schCtrls').innerHTML = `
             }
             
             setTimeout(() => {
-                fcAlert(`<div style="font-size:16px;"><b>🎉 เริ่มต้นโปรแกรมใหม่เรียบร้อย!</b></div><br>น้ำหนักตั้งต้น: <b>${w}</b> กก.<br>BMR (เผาผลาญพื้นฐาน): <b>${Math.round(bmr)}</b> kcal<br>TDEE (ใช้พลังงานรวม): <b>${Math.round(tdee)}</b> kcal<br><br><div style="color:var(--acc);font-weight:bold;">🎯 เป้าหมายใหม่ของคุณ:</div>พลังงาน: <b>${targetCal}</b> kcal/วัน<br>โปรตีน: <b>${targetPro}</b> g/วัน<br><br><span style="color:var(--dim);font-size:13px;">${clearStats ? '(ล้างสถิติเดิม เริ่มนับ 1 ใหม่จากศูนย์)' : '(เก็บประวัติสถิติเดิมไว้)'}</span>`);
+                fcAlert(`
+                    <div style="font-size:16px;"><b>🎉 เริ่มต้นโปรแกรมใหม่สำเร็จ!</b></div><br>
+                    ระยะเวลาคอร์ส: <b>${courseWeeks} สัปดาห์ (~${(courseWeeks/4.33).toFixed(1)} เดือน)</b><br>
+                    เป้าหมายน้ำหนัก: <b>${w.toFixed(1)} กก. → ${targetW.toFixed(1)} กก.</b> (ลด ${(w - targetW).toFixed(1)} กก.)<br>
+                    อัตราลดเป้าหมาย: <b>${lossPerWk.toFixed(2)} กก./สัปดาห์ (~${lossPerMonth.toFixed(1)} กก./เดือน)</b><br><br>
+                    <div style="color:var(--acc);font-weight:bold;">เป้าหมายประจำวัน:</div>
+                    พลังงาน: <b>${targetCal}</b> kcal/วัน<br>
+                    โปรตีน: <b>${targetPro}</b> g/วัน<br>
+                    น้ำดื่ม: <b>${targetWater}</b> แก้ว (~${(targetWater*250/1000).toFixed(1)} ลิตร)<br><br>
+                    <span style="color:var(--dim);font-size:13px;">${clearStats ? '(ล้างสถิติเดิม เริ่มนับ 1 ใหม่จากศูนย์)' : '(เก็บประวัติสถิติเดิมไว้)'}</span>
+                `);
             }, 300);
         }
 
