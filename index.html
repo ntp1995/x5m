@@ -840,6 +840,13 @@
                 </div>
             </div>
             <div class="card">
+                <div class="row" style="align-items:center;">
+                    <h3>ประวัติเช็คอินรายวัน</h3>
+                    <span class="sub" id="checkCount"></span>
+                </div>
+                <div id="checkHistory" style="margin-top:8px; max-height:260px; overflow-y:auto;"></div>
+            </div>
+            <div class="card">
                 <h3>ประวัติการฝึก</h3>
                 <div id="log" style="margin-top:8px"></div>
             </div>
@@ -874,7 +881,7 @@
                 <div class="g2" style="margin-top:10px">
                     <button class="btn g sm" onclick="exportJSON()">ส่งออกไฟล์สำรอง</button>
                     <button class="btn g sm"
-                        onclick="fcConfirm('ล้างข้อมูลในเครื่อง? (ข้อมูลบนคลาวด์ Google จะยังอยู่)').then(r=>{if(r){localStorage.removeItem('fit');location.reload()}})">ล้างเครื่องนี้</button>
+                        onclick="resetAllData()" style="color:#ef4444; border-color:rgba(239,68,68,0.3);">ล้างและเริ่มใหม่จากศูนย์</button>
                 </div>
             </div>
         </div>
@@ -1041,7 +1048,7 @@
         window.fcConfirm = (desc, title) => fcShow('confirm', title || 'ยืนยันการดำเนินการ', desc);
         window.fcPrompt = (desc, defVal) => fcShow('prompt', 'ระบุข้อมูล', desc, defVal);
         
-        async function calcBMR() {
+        async function calcBMR(titleOverride, isSilent) {
             const lastW = D.checks[D.checks.length-1]?.w || 70;
             const saved = D.cfg.bmrInfo || { gender: 'M', age: 25, height: 170, activity: 1.375, goal: 0 };
             
@@ -1055,7 +1062,7 @@
                     <div style="flex:1"><label style="font-weight:bold;">อายุ (ปี)</label><input type="number" id="bmrAge" value="${saved.age}" style="width:100%; font-size:15px; text-align:left; padding:10px; margin-top:4px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; outline:none;"></div>
                     <div style="flex:1"><label style="font-weight:bold;">ส่วนสูง (ซม.)</label><input type="number" id="bmrHeight" value="${saved.height}" style="width:100%; font-size:15px; text-align:left; padding:10px; margin-top:4px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; outline:none;"></div>
                 </div>
-                <label style="display:block;margin-top:12px;font-weight:bold;">น้ำหนักปัจจุบัน (กก.)</label>
+                <label style="display:block;margin-top:12px;font-weight:bold;">น้ำหนักตั้งต้น/ปัจจุบัน (กก.)</label>
                 <input type="number" id="bmrWeight" value="${lastW}" style="width:100%; font-size:15px; text-align:left; padding:10px; margin-top:4px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; outline:none;">
                 <label style="display:block;margin-top:12px;font-weight:bold;">ระดับการออกกำลังกาย</label>
                 <select id="bmrActivity" style="width:100%; margin-top:4px; padding:10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:15px; outline:none;">
@@ -1073,8 +1080,8 @@
                 </select>
             </div>`;
             
-            const confirmed = await fcConfirm(html, '⚡ คำนวณเป้าหมายรายวัน (BMR/TDEE)');
-            if (!confirmed) return;
+            const confirmed = await fcConfirm(html, titleOverride || '⚡ คำนวณเป้าหมายรายวัน (BMR/TDEE)');
+            if (!confirmed) return null;
             
             const gender = document.getElementById('bmrGender').value;
             const age = parseInt(document.getElementById('bmrAge').value) || 25;
@@ -1103,9 +1110,13 @@
             save();
             render();
             
-            setTimeout(() => {
-                fcAlert(`<div style="font-size:16px;"><b>ผลการคำนวณ</b></div><br>BMR (เผาผลาญพื้นฐาน): <b>${Math.round(bmr)}</b> kcal<br>TDEE (ใช้พลังงานรวม): <b>${Math.round(tdee)}</b> kcal<br><br><div style="color:var(--acc);font-weight:bold;">เป้าหมายใหม่ของคุณ:</div>พลังงาน: <b>${targetCal}</b> kcal/วัน<br>โปรตีน: <b>${targetPro}</b> g/วัน`);
-            }, 300);
+            if (!isSilent) {
+                setTimeout(() => {
+                    fcAlert(`<div style="font-size:16px;"><b>ผลการคำนวณ</b></div><br>BMR (เผาผลาญพื้นฐาน): <b>${Math.round(bmr)}</b> kcal<br>TDEE (ใช้พลังงานรวม): <b>${Math.round(tdee)}</b> kcal<br><br><div style="color:var(--acc);font-weight:bold;">เป้าหมายใหม่ของคุณ:</div>พลังงาน: <b>${targetCal}</b> kcal/วัน<br>โปรตีน: <b>${targetPro}</b> g/วัน`);
+                }, 300);
+            }
+            
+            return { bmr, tdee, targetCal, targetPro, w };
         }
 
         /* ============ LANDING PAGE LOGIC ============ */
@@ -1135,16 +1146,16 @@
             c_child: { img: 'childpose.jpg', n: "Child's Pose + เอื้อมข้าง", eq: 'พื้น', cue: ['นั่งทับส้นเท้า เหยียดแขนไปหน้าให้สุด', 'หายใจเข้าไปที่หลังส่วนล่างให้รู้สึกขยาย', 'เอื้อมแขนไปด้านซ้าย 20 วิ แล้วขวา 20 วิ'], yt: 'childs pose stretch' },
             c_fig4: { img: 'c_fig4.jpg', n: 'Supine Figure-4 (ยืดสะโพก/ก้น)', eq: 'พื้น', cue: ['นอนหงาย ไขว้ข้อเท้าขวาบนเข่าซ้าย', 'ดึงต้นขาซ้ายเข้าหาอกจนตึงก้นขวา', 'ค้าง 40 วินาที หายใจลึก', 'กล้ามเนื้อก้นตึงคือสาเหตุปวดหลังอันดับต้นๆ'], yt: 'figure 4 piriformis stretch', side: 1 },
             c_ham: { img: 'c_ham.jpg', n: 'Hamstring Stretch (ใช้ผ้าขนหนู)', eq: 'ผ้าขนหนู', cue: ['นอนหงาย คล้องผ้าที่ฝ่าเท้า ยกขาขึ้นตรง', 'เข่างอเล็กน้อยได้ หลังล่างแนบพื้นเสมอ', 'ค้าง 40 วินาที/ข้าง', 'ต้นขาหลังตึงจะดึงเชิงกรานทำให้หลังล่างเจ็บ'], yt: 'supine hamstring stretch strap', side: 1 },
-            c_hip: { img: 'w_hipflex.jpg', n: 'Couch Stretch (สะโพกหน้า)', eq: 'เก้าอี้/ผนัง', cue: ['คุกเข่า วางหลังเท้าพาดเก้าอี้ด้านหลัง', 'เก็บก้นแล้วดันสะโพกไปหน้า อกตั้งตรง', 'ค้าง 45 วินาที/ข้าง หายใจช้า'], yt: 'couch stretch hip flexor', side: 1 },
+            c_hip: { img: 'c_hip.jpg', n: 'Couch Stretch (สะโพกหน้า)', eq: 'เก้าอี้/ผนัง', cue: ['คุกเข่า วางหลังเท้าพาดเก้าอี้ด้านหลัง', 'เก็บก้นแล้วดันสะโพกไปหน้า อกตั้งตรง', 'ค้าง 45 วินาที/ข้าง หายใจช้า'], yt: 'couch stretch hip flexor', side: 1 },
             c_thread: { img: 'c_thread.jpg', n: 'Thread the Needle', eq: 'พื้น', cue: ['ท่า 4 จุด สอดแขนขวาลอดใต้ลำตัวไปทางซ้าย', 'วางไหล่และแก้มขวาลงพื้น', 'ค้าง 30 วินาที/ข้าง คลายหลังส่วนอก'], yt: 'thread the needle stretch', side: 1 },
             c_door: { img: 'c_door.jpg', n: 'Doorway Chest Stretch', eq: 'กรอบประตู', cue: ['วางแขนบนกรอบประตู ศอก 90° ระดับไหล่', 'ก้าวขาไปหน้า 1 ก้าว เปิดหน้าอก', 'ค้าง 40 วินาที/ข้าง แก้ไหล่ห่อ'], yt: 'doorway pec stretch', side: 1 },
-            c_twist: { n: 'Supine Spinal Twist (เบามาก)', eq: 'พื้น', cue: ['นอนหงาย ดึงเข่าขวาข้ามไปทางซ้ายช้าๆ', 'ไหล่ทั้งสองข้างแนบพื้น หันหน้าไปทางขวา', 'ค้าง 40 วินาที ห้ามฝืนถ้ารู้สึกจี๊ด'], yt: 'supine spinal twist stretch', side: 1 },
-            c_legs: { n: 'Legs Up The Wall + หายใจ 4-7-8', eq: 'ผนัง', cue: ['นอนหงาย ยกขาพาดผนัง ก้นชิดผนัง', 'หายใจเข้า 4 วิ กลั้น 7 วิ ออก 8 วิ', 'ทำ 8-10 รอบ ลดแรงกดหมอนรองกระดูก', 'ช่วยดึง HRV กลับขึ้นเร็วขึ้นหลังฝึกหนัก'], yt: 'legs up the wall pose' },
+            c_twist: { img: 'c_twist.jpg', n: 'Supine Spinal Twist (เบามาก)', eq: 'พื้น', cue: ['นอนหงาย ดึงเข่าขวาข้ามไปทางซ้ายช้าๆ', 'ไหล่ทั้งสองข้างแนบพื้น หันหน้าไปทางขวา', 'ค้าง 40 วินาที ห้ามฝืนถ้ารู้สึกจี๊ด'], yt: 'supine spinal twist stretch', side: 1 },
+            c_legs: { img: 'c_legs.jpg', n: 'Legs Up The Wall + หายใจ 4-7-8', eq: 'ผนัง', cue: ['นอนหงาย ยกขาพาดผนัง ก้นชิดผนัง', 'หายใจเข้า 4 วิ กลั้น 7 วิ ออก 8 วิ', 'ทำ 8-10 รอบ ลดแรงกดหมอนรองกระดูก', 'ช่วยดึง HRV กลับขึ้นเร็วขึ้นหลังฝึกหนัก'], yt: 'legs up the wall pose' },
             /* ---------- MAIN ---------- */
             goblet: { n: 'Goblet Squat', eq: 'เคทเทิลบอล 8 กก.', img: 'squat_trainer.jpg', cue: ['ถือเคทเทิลบอลชิดอก ศอกชี้ลง', 'เท้ากว้างเท่าไหล่ ปลายเท้าเฉียง 15°', 'ย่อลงจนต้นขาขนานพื้น อกเปิด หลังตรง', 'ดันส้นเท้า บีบก้นบนสุด'], yt: 'goblet squat form' },
             rdl: { n: 'DB Romanian Deadlift', eq: 'ดัมเบล 10 กก.×2', img: 'rdl.jpg', cue: ['ดัมเบลชิดต้นขา เข่างอเล็กน้อยค้างไว้', 'ดันสะโพกไปหลัง ไม่ใช่ก้มหลัง', 'หยุดที่กลางหน้าแข้ง หลังตรงเป็นไม้บรรทัด', 'ถ้ารู้สึกตึงหลังล่างแทนต้นขาหลัง = ฟอร์มผิด'], yt: 'dumbbell romanian deadlift form' },
             thrust: { n: 'DB Hip Thrust', eq: 'ดัมเบล + เก้าอี้', img: 'thrust.jpg', cue: ['พิงสะบักบนขอบเก้าอี้ วางดัมเบลบนสะโพก', 'เก็บคาง เก็บซี่โครง ดันขึ้นด้วยการบีบก้น', 'ค้างบนสุด 2 วินาที ห้ามแอ่นหลัง', 'ปลอดภัยต่อหลังล่างที่สุดในบรรดาท่าก้น'], yt: 'dumbbell hip thrust form' },
-            bmarch: { img: 'w_bridge.jpg', n: 'Glute Bridge March', eq: 'พื้น', cue: ['ยกสะพานก้นค้างไว้', 'ยกเข่าสลับข้างช้าๆ สะโพกไม่บิดตก', '10 ครั้ง/ข้าง ควบคุมทุกจังหวะ'], yt: 'glute bridge march' },
+            bmarch: { img: 'bmarch.jpg', n: 'Glute Bridge March', eq: 'พื้น', cue: ['ยกสะพานก้นค้างไว้', 'ยกเข่าสลับข้างช้าๆ สะโพกไม่บิดตก', '10 ครั้ง/ข้าง ควบคุมทุกจังหวะ'], yt: 'glute bridge march' },
             bench: { n: 'DB Bench Press', eq: 'ดัมเบล + เก้าอี้', img: 'bench.jpg', cue: ['นอนบนเก้าอี้ เท้าแนบพื้น บีบสะบัก', 'ลงช้า 3 วินาที ศอก 45° กับลำตัว', 'ดันขึ้นจนแขนเกือบตรง ไม่ล็อกศอก'], yt: 'dumbbell bench press form' },
             bss: { n: 'Bulgarian Split Squat', eq: 'ดัมเบล + เก้าอี้', img: 'bss.jpg', cue: ['วางหลังเท้าบนเก้าอี้ เท้าหน้าห่าง 60-70 ซม.', 'ย่อลงตรงๆ เข่าหลังเกือบแตะพื้น', 'เอนลำตัวหน้าเล็กน้อยเพื่อเน้นก้น'], yt: 'bulgarian split squat form', side: 1 },
             press: { n: 'DB Shoulder Press (นั่ง)', eq: 'ดัมเบล + เก้าอี้', img: 'press.jpg', cue: ['นั่งพิงพนัก เกร็งแกนกลาง เก็บซี่โครง', 'ดัมเบลระดับหู ดันขึ้นเหนือศีรษะ', 'ห้ามแอ่นหลังเพื่อดันน้ำหนัก'], yt: 'seated dumbbell shoulder press' },
@@ -1297,18 +1308,26 @@
 
         /* ============ RENDER ============ */
         function render() {
-            const last = D.checks[D.checks.length - 1];
+            const last = D.checks[D.checks.length - 1] || null;
             document.getElementById('wkTxt').textContent = 'สัปดาห์ ' + wkNo() + '/22';
             document.getElementById('phaseTag').textContent = PHASES[phIdx()].n.split(' · ')[0];
             document.getElementById('hsub').textContent = PHASES[phIdx()].d;
-            document.getElementById('curW').textContent = (+last.w).toFixed(1);
-            document.getElementById('sBF').textContent = (last.bf || 27.1).toFixed(1) + '%';
-            document.getElementById('sPain').textContent = last.pain == null ? '–' : last.pain + '/10';
-            document.getElementById('sSync').innerHTML = D.cfg.url && D.cfg.code ? '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;color:var(--ok)"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' : '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>';
-            const lost = 80 - last.w, dl = document.getElementById('delta');
-            dl.textContent = (lost >= 0 ? '-' : '+') + Math.abs(lost).toFixed(1) + ' กก.';
-            dl.className = 'tag' + (lost >= 0 ? '' : ' o');
-            document.getElementById('wBar').style.width = Math.max(2, Math.min(100, lost / 8 * 100)) + '%';
+            document.getElementById('curW').textContent = last ? (+last.w).toFixed(1) : '–';
+            document.getElementById('sBF').textContent = last?.bf ? (+last.bf).toFixed(1) + '%' : '–';
+            document.getElementById('sPain').textContent = last?.pain == null ? '–' : last.pain + '/10';
+            document.getElementById('sSync').innerHTML = currentUser ? '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;color:var(--ok)"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' : '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>';
+            const startW = D.checks[0]?.w || last?.w || null;
+            const lost = (startW && last) ? startW - last.w : 0;
+            const dl = document.getElementById('delta');
+            if (startW && last) {
+                dl.textContent = (lost >= 0 ? '-' : '+') + Math.abs(lost).toFixed(1) + ' กก.';
+                dl.className = 'tag' + (lost >= 0 ? '' : ' o');
+                document.getElementById('wBar').style.width = Math.max(2, Math.min(100, Math.abs(lost) / 8 * 100)) + '%';
+            } else {
+                dl.textContent = 'เริ่มต้น';
+                dl.className = 'tag';
+                document.getElementById('wBar').style.width = '2%';
+            }
             document.getElementById('bsMode').checked = !!D.bs;
 
             /* --- Daily Tracker Card --- */
@@ -1325,7 +1344,10 @@
             else if (daysAgo === WEIGH_WARN_DAYS) { streakClass = ' warn'; streakIcon = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3L2 6"/><path d="M19 3l3 3"/></svg>' }
 
             document.getElementById('dailyTracker').innerHTML = `
-    <h3 style="display:flex;align-items:center;gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--acc)"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg> ติดตามประจำวัน</h3>
+    <div class="row" style="align-items:center;margin-bottom:6px;">
+        <h3 style="display:flex;align-items:center;gap:6px;margin:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--acc)"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg> ติดตามประจำวัน</h3>
+        <button class="btn sm" onclick="editDailyTracker()" style="padding:4px 10px; font-size:12px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--dim); cursor:pointer;">✏️ แก้ไข / ลบ</button>
+    </div>
     <div class="tracker-row"><div class="icon-box ib-cal"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M11 21.9v-7h-6l10-13v7h6l-10 13z"/></svg></div>
     <div class="tracker-bar"><i style="width:${calPct}%;background:${calColor}"></i></div>
     <div class="tracker-val" style="color:${calColor}">${cal.toLocaleString()} / ${CAL_TARGET.toLocaleString()}</div></div>
@@ -1388,7 +1410,7 @@ document.getElementById('schCtrls').innerHTML = `
             if (document.getElementById('aiKey')) document.getElementById('aiKey').value = D.cfg.aiKey || '';
             renderAuthUI();
             document.getElementById('localInfo').textContent = `เช็กอิน ${D.checks.length} วัน • เซสชัน ${D.sessions.length} • เซ็ตที่บันทึก ${D.sets.length}`;
-            charts(); showW(document.querySelector('#wSel button.on')?.dataset.w || 'A');
+            charts(); renderCheckHistory(); showW(document.querySelector('#wSel button.on')?.dataset.w || 'A');
         }
 
         function showW(k) {
@@ -1486,7 +1508,8 @@ document.getElementById('schCtrls').innerHTML = `
         }
         async function logSet(s) {
             if (!s.log) return;
-            const kg = await fcPrompt('น้ำหนักที่ใช้ ' + s.name + ' (กก.)\nเว้นว่างได้ถ้าไม่ใช้น้ำหนัก', '10');
+            const lastW = (D.sets || []).filter(st => st.exercise_key === s.e && st.weight_kg != null).pop()?.weight_kg || '10';
+            const kg = await fcPrompt('น้ำหนักที่ใช้ ' + s.name + ' (กก.)\nเว้นว่างได้ถ้าไม่ใช้น้ำหนัก', String(lastW), '🏋️ บันทึกน้ำหนักยก');
             if (kg === null) return;
             D.sets.push({
                 id: curSid() + '|' + s.e + '|' + s.set, session_id: curSid(), code: D.cfg.code || 'local',
@@ -1517,6 +1540,120 @@ document.getElementById('schCtrls').innerHTML = `
             if (navigator.vibrate) navigator.vibrate(60)
         }
 
+
+        /* ============ DAILY TRACKER EDIT & CHECK-IN HISTORY ============ */
+        async function editDailyTracker(targetDate) {
+            const dateStr = targetDate || iso();
+            let rec = D.checks.find(x => x.d === dateStr);
+            const cal = rec?.cal || 0;
+            const pro = rec?.protein || 0;
+            const wat = rec?.water || 0;
+            const w = rec?.w != null ? rec.w : '';
+
+            const html = `<div style="text-align:left; font-size:14px; line-height:1.5;">
+                <div style="font-weight:700; color:var(--acc); font-size:15px; margin-bottom:12px;">📅 ข้อมูลวันที่ ${dateStr}</div>
+                <label style="display:block;font-weight:bold;">แคลอรี่ (kcal)</label>
+                <input type="number" id="edCal" value="${cal}" style="width:100%; font-size:16px; text-align:left; padding:10px; margin-top:4px; margin-bottom:10px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; outline:none; box-sizing:border-box;">
+                
+                <label style="display:block;font-weight:bold;">โปรตีน (กรัม)</label>
+                <input type="number" id="edPro" value="${pro}" style="width:100%; font-size:16px; text-align:left; padding:10px; margin-top:4px; margin-bottom:10px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; outline:none; box-sizing:border-box;">
+                
+                <label style="display:block;font-weight:bold;">น้ำดื่ม (แก้ว)</label>
+                <input type="number" id="edWat" value="${wat}" style="width:100%; font-size:16px; text-align:left; padding:10px; margin-top:4px; margin-bottom:10px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; outline:none; box-sizing:border-box;">
+                
+                <label style="display:block;font-weight:bold;">น้ำหนักตัว (กก.)</label>
+                <input type="number" step="0.1" id="edW" value="${w}" placeholder="เว้นว่างได้" style="width:100%; font-size:16px; text-align:left; padding:10px; margin-top:4px; margin-bottom:14px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; outline:none; box-sizing:border-box;">
+                
+                <div style="margin-top:6px;">
+                    <button type="button" class="btn" onclick="resetTodayTracker('${dateStr}')" style="background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.3); font-size:13px; padding:10px; width:100%;">🗑️ ล้างค่าอาหารและน้ำของวันนี้กลับเป็น 0</button>
+                </div>
+            </div>`;
+
+            const ok = await fcConfirm(html, '✏️ แก้ไขข้อมูลประจำวัน');
+            if (!ok) return;
+
+            const nCal = parseInt(document.getElementById('edCal').value) || 0;
+            const nPro = parseInt(document.getElementById('edPro').value) || 0;
+            const nWat = parseInt(document.getElementById('edWat').value) || 0;
+            const wVal = document.getElementById('edW').value.trim();
+            const nW = wVal !== '' ? parseFloat(wVal) : null;
+
+            if (!rec) {
+                const prev = D.checks[D.checks.length - 1];
+                rec = { d: dateStr, w: nW || (prev?.w || 70), bf: prev?.bf || null, hrv: null, pain: null, cal: nCal, protein: nPro, water: nWat };
+                D.checks.push(rec);
+            } else {
+                rec.cal = nCal;
+                rec.protein = nPro;
+                rec.water = nWat;
+                if (nW != null && !isNaN(nW)) rec.w = nW;
+            }
+
+            save();
+            render();
+            if (currentUser && fbDb) pushToCloud();
+            setTimeout(() => fcAlert('บันทึกการแก้ไขเรียบร้อยแล้ว!'), 200);
+        }
+
+        async function resetTodayTracker(dateStr) {
+            fcClose();
+            const confirmed = await fcConfirm(`ต้องการล้างค่าแคลอรี่ โปรตีน และน้ำดื่มของวันที่ ${dateStr} กลับเป็น 0 ใช่หรือไม่?`, 'ล้างข้อมูลประจำวัน');
+            if (!confirmed) return;
+
+            let rec = D.checks.find(x => x.d === dateStr);
+            if (rec) {
+                rec.cal = 0;
+                rec.protein = 0;
+                rec.water = 0;
+                save();
+                render();
+                if (currentUser && fbDb) pushToCloud();
+                setTimeout(() => fcAlert('ล้างค่าอาหารและน้ำเรียบร้อยแล้ว!'), 200);
+            }
+        }
+
+        async function deleteCheck(dateStr) {
+            const confirmed = await fcConfirm(`ต้องการลบรายการเช็คอินของวันที่ ${dateStr} ใช่หรือไม่?\n\n(สถิติและกราฟจะถูกคำนวณใหม่)`, '🗑️ ยืนยันการลบ');
+            if (!confirmed) return;
+
+            D.checks = (D.checks || []).filter(x => x.d !== dateStr);
+            save();
+            render();
+            if (currentUser && fbDb) pushToCloud();
+            setTimeout(() => fcAlert(`ลบข้อมูลวันที่ ${dateStr} เรียบร้อยแล้ว`), 200);
+        }
+
+        function renderCheckHistory() {
+            const el = document.getElementById('checkHistory');
+            if (!el) return;
+            const cnt = document.getElementById('checkCount');
+            if (cnt) cnt.textContent = `${D.checks.length} วัน`;
+
+            if (!D.checks || D.checks.length === 0) {
+                el.innerHTML = '<div class="sub" style="text-align:center;padding:12px;">ยังไม่มีข้อมูลเช็คอิน</div>';
+                return;
+            }
+
+            const sorted = [...D.checks].sort((a, b) => b.d.localeCompare(a.d));
+            el.innerHTML = sorted.map(c => `
+                <div class="row" style="padding:10px 0; border-bottom:1px solid var(--line); align-items:center;">
+                    <div style="flex:1;">
+                        <div style="font-size:14px; font-weight:700;">${c.d} ${c.d === iso() ? '<span class="tag" style="font-size:11px;padding:2px 6px;">วันนี้</span>' : ''}</div>
+                        <div class="sub" style="font-size:12.5px; margin-top:2px;">
+                            ${c.w ? `น้ำหนัก: <b>${(+c.w).toFixed(1)}</b> กก. ` : ''}
+                            ${c.cal ? `• <b>${c.cal}</b> kcal ` : ''}
+                            ${c.protein ? `• โปรตีน <b>${c.protein}</b>g ` : ''}
+                            ${c.water ? `• น้ำ <b>${c.water}</b> แก้ว` : ''}
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:6px;">
+                        <button onclick="editDailyTracker('${c.d}')" style="background:var(--card2); border:1px solid var(--line); border-radius:8px; padding:6px 10px; font-size:12px; cursor:pointer; color:var(--tx);" title="แก้ไข">✏️</button>
+                        <button onclick="deleteCheck('${c.d}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); border-radius:8px; padding:6px 10px; font-size:12px; cursor:pointer; color:var(--red);" title="ลบ">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         /* ============ CHECK-IN + CHARTS ============ */
         function addCheck() {
             const w = parseFloat(document.getElementById('inW').value);
@@ -1524,7 +1661,7 @@ document.getElementById('schCtrls').innerHTML = `
             const prev = D.checks[D.checks.length - 1];
             const existing = D.checks.find(x => x.d === iso());
             const rec = {
-                d: iso(), w, bf: parseFloat(document.getElementById('inBF').value) || prev.bf,
+                d: iso(), w, bf: parseFloat(document.getElementById('inBF').value) || prev?.bf || null,
                 hrv: parseInt(document.getElementById('inHRV').value) || null,
                 pain: document.getElementById('inPain').value === '' ? null : parseInt(document.getElementById('inPain').value),
                 cal: parseInt(document.getElementById('inCal').value) || (existing?.cal || null),
@@ -1579,8 +1716,9 @@ document.getElementById('schCtrls').innerHTML = `
                     if (!data.candidates) throw new Error('AI Error: No data');
                     
                     let resText = data.candidates[0].content.parts[0].text;
-                    resText = resText.replace(/```json/g, '').replace(/```/g, '').trim();
-                    const result = JSON.parse(resText);
+                    const jsonMatch = resText.match(/\{[\s\S]*\}/);
+                    if (!jsonMatch) throw new Error('AI ส่งผลลัพธ์ไม่ตรงรูปแบบ');
+                    const result = JSON.parse(jsonMatch[0]);
                     
                     fcClose();
                     setTimeout(() => {
@@ -1727,11 +1865,12 @@ document.getElementById('schCtrls').innerHTML = `
             const box = document.getElementById('chart');
             if (d.length < 2) box.innerHTML = '<div class="sub">บันทึกอย่างน้อย 2 วันเพื่อดูกราฟ</div>';
             else {
-                const Wd = 300, H = 110, mx = Math.max(...d.map(x => x.w)) + .5, mn = Math.min(...d.map(x => x.w), 71.5) - .5;
-                const pt = d.map((x, i) => [i / (d.length - 1) * Wd, H - (x.w - mn) / (mx - mn) * H]), gy = H - (72 - mn) / (mx - mn) * H;
+                const targetW = D.cfg.targetWeight || 72;
+                const Wd = 300, H = 110, mx = Math.max(...d.map(x => x.w), targetW) + .5, mn = Math.min(...d.map(x => x.w), targetW - .5) - .5;
+                const pt = d.map((x, i) => [i / (d.length - 1) * Wd, H - (x.w - mn) / (mx - mn) * H]), gy = H - (targetW - mn) / (mx - mn) * H;
                 box.innerHTML = `<svg viewBox="-4 -8 ${Wd + 8} ${H + 22}" style="width:100%">
     <line x1="0" y1="${gy}" x2="${Wd}" y2="${gy}" stroke="var(--acc)" stroke-dasharray="4 4" stroke-width="1.5"/>
-    <text x="${Wd}" y="${gy - 4}" fill="var(--acc2)" font-size="9" text-anchor="end">เป้า 72</text>
+    <text x="${Wd}" y="${gy - 4}" fill="var(--acc2)" font-size="9" text-anchor="end">เป้า ${targetW}</text>
     <polyline points="${pt.map(p => p.join(',')).join(' ')}" fill="none" stroke="var(--acc)" stroke-width="2.5"/>
     ${pt.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="var(--acc)"/>`).join('')}</svg>`
             }
@@ -1884,30 +2023,35 @@ document.getElementById('schCtrls').innerHTML = `
 
         function mergeCloudData(cloud) {
             if (!cloud) return;
-            if (cloud.start && (!D.start || D.checks.length <= 1)) D.start = cloud.start;
+            if (cloud.start) D.start = cloud.start;
             if (cloud.bs !== undefined) D.bs = cloud.bs;
 
-            // Merge checks
-            const checkMap = new Map();
-            (D.checks || []).forEach(c => checkMap.set(c.d, { ...c }));
-            (cloud.checks || []).forEach(c => {
-                if (!checkMap.has(c.d)) {
-                    checkMap.set(c.d, c);
-                } else {
-                    const ex = checkMap.get(c.d);
-                    checkMap.set(c.d, {
-                        d: c.d,
-                        w: c.w != null ? c.w : ex.w,
-                        bf: c.bf != null ? c.bf : ex.bf,
-                        hrv: c.hrv != null ? c.hrv : ex.hrv,
-                        pain: c.pain != null ? c.pain : ex.pain,
-                        cal: c.cal != null ? c.cal : ex.cal,
-                        protein: c.protein != null ? c.protein : ex.protein,
-                        water: c.water != null ? c.water : ex.water
-                    });
-                }
-            });
-            D.checks = [...checkMap.values()].sort((a, b) => a.d.localeCompare(b.d));
+            // If local only had dummy initial data, adopt cloud checks completely
+            const isLocalDummy = D.checks && D.checks.length === 1 && D.checks[0].w === 80 && D.checks[0].bf === 27.1;
+            if (isLocalDummy && cloud.checks && cloud.checks.length > 0) {
+                D.checks = [...cloud.checks];
+            } else if (cloud.checks && Array.isArray(cloud.checks)) {
+                const checkMap = new Map();
+                (D.checks || []).forEach(c => checkMap.set(c.d, { ...c }));
+                cloud.checks.forEach(c => {
+                    if (!checkMap.has(c.d)) {
+                        checkMap.set(c.d, c);
+                    } else {
+                        const ex = checkMap.get(c.d);
+                        checkMap.set(c.d, {
+                            d: c.d,
+                            w: c.w != null ? c.w : ex.w,
+                            bf: c.bf != null ? c.bf : ex.bf,
+                            hrv: c.hrv != null ? c.hrv : ex.hrv,
+                            pain: c.pain != null ? c.pain : ex.pain,
+                            cal: c.cal != null ? c.cal : ex.cal,
+                            protein: c.protein != null ? c.protein : ex.protein,
+                            water: c.water != null ? c.water : ex.water
+                        });
+                    }
+                });
+                D.checks = [...checkMap.values()].sort((a, b) => a.d.localeCompare(b.d));
+            }
 
             // Merge sessions
             const sessionMap = new Map();
@@ -2195,35 +2339,73 @@ document.getElementById('schCtrls').innerHTML = `
         
         
         async function resetProgram() {
-            const confirmed = await fcConfirm('เริ่มโปรแกรมใหม่ (เริ่มวันที่ 1 วันนี้)?');
+            const confirmed = await fcConfirm('ต้องการรีเซ็ตเพื่อเริ่มต้นโปรแกรมใหม่ (เริ่มสัปดาห์ที่ 1 วันนี้) ใช่หรือไม่?', '🔄 เริ่มโปรแกรมใหม่');
             if (!confirmed) return;
-            
-            const prev = D.checks.length > 0 ? D.checks[D.checks.length - 1] : null;
-            const wStr = await fcPrompt('กรอกน้ำหนักเริ่มต้นใหม่ของคุณ (กก.)', prev ? prev.w : '80');
-            if (wStr === null) return; // cancelled
-            
-            const w = parseFloat(wStr);
-            if (!w || w < 40 || w > 200) {
-                await fcAlert('กรอกน้ำหนักไม่ถูกต้อง (ยกเลิกการรีเซ็ต)');
-                return;
-            }
+
+            const clearStats = await fcConfirm('ต้องการล้างประวัติสถิติเดิมทั้งหมด (เช็คอิน, กราฟ, ประวัติซ้อม) ด้วยหรือไม่?\n\n• กด "ตกลง" = ล้างสถิติเก่า เริ่มนับ 1 ใหม่ทั้งหมด\n• กด "ยกเลิก" = เก็บสถิติเดิมไว้ แค่เริ่มโปรแกรมใหม่', '📊 ล้างสถิติเก่าหรือไม่?');
+
+            // Open full onboarding BMR/TDEE calculation modal
+            const res = await calcBMR('🎯 ข้อมูลตั้งต้นสำหรับโปรแกรมใหม่', true);
+            if (!res) return; // User cancelled modal
+
+            const { w, bmr, tdee, targetCal, targetPro } = res;
             
             // Apply Reset
             D.start = iso();
             D.schOffs = (new Date().getDay() - 1 + 7) % 7;
             
-            // Record new weight
+            const prev = D.checks.length > 0 ? D.checks[D.checks.length - 1] : null;
             const rec = { d: iso(), w: w, bf: prev?.bf || null, hrv: null, pain: null, cal: null, protein: null, water: null };
-            const existingIndex = D.checks.findIndex(x => x.d === iso());
-            if (existingIndex >= 0) {
-                // Keep today's existing data (like cal, water) but update weight
-                D.checks[existingIndex].w = w;
+            
+            if (clearStats) {
+                D.checks = [ rec ];
+                D.sessions = [];
+                D.sets = [];
             } else {
-                D.checks.push(rec);
+                const existingIndex = D.checks.findIndex(x => x.d === iso());
+                if (existingIndex >= 0) {
+                    D.checks[existingIndex].w = w;
+                } else {
+                    D.checks.push(rec);
+                }
             }
             
-            save(); render(); autoSync();
-            await fcAlert('รีเซ็ตโปรแกรมและบันทึกน้ำหนักเริ่มต้น ' + w + ' กก. เรียบร้อยแล้ว!');
+            save(); render();
+            if (currentUser && fbDb) {
+                await pushToCloud();
+            }
+            
+            setTimeout(() => {
+                fcAlert(`<div style="font-size:16px;"><b>🎉 เริ่มต้นโปรแกรมใหม่เรียบร้อย!</b></div><br>น้ำหนักตั้งต้น: <b>${w}</b> กก.<br>BMR (เผาผลาญพื้นฐาน): <b>${Math.round(bmr)}</b> kcal<br>TDEE (ใช้พลังงานรวม): <b>${Math.round(tdee)}</b> kcal<br><br><div style="color:var(--acc);font-weight:bold;">🎯 เป้าหมายใหม่ของคุณ:</div>พลังงาน: <b>${targetCal}</b> kcal/วัน<br>โปรตีน: <b>${targetPro}</b> g/วัน<br><br><span style="color:var(--dim);font-size:13px;">${clearStats ? '(ล้างสถิติเดิม เริ่มนับ 1 ใหม่จากศูนย์)' : '(เก็บประวัติสถิติเดิมไว้)'}</span>`);
+            }, 300);
+        }
+
+        async function resetAllData() {
+            const ok = await fcConfirm('⚠️ ต้องการล้างสถิติและข้อมูลทั้งหมดเพื่อเริ่มต้นใหม่จากศูนย์หรือไม่?\n\n(ประวัติเช็คอิน กราฟ และประวัติการออกกำลังกายทั้งในเครื่องและบนคลาวด์จะถูกล้างใหม่ทั้งหมด)', '⚠️ ล้างข้อมูลเริ่มต้นใหม่');
+            if (!ok) return;
+
+            const doubleCheck = await fcConfirm('ยืนยันอีกครั้ง! คุณแน่ใจหรือไม่ว่าต้องการล้างข้อมูลทั้งหมดเพื่อเริ่มนับ 1 ใหม่?', 'ยืนยันการล้างข้อมูล');
+            if (!doubleCheck) return;
+
+            const res = await calcBMR('🎯 ตั้งค่าน้ำหนักและเป้าหมายใหม่', true);
+            if (!res) return;
+
+            const { w, bmr, tdee, targetCal, targetPro } = res;
+
+            D.start = iso();
+            D.schOffs = (new Date().getDay() - 1 + 7) % 7;
+            D.checks = [{ d: iso(), w: w, bf: null, hrv: null, pain: null, cal: null, protein: null, water: null }];
+            D.sessions = [];
+            D.sets = [];
+            
+            save(); render();
+            if (currentUser && fbDb) {
+                await pushToCloud();
+            }
+            
+            setTimeout(() => {
+                fcAlert(`<div style="font-size:16px;"><b>✨ ล้างข้อมูลและเริ่มต้นใหม่จากศูนย์เรียบร้อย!</b></div><br>น้ำหนักตั้งต้น: <b>${w}</b> กก.<br>เป้าหมายพลังงาน: <b>${targetCal}</b> kcal/วัน<br>เป้าหมายโปรตีน: <b>${targetPro}</b> g/วัน`);
+            }, 300);
         }
 
         function setIFGoal(hrs) {
@@ -2255,9 +2437,9 @@ document.getElementById('schCtrls').innerHTML = `
             const p = await fcPrompt('ระบุเวลาที่เริ่มงดอาหาร (HH:MM)', curr || '18:30');
             if (p === null) return;
             const parts = p.trim().split(':');
-            if (parts.length !== 2) return alert('รูปแบบเวลาไม่ถูกต้อง (ใช้ HH:MM)');
+            if (parts.length !== 2) return fcAlert('รูปแบบเวลาไม่ถูกต้อง (ใช้ HH:MM)');
             const h = parseInt(parts[0]), m = parseInt(parts[1]);
-            if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) return alert('รูปแบบเวลาไม่ถูกต้อง');
+            if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) return fcAlert('รูปแบบเวลาไม่ถูกต้อง');
             
             let d = new Date();
             if (D.if.start) d = new Date(D.if.start);
