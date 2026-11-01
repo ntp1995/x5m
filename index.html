@@ -371,11 +371,15 @@
             z-index: 100;
             display: none;
             flex-direction: column;
-            padding: calc(12px + env(safe-area-inset-top, 0px)) 16px calc(14px + var(--sat))
+            padding: calc(10px + env(safe-area-inset-top, 0px)) 16px calc(10px + var(--sat));
+            height: 100vh;
+            height: 100dvh;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         #pl.on {
-            display: flex
+            display: flex;
         }
 
         .plhd {
@@ -383,16 +387,38 @@
             justify-content: space-between;
             align-items: center;
             font-size: 12.5px;
-            color: var(--dim)
+            color: var(--dim);
+            flex: 0 0 auto;
+            padding-bottom: 2px;
+        }
+
+        .pl-body {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 4px 0;
+            width: 100%;
+        }
+
+        .pl-foot {
+            flex: 0 0 auto;
+            width: 100%;
+            padding-top: 8px;
+            background: var(--bg);
         }
 
         .ring {
             position: relative;
-            margin: auto;
-            width: min(74vw, 270px);
+            margin: 4px auto 6px;
+            width: clamp(120px, 30vw, 150px);
             aspect-ratio: 1;
             display: grid;
-            place-items: center
+            place-items: center;
+            flex: 0 0 auto;
         }
 
         .ring svg {
@@ -403,35 +429,38 @@
 
         .ring circle {
             fill: none;
-            stroke-width: 11;
+            stroke-width: 10;
             stroke-linecap: round
         }
 
         .tim {
-            font-size: 56px;
+            font-size: clamp(34px, 8.5vw, 42px);
             font-weight: 800;
             font-variant-numeric: tabular-nums;
-            letter-spacing: -2px
+            letter-spacing: -1.5px;
+            line-height: 1;
         }
 
         .mode {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 800;
-            letter-spacing: 2px
+            letter-spacing: 1.5px;
+            margin-bottom: 2px;
         }
 
         .exname {
             text-align: center;
-            font-size: 22px;
+            font-size: clamp(16px, 4.2vw, 20px);
             font-weight: 800;
-            margin: 6px 0 3px;
-            line-height: 1.3
+            margin: 4px 0 2px;
+            line-height: 1.25;
+            color: var(--tx);
         }
 
         .ctrl {
             display: flex;
             gap: 9px;
-            margin-top: 12px
+            margin-top: 8px
         }
 
         .ctrl button {
@@ -447,10 +476,10 @@
             background: var(--card);
             border: 1px solid var(--line);
             border-radius: 12px;
-            padding: 9px 12px;
+            padding: 7px 12px;
             font-size: 12.5px;
             color: var(--dim);
-            margin-top: 9px
+            margin-top: 4px
         }
 
         a.yt {
@@ -584,8 +613,12 @@
         @keyframes modalIn{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
         .modal-box .modal-close{position:absolute;top:16px;right:16px;background:var(--card2);border:0;color:var(--dim);font-size:18px;width:34px;height:34px;border-radius:50%;cursor:pointer;font-family:inherit;line-height:1;display:grid;place-items:center;transition:background .2s}
         .modal-box .modal-close:hover{color:var(--tx);background:var(--line)}
-        .modal-fig{display:flex;justify-content:center;align-items:center;gap:10px;margin:12px 0}
-        .modal-fig img, .modal-fig .fig, .modal-fig .ai-fig{width:clamp(100px, 36vw, 145px) !important;height:clamp(100px, 36vw, 145px) !important;margin:0 !important;border-radius:12px}
+        #plFig{display:flex;justify-content:center;align-items:center;gap:12px;margin:6px auto;width:100%}
+        #plFig img, #plFig video{height:clamp(180px, 28vh, 250px);width:auto;aspect-ratio:3/4;border-radius:16px;object-fit:cover;border:1px solid var(--line);background:#0b0f14;box-shadow:0 6px 20px rgba(0,0,0,0.1);margin:0;flex:0 0 auto}
+        #plFig.single-media img, #plFig.single-media video{height:clamp(230px, 36vh, 320px);width:auto;aspect-ratio:3/4;border-radius:18px;box-shadow:0 8px 30px rgba(0,0,0,0.14)}
+        .modal-fig{display:flex;justify-content:center;align-items:center;gap:10px;margin:12px auto;width:100%}
+        .modal-fig img, .modal-fig video{height:clamp(190px, 28vh, 240px) !important;width:auto !important;aspect-ratio:3/4 !important;margin:0 !important;border-radius:14px;object-fit:cover;border:1px solid var(--line);background:#0b0f14;box-shadow:0 4px 16px rgba(0,0,0,0.08);flex:0 0 auto}
+        .modal-fig.single-media img, .modal-fig.single-media video{height:clamp(250px, 40vh, 320px) !important;width:auto !important;aspect-ratio:3/4 !important;border-radius:18px;box-shadow:0 8px 28px rgba(0,0,0,0.14)}
         .modal-name{text-align:center;font-size:20px;font-weight:800;margin:10px 0 4px;color:var(--tx)}
         .modal-eq{display:flex;align-items:center;justify-content:center;gap:6px;text-align:center;font-size:13px;color:var(--dim);margin-bottom:14px}
         .modal-cue{margin:10px 0 10px 20px;color:var(--dim);font-size:13.5px;line-height:1.75}
@@ -683,7 +716,402 @@
         .fc-modal-box input:focus { border-color:var(--acc); }
         .fc-modal-actions { display:flex; gap:8px; margin-top:14px; flex-shrink:0; }
         .fc-modal-actions .btn { flex:1; margin:0; padding:13px; font-size:15px; border-radius:12px; }
-</style>
+
+        
+        /* ============ REST SCREEN (BIG CLOCK CENTERED) ============ */
+        #pl.is-rest .pl-body {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 0 !important;
+            flex: 1 1 auto !important;
+        }
+
+        #pl.is-rest .pl-body > :not(.ring):not(.exname) {
+            display: none !important;
+        }
+
+        #pl.is-rest .ring {
+            width: min(72vw, 260px) !important;
+            height: auto !important;
+            aspect-ratio: 1 !important;
+            margin: 0 auto 16px auto !important;
+            flex: 0 0 auto !important;
+        }
+
+        #pl.is-rest .ring circle {
+            stroke-width: 11 !important;
+        }
+
+        #pl.is-rest .tim {
+            font-size: clamp(48px, 14vw, 64px) !important;
+            letter-spacing: -2px !important;
+        }
+
+        #pl.is-rest .mode {
+            font-size: 13px !important;
+            letter-spacing: 2px !important;
+            margin-bottom: 4px !important;
+        }
+
+        #pl.is-rest .exname {
+            font-size: 22px !important;
+            font-weight: 800 !important;
+            margin: 0 0 4px 0 !important;
+            line-height: 1.3 !important;
+            text-align: center !important;
+            flex: 0 0 auto !important;
+        }
+
+        #pl.landscape.is-rest {
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            gap: 0 !important;
+        }
+
+        #pl.landscape.is-rest .pl-land-left {
+            display: none !important;
+        }
+
+        #pl.landscape.is-rest .pl-right-col {
+            flex: 1 !important;
+            width: 100% !important;
+            max-width: 560px !important;
+            margin: 0 auto !important;
+        }
+
+        #pl.landscape.is-rest .pl-right-col .ring {
+            width: clamp(130px, 34vh, 175px) !important;
+            height: clamp(130px, 34vh, 175px) !important;
+            margin: 0 auto 10px auto !important;
+        }
+
+        #pl.landscape.is-rest .pl-right-col .tim {
+            font-size: clamp(38px, 10vh, 48px) !important;
+            letter-spacing: -1.5px !important;
+        }
+
+        #pl.landscape.is-rest .pl-right-col .mode {
+            font-size: 12px !important;
+            letter-spacing: 2px !important;
+        }
+
+        #pl.landscape.is-rest .pl-right-col .exname {
+            font-size: 18px !important;
+            margin: 0 0 4px 0 !important;
+        }
+
+        /* ============ LANDSCAPE ORIENTATION SUPPORT ============ */
+        .pl-land-left {
+            display: none;
+        }
+
+        .pl-right-col {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        #pl.landscape {
+            flex-direction: row !important;
+            padding: 8px calc(16px + env(safe-area-inset-right, 0px)) 8px calc(16px + env(safe-area-inset-left, 0px)) !important;
+            gap: 16px !important;
+        }
+
+        #pl.landscape .pl-land-left {
+            display: flex !important;
+            flex: 1.15 !important;
+            height: 100% !important;
+            max-height: calc(100dvh - 16px) !important;
+            align-items: center !important;
+            justify-content: center !important;
+            overflow: hidden !important;
+        }
+
+        #pl.landscape .pl-land-left #plFig {
+            height: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        #pl.landscape .pl-land-left #plFig img,
+        #pl.landscape .pl-land-left #plFig video {
+            height: 100% !important;
+            max-height: calc(100dvh - 16px) !important;
+            width: auto !important;
+            aspect-ratio: 3 / 4 !important;
+            border-radius: 18px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28) !important;
+        }
+
+        #pl.landscape .pl-right-col {
+            flex: 0.85 !important;
+            height: 100% !important;
+            max-height: calc(100dvh - 16px) !important;
+        }
+
+        #pl.landscape .pl-right-col .ring {
+            width: 90px !important;
+            height: 90px !important;
+            margin: 2px auto 4px !important;
+        }
+
+        #pl.landscape .pl-right-col .tim {
+            font-size: 26px !important;
+            letter-spacing: -1px !important;
+        }
+
+        #pl.landscape .pl-right-col .mode {
+            font-size: 10px !important;
+            margin-bottom: 0 !important;
+        }
+
+        #pl.landscape .pl-right-col .exname {
+            font-size: 16px !important;
+            margin: 2px 0 !important;
+        }
+
+        #pl.landscape .pl-right-col ul.cue {
+            font-size: 11px !important;
+            line-height: 1.35 !important;
+            margin-top: 2px !important;
+        }
+
+        #pl.landscape .pl-right-col .nx {
+            padding: 5px 10px !important;
+            font-size: 11.5px !important;
+            margin-top: 2px !important;
+        }
+
+        #pl.landscape .pl-right-col .ctrl {
+            margin-top: 6px !important;
+        }
+
+        #pl.landscape .pl-right-col .ctrl button {
+            padding: 10px !important;
+            font-size: 14px !important;
+        }
+
+        #pl.landscape .pl-right-col #plAdd {
+            margin-top: 4px !important;
+            padding: 7px !important;
+            font-size: 12px !important;
+        }
+
+        @media (orientation: landscape) {
+            #pl.is-rest {
+                flex-direction: column !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                gap: 0 !important;
+            }
+
+            #pl.is-rest .pl-land-left {
+                display: none !important;
+            }
+
+            #pl.is-rest .pl-right-col {
+                flex: 1 !important;
+                width: 100% !important;
+                max-width: 560px !important;
+                margin: 0 auto !important;
+            }
+
+            #pl.is-rest .pl-right-col .ring {
+                width: clamp(130px, 34vh, 175px) !important;
+                height: clamp(130px, 34vh, 175px) !important;
+                margin: 0 auto 10px auto !important;
+            }
+
+            #pl.is-rest .pl-right-col .tim {
+                font-size: clamp(38px, 10vh, 48px) !important;
+                letter-spacing: -1.5px !important;
+            }
+
+            #pl.is-rest .pl-right-col .mode {
+                font-size: 12px !important;
+                letter-spacing: 2px !important;
+            }
+
+            #pl.is-rest .pl-right-col .exname {
+                font-size: 18px !important;
+                margin: 2px 0 4px !important;
+            }
+
+            .wrap {
+                max-width: 720px;
+            }
+
+            body {
+                padding-bottom: calc(56px + var(--sat));
+            }
+
+            nav {
+                height: 50px;
+            }
+
+            nav button {
+                font-size: 10px;
+                padding: 4px 0;
+            }
+
+            nav button svg {
+                width: 17px;
+                height: 17px;
+            }
+
+            /* Player 2-Column Cinema Mode */
+            #pl {
+                flex-direction: row;
+                padding: 8px calc(16px + env(safe-area-inset-right, 0px)) 8px calc(16px + env(safe-area-inset-left, 0px));
+                gap: 16px;
+            }
+
+            .pl-land-left {
+                display: flex;
+                flex: 1.15;
+                height: 100%;
+                max-height: calc(100dvh - 16px);
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+            }
+
+            .pl-land-left #plFig {
+                height: 100%;
+                width: 100%;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .pl-land-left #plFig img, .pl-land-left #plFig video {
+                height: 100% !important;
+                max-height: calc(100dvh - 16px) !important;
+                width: auto !important;
+                aspect-ratio: 3 / 4;
+                border-radius: 18px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+            }
+
+            .pl-right-col {
+                flex: 0.85;
+                height: 100%;
+                max-height: calc(100dvh - 16px);
+            }
+
+            .pl-right-col .ring {
+                width: 90px !important;
+                height: 90px !important;
+                margin: 2px auto 4px !important;
+            }
+
+            .pl-right-col .tim {
+                font-size: 26px !important;
+                letter-spacing: -1px !important;
+            }
+
+            .pl-right-col .mode {
+                font-size: 10px !important;
+                margin-bottom: 0 !important;
+            }
+
+            .pl-right-col .exname {
+                font-size: 16px !important;
+                margin: 2px 0 !important;
+            }
+
+            .pl-right-col ul.cue {
+                font-size: 11px !important;
+                line-height: 1.35 !important;
+                margin-top: 2px !important;
+            }
+
+            .pl-right-col .nx {
+                padding: 5px 10px !important;
+                font-size: 11.5px !important;
+                margin-top: 2px !important;
+            }
+
+            .pl-right-col .ctrl {
+                margin-top: 6px !important;
+            }
+
+            .pl-right-col .ctrl button {
+                padding: 10px !important;
+                font-size: 14px !important;
+            }
+
+            .pl-right-col #plAdd {
+                margin-top: 4px !important;
+                padding: 7px !important;
+                font-size: 12px !important;
+            }
+
+            /* Exercise Modal in Landscape */
+            .modal-box {
+                max-width: 620px !important;
+                padding: 16px 20px !important;
+                display: grid !important;
+                grid-template-columns: 1.05fr 0.95fr !important;
+                grid-template-rows: auto auto auto auto !important;
+                gap: 8px 16px !important;
+                align-items: center !important;
+            }
+
+            .modal-fig {
+                grid-column: 1 !important;
+                grid-row: 1 / span 4 !important;
+                margin: 0 !important;
+                height: 100% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+
+            .modal-fig img, .modal-fig video {
+                height: clamp(200px, 60vh, 260px) !important;
+                width: auto !important;
+                aspect-ratio: 3 / 4 !important;
+                border-radius: 14px !important;
+            }
+
+            .modal-name {
+                grid-column: 2 !important;
+                text-align: left !important;
+                font-size: 18px !important;
+                margin: 0 !important;
+            }
+
+            .modal-eq {
+                grid-column: 2 !important;
+                justify-content: flex-start !important;
+                margin-bottom: 4px !important;
+            }
+
+            .modal-cue {
+                grid-column: 2 !important;
+                font-size: 12px !important;
+                line-height: 1.45 !important;
+                margin: 0 0 0 16px !important;
+            }
+
+            .modal-yt {
+                grid-column: 2 !important;
+                margin-top: 8px !important;
+                padding: 9px 14px !important;
+                font-size: 13px !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -890,38 +1318,45 @@
 
     <!-- ================= PLAYER ================= -->
     <div id="pl">
-        <div class="plhd">
-            <span id="plPhase" class="tag">WARM-UP</span>
-            <span id="plProg">1/1</span>
-            <button onclick="quitW()"
-                style="background:0;border:0;color:var(--red);font-size:13px;font-weight:700;font-family:inherit">ออก
-                ✕</button>
-        </div>
-        <div class="ring">
-            <svg viewBox="0 0 240 240">
-                <circle cx="120" cy="120" r="108" stroke="#1d2531" />
-                <circle cx="120" cy="120" r="108" id="arc" stroke="var(--acc)" stroke-dasharray="678.6"
-                    stroke-dashoffset="0" />
-            </svg>
-            <div style="text-align:center">
-                <div class="mode" id="plMode">พร้อม</div>
-                <div class="tim" id="plTime">00:00</div>
-                <div class="sub" id="plSet"></div>
+        <div id="plLandLeft" class="pl-land-left"></div>
+        <div id="plRightCol" class="pl-right-col">
+            <div class="plhd">
+                <span id="plPhase" class="tag">WARM-UP</span>
+                <span id="plProg">1/1</span>
+                <button onclick="quitW()"
+                    style="background:0;border:0;color:var(--red);font-size:13px;font-weight:700;font-family:inherit">ออก
+                    ✕</button>
+            </div>
+            <div id="plPortBody" class="pl-body">
+                <div class="ring">
+                    <svg viewBox="0 0 240 240">
+                        <circle cx="120" cy="120" r="108" stroke="#1d2531" />
+                        <circle cx="120" cy="120" r="108" id="arc" stroke="var(--acc)" stroke-dasharray="678.6"
+                            stroke-dashoffset="0" />
+                    </svg>
+                    <div style="text-align:center">
+                        <div class="mode" id="plMode">พร้อม</div>
+                        <div class="tim" id="plTime">00:00</div>
+                        <div class="sub" id="plSet"></div>
+                    </div>
+                </div>
+                <div class="exname" id="plEx">—</div>
+                <div id="plFig" onclick="if(ST[idx]&&ST[idx].e)showExModal(ST[idx].e)" title="แตะเพื่อดูขยายเต็มจอ" style="cursor:pointer"></div>
+                <div class="sub" id="plTarget" style="text-align:center;font-weight:700;color:var(--acc)"></div>
+                <ul class="cue" id="plCue"></ul>
+                <div style="text-align:center;margin-top:4px"><button type="button" class="yt" id="plYt" style="background:none;border:none;cursor:pointer;font-family:inherit;padding:4px 8px;">▶
+                        ดูตัวอย่างท่านี้</button></div>
+            </div>
+            <div class="pl-foot">
+                <div class="nx" id="plNext"></div>
+                <div class="ctrl">
+                    <button class="btn g ic" onclick="prevStep()">⏮</button>
+                    <button class="btn" id="plMain" onclick="togglePlay()">หยุดชั่วคราว</button>
+                    <button class="btn g ic" onclick="nextStep(1)">⏭</button>
+                </div>
+                <button class="btn b" style="margin-top:8px" id="plAdd" onclick="addTime()">+20 วินาที</button>
             </div>
         </div>
-        <div class="exname" id="plEx">—</div>
-        <div id="plFig" style="display:flex;justify-content:center;margin:4px 0"></div>
-        <div class="sub" id="plTarget" style="text-align:center;font-weight:700;color:var(--acc)"></div>
-        <ul class="cue" id="plCue"></ul>
-        <div style="text-align:center;margin-top:6px"><button type="button" class="yt" id="plYt" style="background:none;border:none;cursor:pointer;font-family:inherit;padding:4px 8px;">▶
-                ดูตัวอย่างท่านี้</button></div>
-        <div class="nx" id="plNext"></div>
-        <div class="ctrl">
-            <button class="btn g ic" onclick="prevStep()">⏮</button>
-            <button class="btn" id="plMain" onclick="togglePlay()">หยุดชั่วคราว</button>
-            <button class="btn g ic" onclick="nextStep(1)">⏭</button>
-        </div>
-        <button class="btn b" style="margin-top:8px" id="plAdd" onclick="addTime()">+20 วินาที</button>
     </div>
 
     <!-- ================= IF ================= -->
@@ -1746,15 +2181,57 @@ document.getElementById('schCtrls').innerHTML = `
         }
         function startW(k) {
             curK = k; ST = buildSteps(k); idx = 0; t0 = Date.now();
-            document.getElementById('pl').classList.add('on');
+            document.getElementById('pl').classList.add('on'); adjustPlayerLayout();
             try { navigator.wakeLock && navigator.wakeLock.request('screen').then(l => lock = l) } catch (e) { }
             loadStep(); playing = true; run();
         }
         const PHL = { warm: ['WARM-UP', 'var(--warn)'], main: ['ส่วนหลัก', 'var(--acc)'], cool: ['COOL-DOWN', 'var(--vio)'] };
+        
+        /* ============ ORIENTATION ADAPTER ============ */
+        function adjustPlayerLayout() {
+            const isLandscape = window.innerWidth > window.innerHeight;
+            const pl = document.getElementById('pl');
+            if (pl) {
+                pl.classList.toggle('landscape', isLandscape);
+            }
+            const fig = document.getElementById('plFig');
+            const leftPane = document.getElementById('plLandLeft');
+            const bodyPane = document.getElementById('plPortBody');
+            if (!fig || !leftPane || !bodyPane) return;
+
+            let moved = false;
+            if (isLandscape) {
+                if (fig.parentElement !== leftPane) {
+                    leftPane.appendChild(fig);
+                    moved = true;
+                }
+            } else {
+                if (fig.parentElement !== bodyPane) {
+                    const target = document.getElementById('plTarget');
+                    if (target) {
+                        bodyPane.insertBefore(fig, target);
+                    } else {
+                        bodyPane.appendChild(fig);
+                    }
+                    moved = true;
+                }
+            }
+            if (moved && typeof playing !== 'undefined' && playing) {
+                const vid = fig.querySelector('video');
+                if (vid && vid.paused) {
+                    vid.play().catch(() => {});
+                }
+            }
+        }
+        window.addEventListener('resize', adjustPlayerLayout);
+        window.addEventListener('orientationchange', adjustPlayerLayout);
+
         function loadStep() {
             const s = ST[idx]; if (!s) return finishW();
             left = s.dur; up = 0;
             const isW = s.k === 'work', rest = !isW, col = PHL[s.ph][1];
+            const pl = document.getElementById('pl');
+            if (pl) pl.classList.toggle('is-rest', rest);
             const tg = document.getElementById('plPhase'); tg.textContent = PHL[s.ph][0];
             tg.className = 'tag ' + (s.ph === 'warm' ? 'o' : s.ph === 'cool' ? 'v' : '');
             document.getElementById('plMode').textContent = rest ? 'พัก' : (s.type === 'reps' ? 'ทำให้ครบ' : 'ทำต่อเนื่อง');
@@ -1767,7 +2244,9 @@ document.getElementById('schCtrls').innerHTML = `
             const e = isW ? EX[s.e] : null, yt = document.getElementById('plYt');
             document.getElementById('plCue').innerHTML = e ? e.cue.map(c => '<li>' + c + '</li>').join('') : '';
             document.getElementById('plFig').innerHTML=e?fig(s.e,150):(s.next&&AMAP[Object.keys(EX).find(x=>EX[x].n===s.next)]?'':'');
-            document.getElementById('plFig').className=e?figClass(s.e):'';
+            const hasVid = e && getVideoUrl(s.e);
+            document.getElementById('plFig').className=(e?figClass(s.e):'') + (hasVid ? '' : ' single-media');
+            document.querySelectorAll('#plFig video').forEach(v => { v.muted = true; v.play().catch(()=>{}); });
             yt.style.display = e ? 'inline-block' : 'none'; if (e) { yt.onclick = function(ev){ if(ev)ev.preventDefault(); showExModal(s.e) }; }
             const nx = ST[idx + 1];
             document.getElementById('plNext').innerHTML = nx ? 'ถัดไป: ' + (nx.k === 'rest' ? 'พัก ' + nx.dur + ' วิ' + (nx.next ? ' → ' + nx.next : '') : nx.name) : '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> ท่าสุดท้าย!';
@@ -1792,7 +2271,8 @@ document.getElementById('schCtrls').innerHTML = `
         async function togglePlay() {
             const s = ST[idx];
             if (s.k === 'work' && s.type === 'reps') { await logSet(s); nextStep(1); return }
-            playing = !playing; document.getElementById('plMain').textContent = playing ? 'หยุดชั่วคราว' : '▶ เล่นต่อ'
+            playing = !playing; document.getElementById('plMain').textContent = playing ? 'หยุดชั่วคราว' : '▶ เล่นต่อ';
+            document.querySelectorAll('#plFig video').forEach(v => { if (playing) v.play().catch(()=>{}); else v.pause(); });
         }
         async function logSet(s) {
             if (!s.log) return;
@@ -2484,18 +2964,21 @@ document.getElementById('schCtrls').innerHTML = `
             if (typeof playing !== 'undefined' && playing) {
                 togglePlay(); // Pause workout timer while reviewing exercise
             }
+            const hasVid = !!getVideoUrl(k);
             document.getElementById('exModalFig').innerHTML=fig(k,240);
+            document.getElementById('exModalFig').className='modal-fig' + (hasVid ? '' : ' single-media');
+            document.querySelectorAll('#exModalFig video').forEach(v => { v.muted = true; v.play().catch(()=>{}); });
             document.getElementById('exModalName').textContent=e.n;
             document.getElementById('exModalEq').innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M14.4 14.4l-4.8-4.8"/><path d="M6.5 10.8l-4.3 4.3a2 2 0 0 0 2.8 2.8l4.3-4.3"/><path d="M17.5 13.2l4.3-4.3a2 2 0 0 0-2.8-2.8l-4.3 4.3"/><path d="M2.2 16.2l3 3"/><path d="M18.8 4.8l-3 3"/><path d="M7 9l8 8"/><path d="M9 7l8 8"/></svg> ' + (e.eq || 'ไม่ต้องใช้อุปกรณ์');
             document.getElementById('exModalCue').innerHTML=e.cue.map(c=>'<li>'+c+'</li>').join('');
             const yt=document.getElementById('exModalYt');
             yt.href='https://www.youtube.com/results?search_query='+encodeURIComponent(e.yt);
             document.getElementById('exModal').classList.add('on');
-            setTimeout(()=>{
-                document.querySelectorAll('#exModalFig .fig').forEach(el=>paintFig(el,0));
-            },10);
         }
-        function closeExModal(){document.getElementById('exModal').classList.remove('on')}
+        function closeExModal(){
+            document.getElementById('exModal').classList.remove('on');
+            document.querySelectorAll('#exModalFig video').forEach(v => v.pause());
+        }
         document.addEventListener('keydown',e=>{if(e.key==='Escape')closeExModal()});
 
         /* ==================================================
@@ -2565,30 +3048,52 @@ document.getElementById('schCtrls').innerHTML = `
          curl:'curl',lat:'lat',swing:'swing',thruster:'thruster',pushup:'pushup',wheel:'abwheel',
          plank:'plank',mtn:'mtn',hula:'hula'};
 
+        const VIDEO_MAP = {
+            goblet: 'video/squat_trainer.mp4',
+            rdl: 'video/rdl.mp4',
+            thrust: 'video/thrust.mp4',
+            bmarch: 'video/bmarch.mp4',
+            bench: 'video/bench.mp4',
+            bss: 'video/bss.mp4',
+            press: 'video/press.mp4',
+            row: 'video/row.mp4'
+        };
+
+        function getVideoUrl(k) {
+            if (VIDEO_MAP[k]) return VIDEO_MAP[k];
+            const e = EX[k];
+            if (e && e.vid) return e.vid;
+            return null;
+        }
+
         function figClass(k){return k.startsWith('w_')?'warm':k.startsWith('c_')?'cool':''}
         
         function fig(k,sz){
             const e=EX[k];
-            const a=AMAP[k];
-            let html = '';
+            if(!e) return '';
+            const vid = getVideoUrl(k);
             
-            // If both image and SVG exist, scale them down so they fit side-by-side in the modal
-            let s = (e && e.img && a) ? Math.min(sz, 140) : sz;
-            
-            if(e && e.img) {
-                if(e.img2) {
-                    html += `<div class="ai-fig" style="position:relative; width:${s}px; height:${s}px; border-radius:10px; overflow:hidden; border:1px solid var(--line); background:#f8fafc; margin:0 5px;">
-                                <img src="${e.img2}" class="f1" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" />
-                                <img src="${e.img}" class="f2" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition: opacity 0.2s;" />
-                             </div>`;
-                } else {
-                    html += `<img src="${e.img}" style="width:${s}px;height:${s}px;object-fit:cover;border-radius:10px;border:1px solid var(--line);background:#f8fafc; margin:0 5px; flex:0 0 auto;" />`;
+            // In small list view (sz <= 80), show single media thumbnail
+            if (sz <= 80) {
+                if (vid) {
+                    return `<video src="${vid}" poster="${e.img || ''}" autoplay loop muted playsinline style="width:${sz}px;height:${sz}px;object-fit:cover;border-radius:10px;border:1px solid var(--line);background:#000;flex:0 0 auto;"></video>`;
+                } else if (e.img) {
+                    return `<img src="${e.img}" style="width:${sz}px;height:${sz}px;object-fit:cover;border-radius:10px;border:1px solid var(--line);background:#f8fafc;flex:0 0 auto;" />`;
                 }
+                return '';
             }
-            
-            if(a) {
-                html += `<svg class="fig ${figClass(k)}" data-a="${a}" viewBox="0 0 100 100" style="width:${s}px;height:${s}px; margin:0 5px; flex:0 0 auto;"></svg>`;
+
+            // In Player & Modal: Let CSS govern the 3:4 portrait aspect-ratio and heights
+            let html = '';
+
+            if (e.img) {
+                html += `<img src="${e.img}" alt="${e.n || ''}" />`;
             }
+
+            if (vid) {
+                html += `<video src="${vid}" poster="${e.img || ''}" autoplay loop muted playsinline onclick="this.paused?this.play():this.pause()" title="แตะเพื่อหยุด/เล่นต่อ"></video>`;
+            }
+
             return html;
         }
 
