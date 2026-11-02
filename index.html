@@ -2927,28 +2927,33 @@ document.getElementById('schCtrls').innerHTML = `
         }
 
         async function pushToCloud() {
-            if (!currentUser || !fbDb || isSyncing) return;
+            if (!currentUser || !fbDb || isSyncing) return false;
             isSyncing = true;
             try {
                 const userDocRef = fbDb.collection('users').doc(currentUser.uid);
-                const payload = {
-                    start: D.start,
+                const rawPayload = {
+                    start: D.start || iso(),
                     bs: !!D.bs,
                     checks: D.checks || [],
                     sessions: D.sessions || [],
                     sets: D.sets || [],
                     if: D.if || { goal: 16, start: null },
                     cfg: {
-                        aiKey: D.cfg.aiKey || '',
-                        aiKeyBackup: D.cfg.aiKeyBackup || '',
-                        myFoods: D.cfg.myFoods || [],
-                        calTarget: D.cfg.calTarget || 1800,
-                        proteinTarget: D.cfg.proteinTarget || 140
-                    },
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        aiKey: (D.cfg && D.cfg.aiKey) ? D.cfg.aiKey : '',
+                        aiKeyBackup: (D.cfg && D.cfg.aiKeyBackup) ? D.cfg.aiKeyBackup : '',
+                        myFoods: (D.cfg && D.cfg.myFoods) ? D.cfg.myFoods : [],
+                        calTarget: (D.cfg && D.cfg.calTarget) ? D.cfg.calTarget : 1800,
+                        proteinTarget: (D.cfg && D.cfg.proteinTarget) ? D.cfg.proteinTarget : 140
+                    }
                 };
-                await userDocRef.set(payload, { merge: true });
+
+                // Deep scrub all undefined values (Firestore strictly rejects undefined anywhere)
+                const cleanPayload = JSON.parse(JSON.stringify(rawPayload));
+                cleanPayload.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+
+                await userDocRef.set(cleanPayload, { merge: true });
                 msg(`✓ ซิงก์สำเร็จ ${new Date().toLocaleTimeString('th-TH')}`);
+                return true;
             } catch (err) {
                 console.error("Cloud push error:", err);
                 if (err.code === 'permission-denied' || (err.message && err.message.includes('permission'))) {
@@ -2956,6 +2961,7 @@ document.getElementById('schCtrls').innerHTML = `
                 } else {
                     msg('ซิงก์ขัดข้อง: ' + err.message.slice(0, 100));
                 }
+                return false;
             } finally {
                 isSyncing = false;
             }
@@ -2970,9 +2976,10 @@ document.getElementById('schCtrls').innerHTML = `
             }, 600);
         }
 
-        function syncNow() {
+        async function syncNow() {
             if (!currentUser) return fcAlert('กรุณาเข้าสู่ระบบ Google ก่อนทำการซิงก์');
-            pushToCloud().then(() => fcAlert('ซิงก์ข้อมูลขึ้น Google Cloud เรียบร้อยแล้ว!'));
+            const ok = await pushToCloud();
+            if (ok) fcAlert('✓ ซิงก์ข้อมูลขึ้น Google Cloud เรียบร้อยแล้ว!');
         }
 
         if (fbAuth) {
