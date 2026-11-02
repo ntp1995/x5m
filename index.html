@@ -1298,8 +1298,9 @@
                 <h3>ตั้งค่า AI (Gemini)</h3>
                 <div class="sub" style="margin-bottom:10px">ใส่ API Key สำหรับฟีเจอร์กล้องสแกนอาหาร (ข้อมูลจะบันทึกลงบัญชีอัตโนมัติ)</div>
                 <div style="display:grid;gap:9px;">
-                    <input id="aiKey" placeholder="Gemini API Key (AIzaSy...)" type="password">
-                    <button class="btn g sm" onclick="saveCfg()">บันทึกการตั้งค่า</button>
+                    <input id="aiKey" placeholder="Gemini API Key หลัก (AQ.Ab...)" type="password">
+                    <input id="aiKeyBackup" placeholder="Gemini API Key สำรอง (ถ้ามี)" type="password">
+                    <button class="btn g sm" onclick="saveCfg()">💾 บันทึกคีย์ลง Firebase Cloud</button>
                 </div>
             </div>
 
@@ -1967,7 +1968,7 @@
 
         /* ============ STATE ============ */
         const D = JSON.parse(localStorage.getItem('fit') || 'null') || { start: iso(), bs: false, checks: [{ d: iso(), w: 77.3, bf: 25.9, hrv: 73, pain: null }], sessions: [], sets: [], cfg: { url: '', key: '', code: '' } };
-        D.cfg = D.cfg || { url: '', key: '', code: '' };
+        D.cfg = D.cfg || { url: '', key: '', code: '', aiKey: '', aiKeyBackup: '' };
         let CAL_TARGET = D.cfg.calTarget || 1800, PROTEIN_TARGET = D.cfg.proteinTarget || 155;
         const WATER_TARGET = 8, WEIGH_WARN_DAYS = 2;
         function save() { localStorage.setItem('fit', JSON.stringify(D)) }
@@ -2131,6 +2132,7 @@ document.getElementById('schCtrls').innerHTML = `
      <span style="font-size:13px">${W[s.workout_key] ? W[s.workout_key].ic : '•'} ${s.workout_name}</span>
      <span class="sub">${s.date.slice(5)} • ${s.kcal} kcal</span></div>`).join('') : '<div class="sub">ยังไม่มีบันทึก</div>';
             if (document.getElementById('aiKey')) document.getElementById('aiKey').value = D.cfg.aiKey || '';
+            if (document.getElementById('aiKeyBackup')) document.getElementById('aiKeyBackup').value = D.cfg.aiKeyBackup || '';
             renderAuthUI();
             document.getElementById('localInfo').textContent = `เช็กอิน ${D.checks.length} วัน • เซสชัน ${D.sessions.length} • เซ็ตที่บันทึก ${D.sets.length}`;
             charts(); renderCheckHistory(); showW(document.querySelector('#wSel button.on')?.dataset.w || 'A');
@@ -2465,32 +2467,92 @@ document.getElementById('schCtrls').innerHTML = `
         async function processAIFood(file, text) {
             fcClose();
             // Show loading and hide buttons
-            fcAlert('<div style="text-align:center;">🤖 AI กำลังวิเคราะห์...<br><br><div style="font-size:24px; animation: spin 1s linear infinite;">⏳</div><style>.fc-modal-actions { display:none !important; }</style></div>');
+            fcAlert('<div style="text-align:center;">🤖 AI กำลังวิเคราะห์อาหาร...<br><br><div style="font-size:24px; animation: spin 1s linear infinite;">⏳</div><style>.fc-modal-actions { display:none !important; }</style></div>');
             
             const processRequest = async (parts) => {
                 try {
-                    const payload = { contents: [{ parts }] };
-                    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + D.cfg.aiKey, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    
-                    if (!res.ok) {
-                        const eTxt = await res.text();
-                        throw new Error(`API Error: ${res.status} ${eTxt.substring(0,50)}`);
+                    const keysToTry = [
+                        (D.cfg.aiKey || '').trim(),
+                        (D.cfg.aiKeyBackup || '').trim()
+                    ].filter((k, i, arr) => k && arr.indexOf(k) === i);
+
+                    if (keysToTry.length === 0) {
+                        throw new Error('ไม่พบ Gemini API Key กรุณากรอกในหน้าซิงก์');
                     }
+
+                    const payload = { contents: [{ parts }] };
+                    
+                    // Verified active Google Gemini models
+                    const models = [
+                        'gemini-3.5-flash',
+                        'gemini-3.8-flash-lite',
+                        'gemini-flash-latest',
+                        'gemini-3.1-flash-lite',
+                        'gemini-2.5-flash-lite',
+                        'gemini-3.8-flash'
+                    ];
+
+                    let res = null;
+                    let lastStatus = 0;
+                    let lastErrText = '';
+
+                    // Try keys with model waterfall
+                    keyLoop: for (const apiKey of keysToTry) {
+                        for (const model of models) {
+                            try {
+                                const ep = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+                                const r = await fetch(ep, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(payload)
+                                });
+                                if (r.ok) {
+                                    res = r;
+                                    break keyLoop;
+                                }
+                                lastStatus = r.status;
+                                const errTxt = await r.text();
+                                lastErrText = errTxt;
+                                // If 429 quota or rate limit, break to try next key immediately
+                                if (r.status === 429) {
+                                    break;
+                                }
+                                // If 404 model not found or 503 high demand, try next model in loop
+                                if (r.status === 404 || r.status === 503) {
+                                    continue;
+                                }
+                            } catch (fetchErr) {
+                                lastErrText = fetchErr.message;
+                            }
+                        }
+                    }
+
+                    if (!res) {
+                        let hint = '';
+                        if (lastStatus === 404) {
+                            hint = ' (Error 404: โมเดลไม่พร้อมใช้งาน แนะนำตรวจสอบการอัปเดตโมเดล)';
+                        } else if (lastStatus === 503) {
+                            hint = ' (Error 503: ระบบ Gemini มีการใช้งานหนาแน่นชั่วคราว กรุณาลองใหม่อีกครั้งใน 1-2 นาที)';
+                        }
+                        throw new Error(`ไม่สามารถเชื่อมต่อ Gemini ได้${hint}`);
+                    }
+
                     const data = await res.json();
-                    if (!data.candidates) throw new Error('AI Error: No data');
+                    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                        throw new Error('AI ส่งผลลัพธ์ไม่สมบูรณ์ (No candidates)');
+                    }
                     
                     let resText = data.candidates[0].content.parts[0].text;
                     const jsonMatch = resText.match(/\{[\s\S]*\}/);
-                    if (!jsonMatch) throw new Error('AI ส่งผลลัพธ์ไม่ตรงรูปแบบ');
+                    if (!jsonMatch) throw new Error('AI ส่งผลลัพธ์ไม่ตรงรูปแบบ JSON');
                     const result = JSON.parse(jsonMatch[0]);
                     
                     fcClose();
                     setTimeout(() => {
-                        fcConfirm(`<div style="font-size:16px;"><b>🤖 AI วิเคราะห์ได้ว่า:</b></div><br>เมนู: <b>${result.name}</b><br>พลังงาน: <b>${result.calories}</b> kcal<br>โปรตีน: <b>${result.protein}</b> กรัม<br><br><div style="color:var(--acc);">ต้องการบันทึกเลยหรือไม่?</div><div style="margin-top:12px; text-align:center;"><button class="btn" style="padding:6px 12px; font-size:13px; border:1px solid var(--line); background:transparent; color:var(--tx);" onclick="saveAIFoodAsFavorite('${result.name}', ${result.calories}, event)">⭐ บันทึกเป็นเมนูโปรด</button></div>`).then(yes => {
+                        const safeName = (result.name || 'อาหาร').replace(/'/g, "\\'");
+                        const calVal = Math.round(Number(result.calories) || 0);
+                        const proVal = Math.round(Number(result.protein) || 0);
+                        fcConfirm(`<div style="font-size:16px;"><b>🤖 AI วิเคราะห์ได้ว่า:</b></div><br>เมนู: <b>${result.name}</b><br>พลังงาน: <b>${calVal}</b> kcal<br>โปรตีน: <b>${proVal}</b> กรัม<br><br><div style="color:var(--acc);">ต้องการบันทึกเลยหรือไม่?</div><div style="margin-top:12px; text-align:center;"><button class="btn" style="padding:6px 12px; font-size:13px; border:1px solid var(--line); background:transparent; color:var(--tx);" onclick="saveAIFoodAsFavorite('${safeName}', ${calVal}, event)">⭐ บันทึกเป็นเมนูโปรด</button></div>`).then(yes => {
                             if (yes) {
                                 let rec = D.checks.find(x => x.d === iso());
                                 if (!rec) {
@@ -2498,10 +2560,10 @@ document.getElementById('schCtrls').innerHTML = `
                                     rec = { d: iso(), w: prev?.w || 80, bf: prev?.bf || null, hrv: null, pain: null, cal: null, protein: null, water: null };
                                     D.checks.push(rec);
                                 }
-                                rec.cal = (rec.cal || 0) + result.calories;
-                                rec.protein = (rec.protein || 0) + result.protein;
+                                rec.cal = (rec.cal || 0) + calVal;
+                                rec.protein = (rec.protein || 0) + proVal;
                                 save(); render(); autoSync();
-                                setTimeout(()=>fcAlert('บันทึกเรียบร้อย!'), 200);
+                                setTimeout(() => fcAlert('บันทึกเรียบร้อย!'), 200);
                             }
                         });
                     }, 300);
@@ -2703,9 +2765,12 @@ document.getElementById('schCtrls').innerHTML = `
         function saveCfg() {
             if (document.getElementById('aiKey')) {
                 D.cfg.aiKey = document.getElementById('aiKey').value.trim();
+                if (document.getElementById('aiKeyBackup')) {
+                    D.cfg.aiKeyBackup = document.getElementById('aiKeyBackup').value.trim();
+                }
                 save();
                 autoSync();
-                fcAlert('บันทึก Gemini API Key เรียบร้อยแล้ว!');
+                fcAlert('✓ บันทึก Gemini API Key ลงเครื่องและซิงก์เข้า Firebase เรียบร้อยแล้ว!');
             }
         }
 
@@ -2836,6 +2901,7 @@ document.getElementById('schCtrls').innerHTML = `
             // Merge Config
             if (cloud.cfg) {
                 if (cloud.cfg.aiKey) D.cfg.aiKey = cloud.cfg.aiKey;
+                if (cloud.cfg.aiKeyBackup) D.cfg.aiKeyBackup = cloud.cfg.aiKeyBackup;
                 if (cloud.cfg.calTarget) D.cfg.calTarget = cloud.cfg.calTarget;
                 if (cloud.cfg.proteinTarget) D.cfg.proteinTarget = cloud.cfg.proteinTarget;
                 if (cloud.cfg.myFoods && Array.isArray(cloud.cfg.myFoods)) {
@@ -2874,6 +2940,7 @@ document.getElementById('schCtrls').innerHTML = `
                     if: D.if || { goal: 16, start: null },
                     cfg: {
                         aiKey: D.cfg.aiKey || '',
+                        aiKeyBackup: D.cfg.aiKeyBackup || '',
                         myFoods: D.cfg.myFoods || [],
                         calTarget: D.cfg.calTarget || 1800,
                         proteinTarget: D.cfg.proteinTarget || 140
@@ -3049,6 +3116,16 @@ document.getElementById('schCtrls').innerHTML = `
          plank:'plank',mtn:'mtn',hula:'hula'};
 
         const VIDEO_MAP = {
+            // Warm-up & Core
+            w_cat: 'video/catcow.mp4',
+            w_thor: 'video/w_thor.mp4',
+            w_hipflex: 'video/w_hipflex.mp4',
+            w_bridge: 'video/w_bridge.mp4',
+            w_bird: 'video/birddog.mp4',
+            w_deadbug: 'video/deadbug.mp4',
+            w_side: 'video/sideplank.mp4',
+            w_wall: 'video/w_wall.mp4',
+            // Main Strength & Core Exercises
             goblet: 'video/squat_trainer.mp4',
             rdl: 'video/rdl.mp4',
             thrust: 'video/thrust.mp4',
@@ -3056,7 +3133,17 @@ document.getElementById('schCtrls').innerHTML = `
             bench: 'video/bench.mp4',
             bss: 'video/bss.mp4',
             press: 'video/press.mp4',
-            row: 'video/row.mp4'
+            row: 'video/row.mp4',
+            csrow: 'video/csrow.mp4',
+            pullover: 'video/pullover.mp4',
+            curl: 'video/curl.mp4',
+            lat: 'video/lat.mp4',
+            swing: 'video/swing.mp4',
+            thruster: 'video/thruster.mp4',
+            pushup: 'video/pushup.mp4',
+            wheel: 'video/wheel.mp4',
+            plank: 'video/plank.mp4',
+            mtn: 'video/mtn.mp4'
         };
 
         function getVideoUrl(k) {
