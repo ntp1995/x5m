@@ -830,34 +830,38 @@
         }
 
         #plCue {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            padding: 12px 18px 12px 34px;
-            margin: 8px auto;
-            width: 100%;
-            max-width: 480px;
-            box-sizing: border-box;
-            color: var(--tx);
-            font-size: 15px;
-            font-weight: 600;
-            line-height: 1.6;
-            text-align: left;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+            background: #ffffff !important;
+            border: 1.5px solid #cbd5e1 !important;
+            border-radius: 14px !important;
+            padding: 14px 18px 14px 34px !important;
+            margin: 10px auto !important;
+            width: 100% !important;
+            max-width: 480px !important;
+            box-sizing: border-box !important;
+            color: #0f172a !important;
+            font-size: 15px !important;
+            font-weight: 600 !important;
+            line-height: 1.65 !important;
+            text-align: left !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
         }
 
         #plCue li {
-            margin-bottom: 6px;
-            color: var(--tx);
+            margin-bottom: 8px !important;
+            color: #0f172a !important;
+            font-size: 14.5px !important;
+            font-weight: 600 !important;
+            line-height: 1.5 !important;
+            opacity: 1 !important;
         }
 
         #plCue li:last-child {
-            margin-bottom: 0;
+            margin-bottom: 0 !important;
         }
 
         #plCue li::marker {
-            color: var(--acc);
-            font-size: 1.15em;
+            color: #ea580c !important;
+            font-size: 1.25em !important;
         }
 
         /* ============ REST PREVIEW CARD ============ */
@@ -1620,7 +1624,7 @@
                     <div class="row" style="align-items:center;">
                         <div>
                             <div style="font-size:13.5px;font-weight:700;">เวอร์ชันแอป & แคชเครื่อง</div>
-                            <div class="sub" style="font-size:11.5px;" id="appVersionTxt">เวอร์ชัน 2.4.1 (PWA ติดตั้งแล้ว)</div>
+                            <div class="sub" style="font-size:11.5px;" id="appVersionTxt">เวอร์ชัน 2.4.3 (PWA ติดตั้งแล้ว)</div>
                         </div>
                         <button class="btn sm" onclick="forceAppUpdate()" style="font-size:12px;padding:6px 12px;background:rgba(14,165,233,0.15);color:var(--acc);border:1px solid rgba(14,165,233,0.3);">🔄 ตรวจหา & อัปเดตทันที</button>
                     </div>
@@ -1679,20 +1683,36 @@
             <h1>ระบบ IF</h1>
             <div class="sub" style="margin-bottom:16px">จับเวลาช่วงอดอาหารและเวลากิน (Intermittent Fasting)</div>
             
-            <div class="card" style="text-align:center; padding: 30px 16px;">
-                <div id="ifStatusText" style="font-size:14px; color:var(--warn); font-weight:700; margin-bottom:10px;">กำลังอดอาหาร</div>
-                <div id="ifTimerDisplay" class="tim" style="color:var(--acc); font-size:48px; margin-bottom: 10px;">00:00:00</div>
+            <div class="card" style="text-align:center; padding: 24px 16px;">
+                <div id="ifStatusText" style="font-size:14px; color:var(--warn); font-weight:700; margin-bottom:6px;">กำลังอดอาหาร</div>
+                <div id="ifTimerDisplay" class="tim" style="color:var(--acc); font-size:48px; margin-bottom: 2px;">00:00:00</div>
+                <div class="sub" style="font-size:12px; margin-bottom:12px;" id="ifTimerSub">ระยะเวลาที่อดอาหารไปแล้ว</div>
                 
-                <div class="bar" style="margin:20px 0; background:var(--card2); height:12px;">
-                    <i id="ifProgressBar" style="width:0%; background:var(--acc);"></i>
+                <div class="bar" style="margin:14px 0; background:var(--card2); height:12px; border-radius:99px; overflow:hidden;">
+                    <i id="ifProgressBar" style="width:0%; background:linear-gradient(90deg, var(--warn), var(--acc)); height:100%; display:block; transition:width .3s ease;"></i>
                 </div>
                 
-                <div class="row" style="color:var(--dim); font-size:13px; margin-bottom:20px;">
-                    <div>เริ่ม: <span id="ifStartTime" onclick="editIFStart()" style="cursor:pointer; text-decoration:underline; color:var(--acc);" title="คลิกเพื่อแก้ไขเวลา">--:--</span></div>
-                    <div>เป้าหมาย: <span id="ifGoalText">16</span> ชม.</div>
+                <!-- IF Time Details Card -->
+                <div style="background:var(--card2); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin:16px 0; text-align:left;">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:10px;">
+                        <div>
+                            <div style="font-size:11.5px; color:var(--dim);">🕒 เริ่มอดอาหาร</div>
+                            <div style="font-size:15px; font-weight:800; color:var(--tx); margin-top:2px;">
+                                <span id="ifStartTime" onclick="editIFStart()" style="cursor:pointer; text-decoration:underline; color:var(--acc);" title="คลิกเพื่อแก้ไขเวลา">--:--</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size:11.5px; color:var(--dim);">🍽️ สิ้นสุด / เริ่มกินได้ตอน</div>
+                            <div style="font-size:15px; font-weight:800; color:#22c55e; margin-top:2px;" id="ifEndTime">--:--</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; flex-wrap:wrap; gap:6px;">
+                        <div>เป้าหมาย: <strong id="ifGoalText" style="color:var(--tx);">16</strong> ชม. (<span id="ifEatWindowText" style="color:var(--dim);">กินได้ 8 ชม.</span>)</div>
+                        <div id="ifCountdownText" style="font-weight:700; color:var(--warn);">เหลืออีก --:--</div>
+                    </div>
                 </div>
 
-                <button class="btn" id="ifToggleBtn" onclick="toggleIF()">เริ่มอดอาหาร (Start Fasting)</button>
+                <button class="btn" id="ifToggleBtn" onclick="toggleIF()" style="width:100%;">เริ่มอดอาหาร (Start Fasting)</button>
             </div>
             
             <div class="card">
@@ -3748,6 +3768,21 @@ document.getElementById('schCtrls').innerHTML = `
             updateIFUI();
         }
 
+        function deepCleanForFirestore(val) {
+            if (val === undefined) return null;
+            if (val === null || typeof val !== 'object') return val;
+            if (Array.isArray(val)) {
+                return val.map(item => (item === undefined ? null : deepCleanForFirestore(item)));
+            }
+            const res = {};
+            for (const [k, v] of Object.entries(val)) {
+                if (v !== undefined) {
+                    res[k] = deepCleanForFirestore(v);
+                }
+            }
+            return res;
+        }
+
         async function pushToCloud() {
             if (!currentUser || !fbDb || isSyncing) return false;
             isSyncing = true;
@@ -3768,22 +3803,23 @@ document.getElementById('schCtrls').innerHTML = `
                         proteinTarget: (D.cfg && D.cfg.proteinTarget) ? D.cfg.proteinTarget : 140,
                         weights: (D.cfg && D.cfg.weights) ? D.cfg.weights : {},
                         weightFeedback: (D.cfg && D.cfg.weightFeedback) ? D.cfg.weightFeedback : {}
-                    }
+                    },
+                    updatedAt: new Date().toISOString()
                 };
 
-                // Deep scrub all undefined values (Firestore strictly rejects undefined anywhere)
-                const cleanPayload = JSON.parse(JSON.stringify(rawPayload));
-                cleanPayload.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+                // Deep scrub all undefined values (guarantees NO field is ever undefined)
+                const cleanPayload = deepCleanForFirestore(rawPayload);
 
                 await userDocRef.set(cleanPayload, { merge: true });
-                msg(`✓ ซิงก์สำเร็จ ${new Date().toLocaleTimeString('th-TH')}`);
+                const timeStr = new Date().toLocaleTimeString('th-TH');
+                msg(`<span style="color:#10b981;font-weight:600;">✓ ซิงก์สำเร็จเวลา ${timeStr}</span>`);
                 return true;
             } catch (err) {
                 console.error("Cloud push error:", err);
                 if (err.code === 'permission-denied' || (err.message && err.message.includes('permission'))) {
                     msg('⚠️ ซิงก์ไม่สำเร็จ: ยังไม่ได้ตั้งค่า Rules ใน Firestore');
                 } else {
-                    msg('ซิงก์ขัดข้อง: ' + err.message.slice(0, 100));
+                    msg('<span style="color:#ef4444;font-weight:600;">ซิงก์ขัดข้อง: ' + (err.message || 'ไม่สามารถบันทึกข้อมูลได้') + '</span>');
                 }
                 return false;
             } finally {
@@ -3802,8 +3838,13 @@ document.getElementById('schCtrls').innerHTML = `
 
         async function syncNow() {
             if (!currentUser) return fcAlert('กรุณาเข้าสู่ระบบ Google ก่อนทำการซิงก์');
+            msg('<span style="color:var(--warn);font-weight:600;">⏳ กำลังซิงก์ข้อมูล...</span>');
             const ok = await pushToCloud();
-            if (ok) fcAlert('✓ ซิงก์ข้อมูลขึ้น Google Cloud เรียบร้อยแล้ว!');
+            if (ok) {
+                fcAlert('✓ ซิงก์ข้อมูลขึ้น Google Cloud เรียบร้อยแล้ว!');
+            } else {
+                fcAlert('⚠️ ซิงก์ไม่สำเร็จ กรุณาดูรายละเอียดที่ข้อความแจ้งเตือนสีแดงด้านล่างปุ่ม');
+            }
         }
 
         if (fbAuth) {
@@ -4199,56 +4240,96 @@ document.getElementById('schCtrls').innerHTML = `
             const bar = document.getElementById('ifProgressBar');
             const stText = document.getElementById('ifStatusText');
             const stTime = document.getElementById('ifStartTime');
+            const endTimeEl = document.getElementById('ifEndTime');
             const goalTx = document.getElementById('ifGoalText');
+            const eatWindowTx = document.getElementById('ifEatWindowText');
+            const countdownTx = document.getElementById('ifCountdownText');
+            const timerSub = document.getElementById('ifTimerSub');
             const btn = document.getElementById('ifToggleBtn');
 
-            goalTx.textContent = D.if.goal;
+            const goalHrs = (D.if && D.if.goal) ? D.if.goal : 16;
+            if (goalTx) goalTx.textContent = goalHrs;
+            if (eatWindowTx) eatWindowTx.textContent = `กินได้ ${Math.max(1, 24 - goalHrs)} ชม.`;
 
-            if (D.if.start) {
-                const diffSec = Math.floor((Date.now() - D.if.start) / 1000);
+            if (D.if && D.if.start) {
+                const now = Date.now();
+                const diffSec = Math.max(0, Math.floor((now - D.if.start) / 1000));
+                const goalSec = goalHrs * 3600;
+                
                 const h = Math.floor(diffSec / 3600);
                 const m = Math.floor((diffSec % 3600) / 60);
                 const s = diffSec % 60;
-                
                 disp.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-                
-                const dDate = new Date(D.if.start);
-                stTime.textContent = String(dDate.getHours()).padStart(2, '0') + ':' + String(dDate.getMinutes()).padStart(2, '0');
-                
-                const goalSec = D.if.goal * 3600;
-                const pct = Math.min(100, (diffSec / goalSec) * 100);
-                bar.style.width = pct + '%';
-                
-                // Show End Time
-                const endD = new Date(D.if.start + goalSec * 1000);
-                let endStr = String(endD.getHours()).padStart(2, '0') + ':' + String(endD.getMinutes()).padStart(2, '0');
-                if (endD.getDate() !== new Date().getDate()) endStr = 'พรุ่งนี้ ' + endStr;
-                else endStr = 'วันนี้ ' + endStr;
-                const eCont = document.getElementById('ifEndTimeCont');
-                if(eCont) {
-                    eCont.style.display = 'block';
-                    document.getElementById('ifEndTime').textContent = endStr;
+                if (timerSub) timerSub.textContent = 'ระยะเวลาที่อดอาหารไปแล้ว';
+
+                // Format Start Time
+                const startDate = new Date(D.if.start);
+                const nowDate = new Date();
+                const isStartToday = startDate.toDateString() === nowDate.toDateString();
+                const startHM = String(startDate.getHours()).padStart(2, '0') + ':' + String(startDate.getMinutes()).padStart(2, '0');
+                if (stTime) stTime.textContent = (isStartToday ? 'วันนี้ ' : 'เมื่อวาน ') + startHM;
+
+                // Format End Time (When fasting ends and eating window begins)
+                const endDate = new Date(D.if.start + goalSec * 1000);
+                const endHM = String(endDate.getHours()).padStart(2, '0') + ':' + String(endDate.getMinutes()).padStart(2, '0');
+                let endDay = 'วันนี้ ';
+                if (endDate.toDateString() !== nowDate.toDateString()) {
+                    const tomorrow = new Date(nowDate);
+                    tomorrow.setDate(nowDate.getDate() + 1);
+                    endDay = (endDate.toDateString() === tomorrow.toDateString()) ? 'พรุ่งนี้ ' : (endDate.getDate() + '/' + (endDate.getMonth() + 1) + ' ');
                 }
+                if (endTimeEl) endTimeEl.textContent = endDay + endHM + ' น.';
+
+                // Progress Bar
+                const pct = Math.min(100, Math.max(0, (diffSec / goalSec) * 100));
+                if (bar) bar.style.width = pct + '%';
 
                 if (diffSec >= goalSec) {
-                    stText.innerHTML = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M5.8 11.3 2 22l10.7-3.79"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12v0c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11v0c-.11.7-.72 1.22-1.43 1.22H17"/><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98v0C9.52 4.9 9 5.52 9 6.23V7"/><path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z"/></svg> ครบเป้าหมาย ' + D.if.goal + ' ชม. แล้ว! ทานได้เลย';
-                    stText.style.color = 'var(--acc)';
-                    bar.style.background = 'var(--acc)';
+                    // Fast completed! Inside eating window
+                    const overSec = diffSec - goalSec;
+                    const overH = Math.floor(overSec / 3600);
+                    const overM = Math.floor((overSec % 3600) / 60);
+                    if (stText) {
+                        stText.innerHTML = '🎉 <b>ครบเป้าหมาย ' + goalHrs + ' ชม. แล้ว! สิ้นสุดการอด</b>';
+                        stText.style.color = '#22c55e';
+                    }
+                    if (countdownTx) {
+                        countdownTx.innerHTML = '<span style="color:#22c55e;">🍽️ เริ่มกินได้แล้ว! (เลยมา ' + (overH > 0 ? overH + ' ชม. ' : '') + overM + ' นาที)</span>';
+                    }
+                    if (bar) bar.style.background = '#22c55e';
                 } else {
-                    stText.textContent = 'กำลังอดอาหาร (เหลืออีก ' + Math.ceil((goalSec - diffSec)/3600) + ' ชม.)';
-                    stText.style.color = 'var(--warn)';
-                    bar.style.background = 'linear-gradient(90deg, var(--warn), #fbbf24)';
+                    // Still fasting
+                    const remSec = goalSec - diffSec;
+                    const remH = Math.floor(remSec / 3600);
+                    const remM = Math.floor((remSec % 3600) / 60);
+                    if (stText) {
+                        stText.textContent = '🔥 กำลังอดอาหาร (Fasting)';
+                        stText.style.color = 'var(--warn)';
+                    }
+                    if (countdownTx) {
+                        countdownTx.innerHTML = `เหลืออีก <strong>${remH} ชม. ${remM} นาที</strong>`;
+                        countdownTx.style.color = 'var(--warn)';
+                    }
+                    if (bar) bar.style.background = 'linear-gradient(90deg, var(--warn), var(--acc))';
                 }
                 
-                btn.textContent = 'หยุดทำ IF (บันทึกเริ่มกิน)';
+                btn.textContent = '🍽️ สิ้นสุดการอด (บันทึกเริ่มกิน)';
                 btn.className = 'btn g';
             } else {
                 disp.textContent = '00:00:00';
-                stTime.textContent = '--:--';
-                bar.style.width = '0%';
-                stText.textContent = 'อยู่ในช่วงเวลากิน (ยังไม่เริ่ม IF)';
-                stText.style.color = 'var(--dim)';
-                btn.textContent = 'เริ่มอดอาหาร (Start Fasting)';
+                if (timerSub) timerSub.textContent = 'ยังไม่ได้เริ่มจับเวลา';
+                if (stTime) stTime.textContent = '--:--';
+                if (endTimeEl) endTimeEl.textContent = 'รอเริ่ม IF';
+                if (bar) bar.style.width = '0%';
+                if (stText) {
+                    stText.textContent = '🍽️ อยู่ในช่วงเวลากินอาหาร (ยังไม่เริ่ม IF)';
+                    stText.style.color = 'var(--dim)';
+                }
+                if (countdownTx) {
+                    countdownTx.textContent = 'กดเริ่มเมื่อทานมื้อสุดท้ายเสร็จ';
+                    countdownTx.style.color = 'var(--dim)';
+                }
+                btn.textContent = '⏳ เริ่มอดอาหาร (Start Fasting)';
                 btn.className = 'btn';
             }
         }
@@ -4264,7 +4345,7 @@ document.getElementById('schCtrls').innerHTML = `
         renderAuthUI();
         
         /* ============ PWA AUTO-UPDATE LIFECYCLE ============ */
-        const APP_VERSION = '2.4.1';
+        const APP_VERSION = '2.4.3';
         let newWorkerWaiting = null;
 
         function showAppUpdateNotification(worker) {
