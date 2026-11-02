@@ -756,7 +756,7 @@
         .fc-modal-actions .btn { flex:1; margin:0; padding:13px; font-size:15px; border-radius:12px; }
 
         
-        /* ============ REST SCREEN (BIG CLOCK CENTERED) ============ */
+        /* ============ REST SCREEN (BIG CLOCK & NEXT PREVIEW) ============ */
         #pl.is-rest .pl-body {
             display: flex !important;
             flex-direction: column !important;
@@ -766,40 +766,249 @@
             flex: 1 1 auto !important;
         }
 
-        #pl.is-rest .pl-body > :not(.ring):not(.exname) {
+        #pl.is-rest .pl-body > :not(.ring):not(.exname):not(#plRestPreview) {
             display: none !important;
         }
 
         #pl.is-rest .ring {
-            width: min(72vw, 260px) !important;
-            height: auto !important;
+            width: clamp(125px, 32vw, 165px) !important;
+            height: clamp(125px, 32vw, 165px) !important;
             aspect-ratio: 1 !important;
-            margin: 0 auto 16px auto !important;
+            margin: 0 auto 6px auto !important;
             flex: 0 0 auto !important;
         }
 
         #pl.is-rest .ring circle {
-            stroke-width: 11 !important;
+            stroke-width: 10 !important;
         }
 
         #pl.is-rest .tim {
-            font-size: clamp(48px, 14vw, 64px) !important;
-            letter-spacing: -2px !important;
+            font-size: clamp(38px, 10vw, 48px) !important;
+            letter-spacing: -1.5px !important;
         }
 
         #pl.is-rest .mode {
-            font-size: 13px !important;
+            font-size: 11.5px !important;
             letter-spacing: 2px !important;
-            margin-bottom: 4px !important;
+            margin-bottom: 2px !important;
         }
 
         #pl.is-rest .exname {
-            font-size: 22px !important;
+            font-size: 19px !important;
             font-weight: 800 !important;
             margin: 0 0 4px 0 !important;
-            line-height: 1.3 !important;
+            line-height: 1.25 !important;
             text-align: center !important;
             flex: 0 0 auto !important;
+            color: var(--dim) !important;
+        }
+
+        #pl.is-rest #plRestPreview {
+            display: block !important;
+        }
+
+        #pl:not(.is-rest) #plRestPreview {
+            display: none !important;
+        }
+
+        /* ============ EXERCISE CUES & TARGET PILL ============ */
+        .pl-target-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(242, 78, 30, 0.12);
+            border: 1px solid rgba(242, 78, 30, 0.35);
+            color: #ff6b3d;
+            padding: 8px 18px;
+            border-radius: 99px;
+            font-size: 16px;
+            font-weight: 800;
+            margin: 6px auto;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(242, 78, 30, 0.1);
+        }
+
+        #plCue {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 12px 18px 12px 34px;
+            margin: 8px auto;
+            width: 100%;
+            max-width: 480px;
+            box-sizing: border-box;
+            color: #f8fafc;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.6;
+            text-align: left;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+        }
+
+        #plCue li {
+            margin-bottom: 6px;
+            color: #f1f5f9;
+        }
+
+        #plCue li:last-child {
+            margin-bottom: 0;
+        }
+
+        #plCue li::marker {
+            color: var(--acc);
+            font-size: 1.15em;
+        }
+
+        /* ============ REST PREVIEW CARD ============ */
+        .pl-rest-preview {
+            width: 100%;
+            max-width: 440px;
+            margin: 6px auto 10px auto;
+            box-sizing: border-box;
+            animation: fadeIn .25s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .rest-preview-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 12px 14px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rest-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .rest-badge-step {
+            font-size: 12.5px;
+            font-weight: 800;
+            color: var(--acc);
+            background: rgba(242, 78, 30, 0.12);
+            padding: 4px 10px;
+            border-radius: 99px;
+            border: 1px solid rgba(242, 78, 30, 0.25);
+        }
+
+        .rest-badge-set {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--tx);
+            background: var(--card2);
+            padding: 4px 10px;
+            border-radius: 99px;
+            border: 1px solid var(--line);
+        }
+
+        .rest-badge-remain {
+            font-size: 12px;
+            font-weight: 800;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.12);
+            padding: 4px 10px;
+            border-radius: 99px;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            margin-left: auto;
+        }
+
+        .rest-badge-remain.last-set {
+            color: #f43f5e;
+            background: rgba(244, 63, 94, 0.15);
+            border-color: rgba(244, 63, 94, 0.35);
+        }
+
+        .rest-card-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .rest-media-box {
+            position: relative;
+            flex: 0 0 90px;
+            width: 90px;
+            height: 90px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1.5px solid var(--line);
+            background: #0b0f14;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .rest-thumb-media {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .rest-media-zoom {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            font-size: 9.5px;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 5px;
+            pointer-events: none;
+        }
+
+        .rest-info-box {
+            flex: 1 1 auto;
+            min-width: 0;
+            text-align: left;
+        }
+
+        .rest-ex-title {
+            font-size: 15.5px;
+            font-weight: 800;
+            color: var(--tx);
+            line-height: 1.3;
+            margin-bottom: 3px;
+        }
+
+        .rest-target-line, .rest-eq-line {
+            font-size: 13px;
+            color: var(--dim);
+            margin-bottom: 3px;
+            line-height: 1.4;
+        }
+
+        .rest-val-highlight {
+            font-weight: 800;
+            color: var(--tx);
+        }
+
+        .rest-cue-hint {
+            font-size: 11.5px;
+            color: #94a3b8;
+            margin-top: 4px;
+            line-height: 1.35;
+            background: var(--card2);
+            padding: 4px 8px;
+            border-radius: 7px;
+            border-left: 3px solid var(--acc);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
         }
 
         #pl.landscape.is-rest {
@@ -1149,6 +1358,33 @@
                 font-size: 13px !important;
             }
         }
+            /* ============ PWA UPDATE TOAST ============ */
+        .update-toast {
+            position: fixed;
+            bottom: calc(75px + var(--sat));
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1e293b;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 99px;
+            font-size: 13.5px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+            border: 1px solid var(--acc);
+            z-index: 9999;
+            transition: transform .35s cubic-bezier(0.16, 1, 0.3, 1), opacity .3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .update-toast.on {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
     </style>
 </head>
 
@@ -1268,6 +1504,21 @@
             <h2><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M14.4 14.4l-4.8-4.8"/><path d="M6.5 10.8l-4.3 4.3a2 2 0 0 0 2.8 2.8l4.3-4.3"/><path d="M17.5 13.2l4.3-4.3a2 2 0 0 0-2.8-2.8l-4.3 4.3"/><path d="M2.2 16.2l3 3"/><path d="M18.8 4.8l-3 3"/><path d="M7 9l8 8"/><path d="M9 7l8 8"/></svg>️ รายละเอียดแต่ละวัน</h2>
             <div class="chips" id="wSel"></div>
             <div id="wDetail"></div>
+
+            <!-- ================= PERIODIZED WEIGHT PROGRESSION ================= -->
+            <div class="card" style="margin-top:16px;">
+                <div class="row" style="align-items:center;">
+                    <div>
+                        <h3 style="font-size:16px;">🏋️ น้ำหนักอุปกรณ์ตามโปรแกรม 5 เฟส</h3>
+                        <div class="sub" style="margin-top:2px;" id="weightProgPhaseLabel">จัดน้ำหนักตามสัปดาห์ & ปรับแต่งยืดหยุ่น</div>
+                    </div>
+                    <div style="display:flex;gap:6px;">
+                        <button class="btn sm g" onclick="showWeightTableModal()" style="font-size:12px;padding:6px 10px;">📊 ตาราง 5 เฟส</button>
+                        <button class="btn sm g" onclick="resetAllWeightsToProgram()" style="font-size:12px;padding:6px 8px;" title="รีเซ็ตทุกท่ากลับเป็นค่ามาตรฐาน">🔄 รีเซ็ต</button>
+                    </div>
+                </div>
+                <div id="weightProgressionList" style="margin-top:12px;display:grid;gap:8px;"></div>
+            </div>
         </div>
     </div>
 
@@ -1308,6 +1559,16 @@
                 <div class="stat">
                     <div class="v" id="stKcal">0</div>
                     <div class="l">kcal รวม</div>
+                </div>
+            </div>
+            <div class="g2" style="margin-top:10px">
+                <div class="stat">
+                    <div class="v" id="stVol" style="color:var(--acc)">0</div>
+                    <div class="l">น้ำหนักยกสะสม (กก.)</div>
+                </div>
+                <div class="stat">
+                    <div class="v" id="stReps" style="color:#38bdf8">0</div>
+                    <div class="l">จำนวนครั้งที่ยก (Reps)</div>
                 </div>
             </div>
             <div class="card">
@@ -1355,6 +1616,15 @@
                     <button class="btn g sm"
                         onclick="resetAllData()" style="color:#ef4444; border-color:rgba(239,68,68,0.3);">ล้างและเริ่มใหม่จากศูนย์</button>
                 </div>
+                <div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px;">
+                    <div class="row" style="align-items:center;">
+                        <div>
+                            <div style="font-size:13.5px;font-weight:700;">เวอร์ชันแอป & แคชเครื่อง</div>
+                            <div class="sub" style="font-size:11.5px;" id="appVersionTxt">เวอร์ชัน 2.4.0 (PWA ติดตั้งแล้ว)</div>
+                        </div>
+                        <button class="btn sm" onclick="forceAppUpdate()" style="font-size:12px;padding:6px 12px;background:rgba(14,165,233,0.15);color:var(--acc);border:1px solid rgba(14,165,233,0.3);">🔄 ตรวจหา & อัปเดตทันที</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1384,6 +1654,7 @@
                     </div>
                 </div>
                 <div class="exname" id="plEx">—</div>
+                <div id="plRestPreview" class="pl-rest-preview"></div>
                 <div id="plFig" onclick="if(ST[idx]&&ST[idx].e)showExModal(ST[idx].e)" title="แตะเพื่อดูขยายเต็มจอ" style="cursor:pointer"></div>
                 <div class="sub" id="plTarget" style="text-align:center;font-weight:700;color:var(--acc)"></div>
                 <ul class="cue" id="plCue"></ul>
@@ -1514,6 +1785,10 @@
         }
         function fcClose(val) {
             document.getElementById('fcModal').classList.remove('on');
+            const okBtn = document.getElementById('fcOk');
+            const cancelBtn = document.getElementById('fcCancel');
+            if (okBtn) okBtn.style.display = 'block';
+            if (cancelBtn) cancelBtn.textContent = 'ยกเลิก';
             if (_fcRes) _fcRes(val);
             _fcRes = null;
         }
@@ -1523,9 +1798,33 @@
             fcClose(isP ? document.getElementById('fcInput').value : true);
         };
         document.getElementById('fcInput').onkeyup = (e) => { if (e.key === 'Enter') document.getElementById('fcOk').click(); };
+        function fcShowChoiceModal(title, desc, choices) {
+            return new Promise(resolve => {
+                _fcRes = resolve;
+                const m = document.getElementById('fcModal');
+                document.getElementById('fcTitle').innerHTML = title;
+                
+                let choicesHtml = `<div style="font-size:14px;color:var(--dim);margin-bottom:12px;line-height:1.5;">${desc}</div><div style="display:grid;gap:9px;margin-top:10px;">`;
+                choices.forEach(c => {
+                    choicesHtml += `<button type="button" class="btn" onclick="fcClose('${c.id}')" style="text-align:left;padding:12px 14px;background:var(--card2);border:1px solid var(--line);border-radius:12px;color:var(--tx);line-height:1.4;">
+                        <div style="font-weight:800;font-size:15px;color:var(--tx);">${c.label}</div>
+                        ${c.sub ? `<div style="font-size:12px;color:var(--dim);margin-top:3px;">${c.sub}</div>` : ''}
+                    </button>`;
+                });
+                choicesHtml += `</div>`;
+                
+                document.getElementById('fcDesc').innerHTML = choicesHtml;
+                document.getElementById('fcInputContainer').style.display = 'none';
+                document.getElementById('fcOk').style.display = 'none';
+                document.getElementById('fcCancel').style.display = 'block';
+                document.getElementById('fcCancel').textContent = 'ข้ามการประเมิน';
+                m.classList.add('on');
+            });
+        }
         window.fcAlert = (desc) => fcShow('alert', 'แจ้งเตือน', desc);
         window.fcConfirm = (desc, title) => fcShow('confirm', title || 'ยืนยันการดำเนินการ', desc);
-        window.fcPrompt = (desc, defVal) => fcShow('prompt', 'ระบุข้อมูล', desc, defVal);
+        window.fcPrompt = (desc, defVal, title) => fcShow('prompt', title || 'ระบุข้อมูล', desc, defVal);
+        window.fcChoice = (title, desc, choices) => fcShowChoiceModal(title, desc, choices);
         
         async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
             const lastCheck = D.checks[D.checks.length - 1] || {};
@@ -1886,7 +2185,7 @@
             c_legs: { img: 'c_legs.jpg', n: 'Legs Up The Wall + หายใจ 4-7-8', eq: 'ผนัง', cue: ['นอนหงาย ยกขาพาดผนัง ก้นชิดผนัง', 'หายใจเข้า 4 วิ กลั้น 7 วิ ออก 8 วิ', 'ทำ 8-10 รอบ ลดแรงกดหมอนรองกระดูก', 'ช่วยดึง HRV กลับขึ้นเร็วขึ้นหลังฝึกหนัก'], yt: 'legs up the wall pose' },
             /* ---------- MAIN ---------- */
             goblet: { n: 'Goblet Squat', eq: 'เคทเทิลบอล 8 กก.', img: 'squat_trainer.jpg', cue: ['ถือเคทเทิลบอลชิดอก ศอกชี้ลง', 'เท้ากว้างเท่าไหล่ ปลายเท้าเฉียง 15°', 'ย่อลงจนต้นขาขนานพื้น อกเปิด หลังตรง', 'ดันส้นเท้า บีบก้นบนสุด'], yt: 'goblet squat form' },
-            rdl: { n: 'DB Romanian Deadlift', eq: 'ดัมเบล 10 กก.×2', img: 'rdl.jpg', cue: ['ดัมเบลชิดต้นขา เข่างอเล็กน้อยค้างไว้', 'ดันสะโพกไปหลัง ไม่ใช่ก้มหลัง', 'หยุดที่กลางหน้าแข้ง หลังตรงเป็นไม้บรรทัด', 'ถ้ารู้สึกตึงหลังล่างแทนต้นขาหลัง = ฟอร์มผิด'], yt: 'dumbbell romanian deadlift form' },
+            rdl: { n: 'DB Romanian Deadlift', eq: 'ดัมเบล 6 กก.×2', img: 'rdl.jpg', cue: ['ดัมเบลชิดต้นขา เข่างอเล็กน้อยค้างไว้', 'ดันสะโพกไปหลัง ไม่ใช่ก้มหลัง', 'หยุดที่กลางหน้าแข้ง หลังตรงเป็นไม้บรรทัด', 'ถ้ารู้สึกตึงหลังล่างแทนต้นขาหลัง = ฟอร์มผิด'], yt: 'dumbbell romanian deadlift form' },
             thrust: { n: 'DB Hip Thrust', eq: 'ดัมเบล + เก้าอี้', img: 'thrust.jpg', cue: ['พิงสะบักบนขอบเก้าอี้ วางดัมเบลบนสะโพก', 'เก็บคาง เก็บซี่โครง ดันขึ้นด้วยการบีบก้น', 'ค้างบนสุด 2 วินาที ห้ามแอ่นหลัง', 'ปลอดภัยต่อหลังล่างที่สุดในบรรดาท่าก้น'], yt: 'dumbbell hip thrust form' },
             bmarch: { img: 'bmarch.jpg', n: 'Glute Bridge March', eq: 'พื้น', cue: ['ยกสะพานก้นค้างไว้', 'ยกเข่าสลับข้างช้าๆ สะโพกไม่บิดตก', '10 ครั้ง/ข้าง ควบคุมทุกจังหวะ'], yt: 'glute bridge march' },
             bench: { n: 'DB Bench Press', eq: 'ดัมเบล + เก้าอี้', img: 'bench.jpg', cue: ['นอนบนเก้าอี้ เท้าแนบพื้น บีบสะบัก', 'ลงช้า 3 วินาที ศอก 45° กับลำตัว', 'ดันขึ้นจนแขนเกือบตรง ไม่ล็อกศอก'], yt: 'dumbbell bench press form' },
@@ -1895,10 +2194,10 @@
             row: { n: 'One-Arm DB Row', eq: 'ดัมเบล + เก้าอี้', img: 'row.jpg', cue: ['เข่าและมือวางบนเก้าอี้ หลังขนานพื้น', 'ดึงดัมเบลเข้าหาสะโพก ศอกชิดลำตัว', 'บีบสะบักค้าง 1 วินาที'], yt: 'one arm dumbbell row', side: 1 },
             csrow: { img: 'csrow.jpg', n: 'Chest-Supported Row', eq: 'ดัมเบล + เก้าอี้เอียง', cue: ['นอนคว่ำอกบนพนักเก้าอี้เอียง 45°', 'ดึงดัมเบลขึ้นพร้อมบีบสะบัก', 'หลังไม่ต้องรับภาระเลย — เหมาะกับคนปวดหลัง'], yt: 'chest supported dumbbell row' },
             pullover: { img: 'pullover.jpg', n: 'DB Pullover', eq: 'ดัมเบล 1 ตัว + เก้าอี้', cue: ['นอนหงาย ถือดัมเบล 2 มือเหนืออก', 'ลดลงหลังศีรษะจนตึง หลังล่างแนบเบาะ', 'ดึงกลับด้วยกล้ามเนื้อหลัง'], yt: 'dumbbell pullover form' },
-            curl: { img: 'curl.jpg', n: 'DB Hammer Curl', eq: 'ดัมเบล 10 กก.×2', cue: ['ฝ่ามือหันเข้าหากันตลอด', 'ศอกล็อกข้างลำตัว ไม่แกว่งตัวช่วย', 'ลงช้า 3 วินาที'], yt: 'hammer curl form' },
+            curl: { img: 'curl.jpg', n: 'DB Hammer Curl', eq: 'ดัมเบล 6 กก.×2', cue: ['ฝ่ามือหันเข้าหากันตลอด', 'ศอกล็อกข้างลำตัว ไม่แกว่งตัวช่วย', 'ลงช้า 3 วินาที'], yt: 'hammer curl form' },
             lat: { img: 'lat.jpg', n: 'DB Lateral Raise', eq: 'ดัมเบล (เบา/ครึ่งช่วง)', cue: ['ยกออกข้างถึงระดับไหล่', 'ศอกงอเล็กน้อย ลงช้ามาก 3-4 วินาที'], yt: 'lateral raise form' },
             swing: { img: 'swing.jpg', n: 'Kettlebell Swing', eq: 'เคทเทิลบอล 8 กก.', cue: ['Hip hinge ไม่ใช่ squat — ดีดด้วยสะโพก', 'เคทเทิลบอลลอยถึงระดับอกด้วยแรงสะโพก', 'บีบก้นสุดตอนยืนตรง หลังตรงตลอด', 'ถ้าปวดหลังอยู่ ให้ข้ามไปใช้โหมดหลังปลอดภัย'], yt: 'kettlebell swing hardstyle' },
-            thruster: { img: 'thruster.jpg', n: 'DB Thruster', eq: 'ดัมเบล 10 กก.×2', cue: ['ดัมเบลระดับไหล่ → ย่อสควอท', 'ยืนขึ้นแล้วดันเหนือหัวเป็นจังหวะเดียว', 'ท่าเผาผลาญสูงสุดของโปรแกรม'], yt: 'dumbbell thruster form' },
+            thruster: { img: 'thruster.jpg', n: 'DB Thruster', eq: 'ดัมเบล 6 กก.×2', cue: ['ดัมเบลระดับไหล่ → ย่อสควอท', 'ยืนขึ้นแล้วดันเหนือหัวเป็นจังหวะเดียว', 'ท่าเผาผลาญสูงสุดของโปรแกรม'], yt: 'dumbbell thruster form' },
             pushup: { img: 'pushup.jpg', n: 'Push-Up', eq: 'ไม่ใช้อุปกรณ์', cue: ['มือกว้างกว่าไหล่เล็กน้อย ลำตัวตรง บีบก้น', 'ลงจนอกเกือบแตะพื้น', 'หนักเกินให้ยันมือบนเก้าอี้'], yt: 'push up proper form' },
             wheel: { img: 'wheel.jpg', n: 'Ab Wheel Rollout', eq: 'ลูกกลิ้งออกกำลัง', cue: ['คุกเข่าบนผ้าขนหนู เกร็งหน้าท้องก่อนออกตัว', 'กลิ้งออกเท่าที่หลังไม่แอ่นเด็ดขาด', 'ดึงกลับด้วยหน้าท้อง ไม่ใช่แขน'], yt: 'ab wheel rollout beginner' },
             plank: { n: 'Plank', eq: 'ไม่ใช้อุปกรณ์', img: 'plank.jpg', cue: ['ศอกใต้ไหล่ ลำตัวเป็นเส้นตรง', 'บีบก้น+หน้าท้อง สะโพกไม่ตก', 'หายใจสม่ำเสมอ ห้ามกลั้น'], yt: 'plank proper form' },
@@ -1994,6 +2293,61 @@
                     { e: 'hula', sets: 2, type: 'time', t: 300, rest: 60, after: 60 }]
             }
         };
+        /* ============ PERIODIZED WEIGHT PROGRESSION (5 PHASES) ============ */
+        const PHASE_WEIGHTS = {
+            // Phase 1 (W1-4), Phase 2 (W5-8), Phase 3 (W9-12), Phase 4 (W13-16), Phase 5 (W17-20+)
+            goblet:   [8,  10, 12, 14, 12],   // Kettlebell (เริ่ม 8 กก.)
+            rdl:      [6,   8, 10, 12, 10],   // DB ข้างละ (เริ่ม 6 กก.×2 รวม 12 กก.)
+            bench:    [6,   8, 10, 12, 10],   // DB ข้างละ (เริ่ม 6 กก.×2 รวม 12 กก.)
+            bss:      [6,   8, 10, 12, 10],   // DB ข้างละ (เริ่ม 6 กก.×2 รวม 12 กก.)
+            press:    [6,   8, 10, 12, 10],   // DB ข้างละ (เริ่ม 6 กก.×2 รวม 12 กก.)
+            row:      [6,   8, 10, 12, 10],   // Single DB (เริ่ม 6 กก.)
+            csrow:    [6,   8, 10, 12, 10],   // DB ข้างละ (เริ่ม 6 กก.×2 รวม 12 กก.)
+            pullover: [6,   8, 10, 12, 10],   // Single DB (เริ่ม 6 กก.)
+            curl:     [6,   8, 10, 10,  8],   // DB ข้างละ (เริ่ม 6 กก.×2 รวม 12 กก.)
+            lat:      [3,   4,  5,  6,  4],   // DB ข้างละ (เริ่ม 3 กก. หรือแผ่น 2.5 กก.)
+            swing:    [8,  10, 12, 14, 12],   // Kettlebell (เริ่ม 8 กก.)
+            thruster: [6,   8,  8, 10,  8],   // DB ข้างละ (เริ่ม 6 กก.×2 รวม 12 กก.)
+            thrust:   [6,   8, 10, 12, 10]    // DB Hip Thrust (เริ่ม 6-8 กก.)
+        };
+
+        function getExerciseWeightInfo(k) {
+            const e = EX[k];
+            if (!e) return { kg: null, totalKg: null, isPair: false, label: '', isCustom: false, baseKg: null };
+            
+            const pIdx = phIdx();
+            const baseKg = (PHASE_WEIGHTS[k] && PHASE_WEIGHTS[k][pIdx] != null) ? PHASE_WEIGHTS[k][pIdx] : (defaultWeightOf(k) || null);
+            const userKg = (D.cfg && D.cfg.weights && D.cfg.weights[k] != null) ? D.cfg.weights[k] : null;
+            const activeKg = userKg != null ? userKg : baseKg;
+            
+            if (activeKg == null) {
+                return { kg: null, totalKg: null, isPair: false, label: e.eq || 'ไม่ต้องใช้อุปกรณ์', isCustom: false, baseKg: null };
+            }
+
+            const origEq = e.eq || '';
+            const isPair = origEq.includes('×2') || origEq.includes('x2') || origEq.includes('ดัมเบล +') ||
+                           ['bench', 'rdl', 'press', 'bss', 'curl', 'lat', 'thruster', 'csrow'].includes(k);
+            const isKB = origEq.includes('เคทเทิลบอล') || ['goblet', 'swing'].includes(k);
+            
+            let label = '';
+            if (isKB) {
+                label = `เคทเทิลบอล ${activeKg} กก.`;
+            } else if (isPair) {
+                label = `ดัมเบล ${activeKg} กก.×2 (รวม ${activeKg * 2} กก.)`;
+            } else {
+                label = `ดัมเบล ${activeKg} กก.`;
+            }
+            
+            return {
+                kg: activeKg,
+                totalKg: isPair ? activeKg * 2 : activeKg,
+                isPair,
+                label,
+                baseKg,
+                isCustom: userKg != null && userKg !== baseKg
+            };
+        }
+
         const SCHED = ['R', 'A', 'Z', 'B', 'R', 'C', 'H'];
         const DN = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
 
@@ -2207,15 +2561,21 @@ document.getElementById('schCtrls').innerHTML = `
 
             document.getElementById('stDone').textContent = D.sessions.length;
             document.getElementById('stKcal').textContent = D.sessions.reduce((a, b) => a + (b.kcal || 0), 0).toLocaleString();
+            const totalVolAll = (D.sets || []).reduce((a, b) => a + ((b.weight_kg || 0) * (b.reps || 0)), 0);
+            const totalRepsAll = (D.sets || []).reduce((a, b) => a + (b.reps || 0), 0);
+            const stVolEl = document.getElementById('stVol');
+            if (stVolEl) stVolEl.textContent = totalVolAll.toLocaleString();
+            const stRepsEl = document.getElementById('stReps');
+            if (stRepsEl) stRepsEl.textContent = totalRepsAll.toLocaleString();
             document.getElementById('log').innerHTML = D.sessions.length ? D.sessions.slice(-14).reverse().map(s =>
                 `<div class="row" style="padding:7px 0;border-bottom:1px solid var(--line)">
      <span style="font-size:13px">${W[s.workout_key] ? W[s.workout_key].ic : '•'} ${s.workout_name}</span>
-     <span class="sub">${s.date.slice(5)} • ${s.kcal} kcal</span></div>`).join('') : '<div class="sub">ยังไม่มีบันทึก</div>';
+     <span class="sub">${s.date.slice(5)} • ${s.kcal} kcal${s.total_volume_kg ? ` • 🏋️ ${s.total_volume_kg.toLocaleString()} กก.` : ''}</span></div>`).join('') : '<div class="sub">ยังไม่มีบันทึก</div>';
             if (document.getElementById('aiKey')) document.getElementById('aiKey').value = D.cfg.aiKey || '';
             if (document.getElementById('aiKeyBackup')) document.getElementById('aiKeyBackup').value = D.cfg.aiKeyBackup || '';
             renderAuthUI();
             document.getElementById('localInfo').textContent = `เช็กอิน ${D.checks.length} วัน • เซสชัน ${D.sessions.length} • เซ็ตที่บันทึก ${D.sets.length}`;
-            charts(); renderCheckHistory(); showW(document.querySelector('#wSel button.on')?.dataset.w || 'A');
+            charts(); renderCheckHistory(); renderWeightProgressionUI(); showW(document.querySelector('#wSel button.on')?.dataset.w || 'A');
         }
 
         function showW(k) {
@@ -2225,10 +2585,14 @@ document.getElementById('schCtrls').innerHTML = `
             items.forEach((it,i)=>{
                 if(it.ph!==cur){cur=it.ph;h+=`<div class="sec">${lab[cur]}</div>`}
                 const e=EX[it.e];
+                const wInfo = getExerciseWeightInfo(it.e);
                 h+=`<div class="exi"><div class="num" style="color:${cur==='main'?'var(--acc)':cur==='warm'?'var(--warn)':'var(--vio)'}">${i+1}</div>
     ${fig(it.e,76)}
     <div style="flex:1"><h3 style="font-size:14.5px">${e.n}</h3>
-    <div class="sub">${e.eq}</div>
+    <div class="sub" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+      <span>${wInfo.label || e.eq}</span>
+      ${wInfo.isCustom ? '<span class="tag o" style="font-size:10px;padding:1px 6px;">ปรับแต่งเอง</span>' : (wInfo.kg != null ? '<span class="tag gr" style="font-size:10px;padding:1px 6px;">ตามโปรแกรม P' + (phIdx() + 1) + '</span>' : '')}
+    </div>
     <div style="margin-top:5px;font-size:12.5px;font-weight:700;color:var(--acc)">
       ${it.sets>1?it.sets+' เซ็ต × ':''}${it.type==='time'?fmt(it.t):it.r}${e.side?' (ทั้ง 2 ข้าง)':''}${it.rest?' • พัก '+it.rest+' วิ':''}</div>
     <ul class="cue">${e.cue.map(c=>'<li>'+c+'</li>').join('')}</ul>
@@ -2314,22 +2678,153 @@ document.getElementById('schCtrls').innerHTML = `
             const isW = s.k === 'work', rest = !isW, col = PHL[s.ph][1];
             const pl = document.getElementById('pl');
             if (pl) pl.classList.toggle('is-rest', rest);
-            const tg = document.getElementById('plPhase'); tg.textContent = PHL[s.ph][0];
+
+            // Phase Tag
+            const tg = document.getElementById('plPhase');
+            tg.textContent = PHL[s.ph][0];
             tg.className = 'tag ' + (s.ph === 'warm' ? 'o' : s.ph === 'cool' ? 'v' : '');
-            document.getElementById('plMode').textContent = rest ? 'พัก' : (s.type === 'reps' ? 'ทำให้ครบ' : 'ทำต่อเนื่อง');
-            document.getElementById('plMode').style.color = rest ? 'var(--dim)' : col;
-            document.getElementById('arc').setAttribute('stroke', rest ? '#4b5768' : col);
+
+            // Step Counter: Exclude rest steps from total exercises count
+            const totalWork = ST.filter(x => x.k === 'work').length;
+            const currentWorkIdx = ST.slice(0, idx + 1).filter(x => x.k === 'work').length;
+            if (isW) {
+                document.getElementById('plProg').textContent = `ท่าที่ ${currentWorkIdx}/${totalWork}`;
+            } else {
+                const nextWorkIdx = currentWorkIdx + 1;
+                document.getElementById('plProg').textContent = nextWorkIdx <= totalWork 
+                    ? `พักผ่อน (เตรียมท่า ${nextWorkIdx}/${totalWork})` 
+                    : `พักผ่อน`;
+            }
+
+            const e = isW ? EX[s.e] : null;
             document.getElementById('plEx').textContent = s.name;
-            document.getElementById('plTarget').innerHTML = isW ? '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> ' + s.tgt : '';
-            document.getElementById('plSet').textContent = isW && s.sets > 1 ? `เซ็ต ${s.set}/${s.sets}` : '';
-            document.getElementById('plProg').textContent = (idx + 1) + '/' + ST.length;
-            const e = isW ? EX[s.e] : null, yt = document.getElementById('plYt');
-            document.getElementById('plCue').innerHTML = e ? e.cue.map(c => '<li>' + c + '</li>').join('') : '';
-            document.getElementById('plFig').innerHTML=e?fig(s.e,150):(s.next&&AMAP[Object.keys(EX).find(x=>EX[x].n===s.next)]?'':'');
-            const hasVid = e && getVideoUrl(s.e);
-            document.getElementById('plFig').className=(e?figClass(s.e):'') + (hasVid ? '' : ' single-media');
-            document.querySelectorAll('#plFig video').forEach(v => { v.muted = true; v.play().catch(()=>{}); });
-            yt.style.display = e ? 'inline-block' : 'none'; if (e) { yt.onclick = function(ev){ if(ev)ev.preventDefault(); showExModal(s.e) }; }
+
+            // Ring Mode & Display (Big, bold reps for rep-based exercises)
+            const C = 678.6;
+            if (isW && s.type === 'reps') {
+                document.getElementById('plMode').textContent = 'เป้าหมาย';
+                document.getElementById('plMode').style.color = 'var(--acc)';
+                document.getElementById('plTime').innerHTML = `<span style="font-size:clamp(36px, 9vw, 50px);font-weight:900;color:var(--acc);line-height:1;letter-spacing:-1px;">${s.tgt}</span>`;
+                document.getElementById('plSet').innerHTML = `${s.sets > 1 ? `เซ็ต ${s.set}/${s.sets} • ` : ''}<span style="color:var(--tx);font-weight:700;">⏱️ 00:00</span>`;
+                document.getElementById('arc').setAttribute('stroke', col);
+                document.getElementById('arc').style.strokeDashoffset = 0;
+            } else if (isW) {
+                document.getElementById('plMode').textContent = 'ทำต่อเนื่อง';
+                document.getElementById('plMode').style.color = col;
+                document.getElementById('plTime').textContent = fmt(left);
+                document.getElementById('plSet').textContent = s.sets > 1 ? `เซ็ต ${s.set}/${s.sets}` : '';
+                document.getElementById('arc').setAttribute('stroke', col);
+                document.getElementById('arc').style.strokeDashoffset = C * (1 - (s.dur ? left / s.dur : 0));
+            } else {
+                document.getElementById('plMode').textContent = 'พักฟื้นตัว';
+                document.getElementById('plMode').style.color = 'var(--dim)';
+                document.getElementById('plTime').textContent = fmt(left);
+                document.getElementById('plSet').textContent = 'นับถอยหลัง';
+                document.getElementById('arc').setAttribute('stroke', '#4b5768');
+                document.getElementById('arc').style.strokeDashoffset = C * (1 - (s.dur ? left / s.dur : 0));
+            }
+
+            // Target Pill: Large, prominent reps + equipment weight badge
+            const targetEl = document.getElementById('plTarget');
+            if (isW) {
+                const wInfo = getExerciseWeightInfo(s.e);
+                const eqDisplay = wInfo.label || (e && e.eq) || '';
+                const eqText = eqDisplay ? ` • 🏋️ <span style="color:var(--tx);font-weight:700;">${eqDisplay}</span>` : '';
+                if (s.type === 'reps') {
+                    targetEl.innerHTML = `<span class="pl-target-pill">🎯 <strong style="font-size:1.15em;">${s.tgt}</strong>${eqText}</span>`;
+                } else {
+                    targetEl.innerHTML = `<span class="pl-target-pill">⏱️ <strong style="font-size:1.15em;">${fmt(s.dur)}</strong>${eqText}</span>`;
+                }
+                targetEl.style.display = 'block';
+            } else {
+                targetEl.innerHTML = '';
+                targetEl.style.display = 'none';
+            }
+
+            // Media: Exclusive rendering (video ONLY if exists, image ONLY if no video)
+            const figEl = document.getElementById('plFig');
+            if (isW && e) {
+                figEl.innerHTML = fig(s.e, 150);
+                const hasVid = !!getVideoUrl(s.e);
+                figEl.className = figClass(s.e) + (hasVid ? '' : ' single-media');
+                figEl.style.display = 'flex';
+                document.querySelectorAll('#plFig video').forEach(v => { v.muted = true; v.play().catch(()=>{}); });
+            } else {
+                figEl.innerHTML = '';
+                figEl.style.display = 'none';
+            }
+
+            // Form Cues: High contrast, readable 15px font card
+            const cueEl = document.getElementById('plCue');
+            if (isW && e && e.cue && e.cue.length) {
+                cueEl.innerHTML = e.cue.map(c => '<li>' + c + '</li>').join('');
+                cueEl.style.display = 'block';
+            } else {
+                cueEl.innerHTML = '';
+                cueEl.style.display = 'none';
+            }
+
+            // Video Sample Modal button
+            const yt = document.getElementById('plYt');
+            yt.style.display = (isW && e) ? 'inline-block' : 'none';
+            if (isW && e) {
+                yt.onclick = function(ev) { if (ev) ev.preventDefault(); showExModal(s.e); };
+            }
+
+            // Rest Screen: Preview of Next Exercise with Image/Thumbnail & Set Progress
+            const restPreviewEl = document.getElementById('plRestPreview');
+            if (restPreviewEl) {
+                if (rest) {
+                    const nextWork = ST.slice(idx + 1).find(x => x.k === 'work');
+                    if (nextWork) {
+                        const nextE = nextWork.e;
+                        const nextExObj = EX[nextE] || {};
+                        const nextSetsRem = nextWork.sets - nextWork.set + 1;
+                        const nextWInfo = getExerciseWeightInfo(nextE); const nextEq = nextWInfo.label || nextExObj.eq || '';
+                        const nextCue = (nextExObj.cue && nextExObj.cue[0]) ? nextExObj.cue[0] : '';
+                        const vidUrl = getVideoUrl(nextE);
+                        const mediaHtml = vidUrl
+                            ? `<video src="${vidUrl}" poster="${nextExObj.img || ''}" autoplay loop muted playsinline class="rest-thumb-media"></video>`
+                            : (nextExObj.img ? `<img src="${nextExObj.img}" alt="${nextWork.name}" class="rest-thumb-media" />` : '');
+
+                        restPreviewEl.innerHTML = `
+                            <div class="rest-preview-card">
+                                <div class="rest-header-row">
+                                    <span class="rest-badge-step">ท่าถัดไป</span>
+                                    <span class="rest-badge-set">${nextWork.sets > 1 ? `เซ็ตที่ ${nextWork.set} / ${nextWork.sets}` : '1 เซ็ต'}</span>
+                                    <span class="rest-badge-remain ${nextSetsRem === 1 ? 'last-set' : ''}">${nextSetsRem === 1 ? '🔥 เซ็ตสุดท้าย!' : `เหลืออีก ${nextSetsRem} เซ็ต`}</span>
+                                </div>
+                                <div class="rest-card-content">
+                                    <div class="rest-media-box" onclick="showExModal('${nextE}')" title="แตะเพื่อดูวิธีเล่นแบบละเอียด">
+                                        ${mediaHtml}
+                                        <div class="rest-media-zoom">🔍 ขยาย</div>
+                                    </div>
+                                    <div class="rest-info-box">
+                                        <div class="rest-ex-title">${nextWork.name}</div>
+                                        <div class="rest-target-line">🎯 เป้าหมาย: <span class="rest-val-highlight">${nextWork.tgt}</span></div>
+                                        ${nextEq ? `<div class="rest-eq-line">🏋️ อุปกรณ์: <span class="rest-val-highlight">${nextEq}</span></div>` : ''}
+                                        ${nextCue ? `<div class="rest-cue-hint">💡 <span>${nextCue}</span></div>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        restPreviewEl.style.display = 'block';
+                    } else {
+                        restPreviewEl.innerHTML = `
+                            <div class="rest-preview-card" style="text-align:center;padding:16px;">
+                                <div style="font-size:26px;margin-bottom:6px;">🏁</div>
+                                <div style="font-weight:800;font-size:16px;color:var(--ok);">จบครบทุกท่าของการฝึกวันนี้แล้ว!</div>
+                                <div style="font-size:13px;color:var(--dim);margin-top:4px;">พักฟื้นตัวตามสบาย แล้วกดเสร็จสิ้นเพื่อบันทึกผล</div>
+                            </div>
+                        `;
+                        restPreviewEl.style.display = 'block';
+                    }
+                } else {
+                    restPreviewEl.innerHTML = '';
+                    restPreviewEl.style.display = 'none';
+                }
+            }
+
             const nx = ST[idx + 1];
             document.getElementById('plNext').innerHTML = nx ? 'ถัดไป: ' + (nx.k === 'rest' ? 'พัก ' + nx.dur + ' วิ' + (nx.next ? ' → ' + nx.next : '') : nx.name) : '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> ท่าสุดท้าย!';
             document.getElementById('plAdd').style.display = rest ? 'block' : 'none';
@@ -2338,32 +2833,75 @@ document.getElementById('schCtrls').innerHTML = `
         }
         function paint() {
             const s = ST[idx], C = 678.6;
-            if (s.k === 'work' && s.type === 'reps') { document.getElementById('plTime').textContent = fmt(up); document.getElementById('arc').style.strokeDashoffset = 0 }
-            else { document.getElementById('plTime').textContent = fmt(left); document.getElementById('arc').style.strokeDashoffset = C * (1 - (s.dur ? left / s.dur : 0)) }
-            document.getElementById('plTime').className = 'tim' + (left <= 3 && left > 0 && s.dur ? ' beat' : '');
+            if (!s) return;
+            if (s.k === 'work' && s.type === 'reps') {
+                document.getElementById('plSet').innerHTML = `${s.sets > 1 ? `เซ็ต ${s.set}/${s.sets} • ` : ''}<span style="color:var(--tx);font-weight:700;">⏱️ ${fmt(up)}</span>`;
+                document.getElementById('arc').style.strokeDashoffset = 0;
+            } else {
+                document.getElementById('plTime').textContent = fmt(left);
+                document.getElementById('arc').style.strokeDashoffset = C * (1 - (s.dur ? left / s.dur : 0));
+            }
+            document.getElementById('plTime').className = 'tim' + (left <= 3 && left > 0 && s.dur && s.k !== 'reps' ? ' beat' : '');
         }
         function run() {
             clearInterval(tick); tick = setInterval(() => {
                 if (!playing) return; const s = ST[idx];
-                if (s.k === 'work' && s.type === 'reps') { up++; paint(); return }
+                if (s.k === 'work' && s.type === 'reps') { up++; paint(); return; }
                 left--; if (left <= 3 && left > 0) beep(880, 90);
-                if (left <= 0) { beep(1320, 260); nextStep(); return } paint();
-            }, 1000)
+                if (left <= 0) { beep(1320, 260); nextStep(); return; } paint();
+            }, 1000);
         }
         async function togglePlay() {
             const s = ST[idx];
-            if (s.k === 'work' && s.type === 'reps') { await logSet(s); nextStep(1); return }
+            if (s.k === 'work' && s.type === 'reps') { await logSet(s); nextStep(1); return; }
             playing = !playing; document.getElementById('plMain').textContent = playing ? 'หยุดชั่วคราว' : '▶ เล่นต่อ';
             document.querySelectorAll('#plFig video').forEach(v => { if (playing) v.play().catch(()=>{}); else v.pause(); });
         }
+        function defaultWeightOf(eKey) {
+            const e = EX[eKey];
+            if (!e || !e.eq) return null;
+            const mPair = e.eq.match(/(\d+(?:\.\d+)?)\s*กก\.\s*[×x]\s*2/i);
+            if (mPair) return parseFloat(mPair[1]) * 2;
+            const mSingle = e.eq.match(/(\d+(?:\.\d+)?)\s*กก\./i);
+            if (mSingle) return parseFloat(mSingle[1]);
+            if (e.eq.includes('ดัมเบล 1 ตัว')) return 6;
+            if (e.eq.includes('ดัมเบล')) return 12;
+            return null;
+        }
         async function logSet(s) {
             if (!s.log) return;
-            const lastW = (D.sets || []).filter(st => st.exercise_key === s.e && st.weight_kg != null).pop()?.weight_kg || '10';
-            const kg = await fcPrompt('น้ำหนักที่ใช้ ' + s.name + ' (กก.)\nเว้นว่างได้ถ้าไม่ใช้น้ำหนัก', String(lastW), '🏋️ บันทึกน้ำหนักยก');
-            if (kg === null) return;
+            const wInfo = getExerciseWeightInfo(s.e);
+            const historyW = (D.sets || []).filter(st => st.exercise_key === s.e && st.weight_kg != null).pop()?.weight_kg;
+            const defW = historyW ?? wInfo.kg ?? defaultWeightOf(s.e) ?? '';
+            const defReps = parseInt(s.tgt) || 12;
+            const eqHint = wInfo.label ? ` • 🏋️ ${wInfo.label}` : (EX[s.e]?.eq ? ` • 🏋️ ${EX[s.e].eq}` : '');
+            
+            const promptMsg = `บันทึก: ${s.name} (เซ็ต ${s.set}/${s.sets})\nเป้าหมาย: ${s.tgt}${eqHint}\n\nใส่น้ำหนัก (กก.) หรือ "น้ำหนัก x ครั้ง" เช่น "${defW || '10'} x ${defReps}"`;
+            const inputVal = await fcPrompt(promptMsg, defW ? `${defW}` : '', '🏋️ บันทึกน้ำหนัก & จำนวนครั้ง');
+            if (inputVal === null) return;
+            
+            let w = null, r = defReps;
+            const str = String(inputVal).trim();
+            if (str) {
+                const parts = str.split(/[xX*@,\s]+/);
+                if (parts.length >= 2) {
+                    w = parseFloat(parts[0]) || null;
+                    r = parseInt(parts[1]) || defReps;
+                } else {
+                    w = parseFloat(parts[0]) || null;
+                }
+            }
+            
             D.sets.push({
-                id: curSid() + '|' + s.e + '|' + s.set, session_id: curSid(), code: D.cfg.code || 'local',
-                exercise_key: s.e, exercise_name: EX[s.e].n, set_no: s.set, weight_kg: parseFloat(kg) || null, reps: parseInt(s.tgt) || null, seconds: null
+                id: curSid() + '|' + s.e + '|' + s.set,
+                session_id: curSid(),
+                code: D.cfg.code || 'local',
+                exercise_key: s.e,
+                exercise_name: EX[s.e].n,
+                set_no: s.set,
+                weight_kg: w,
+                reps: r,
+                seconds: null
             });
             save();
         }
@@ -2377,19 +2915,220 @@ document.getElementById('schCtrls').innerHTML = `
             const dur = Math.round((Date.now() - t0) / 1000);
             const rpeRes = await fcPrompt('เหนื่อยระดับไหน? (RPE 1-10)', '7'); const rpe = rpeRes !== null ? parseInt(rpeRes) || null : null;
             const painRes = await fcPrompt('หลังเป็นยังไงหลังฝึก? (0=ไม่ปวดเลย, 10=ปวดมาก)', '2'); const pain = painRes !== null ? parseInt(painRes) : NaN;
+            
+            const sessionSets = (D.sets || []).filter(st => st.session_id === curSid());
+            const totalVol = sessionSets.reduce((sum, st) => sum + ((st.weight_kg || 0) * (st.reps || 0)), 0);
+            const totalReps = sessionSets.reduce((sum, st) => sum + (st.reps || 0), 0);
+            
+            let estKcal = W[curK]?.kcal || 350;
+            if (totalVol > 0) {
+                const volKcal = Math.round(totalVol * 0.035);
+                estKcal = Math.max(estKcal, Math.round(estKcal * 0.85 + volKcal));
+            }
+
+            // Post-Workout Weight Evaluation (Check if weights were manageable)
+            let weightEval = null;
+            if (['A', 'B', 'C'].includes(curK) || totalVol > 0) {
+                weightEval = await evaluateWorkoutWeights(curK, isNaN(pain) ? 0 : pain);
+            }
+
             D.sessions.push({
                 id: curSid(), code: D.cfg.code || 'local', date: iso(), workout_key: curK, workout_name: W[curK].n,
-                duration_sec: dur, kcal: W[curK].kcal, rpe, back_safe: !!D.bs, pain_after: isNaN(pain) ? null : pain
+                duration_sec: dur, kcal: estKcal, total_volume_kg: totalVol, total_reps: totalReps,
+                rpe, back_safe: !!D.bs, pain_after: isNaN(pain) ? null : pain,
+                weight_eval: weightEval
             });
             _sid = ''; save(); render(); autoSync();
             beep(660, 150); setTimeout(() => beep(880, 150), 160); setTimeout(() => beep(1320, 300), 320);
-            await fcAlert('<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M5.8 11.3 2 22l10.7-3.79"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12v0c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11v0c-.11.7-.72 1.22-1.43 1.22H17"/><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98v0C9.52 4.9 9 5.52 9 6.23V7"/><path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z"/></svg> จบ ' + W[curK].n + '\nใช้เวลา ' + fmt(dur) + ' • ~' + W[curK].kcal + ' kcal\n\nโปรตีน 35-40 g ภายใน 90 นาที');
+            
+            const volSummary = totalVol > 0 ? `\n🏋️ ยกสะสมรวม (Volume): ${totalVol.toLocaleString()} กก. (${totalReps} ครั้ง)` : '';
+            await fcAlert('🏆 จบ ' + W[curK].n + '!\n⏱️ ใช้เวลา ' + fmt(dur) + ' • 🔥 ~' + estKcal + ' kcal' + volSummary + '\n\n🥩 ดื่มเวย์/โปรตีน 35-40 g ภายใน 90 นาที');
         }
         let ac; function beep(f, d) {
             try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); const o = ac.createOscillator(), g = ac.createGain(); o.connect(g); g.connect(ac.destination); o.frequency.value = f; g.gain.setValueAtTime(.28, ac.currentTime); g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + d / 1000); o.start(); o.stop(ac.currentTime + d / 1000) } catch (e) { }
             if (navigator.vibrate) navigator.vibrate(60)
         }
 
+
+
+        /* ============ WEIGHT PROGRESSION & EVALUATION HELPERS ============ */
+        async function evaluateWorkoutWeights(workoutKey, painLevel) {
+            if (painLevel >= 5) {
+                await fcAlert(`⚠️ ระบบตรวจพบระดับปวดหลัง (${painLevel}/10)\n\nระบบแนะนำให้เปิด "โหมดหลังปลอดภัย" หรือลดน้ำหนักลง 20-30% ในครั้งถัดไป เพื่อให้กระดูกสันหลังและกล้ามเนื้อพยุงหลังได้ฟื้นตัวเต็มที่`);
+                D.cfg.weightFeedback = D.cfg.weightFeedback || {};
+                D.cfg.weightFeedback[workoutKey] = { date: iso(), status: 'pain_deload' };
+                return 'pain_deload';
+            }
+
+            const choice = await fcChoice(
+                '🏋️ ประเมินน้ำหนักอุปกรณ์ที่ใช้',
+                `น้ำหนักที่ใช้ใน <b>${W[workoutKey]?.n || 'การฝึกวันนี้'}</b> ไหวจริงไหม? รู้สึกอย่างไรเพื่อปรับโปรแกรมให้เหมาะสมในครั้งถัดไป:`,
+                [
+                    { id: 'light', label: '🟢 เบาไป / ยกได้สบายมาก', sub: 'แนะนำปรับเพิ่มน้ำหนัก (+1 ถึง +2 กก.) ในครั้งถัดไป' },
+                    { id: 'ok', label: '🔵 พอดี / ท้าทายกำลังดี', sub: 'น้ำหนักเหมาะสมมาก ยึดตามโปรแกรมประจำสัปดาห์' },
+                    { id: 'heavy', label: '🔴 หนักเกินไป / ฟอร์มเริ่มหลุด', sub: 'แนะนำปรับลดน้ำหนัก (-1 ถึง -2 กก.) ในครั้งถัดไปเพื่อเซฟฟอร์ม' }
+                ]
+            );
+
+            if (!choice) return null;
+            D.cfg.weightFeedback = D.cfg.weightFeedback || {};
+            D.cfg.weights = D.cfg.weights || {};
+
+            if (choice === 'light') {
+                const adjust = await fcConfirm('ต้องการให้ระบบปรับเพิ่มน้ำหนัก (+2 กก.) สำหรับท่าหลักในเซสชันนี้อัตโนมัติเลยไหม?\n(สามารถปรับแต่งเองได้ในแท็บโปรแกรม)', '⚡ ปรับเพิ่มน้ำหนักก้าวหน้า');
+                if (adjust) {
+                    const changed = autoAdjustWorkoutWeights(workoutKey, +2);
+                    await fcAlert(`✓ ปรับเพิ่มน้ำหนัก (+2 กก.) เรียบร้อยแล้ว:\n\n• ${changed.join('\n• ')}\n\nในครั้งถัดไประบบจะแนะนำน้ำหนักใหม่นี้โดยอัตโนมัติ`);
+                }
+            } else if (choice === 'heavy') {
+                const adjust = await fcConfirm('ต้องการให้ระบบปรับลดน้ำหนัก (-2 กก.) เพื่อเซฟฟอร์มและหลังในเซสชันถัดไปไหม?\n(สามารถปรับแต่งเองได้ในแท็บโปรแกรม)', '🛡️ ปรับลดน้ำหนักเซฟหลัง');
+                if (adjust) {
+                    const changed = autoAdjustWorkoutWeights(workoutKey, -2);
+                    await fcAlert(`✓ ปรับลดน้ำหนัก (-2 กก.) เรียบร้อยแล้ว:\n\n• ${changed.join('\n• ')}\n\nในครั้งถัดไประบบจะใช้น้ำหนักที่ปรับลดนี้เพื่อฟื้นฟูฟอร์ม`);
+                }
+            }
+
+            D.cfg.weightFeedback[workoutKey] = { date: iso(), status: choice };
+            save();
+            return choice;
+        }
+
+        function autoAdjustWorkoutWeights(workoutKey, delta) {
+            D.cfg.weights = D.cfg.weights || {};
+            const items = fullItems(workoutKey);
+            const touched = [];
+            items.forEach(it => {
+                if (it.ph === 'main' && PHASE_WEIGHTS[it.e]) {
+                    const curWInfo = getExerciseWeightInfo(it.e);
+                    if (curWInfo.kg != null) {
+                        const newKg = Math.max(2, curWInfo.kg + delta);
+                        D.cfg.weights[it.e] = newKg;
+                        touched.push(`${EX[it.e].n}: ${newKg} กก.`);
+                    }
+                }
+            });
+            save(); render(); autoSync();
+            return touched;
+        }
+
+        async function editExerciseWeight(k) {
+            const e = EX[k]; if (!e) return;
+            const pIdx = phIdx();
+            const baseKg = (PHASE_WEIGHTS[k] && PHASE_WEIGHTS[k][pIdx] != null) ? PHASE_WEIGHTS[k][pIdx] : (defaultWeightOf(k) || 10);
+            const wInfo = getExerciseWeightInfo(k);
+            const unitLabel = wInfo.isPair ? 'กก. ต่อข้าง (ดัมเบลคู่)' : 'กก.';
+            const res = await fcPrompt(
+                `กำหนดน้ำหนักสำหรับ ${e.n} (${unitLabel})\n\n• ค่ามาตรฐานโปรแกรม Phase ${pIdx + 1}: ${baseKg} กก.\n• ปัจจุบันของคุณ: ${wInfo.kg} กก.\n(ใส่ตัวเลขน้ำหนัก หรือกดตกลงโดยเว้นว่างเพื่อคืนค่าตามโปรแกรม)`,
+                String(wInfo.kg),
+                '🏋️ ปรับน้ำหนักอุปกรณ์เฉพาะตัว'
+            );
+            if (res === null) return;
+            const val = parseFloat(res);
+            if (isNaN(val) || val <= 0) {
+                resetExerciseWeight(k);
+                return;
+            }
+            D.cfg.weights = D.cfg.weights || {};
+            D.cfg.weights[k] = val;
+            save(); render(); autoSync();
+            await fcAlert(`✓ บันทึกน้ำหนัก ${e.n} เป็น ${val} ${unitLabel} เรียบร้อยแล้ว!`);
+        }
+
+        function resetExerciseWeight(k) {
+            if (D.cfg && D.cfg.weights && D.cfg.weights[k] != null) {
+                delete D.cfg.weights[k];
+                save(); render(); autoSync();
+                msg(`✓ คืนค่าน้ำหนัก ${EX[k]?.n || k} ตามโปรแกรมมาตรฐานแล้ว`);
+            }
+        }
+
+        async function resetAllWeightsToProgram() {
+            if (await fcConfirm('ต้องการรีเซ็ตน้ำหนักอุปกรณ์ทุกท่ากลับไปใช้ค่ามาตรฐานตามโปรแกรม 5 เฟสหรือไม่?', '🔄 คืนค่าน้ำหนักมาตรฐาน')) {
+                if (D.cfg) D.cfg.weights = {};
+                save(); render(); autoSync();
+                await fcAlert('✓ รีเซ็ตน้ำหนักทุกท่ากลับเป็นค่ามาตรฐานตามสัปดาห์และเฟสของโปรแกรมแล้ว');
+            }
+        }
+
+        function showWeightTableModal() {
+            const currentPhaseIdx = phIdx();
+            const phases = getPhases();
+            
+            let html = `
+                <div style="font-size:13px;color:var(--dim);margin-bottom:12px;line-height:1.5;">
+                    โปรแกรมแบ่งความหนักเป็น 5 เฟสเพื่อสร้างกล้ามเนื้อและลดไขมันอย่างต่อเนื่อง (Progressive Overload)
+                </div>
+                <div style="overflow-x:auto;margin-top:8px;">
+                    <table style="width:100%;font-size:12px;text-align:center;border-collapse:collapse;min-width:480px;">
+                        <thead>
+                            <tr style="border-bottom:2px solid var(--line);color:var(--dim);">
+                                <th style="text-align:left;padding:8px 6px;">ท่าออกกำลังกาย</th>
+                                ${phases.map((p, i) => `<th style="padding:8px 6px;${i === currentPhaseIdx ? 'color:var(--acc);font-weight:800;background:rgba(242,78,30,0.12);border-radius:6px 6px 0 0;' : ''}">P${i+1}<br><span style="font-size:10px;font-weight:normal;">สัปดาห์ ${p.w}</span></th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.keys(PHASE_WEIGHTS).map(k => {
+                                const e = EX[k];
+                                const isPair = getExerciseWeightInfo(k).isPair;
+                                return `<tr style="border-bottom:1px solid var(--line);">
+                                    <td style="text-align:left;padding:8px 6px;font-weight:700;">${e ? e.n : k}</td>
+                                    ${PHASE_WEIGHTS[k].map((w, i) => `
+                                        <td style="padding:8px 6px;${i === currentPhaseIdx ? 'font-weight:800;color:var(--acc);background:rgba(242,78,30,0.12);' : 'color:var(--tx);'}">
+                                            ${w} กก.${isPair ? '×2' : ''}
+                                        </td>
+                                    `).join('')}
+                                </tr>`;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:14px;font-size:12px;color:var(--dim);line-height:1.4;">
+                    💡 <b>คอลัมน์สีส้ม:</b> คือเฟสปัจจุบันของคุณ คุณสามารถแตะปุ่ม "✏️ ปรับ" ในแต่ละท่าเพื่อปรับแต่งน้ำหนักตามความพร้อมได้ทุกเวลา
+                </div>
+            `;
+
+            fcAlert(html);
+        }
+
+        function renderWeightProgressionUI() {
+            const container = document.getElementById('weightProgressionList');
+            if (!container) return;
+            const pIdx = phIdx();
+            const keys = Object.keys(PHASE_WEIGHTS);
+            const phaseLabel = document.getElementById('weightProgPhaseLabel');
+            if (phaseLabel) {
+                phaseLabel.textContent = `สัปดาห์ที่ ${wkNo()}/${totalWeeks()} • Phase ${pIdx + 1} (${getPhases()[pIdx]?.n.split(' · ')[1] || ''})`;
+            }
+            
+            let html = '';
+            keys.forEach(k => {
+                const e = EX[k];
+                if (!e) return;
+                const baseKg = PHASE_WEIGHTS[k][pIdx];
+                const wInfo = getExerciseWeightInfo(k);
+                const isCustom = wInfo.isCustom;
+                
+                html += `
+                    <div style="background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                        <div style="flex:1;min-width:0;">
+                            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                                <strong style="font-size:14px;color:var(--tx);">${e.n}</strong>
+                                ${isCustom ? '<span class="tag o" style="font-size:10px;padding:1px 6px;">ปรับแต่งเอง</span>' : '<span class="tag gr" style="font-size:10px;padding:1px 6px;">ตามโปรแกรม P' + (pIdx + 1) + '</span>'}
+                            </div>
+                            <div style="font-size:12px;color:var(--dim);margin-top:2px;">
+                                โปรแกรมแนะนำ: ${baseKg} กก.${wInfo.isPair ? '×2' : ''} • ใช้อยู่: <span style="color:var(--acc);font-weight:700;">${wInfo.label}</span>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:6px;flex-shrink:0;">
+                            <button class="btn sm" onclick="editExerciseWeight('${k}')" style="padding:6px 12px;font-size:12px;">✏️ ปรับ</button>
+                            ${isCustom ? `<button class="btn sm g" onclick="resetExerciseWeight('${k}')" style="padding:6px 8px;font-size:12px;" title="คืนค่ามาตรฐานโปรแกรม">🔄</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
 
         /* ============ DAILY TRACKER EDIT & CHECK-IN HISTORY ============ */
         async function editDailyTracker(targetDate) {
@@ -2985,6 +3724,8 @@ document.getElementById('schCtrls').innerHTML = `
                 if (cloud.cfg.aiKeyBackup) D.cfg.aiKeyBackup = cloud.cfg.aiKeyBackup;
                 if (cloud.cfg.calTarget) D.cfg.calTarget = cloud.cfg.calTarget;
                 if (cloud.cfg.proteinTarget) D.cfg.proteinTarget = cloud.cfg.proteinTarget;
+                if (cloud.cfg.weights) D.cfg.weights = { ...(D.cfg.weights || {}), ...cloud.cfg.weights };
+                if (cloud.cfg.weightFeedback) D.cfg.weightFeedback = { ...(D.cfg.weightFeedback || {}), ...cloud.cfg.weightFeedback };
                 if (cloud.cfg.myFoods && Array.isArray(cloud.cfg.myFoods)) {
                     const existingNames = new Set((D.cfg.myFoods || []).map(f => f.n));
                     cloud.cfg.myFoods.forEach(f => {
@@ -3024,7 +3765,9 @@ document.getElementById('schCtrls').innerHTML = `
                         aiKeyBackup: (D.cfg && D.cfg.aiKeyBackup) ? D.cfg.aiKeyBackup : '',
                         myFoods: (D.cfg && D.cfg.myFoods) ? D.cfg.myFoods : [],
                         calTarget: (D.cfg && D.cfg.calTarget) ? D.cfg.calTarget : 1800,
-                        proteinTarget: (D.cfg && D.cfg.proteinTarget) ? D.cfg.proteinTarget : 140
+                        proteinTarget: (D.cfg && D.cfg.proteinTarget) ? D.cfg.proteinTarget : 140,
+                        weights: (D.cfg && D.cfg.weights) ? D.cfg.weights : {},
+                        weightFeedback: (D.cfg && D.cfg.weightFeedback) ? D.cfg.weightFeedback : {}
                     }
                 };
 
@@ -3259,18 +4002,14 @@ document.getElementById('schCtrls').innerHTML = `
                 return '';
             }
 
-            // In Player & Modal: Let CSS govern the 3:4 portrait aspect-ratio and heights
-            let html = '';
-
-            if (e.img) {
-                html += `<img src="${e.img}" alt="${e.n || ''}" />`;
-            }
-
+            // In Player & Modal: mutually exclusive media (video ONLY if video exists, image ONLY if no video)
             if (vid) {
-                html += `<video src="${vid}" poster="${e.img || ''}" autoplay loop muted playsinline onclick="this.paused?this.play():this.pause()" title="แตะเพื่อหยุด/เล่นต่อ"></video>`;
+                return `<video src="${vid}" poster="${e.img || ''}" autoplay loop muted playsinline onclick="this.paused?this.play():this.pause()" title="แตะเพื่อหยุด/เล่นต่อ"></video>`;
             }
-
-            return html;
+            if (e.img) {
+                return `<img src="${e.img}" alt="${e.n || ''}" />`;
+            }
+            return '';
         }
 
         function eqp(t,p){
@@ -3524,13 +4263,83 @@ document.getElementById('schCtrls').innerHTML = `
         updateIFUI();
         renderAuthUI();
         
+        /* ============ PWA AUTO-UPDATE LIFECYCLE ============ */
+        const APP_VERSION = '2.4.0';
+        let newWorkerWaiting = null;
+
+        function showAppUpdateNotification(worker) {
+            newWorkerWaiting = worker;
+            const toast = document.getElementById('appUpdateToast');
+            if (toast) {
+                toast.innerHTML = `<span>✨ มีเวอร์ชันใหม่ (v${APP_VERSION})!</span> <button class="btn sm" onclick="applyAppUpdateNow()" style="padding:4px 10px;font-size:12px;margin:0;">อัปเดตทันที</button>`;
+                toast.classList.add('on');
+            }
+        }
+
+        function applyAppUpdateNow() {
+            if (newWorkerWaiting) {
+                newWorkerWaiting.postMessage('SKIP_WAITING');
+            } else {
+                forceAppUpdate();
+            }
+        }
+
+        async function forceAppUpdate() {
+            msg('กำลังล้างแคชและโหลดเวอร์ชันล่าสุด...');
+            try {
+                if ('caches' in window) {
+                    const keys = await caches.keys();
+                    for (let k of keys) {
+                        await caches.delete(k);
+                    }
+                }
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let reg of registrations) {
+                        await reg.update();
+                    }
+                }
+            } catch (e) {
+                console.error('Update error:', e);
+            }
+            // Reload with cache-busting timestamp without deleting localStorage or auth
+            window.location.href = window.location.origin + window.location.pathname + '?t=' + Date.now();
+        }
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js');
+                navigator.serviceWorker.register('sw.js?v=' + APP_VERSION).then(reg => {
+                    // Force check for updates every time app opens
+                    reg.update();
+
+                    if (reg.waiting) {
+                        showAppUpdateNotification(reg.waiting);
+                    }
+
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        if (!newWorker) return;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                showAppUpdateNotification(newWorker);
+                            }
+                        });
+                    });
+                }).catch(err => console.log('SW reg error:', err));
+
+                let refreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshing) {
+                        refreshing = true;
+                        window.location.reload();
+                    }
+                });
             });
         }
     </script>
 </div>
+    <!-- App Auto-Update Toast -->
+    <div id="appUpdateToast" class="update-toast"></div>
 </body>
 
 </html>

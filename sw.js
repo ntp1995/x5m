@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fitcoach-cache-v2';
+const CACHE_NAME = 'fitcoach-v2.4.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -6,61 +6,86 @@ const ASSETS_TO_CACHE = [
   './icon.svg'
 ];
 
+// Install: Pre-cache core shell & activate immediately
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(ASSETS_TO_CACHE);
-      })
-  );
   self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS_TO_CACHE))
+  );
 });
 
+// Activate: Clean up all older cache versions & claim clients
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    caches.keys().then(keys => Promise.all(
+      keys.map(k => {
+        if (k !== CACHE_NAME) {
+          console.log('[SW] Deleting old cache version:', k);
+          return caches.delete(k);
+        }
+      })
+    )).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
+// Fetch: Smart Strategy
+// - HTML/Navigation: NETWORK-FIRST (Always fetch latest code if online, fallback to cache if offline)
+// - Static assets: STALE-WHILE-REVALIDATE (Fast load + background refresh)
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-        return fetch(event.request).then(
-          response => {
-            // Check if we received a valid response
-            if(!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
+  const req = event.request;
+  const url = new URL(req.url);
 
-            // IMPORTANT: Clone the response. A response is a stream
-            // and because we want the browser to consume the response
-            // as well as the cache consuming the response, we need
-            // to clone it so we have two streams.
-            var responseToCache = response.clone();
+  // 1. Navigation / HTML Requests: NETWORK-FIRST
+  const isHtml = req.mode === 'navigate' || 
+                 req.headers.get('accept')?.includes('text/html') || 
+                 url.pathname.endsWith('index.html') || 
+                 url.pathname === '/' || 
+                 url.pathname.endsWith('/');
 
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
+  if (isHtml) {
+    event.respondWith(
+      fetch(req)
+        .then(res => {
+          if (res && res.status === 200) {
+            const resClone = res.clone();
+            caches.open(CACHE_NAME).then(c => c.put(req, resClone));
           }
-        );
-      })
+          return res;
+        })
+        .catch(() => {
+          return caches.match(req).then(cRes => cRes || caches.match('./index.html'));
+        })
+    );
+    return;
+  }
+
+  // 2. Bypass non-GET, Firebase API, Firestore, and External APIs
+  if (req.method !== 'GET' || 
+      url.origin.includes('firestore') || 
+      url.origin.includes('googleapis') || 
+      url.origin.includes('firebase')) {
+    return;
+  }
+
+  // 3. Static assets (Images, Videos, Styles): Stale-While-Revalidate
+  event.respondWith(
+    caches.match(req).then(cached => {
+      const networkFetch = fetch(req).then(fresh => {
+        if (fresh && fresh.status === 200 && fresh.type === 'basic') {
+          const freshClone = fresh.clone();
+          caches.open(CACHE_NAME).then(c => c.put(req, freshClone));
+        }
+        return fresh;
+      }).catch(() => null);
+
+      return cached || networkFetch;
+    })
   );
+});
+
+// Message listener to trigger immediate skip waiting
+self.addEventListener('message', event => {
+  if (event.data === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
