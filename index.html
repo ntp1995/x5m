@@ -2462,7 +2462,7 @@
         const DN = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
 
         function totalWeeks() { return D.cfg.courseWeeks || 20; }
-        function wkNo() { return Math.min(totalWeeks(), Math.max(1, Math.floor((new Date(iso()) - new Date(D.start)) / 864e5 / 7) + 1)); }
+        function wkNo() { return Math.min(totalWeeks(), Math.max(1, Math.floor((new Date(iso() + 'T00:00:00+07:00') - new Date((D.start || iso()) + 'T00:00:00+07:00')) / 864e5 / 7) + 1)); }
 
         function getPhases() {
             const tw = totalWeeks();
@@ -2704,8 +2704,7 @@
             }
             if (!rec.meals) rec.meals = [];
 
-            const now = new Date();
-            const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            const timeStr = formatThaiTime(new Date());
 
             const newMealItem = {
                 id: 'm_' + Date.now(),
@@ -3107,24 +3106,71 @@
         }
         const WATER_TARGET = 8, WEIGH_WARN_DAYS = 2;
         function save() { localStorage.setItem('fit', JSON.stringify(D)) }
-        function iso() { return new Date().toISOString().slice(0, 10) }
+        /* ============ THAI TIMEZONE (Asia/Bangkok, GMT+7) HELPERS ============ */
+        function iso(d = new Date()) {
+            try {
+                // Ensure date string strictly adheres to Thai Local Date (YYYY-MM-DD)
+                return new Intl.DateTimeFormat('en-CA', {
+                    timeZone: 'Asia/Bangkok',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                }).format(d instanceof Date ? d : new Date(d));
+            } catch (e) {
+                const dt = d instanceof Date ? d : new Date(d);
+                const y = dt.getFullYear();
+                const m = String(dt.getMonth() + 1).padStart(2, '0');
+                const day = String(dt.getDate()).padStart(2, '0');
+                return `${y}-${m}-${day}`;
+            }
+        }
+
+        function formatThaiTime(dateObj = new Date()) {
+            try {
+                return new Intl.DateTimeFormat('en-GB', {
+                    timeZone: 'Asia/Bangkok',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                }).format(dateObj instanceof Date ? dateObj : new Date(dateObj));
+            } catch (e) {
+                const dt = dateObj instanceof Date ? dateObj : new Date(dateObj);
+                return String(dt.getHours()).padStart(2, '0') + ':' + String(dt.getMinutes()).padStart(2, '0');
+            }
+        }
+
+        function getThaiDayOfWeek(d = new Date()) {
+            try {
+                const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Bangkok', weekday: 'short' }).format(d instanceof Date ? d : new Date(d));
+                const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+                return map[parts] !== undefined ? map[parts] : d.getDay();
+            } catch (e) {
+                return d.getDay();
+            }
+        }
+
         function fmt(s) { s = Math.max(0, Math.round(s)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0') }
         function exOf(k) { return (D.bs && SAFE[k]) ? SAFE[k] : k }
         function todayCheck() { return D.checks.find(x => x.d === iso()) || null }
+
         function weighStreak() {
             let streak = 0;
-            const today = new Date(iso());
+            const today = new Date();
             for (let i = 0; i < 365; i++) {
-                const d = new Date(today); d.setDate(d.getDate() - i);
-                const ds = d.toISOString().slice(0, 10);
+                const d = new Date(today);
+                d.setDate(d.getDate() - i);
+                const ds = iso(d);
                 if (D.checks.some(x => x.d === ds)) streak++; else break;
             }
             return streak;
         }
+
         function daysSinceWeigh() {
             const sorted = D.checks.filter(x => x.w).sort((a, b) => b.d.localeCompare(a.d));
             if (!sorted.length) return 999;
-            return Math.floor((new Date(iso()) - new Date(sorted[0].d)) / 864e5);
+            const todayMs = new Date(iso() + 'T00:00:00+07:00').getTime();
+            const lastMs = new Date(sorted[0].d + 'T00:00:00+07:00').getTime();
+            return Math.max(0, Math.floor((todayMs - lastMs) / 864e5));
         }
 
         /* ============ BUILD FULL SESSION ============ */
@@ -3421,7 +3467,7 @@
         </div>
     </div>`;
 
-            let offs = D.schOffs || 0; const actualD = new Date().getDay(); const dow = (actualD - offs + 7) % 7, tk = SCHED[dow], t = W[tk];
+            let offs = D.schOffs || 0; const actualD = getThaiDayOfWeek(); const dow = (actualD - offs + 7) % 7, tk = SCHED[dow], t = W[tk];
             const morningM = getMorningCardioMinutesToday();
             const morningDone = morningM > 0;
             const done = D.sessions.some(s => s.date === iso() && (s.workout_key !== 'M' || (['Z', 'R'].includes(tk) && (s.duration_sec >= 1800 || morningM >= 30))));
@@ -5378,7 +5424,7 @@ document.getElementById('schCtrls').innerHTML = `
             
             // Apply Reset
             D.start = iso();
-            D.schOffs = (new Date().getDay() - 1 + 7) % 7;
+            D.schOffs = (getThaiDayOfWeek() - 1 + 7) % 7;
             
             const prev = D.checks.length > 0 ? D.checks[D.checks.length - 1] : null;
             const rec = { 
@@ -5442,7 +5488,7 @@ document.getElementById('schCtrls').innerHTML = `
             const { w, bmr, tdee, targetCal, targetPro } = res;
 
             D.start = iso();
-            D.schOffs = (new Date().getDay() - 1 + 7) % 7;
+            D.schOffs = (getThaiDayOfWeek() - 1 + 7) % 7;
             D.checks = [{ d: iso(), w: w, bf: null, hrv: null, pain: null, cal: null, protein: null, water: null }];
             D.sessions = [];
             D.sets = [];
@@ -5635,7 +5681,7 @@ document.getElementById('schCtrls').innerHTML = `
         renderAuthUI();
         
         /* ============ PWA AUTO-UPDATE LIFECYCLE ============ */
-        const APP_VERSION = '2.6.1';
+        const APP_VERSION = '2.6.2';
         let newWorkerWaiting = null;
 
         function showAppUpdateNotification(worker) {
