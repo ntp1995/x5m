@@ -441,6 +441,36 @@
             line-height: 1;
         }
 
+        /* Reps Display inside Ring (No text overlapping) */
+        .tim.is-reps {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            white-space: nowrap;
+            overflow: visible;
+        }
+
+        .tim.is-reps .rep-num {
+            font-size: clamp(34px, 8.5vw, 44px);
+            font-weight: 900;
+            color: var(--acc);
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+
+        .tim.is-reps .rep-unit {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--acc);
+            opacity: 0.85;
+            line-height: 1.1;
+            margin-top: 2px;
+            letter-spacing: 0;
+            white-space: nowrap;
+        }
+
         .mode {
             font-size: 11px;
             font-weight: 800;
@@ -1119,6 +1149,28 @@
             letter-spacing: -1px !important;
         }
 
+        #pl.landscape .pl-right-col .tim.is-reps .rep-num {
+            font-size: 24px !important;
+            line-height: 1 !important;
+        }
+
+        #pl.landscape .pl-right-col .tim.is-reps .rep-unit {
+            font-size: 9.5px !important;
+            line-height: 1 !important;
+            margin-top: 1px !important;
+        }
+
+        #pl.landscape .pl-right-col .sub {
+            font-size: 10px !important;
+            margin-top: 1px !important;
+        }
+
+        #pl.landscape .pl-right-col .pl-target-pill {
+            padding: 4px 12px !important;
+            font-size: 13px !important;
+            margin: 3px auto !important;
+        }
+
         #pl.landscape .pl-right-col .mode {
             font-size: 10px !important;
             margin-bottom: 0 !important;
@@ -1624,7 +1676,7 @@
                     <div class="row" style="align-items:center;">
                         <div>
                             <div style="font-size:13.5px;font-weight:700;">เวอร์ชันแอป & แคชเครื่อง</div>
-                            <div class="sub" style="font-size:11.5px;" id="appVersionTxt">เวอร์ชัน 2.4.3 (PWA ติดตั้งแล้ว)</div>
+                            <div class="sub" style="font-size:11.5px;" id="appVersionTxt">เวอร์ชัน 2.4.5 (PWA ติดตั้งแล้ว)</div>
                         </div>
                         <button class="btn sm" onclick="forceAppUpdate()" style="font-size:12px;padding:6px 12px;background:rgba(14,165,233,0.15);color:var(--acc);border:1px solid rgba(14,165,233,0.3);">🔄 ตรวจหา & อัปเดตทันที</button>
                     </div>
@@ -2407,17 +2459,106 @@
             return phases.length - 1;
         }
 
+        function getMorningCardioMinutesToday() {
+            let mins = 0;
+            (D.sessions || []).forEach(s => {
+                if (s.date === iso() && (s.workout_key === 'M' || (s.workout_name && (s.workout_name.includes('เช้า') || s.workout_name.includes('Morning'))))) {
+                    mins += Math.round((s.duration_sec || 0) / 60);
+                }
+            });
+            if (D.morningCardio && D.morningCardio.date === iso()) {
+                mins = Math.max(mins, D.morningCardio.mins || 0);
+            }
+            return mins;
+        }
+
         function hasDoneMorningCardioToday() {
-            return D.sessions.some(s => s.date === iso() && (s.workout_key === 'M' || (s.workout_name && s.workout_name.includes('เช้า'))));
+            return getMorningCardioMinutesToday() > 0;
+        }
+
+        function toggleForceFullCardio(val) {
+            D.forceFullCardio = !!val;
+            save();
+            render();
+        }
+
+        async function markCardioDayDone(k) {
+            const ok = await fcConfirm('ทำเครื่องหมายว่าจบโปรแกรม Cardio Zone 2 วันนี้เรียบร้อยแล้วใช่หรือไม่?');
+            if (!ok) return;
+            const morningM = getMorningCardioMinutesToday() || 35;
+            const kcal = Math.round(morningM * 7.5);
+            D.sessions.push({
+                id: 'done_' + Date.now(),
+                code: D.cfg.code || 'local',
+                date: iso(),
+                workout_key: k,
+                workout_name: `${W[k]?.n || 'Cardio Zone 2'} (สำเร็จจากการเดินเช้า ${morningM} นาที)`,
+                duration_sec: morningM * 60,
+                kcal: kcal,
+                total_volume_kg: 0,
+                total_reps: 0,
+                rpe: 6,
+                back_safe: !!D.bs,
+                pain_after: 0
+            });
+            save();
+            render();
+            autoSync();
+            await fcAlert('🎉 ยอดเยี่ยมมาก! บันทึกจบโปรแกรมวันนี้เรียบร้อยแล้ว');
         }
 
         async function startMorningCardio() {
-            const mins = await fcPrompt('เลือกระยะเวลาเดินลู่ตอนเช้า (นาที)', '25', '🌅 เดินลู่ Zone 2 ตอนเช้า');
+            const currentM = getMorningCardioMinutesToday();
+            const defaultM = currentM > 0 ? String(currentM) : '35';
+            const mins = await fcPrompt('เลือกระยะเวลาเดินลู่ตอนเช้า (นาที)', defaultM, '🌅 เดินลู่ Zone 2 ตอนเช้า');
             if (!mins) return;
-            const m = Math.max(10, Math.min(90, parseInt(mins) || 25));
-            W.M.items[0].t = m * 60;
-            W.M.kcal = Math.round(m * 7.5);
-            startW('M');
+            const m = Math.max(5, Math.min(120, parseInt(mins) || 35));
+            const kcal = Math.round(m * 7.5);
+
+            const choice = await fcChoice(
+                '🌅 บันทึกการเดินลู่ตอนเช้า',
+                `คุณระบุเดินลู่ <b>${m} นาที</b> (~${kcal} kcal)<br>ต้องการดำเนินการอย่างไร?`,
+                [
+                    { id: 'log_now', label: '✓ บันทึกว่าเดินเสร็จแล้วทันที', sub: 'สำหรับกรณีเดินเสร็จแล้วจากบนลู่วิ่ง บันทึกลงประวัติทันทีโดยไม่ต้องจับเวลา' },
+                    { id: 'timer', label: '⏱️ เปิดตัวจับเวลาเดินลู่ตอนนี้', sub: 'เปิดหน้าจอจับเวลานับถอยหลังพร้อมเสียงเตือน' }
+                ]
+            );
+            if (!choice) return;
+
+            D.morningCardio = { date: iso(), mins: m, kcal };
+
+            if (choice === 'log_now') {
+                const sid = 'mc_' + Date.now();
+                const existingIdx = (D.sessions || []).findIndex(s => s.date === iso() && (s.workout_key === 'M' || (s.workout_name && s.workout_name.includes('เช้า'))));
+                const sessionData = {
+                    id: existingIdx >= 0 ? D.sessions[existingIdx].id : sid,
+                    code: D.cfg.code || 'local',
+                    date: iso(),
+                    workout_key: 'M',
+                    workout_name: `Morning Cardio — เดินลู่ตอนเช้า (${m} นาที)`,
+                    duration_sec: m * 60,
+                    kcal: kcal,
+                    total_volume_kg: 0,
+                    total_reps: 0,
+                    rpe: 6,
+                    back_safe: !!D.bs,
+                    pain_after: 0
+                };
+                if (existingIdx >= 0) {
+                    D.sessions[existingIdx] = sessionData;
+                } else {
+                    D.sessions = D.sessions || [];
+                    D.sessions.push(sessionData);
+                }
+                save();
+                render();
+                autoSync();
+                await fcAlert(`✓ บันทึกการเดินลู่ตอนเช้า ${m} นาที (~${kcal} kcal) เรียบร้อยแล้ว!\n\nระบบได้ปรับหักลบเวลาเดินลู่ และตัดเดินวอร์ม/คูลดาวน์ออกจากโปรแกรมวันนี้ให้อัตโนมัติ`);
+            } else {
+                W.M.items[0].t = m * 60;
+                W.M.kcal = kcal;
+                startW('M');
+            }
         }
 
         /* ============ STATE ============ */
@@ -2449,14 +2590,49 @@
         /* ============ BUILD FULL SESSION ============ */
         function fullItems(k) {
             const w = W[k];
-            const warm = (w.warm === 'full' ? WARM_FULL : WARM_LITE).map(x => ({ ...x, ph: 'warm' }));
-            let items = w.items;
-            // Smart Skip: If morning cardio was done today and this is Strength A, bypass trailing treadmill cardio unless forced
-            if (k === 'A' && hasDoneMorningCardioToday() && !D.forceEveningCardio) {
-                items = items.filter(x => x.e !== 'z2');
+            let warm = (w.warm === 'full' ? WARM_FULL : WARM_LITE).map(x => ({ ...x, ph: 'warm' }));
+            let items = w.items.map(x => ({ ...x }));
+            let cool = COOL.map(x => ({ ...x, ph: 'cool' }));
+            const morningM = getMorningCardioMinutesToday();
+
+            if (morningM > 0) {
+                // Smart Cardio Adaptation based on morning walk
+                if (k === 'Z' && !D.forceFullCardio) {
+                    if (morningM >= 30) {
+                        // Walked 30+ mins in the morning: Zone 2 goal fulfilled!
+                        items = items.filter(x => x.e !== 'z2');
+                        warm = warm.filter(x => x.e !== 'w_walk');
+                        cool = cool.filter(x => x.e !== 'c_walk');
+                    } else {
+                        // Deduct morning minutes from 35-min target
+                        const remM = Math.max(5, 35 - morningM);
+                        items = items.map(x => x.e === 'z2' ? { ...x, t: remM * 60 } : x);
+                        warm = warm.filter(x => x.e !== 'w_walk');
+                        cool = cool.filter(x => x.e !== 'c_walk');
+                    }
+                } else if (k === 'R' && !D.forceFullCardio) {
+                    if (morningM >= 20) {
+                        items = items.filter(x => x.e !== 'walk');
+                        warm = warm.filter(x => x.e !== 'w_walk');
+                        cool = cool.filter(x => x.e !== 'c_walk');
+                    } else {
+                        const remM = Math.max(5, 25 - morningM);
+                        items = items.map(x => x.e === 'walk' ? { ...x, t: remM * 60 } : x);
+                        warm = warm.filter(x => x.e !== 'w_walk');
+                        cool = cool.filter(x => x.e !== 'c_walk');
+                    }
+                } else if (k === 'A' && !D.forceEveningCardio) {
+                    items = items.filter(x => x.e !== 'z2');
+                    warm = warm.filter(x => x.e !== 'w_walk');
+                    cool = cool.filter(x => x.e !== 'c_walk');
+                } else if (['B', 'C', 'H'].includes(k)) {
+                    // Already walked in morning: remove redundant walking warm-up & cool-down
+                    warm = warm.filter(x => x.e !== 'w_walk');
+                    cool = cool.filter(x => x.e !== 'c_walk');
+                }
             }
+
             const main = items.map(x => ({ ...x, e: exOf(x.e), ph: 'main' }));
-            const cool = COOL.map(x => ({ ...x, ph: 'cool' }));
             if (main.length) main[main.length - 1] = { ...main[main.length - 1], after: 60 };
             return [...warm, ...main, ...cool];
         }
@@ -2528,31 +2704,72 @@
     <button class="btn" onclick="calcBMR()" style="width:100%; margin-top:8px; border: 1px solid var(--acc); background: transparent; color: var(--acc);">🧮 คำนวณเป้าหมายรายวัน (BMR/TDEE)</button>`;
 
             let offs = D.schOffs || 0; const actualD = new Date().getDay(); const dow = (actualD - offs + 7) % 7, tk = SCHED[dow], t = W[tk];
-            const done = D.sessions.some(s => s.date === iso() && s.workout_key !== 'M');
-            const morningDone = hasDoneMorningCardioToday();
+            const morningM = getMorningCardioMinutesToday();
+            const morningDone = morningM > 0;
+            const done = D.sessions.some(s => s.date === iso() && (s.workout_key !== 'M' || (['Z', 'R'].includes(tk) && (s.duration_sec >= 1800 || morningM >= 30))));
             
             let cardioNote = '';
-            if (tk === 'A') {
+            let startBtnTxt = `▶ เริ่มออกกำลังกาย (~${estMin(tk)} นาที)`;
+            
+            if (tk === 'Z') {
+                if (morningM >= 30) {
+                    if (D.forceFullCardio) {
+                        cardioNote = `<div style="margin-top:10px;padding:12px 14px;background:rgba(245,158,11,0.12);border-radius:12px;border:1px solid rgba(245,158,11,0.3);">
+                            <div style="font-weight:700;color:#d97706;font-size:13.5px;">✓ เช้านี้เดินลู่แล้ว ${morningM} นาที • เปิดโหมดเดินเต็มโปรแกรม</div>
+                            <div style="font-size:12px;color:var(--tx);margin-top:4px;">โปรแกรมจะเปิดลู่วิ่งเต็ม 35 นาทีตามความต้องการ</div>
+                            <div style="margin-top:6px;"><label style="font-size:12px;color:var(--dim);display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" checked onchange="toggleForceFullCardio(this.checked)" style="width:auto;margin:0;"> ต้องการเดินเต็มโปรแกรม</label></div>
+                        </div>`;
+                        startBtnTxt = `▶ เริ่มเดินลู่เต็มโปรแกรม (~${estMin(tk)} นาที)`;
+                    } else {
+                        cardioNote = `<div style="margin-top:10px;padding:12px 14px;background:rgba(16,185,129,0.12);border-radius:12px;border:1px solid rgba(16,185,129,0.3);">
+                            <div style="font-weight:700;color:#059669;font-size:13.5px;display:flex;align-items:center;gap:6px;">✓ เช้านี้เดินลู่แล้ว ${morningM} นาที (ครบเป้าหมาย Zone 2 แล้ว!)</div>
+                            <div style="font-size:12.5px;color:var(--tx);margin-top:4px;line-height:1.5;">ระบบ<b>ตัดเดินลู่ 35 นาทีและเดินวอร์มออกให้อัตโนมัติ</b> ให้คุณฝึกเฉพาะ <b>Core & ยืดเหยียด</b> (~${estMin(tk)} นาที) ร่างกายจะได้ไม่ล้าเกินไป</div>
+                            <div style="margin-top:8px;padding-top:8px;border-top:1px dashed rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                                <label style="font-size:11.5px;color:var(--dim);display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" onchange="toggleForceFullCardio(this.checked)" style="width:auto;margin:0;"> ต้องการเดินลู่เพิ่มเต็ม 35 นาที</label>
+                                <button class="btn sm g" onclick="markCardioDayDone('${tk}')" style="font-size:11px;padding:4px 8px;border-radius:8px;">✓ จบโปรแกรมวันนี้แล้ว</button>
+                            </div>
+                        </div>`;
+                        startBtnTxt = `▶ เริ่มฝึก Core & ยืดเหยียด (~${estMin(tk)} นาที)`;
+                    }
+                } else if (morningM > 0) {
+                    const remM = Math.max(5, 35 - morningM);
+                    cardioNote = `<div style="margin-top:10px;padding:12px 14px;background:rgba(245,158,11,0.12);border-radius:12px;border:1px solid rgba(245,158,11,0.3);">
+                        <div style="font-weight:700;color:#d97706;font-size:13.5px;">✓ เช้านี้เดินลู่แล้ว ${morningM} นาที • เหลืออีก ${remM} นาที</div>
+                        <div style="font-size:12px;color:var(--tx);margin-top:4px;">ระบบปรับลดเวลาเดินลู่ให้เหลือ <b>${remM} นาที</b> และตัดเดินวอร์มออกให้อัตโนมัติ</div>
+                    </div>`;
+                    startBtnTxt = `▶ เริ่มเดินต่อ ${remM} นาที + Core (~${estMin(tk)} นาที)`;
+                } else {
+                    cardioNote = `<div style="margin-top:6px;font-size:12px;color:var(--dim);">💡 ยังไม่ได้เดินเช้า • โปรแกรม Zone 2 เดินลู่ 35 นาที + Core</div>`;
+                }
+            } else if (tk === 'A') {
                 if (morningDone) {
                     cardioNote = `<div style="margin-top:6px;font-size:12px;color:var(--ok);font-weight:600;display:flex;align-items:center;gap:4px;">
-                        ✓ เช้านี้เดินลู่แล้ว • เย็นนี้ยกเวทเน้นๆ (ตัดลู่วิ่งท้ายเวทออกให้อัตโนมัติ)
+                        ✓ เช้านี้เดินลู่แล้ว ${morningM} นาที • เย็นนี้ยกเวทเน้นๆ (ตัดลู่วิ่งท้ายเวท 15 นาที และเดินวอร์มออกให้อัตโนมัติ)
                     </div>`;
+                    startBtnTxt = `▶ เริ่มยกเวทเน้นๆ (~${estMin(tk)} นาที)`;
                 } else {
                     cardioNote = `<div style="margin-top:6px;font-size:12px;color:var(--dim);">
                         💡 ไม่ได้เดินเช้า • รวมเดินลู่ท้ายเวท 15 นาทีตามโปรแกรมปกติ
                     </div>`;
                 }
+            } else if (tk === 'R' && morningDone) {
+                cardioNote = `<div style="margin-top:6px;font-size:12px;color:var(--ok);font-weight:600;">
+                    ✓ เช้านี้เดินลู่แล้ว ${morningM} นาที • ปรับเน้นฮูลาฮูปและยืดเหยียดฟื้นฟูหลัง
+                </div>`;
             }
+
+            const warmTag = (morningM > 0 && ['Z', 'R', 'A'].includes(tk)) ? '<span class="tag o">Warm-up ยืดข้อต่อ (ไม่มีเดินซ้ำ)</span>' : `<span class="tag o"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="4.22" x2="19.78" y2="5.64"/></svg> Warm-up ${t.warm === 'full' ? '9' : '6'} นาที</span>`;
+            const coolTag = (morningM > 0 && ['Z', 'R', 'A'].includes(tk)) ? '<span class="tag v">Cool-down คลายกล้ามเนื้อ</span>' : '<span class="tag v"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="20" y1="16" x2="16" y2="20"/><line x1="4" y1="8" x2="8" y2="4"/><line x1="20" y1="8" x2="16" y2="4"/><line x1="4" y1="16" x2="8" y2="20"/></svg> Cool-down 8 นาที</span>';
 
             document.getElementById('todayBox').innerHTML = `<div class="card" style="border-color:var(--acc)">
     <div class="row"><div><h3>${t.ic} ${t.n}</h3>
-    <div class="sub">วัน${DN[dow]} • ~${estMin(tk)} นาที (รวมวอร์ม+คูลดาวน์) • ~${t.kcal} kcal</div></div>
+    <div class="sub">วัน${DN[dow]} • ~${estMin(tk)} นาที • ~${(tk === 'Z' && morningM >= 30 && !D.forceFullCardio) ? 140 : t.kcal} kcal</div></div>
     ${done ? '<span class="tag">✓ เสร็จแล้ว</span>' : ''}</div>
-    <div style="margin-top:8px"><span class="tag o"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="4.22" x2="19.78" y2="5.64"/></svg> Warm-up ${t.warm === 'full' ? '9' : '6'} นาที</span> <span class="tag v"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="20" y1="16" x2="16" y2="20"/><line x1="4" y1="8" x2="8" y2="4"/><line x1="20" y1="8" x2="16" y2="4"/><line x1="4" y1="16" x2="8" y2="20"/></svg> Cool-down 8 นาที</span>${D.bs ? ' <span class="tag b"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> หลังปลอดภัย</span>' : ''}</div>
+    <div style="margin-top:8px">${warmTag} ${coolTag}${D.bs ? ' <span class="tag b"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> หลังปลอดภัย</span>' : ''}</div>
     ${cardioNote}
-    <button class="btn" style="margin-top:12px;" onclick="startW('${tk}')">▶ เริ่มออกกำลังกาย</button>
+    <button class="btn" style="margin-top:12px;" onclick="startW('${tk}')">${startBtnTxt}</button>
     <div class="g2" style="margin-top:8px;">
-        <button class="btn g sm" style="background:rgba(245,158,11,0.12);color:#d97706;border:1px solid rgba(245,158,11,0.25);display:flex;align-items:center;justify-content:center;gap:4px;" onclick="startMorningCardio()">🌅 ${morningDone ? 'เดินลู่เช้า ✓' : 'เดินลู่เช้า'}</button>
+        <button class="btn g sm" style="background:rgba(245,158,11,0.12);color:#d97706;border:1px solid rgba(245,158,11,0.25);display:flex;align-items:center;justify-content:center;gap:4px;" onclick="startMorningCardio()">🌅 ${morningDone ? `เดินลู่เช้า (${morningM} น.) ✓` : 'เดินลู่เช้า'}</button>
         <button class="btn g sm" style="display:flex;align-items:center;justify-content:center;" onclick="showW('${tk}');go('prog')">ดูรายละเอียดท่า</button>
     </div></div>`;
 
@@ -2692,6 +2909,19 @@ document.getElementById('schCtrls').innerHTML = `
         window.addEventListener('resize', adjustPlayerLayout);
         window.addEventListener('orientationchange', adjustPlayerLayout);
 
+        function parseRepsTarget(tgt) {
+            if (!tgt) return { num: '–', unit: '' };
+            const str = String(tgt).trim();
+            const m = str.match(/^(\d+(?:-\d+)?)\s*(.*)$/);
+            if (m) {
+                return {
+                    num: m[1],
+                    unit: m[2] || 'ครั้ง'
+                };
+            }
+            return { num: str, unit: '' };
+        }
+
         function loadStep() {
             const s = ST[idx]; if (!s) return finishW();
             left = s.dur; up = 0;
@@ -2719,18 +2949,22 @@ document.getElementById('schCtrls').innerHTML = `
             const e = isW ? EX[s.e] : null;
             document.getElementById('plEx').textContent = s.name;
 
-            // Ring Mode & Display (Big, bold reps for rep-based exercises)
+            // Ring Mode & Display (Big, bold reps without overflowing or overlapping)
             const C = 678.6;
             if (isW && s.type === 'reps') {
+                const repInfo = parseRepsTarget(s.tgt);
                 document.getElementById('plMode').textContent = 'เป้าหมาย';
                 document.getElementById('plMode').style.color = 'var(--acc)';
-                document.getElementById('plTime').innerHTML = `<span style="font-size:clamp(36px, 9vw, 50px);font-weight:900;color:var(--acc);line-height:1;letter-spacing:-1px;">${s.tgt}</span>`;
-                document.getElementById('plSet').innerHTML = `${s.sets > 1 ? `เซ็ต ${s.set}/${s.sets} • ` : ''}<span style="color:var(--tx);font-weight:700;">⏱️ 00:00</span>`;
+                document.getElementById('plTime').className = 'tim is-reps';
+                document.getElementById('plTime').innerHTML = `<span class="rep-num">${repInfo.num}</span><span class="rep-unit">${repInfo.unit}</span>`;
+                const setTxt = s.sets > 1 ? `เซ็ต ${s.set}/${s.sets}` : '';
+                document.getElementById('plSet').innerHTML = `${setTxt ? `${setTxt} • ` : ''}<span style="color:var(--tx);font-weight:700;">⏱️ 00:00</span>`;
                 document.getElementById('arc').setAttribute('stroke', col);
                 document.getElementById('arc').style.strokeDashoffset = 0;
             } else if (isW) {
                 document.getElementById('plMode').textContent = 'ทำต่อเนื่อง';
                 document.getElementById('plMode').style.color = col;
+                document.getElementById('plTime').className = 'tim';
                 document.getElementById('plTime').textContent = fmt(left);
                 document.getElementById('plSet').textContent = s.sets > 1 ? `เซ็ต ${s.set}/${s.sets}` : '';
                 document.getElementById('arc').setAttribute('stroke', col);
@@ -2738,6 +2972,7 @@ document.getElementById('schCtrls').innerHTML = `
             } else {
                 document.getElementById('plMode').textContent = 'พักฟื้นตัว';
                 document.getElementById('plMode').style.color = 'var(--dim)';
+                document.getElementById('plTime').className = 'tim';
                 document.getElementById('plTime').textContent = fmt(left);
                 document.getElementById('plSet').textContent = 'นับถอยหลัง';
                 document.getElementById('arc').setAttribute('stroke', '#4b5768');
@@ -2855,13 +3090,14 @@ document.getElementById('schCtrls').innerHTML = `
             const s = ST[idx], C = 678.6;
             if (!s) return;
             if (s.k === 'work' && s.type === 'reps') {
-                document.getElementById('plSet').innerHTML = `${s.sets > 1 ? `เซ็ต ${s.set}/${s.sets} • ` : ''}<span style="color:var(--tx);font-weight:700;">⏱️ ${fmt(up)}</span>`;
+                const setTxt = s.sets > 1 ? `เซ็ต ${s.set}/${s.sets}` : '';
+                document.getElementById('plSet').innerHTML = `${setTxt ? `${setTxt} • ` : ''}<span style="color:var(--tx);font-weight:700;">⏱️ ${fmt(up)}</span>`;
                 document.getElementById('arc').style.strokeDashoffset = 0;
             } else {
                 document.getElementById('plTime').textContent = fmt(left);
                 document.getElementById('arc').style.strokeDashoffset = C * (1 - (s.dur ? left / s.dur : 0));
+                document.getElementById('plTime').className = 'tim' + (left <= 3 && left > 0 && s.dur && s.k !== 'reps' ? ' beat' : '');
             }
-            document.getElementById('plTime').className = 'tim' + (left <= 3 && left > 0 && s.dur && s.k !== 'reps' ? ' beat' : '');
         }
         function run() {
             clearInterval(tick); tick = setInterval(() => {
@@ -4345,7 +4581,7 @@ document.getElementById('schCtrls').innerHTML = `
         renderAuthUI();
         
         /* ============ PWA AUTO-UPDATE LIFECYCLE ============ */
-        const APP_VERSION = '2.4.3';
+        const APP_VERSION = '2.4.5';
         let newWorkerWaiting = null;
 
         function showAppUpdateNotification(worker) {
