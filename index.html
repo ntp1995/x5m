@@ -1616,6 +1616,7 @@
                 <div class="g2" style="margin-top:10px">
                     <input id="inW" type="number" step="0.1" placeholder="น้ำหนัก (กก.)">
                     <input id="inBF" type="number" step="0.1" placeholder="ไขมัน %">
+                    <input id="inMuscle" type="number" step="0.1" placeholder="กล้ามเนื้อ (กก.)">
                     <input id="inHRV" type="number" placeholder="HRV (ms)">
                     <input id="inPain" type="number" min="0" max="10" placeholder="ปวดหลัง 0-10">
                     <input id="inCal" type="number" placeholder="แคลอรี่ (kcal)">
@@ -3359,11 +3360,20 @@
 
     <div class="tracker-divider"></div>
 
-    <!-- Weigh-in streak row -->
-    <div class="row" style="margin:8px 0">
-        <div style="flex:1"><div style="font-size:13px;color:var(--dim)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> ชั่งน้ำหนัก</div>
-        <div style="font-size:12px;color:var(--dim);margin-top:2px">${lastW ? 'ล่าสุด: ' + lastW.d.slice(5) + ' (' + (+lastW.w).toFixed(1) + ' กก.)' : 'ยังไม่เคยชั่ง'}</div></div>
-        <span class="streak-badge${streakClass}">${streakIcon} ${daysAgo === 0 ? streak + ' วันติด' : 'ไม่ได้ชั่ง ' + daysAgo + ' วัน'}</span>
+    <!-- Weigh-in streak row with morning log button -->
+    <div class="row" style="margin:8px 0; align-items:center;">
+        <div style="flex:1; cursor:pointer;" onclick="openMorningWeighInModal()">
+            <div style="font-size:13px;color:var(--dim);display:flex;align-items:center;gap:4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> <b>ชั่งน้ำหนัก & สัดส่วน</b>
+            </div>
+            <div style="font-size:12px;color:var(--dim);margin-top:2px">
+                ${lastW ? 'ล่าสุด: ' + lastW.d.slice(5) + ' (' + (+lastW.w).toFixed(1) + ' กก.' + (lastW.bf ? ' • ไขมัน ' + lastW.bf + '%' : '') + (lastW.muscle ? ' • กล้าม ' + lastW.muscle + ' กก.' : '') + ')' : 'ยังไม่เคยชั่ง — แตะเพื่อบันทึก'}
+            </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+            <span class="streak-badge${streakClass}" style="margin:0;">${streakIcon} ${daysAgo === 0 ? streak + ' วันติด' : 'ไม่ได้ชั่ง ' + daysAgo + ' วัน'}</span>
+            <button class="btn sm" onclick="openMorningWeighInModal()" style="padding:4px 8px; font-size:11px; background:var(--card); border:1px solid var(--line); color:var(--acc); font-weight:700; border-radius:8px;">+ ชั่งเช้านี้</button>
+        </div>
     </div>
 
     <!-- Today's Meals Timeline -->
@@ -4183,6 +4193,112 @@ document.getElementById('schCtrls').innerHTML = `
         }
 
         /* ============ DAILY TRACKER EDIT & CHECK-IN HISTORY ============ */
+        
+        /* ============ MORNING WEIGH-IN & BODY COMPOSITION MODAL ============ */
+        async function openMorningWeighInModal(targetDate) {
+            const dateStr = targetDate || iso();
+            const rec = D.checks.find(x => x.d === dateStr);
+            const prev = D.checks.filter(x => x.w && x.d !== dateStr).sort((a, b) => b.d.localeCompare(a.d))[0];
+            const w = rec?.w != null ? rec.w : (prev?.w || '');
+            const bf = rec?.bf != null ? rec.bf : (prev?.bf || D.cfg.biometrics?.bf || '');
+            const muscle = rec?.muscle != null ? rec.muscle : (prev?.muscle || D.cfg.biometrics?.muscle || '');
+            const hrv = rec?.hrv != null ? rec.hrv : (prev?.hrv || '');
+            const pain = rec?.pain != null ? rec.pain : '';
+
+            const html = `
+                <div style="text-align:left; font-size:14px; line-height:1.5;">
+                    <div style="font-weight:800; font-size:16px; color:var(--acc); margin-bottom:4px;">⚖️ บันทึกน้ำหนัก & สัดส่วนยามเช้า</div>
+                    <div style="font-size:12px; color:var(--dim); margin-bottom:12px;">📅 วันที่: <b>${dateStr}</b> (แนะนำชั่งตอนเช้าหลังตื่นนอน ปัสสาวะแล้ว ก่อนดื่มน้ำ/ทานมื้อแรก)</div>
+
+                    <div style="background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px;">
+                        <div style="margin-bottom:10px;">
+                            <label style="display:block; font-weight:700; font-size:12.5px; color:var(--tx); margin-bottom:4px;">⚖️ น้ำหนักตัว (กก.) <span style="color:var(--red)">*</span></label>
+                            <input type="number" step="0.1" id="mWeighW" value="${w}" placeholder="เช่น 70.5" style="width:100%; font-size:16px; font-weight:700; padding:9px; background:var(--bg); border:1.5px solid var(--acc); color:var(--tx); border-radius:8px; box-sizing:border-box;">
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                            <div>
+                                <label style="display:block; font-weight:700; font-size:12px; color:var(--dim); margin-bottom:4px;">📉 ไขมันในร่างกาย (% BF)</label>
+                                <input type="number" step="0.1" id="mWeighBF" value="${bf}" placeholder="เช่น 18.5" style="width:100%; font-size:14px; padding:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="display:block; font-weight:700; font-size:12px; color:var(--dim); margin-bottom:4px;">💪 มวลกล้ามเนื้อ (กก.)</label>
+                                <input type="number" step="0.1" id="mWeighMuscle" value="${muscle}" placeholder="เช่น 32.5" style="width:100%; font-size:14px; padding:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                            <div>
+                                <label style="display:block; font-weight:700; font-size:12px; color:var(--dim); margin-bottom:4px;">💓 HRV ยามเช้า (ms)</label>
+                                <input type="number" id="mWeighHRV" value="${hrv}" placeholder="เว้นว่างได้" style="width:100%; font-size:14px; padding:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="display:block; font-weight:700; font-size:12px; color:var(--dim); margin-bottom:4px;">🩹 อาการปวดหลัง (0-10)</label>
+                                <input type="number" min="0" max="10" id="mWeighPain" value="${pain}" placeholder="0 = ไม่ปวดเลย" style="width:100%; font-size:14px; padding:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const ok = await fcConfirm(html, 'บันทึกข้อมูลยามเช้า');
+            if (!ok) return;
+
+            const wVal = document.getElementById('mWeighW')?.value.trim();
+            const nW = wVal ? parseFloat(wVal) : null;
+            if (!nW || nW < 30 || nW > 250) {
+                fcAlert('กรุณากรอกน้ำหนักตัวให้ถูกต้อง (30 - 250 กก.) ครับ');
+                return;
+            }
+
+            const bfVal = document.getElementById('mWeighBF')?.value.trim();
+            const nBf = bfVal ? parseFloat(bfVal) : null;
+
+            const muscleVal = document.getElementById('mWeighMuscle')?.value.trim();
+            const nMuscle = muscleVal ? parseFloat(muscleVal) : null;
+
+            const hrvVal = document.getElementById('mWeighHRV')?.value.trim();
+            const nHrv = hrvVal ? parseInt(hrvVal) : null;
+
+            const painVal = document.getElementById('mWeighPain')?.value.trim();
+            const nPain = painVal !== '' ? parseInt(painVal) : null;
+
+            let cur = D.checks.find(x => x.d === dateStr);
+            if (!cur) {
+                cur = {
+                    d: dateStr,
+                    w: nW,
+                    bf: nBf,
+                    muscle: nMuscle,
+                    hrv: nHrv,
+                    pain: nPain,
+                    cal: 0,
+                    protein: 0,
+                    carbs: 0,
+                    fat: 0,
+                    water: 0,
+                    meals: []
+                };
+                D.checks.push(cur);
+            } else {
+                cur.w = nW;
+                if (nBf != null) cur.bf = nBf;
+                if (nMuscle != null) cur.muscle = nMuscle;
+                if (nHrv != null) cur.hrv = nHrv;
+                if (nPain != null) cur.pain = nPain;
+            }
+
+            if (!D.cfg.biometrics) D.cfg.biometrics = {};
+            if (nBf != null) D.cfg.biometrics.bf = nBf;
+            if (nMuscle != null) D.cfg.biometrics.muscle = nMuscle;
+
+            save();
+            render();
+            if (typeof autoSync === 'function') autoSync();
+            else if (currentUser && fbDb) pushToCloud();
+            msg('✓ บันทึกน้ำหนัก & สัดส่วนเช้านี้เรียบร้อยแล้ว!');
+        }
+
         async function editDailyTracker(targetDate) {
             const dateStr = targetDate || iso();
             let rec = D.checks.find(x => x.d === dateStr);
@@ -4218,8 +4334,20 @@ document.getElementById('schCtrls').innerHTML = `
                 <label style="display:block;font-weight:bold;font-size:13px;">น้ำดื่ม (แก้ว)</label>
                 <input type="number" id="edWat" value="${wat}" style="width:100%; font-size:15px; text-align:left; padding:8px; margin-top:2px; margin-bottom:10px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
                 
-                <label style="display:block;font-weight:bold;font-size:13px;">น้ำหนักตัว (กก.)</label>
-                <input type="number" step="0.1" id="edW" value="${w}" placeholder="เว้นว่างได้" style="width:100%; font-size:15px; text-align:left; padding:8px; margin-top:2px; margin-bottom:14px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px;">
+                    <div>
+                        <label style="display:block;font-weight:bold;font-size:12px;">น้ำหนัก (กก.)</label>
+                        <input type="number" step="0.1" id="edW" value="${w}" placeholder="เว้นว่างได้" style="width:100%; font-size:14px; text-align:left; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="display:block;font-weight:bold;font-size:12px;">ไขมัน (%)</label>
+                        <input type="number" step="0.1" id="edBf" value="${rec?.bf != null ? rec.bf : ''}" placeholder="เว้นว่างได้" style="width:100%; font-size:14px; text-align:left; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="display:block;font-weight:bold;font-size:12px;">กล้ามเนื้อ (กก.)</label>
+                        <input type="number" step="0.1" id="edMuscle" value="${rec?.muscle != null ? rec.muscle : ''}" placeholder="เว้นว่างได้" style="width:100%; font-size:14px; text-align:left; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
+                    </div>
+                </div>
                 
                 <div style="margin-top:6px;">
                     <button type="button" class="btn" onclick="resetTodayTracker('${dateStr}')" style="background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.3); font-size:13px; padding:10px; width:100%;">🗑️ ล้างค่าอาหารและน้ำของวันนี้กลับเป็น 0</button>
@@ -4236,10 +4364,14 @@ document.getElementById('schCtrls').innerHTML = `
             const nWat = parseInt(document.getElementById('edWat').value) || 0;
             const wVal = document.getElementById('edW').value.trim();
             const nW = wVal !== '' ? parseFloat(wVal) : null;
+            const bfVal = document.getElementById('edBf')?.value.trim();
+            const nBf = bfVal !== '' ? parseFloat(bfVal) : null;
+            const muscleVal = document.getElementById('edMuscle')?.value.trim();
+            const nMuscle = muscleVal !== '' ? parseFloat(muscleVal) : null;
 
             if (!rec) {
                 const prev = D.checks[D.checks.length - 1];
-                rec = { d: dateStr, w: nW || (prev?.w || 70), bf: prev?.bf || null, hrv: null, pain: null, cal: nCal, protein: nPro, carbs: nCarbs, fat: nFat, water: nWat, meals: [] };
+                rec = { d: dateStr, w: nW || (prev?.w || 70), bf: nBf != null ? nBf : (prev?.bf || null), muscle: nMuscle != null ? nMuscle : (prev?.muscle || null), hrv: null, pain: null, cal: nCal, protein: nPro, carbs: nCarbs, fat: nFat, water: nWat, meals: [] };
                 D.checks.push(rec);
             } else {
                 rec.cal = nCal;
@@ -4248,7 +4380,12 @@ document.getElementById('schCtrls').innerHTML = `
                 rec.fat = nFat;
                 rec.water = nWat;
                 if (nW != null && !isNaN(nW)) rec.w = nW;
+                if (nBf != null && !isNaN(nBf)) rec.bf = nBf;
+                if (nMuscle != null && !isNaN(nMuscle)) rec.muscle = nMuscle;
             }
+            if (!D.cfg.biometrics) D.cfg.biometrics = {};
+            if (nBf != null && !isNaN(nBf)) D.cfg.biometrics.bf = nBf;
+            if (nMuscle != null && !isNaN(nMuscle)) D.cfg.biometrics.muscle = nMuscle;
 
             save();
             render();
@@ -4302,6 +4439,8 @@ document.getElementById('schCtrls').innerHTML = `
                         <div style="font-size:14px; font-weight:700;">${c.d} ${c.d === iso() ? '<span class="tag" style="font-size:11px;padding:2px 6px;">วันนี้</span>' : ''}</div>
                         <div class="sub" style="font-size:12.5px; margin-top:2px;">
                             ${c.w ? `น้ำหนัก: <b>${(+c.w).toFixed(1)}</b> กก. ` : ''}
+                            ${c.bf ? `• ไขมัน <b>${c.bf}</b>% ` : ''}
+                            ${c.muscle ? `• กล้ามเนื้อ <b>${c.muscle}</b> กก. ` : ''}
                             ${c.cal ? `• <b>${c.cal}</b> kcal ` : ''}
                             ${c.protein ? `• โปรตีน <b>${c.protein}</b>g ` : ''}
                             ${c.water ? `• น้ำ <b>${c.water}</b> แก้ว` : ''}
@@ -4318,21 +4457,35 @@ document.getElementById('schCtrls').innerHTML = `
         /* ============ CHECK-IN + CHARTS ============ */
         function addCheck() {
             const w = parseFloat(document.getElementById('inW').value);
-            if (!w || w < 40 || w > 200) return fcAlert('กรอกน้ำหนักให้ถูกต้อง');
+            if (!w || w < 30 || w > 250) return fcAlert('กรอกน้ำหนักให้ถูกต้อง (30-250 กก.)');
             const prev = D.checks[D.checks.length - 1];
             const existing = D.checks.find(x => x.d === iso());
+            const bf = parseFloat(document.getElementById('inBF').value) || prev?.bf || null;
+            const muscle = parseFloat(document.getElementById('inMuscle')?.value) || prev?.muscle || null;
             const rec = {
-                d: iso(), w, bf: parseFloat(document.getElementById('inBF').value) || prev?.bf || null,
+                d: iso(), w, 
+                bf,
+                muscle,
                 hrv: parseInt(document.getElementById('inHRV').value) || null,
                 pain: document.getElementById('inPain').value === '' ? null : parseInt(document.getElementById('inPain').value),
                 cal: parseInt(document.getElementById('inCal').value) || (existing?.cal || null),
                 protein: parseInt(document.getElementById('inProtein').value) || (existing?.protein || null),
-                water: parseInt(document.getElementById('inWater').value) || (existing?.water || null)
+                carbs: existing?.carbs || null,
+                fat: existing?.fat || null,
+                water: parseInt(document.getElementById('inWater').value) || (existing?.water || null),
+                meals: existing?.meals || []
             };
             const i = D.checks.findIndex(x => x.d === iso());
             i >= 0 ? D.checks[i] = rec : D.checks.push(rec);
+            if (!D.cfg.biometrics) D.cfg.biometrics = {};
+            if (bf) D.cfg.biometrics.bf = bf;
+            if (muscle) D.cfg.biometrics.muscle = muscle;
             save(); render(); autoSync();
-            ['inW', 'inBF', 'inHRV', 'inPain', 'inCal', 'inProtein', 'inWater'].forEach(id => document.getElementById(id).value = '');
+            ['inW', 'inBF', 'inMuscle', 'inHRV', 'inPain', 'inCal', 'inProtein', 'inWater'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            fcAlert('✓ บันทึกเช็กอินประจำวันเรียบร้อยแล้ว!');
         }
         
         function openAiFoodScanner() {
@@ -5482,7 +5635,7 @@ document.getElementById('schCtrls').innerHTML = `
         renderAuthUI();
         
         /* ============ PWA AUTO-UPDATE LIFECYCLE ============ */
-        const APP_VERSION = '2.6.0';
+        const APP_VERSION = '2.6.1';
         let newWorkerWaiting = null;
 
         function showAppUpdateNotification(worker) {
