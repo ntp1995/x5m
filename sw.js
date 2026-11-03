@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fitcoach-v2.4.5';
+const CACHE_NAME = 'fitcoach-v2.6.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -24,7 +24,11 @@ self.addEventListener('activate', event => {
           return caches.delete(k);
         }
       })
-    )).then(() => self.clients.claim())
+    )).then(() => self.clients.claim()).then(() => {
+      return self.clients.matchAll().then(clients => {
+        clients.forEach(c => c.postMessage({ type: 'VERSION_UPDATED', version: CACHE_NAME }));
+      });
+    })
   );
 });
 
