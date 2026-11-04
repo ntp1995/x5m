@@ -3105,7 +3105,16 @@
             fcClose();
         }
         const WATER_TARGET = 8, WEIGH_WARN_DAYS = 2;
-        function save() { localStorage.setItem('fit', JSON.stringify(D)) }
+        function save() {
+            try {
+                localStorage.setItem('fit', JSON.stringify(D));
+            } catch (e) {
+                console.warn('localStorage save error:', e);
+            }
+            if (typeof autoSync === 'function') {
+                autoSync();
+            }
+        }
         /* ============ THAI TIMEZONE (Asia/Bangkok, GMT+7) HELPERS ============ */
         function iso(d = new Date()) {
             try {
@@ -5008,8 +5017,11 @@ document.getElementById('schCtrls').innerHTML = `
             if (!cloud) return;
             if (cloud.start) D.start = cloud.start;
             if (cloud.bs !== undefined) D.bs = cloud.bs;
+            if (cloud.schOffs !== undefined) D.schOffs = cloud.schOffs;
+            if (cloud.forceFullCardio !== undefined) D.forceFullCardio = cloud.forceFullCardio;
+            if (cloud.morningCardio !== undefined) D.morningCardio = cloud.morningCardio;
 
-            // If local only had dummy initial data, adopt cloud checks completely
+            // Merge checks (Weight, body fat %, muscle mass, macros, meals timeline)
             const isLocalDummy = D.checks && D.checks.length === 1 && D.checks[0].w === 80 && D.checks[0].bf === 27.1;
             if (isLocalDummy && cloud.checks && cloud.checks.length > 0) {
                 D.checks = [...cloud.checks];
@@ -5021,18 +5033,11 @@ document.getElementById('schCtrls').innerHTML = `
                         checkMap.set(c.d, c);
                     } else {
                         const ex = checkMap.get(c.d);
+                        const mergedMeals = (c.meals && c.meals.length) ? c.meals : (ex.meals || []);
                         checkMap.set(c.d, {
-                            d: c.d,
-                            w: c.w != null ? c.w : ex.w,
-                            bf: c.bf != null ? c.bf : ex.bf,
-                            hrv: c.hrv != null ? c.hrv : ex.hrv,
-                            pain: c.pain != null ? c.pain : ex.pain,
-                            cal: c.cal != null ? c.cal : ex.cal,
-                            protein: c.protein != null ? c.protein : ex.protein,
-                            carbs: c.carbs != null ? c.carbs : ex.carbs,
-                            fat: c.fat != null ? c.fat : ex.fat,
-                            meals: (c.meals && c.meals.length) ? c.meals : (ex.meals || []),
-                            water: c.water != null ? c.water : ex.water
+                            ...ex,
+                            ...c,
+                            meals: mergedMeals
                         });
                     }
                 });
@@ -5051,34 +5056,35 @@ document.getElementById('schCtrls').innerHTML = `
             (cloud.sets || []).forEach(st => setMap.set(st.id, st));
             D.sets = [...setMap.values()];
 
-            // Merge Config
+            // Merge Config (All targets, weights, myCombos, biometrics, BMR info)
             if (cloud.cfg) {
-                if (cloud.cfg.aiKey) D.cfg.aiKey = cloud.cfg.aiKey;
-                if (cloud.cfg.aiKeyBackup) D.cfg.aiKeyBackup = cloud.cfg.aiKeyBackup;
-                if (cloud.cfg.calTarget) { D.cfg.calTarget = cloud.cfg.calTarget; CAL_TARGET = cloud.cfg.calTarget; }
-                if (cloud.cfg.proteinTarget) { D.cfg.proteinTarget = cloud.cfg.proteinTarget; PROTEIN_TARGET = cloud.cfg.proteinTarget; }
-                if (cloud.cfg.fatTarget) { D.cfg.fatTarget = cloud.cfg.fatTarget; FAT_TARGET = cloud.cfg.fatTarget; }
-                if (cloud.cfg.carbsTarget) { D.cfg.carbsTarget = cloud.cfg.carbsTarget; CARBS_TARGET = cloud.cfg.carbsTarget; }
-                if (cloud.cfg.weights) D.cfg.weights = { ...(D.cfg.weights || {}), ...cloud.cfg.weights };
-                if (cloud.cfg.weightFeedback) D.cfg.weightFeedback = { ...(D.cfg.weightFeedback || {}), ...cloud.cfg.weightFeedback };
-                if (cloud.cfg.myFoods && Array.isArray(cloud.cfg.myFoods)) {
-                    const existingNames = new Set((D.cfg.myFoods || []).map(f => f.n));
-                    cloud.cfg.myFoods.forEach(f => {
-                        if (!existingNames.has(f.n)) (D.cfg.myFoods = D.cfg.myFoods || []).push(f);
-                    });
-                }
+                D.cfg = { ...(D.cfg || {}), ...cloud.cfg };
+                if (D.cfg.calTarget) CAL_TARGET = D.cfg.calTarget;
+                if (D.cfg.proteinTarget) PROTEIN_TARGET = D.cfg.proteinTarget;
+                if (D.cfg.fatTarget) FAT_TARGET = D.cfg.fatTarget;
+                if (D.cfg.carbsTarget) CARBS_TARGET = D.cfg.carbsTarget;
+                if (D.cfg.waterTarget) WATER_TARGET = D.cfg.waterTarget;
             }
 
-            // Merge IF
+            // Merge IF with timestamp conflict resolution
             if (cloud.if) {
                 if (!D.if) D.if = cloud.if;
                 else {
                     if (cloud.if.goal) D.if.goal = cloud.if.goal;
-                    if (cloud.if.start) D.if.start = cloud.if.start;
+                    const localIfUpdated = D.if.updatedAt || 0;
+                    const cloudIfUpdated = cloud.if.updatedAt || 0;
+                    if (cloudIfUpdated >= localIfUpdated) {
+                        if (cloud.if.start !== undefined) D.if.start = cloud.if.start;
+                        if (cloud.if.notifiedComplete !== undefined) D.if.notifiedComplete = cloud.if.notifiedComplete;
+                        D.if.updatedAt = cloudIfUpdated;
+                    }
                 }
             }
 
-            save();
+            // Save locally without re-triggering pushToCloud
+            try {
+                localStorage.setItem('fit', JSON.stringify(D));
+            } catch (e) {}
             render();
             updateIFUI();
         }
@@ -5106,20 +5112,15 @@ document.getElementById('schCtrls').innerHTML = `
                 const rawPayload = {
                     start: D.start || iso(),
                     bs: !!D.bs,
+                    schOffs: D.schOffs || 0,
+                    forceFullCardio: !!D.forceFullCardio,
+                    morningCardio: D.morningCardio || null,
                     checks: D.checks || [],
                     sessions: D.sessions || [],
                     sets: D.sets || [],
                     if: D.if || { goal: 16, start: null },
                     cfg: {
-                        aiKey: (D.cfg && D.cfg.aiKey) ? D.cfg.aiKey : '',
-                        aiKeyBackup: (D.cfg && D.cfg.aiKeyBackup) ? D.cfg.aiKeyBackup : '',
-                        myFoods: (D.cfg && D.cfg.myFoods) ? D.cfg.myFoods : [],
-                        calTarget: (D.cfg && D.cfg.calTarget) ? D.cfg.calTarget : 1800,
-                        proteinTarget: (D.cfg && D.cfg.proteinTarget) ? D.cfg.proteinTarget : 155,
-                        fatTarget: (D.cfg && D.cfg.fatTarget) ? D.cfg.fatTarget : 50,
-                        carbsTarget: (D.cfg && D.cfg.carbsTarget) ? D.cfg.carbsTarget : 185,
-                        weights: (D.cfg && D.cfg.weights) ? D.cfg.weights : {},
-                        weightFeedback: (D.cfg && D.cfg.weightFeedback) ? D.cfg.weightFeedback : {}
+                        ...(D.cfg || {})
                     },
                     updatedAt: new Date().toISOString()
                 };
@@ -5128,8 +5129,8 @@ document.getElementById('schCtrls').innerHTML = `
                 const cleanPayload = deepCleanForFirestore(rawPayload);
 
                 await userDocRef.set(cleanPayload, { merge: true });
-                const timeStr = new Date().toLocaleTimeString('th-TH');
-                msg(`<span style="color:#10b981;font-weight:600;">✓ ซิงก์สำเร็จเวลา ${timeStr}</span>`);
+                const timeStr = typeof formatThaiTime === 'function' ? formatThaiTime(new Date()) : new Date().toLocaleTimeString('th-TH');
+                msg(`<span style="color:#10b981;font-weight:600;">✓ ซิงก์สมบูรณ์เวลา ${timeStr} น.</span>`);
                 return true;
             } catch (err) {
                 console.error("Cloud push error:", err);
@@ -5503,56 +5504,180 @@ document.getElementById('schCtrls').innerHTML = `
             }, 300);
         }
 
+        /* ============ INTERMITTENT FASTING (IF) LOGIC ============ */
+        D.if = D.if || { start: null, goal: 16, updatedAt: Date.now() };
+
         function setIFGoal(hrs) {
             D.if.goal = hrs;
+            D.if.updatedAt = Date.now();
             save();
             updateIFUI();
-            fcAlert('ตั้งเป้าหมายเป็น ' + hrs + ' ชั่วโมงแล้ว');
+            if (currentUser && fbDb) pushToCloud();
+            fcAlert('ตั้งค่าเป้าหมายการอดอาหารเป็น ' + hrs + ' ชั่วโมงเรียบร้อย');
         }
 
         async function toggleIF() {
             if (D.if.start) {
-                if (await fcConfirm('หยุดการทำ IF (เริ่มช่วงกิน) ใช่หรือไม่?')) {
+                if (await fcConfirm('สิ้นสุดการทำ IF รอบนี้ (เริ่มช่วงเวลากินอาหาร) ใช่หรือไม่?')) {
                     D.if.start = null;
+                    D.if.updatedAt = Date.now();
                     save();
+                    if (currentUser && fbDb) pushToCloud();
                 }
             } else {
                 D.if.start = Date.now();
-            D.if.notifiedComplete = false;
-            if ('Notification' in window && Notification.permission === 'default') {
-                Notification.requestPermission();
-            }
+                D.if.notifiedComplete = false;
+                D.if.updatedAt = Date.now();
+                if ('Notification' in window && Notification.permission === 'default') {
+                    Notification.requestPermission();
+                }
                 save();
+                if (currentUser && fbDb) pushToCloud();
             }
             updateIFUI();
         }
 
-        async function editIFStart() {
-            let curr = '';
-            if (D.if.start) {
-                const dDate = new Date(D.if.start);
-                curr = String(dDate.getHours()).padStart(2, '0') + ':' + String(dDate.getMinutes()).padStart(2, '0');
+        let editIFSelectedDay = 'yesterday';
+
+        function setIFEditDay(dayChoice) {
+            editIFSelectedDay = dayChoice;
+            const btnY = document.getElementById('ifBtnYesterday');
+            const btnT = document.getElementById('ifBtnToday');
+            if (btnY && btnT) {
+                if (dayChoice === 'yesterday') {
+                    btnY.style.background = 'var(--acc)';
+                    btnY.style.color = '#fff';
+                    btnY.style.borderColor = 'var(--acc)';
+                    btnT.style.background = 'var(--card)';
+                    btnT.style.color = 'var(--tx)';
+                    btnT.style.borderColor = 'var(--line)';
+                } else {
+                    btnT.style.background = 'var(--acc)';
+                    btnT.style.color = '#fff';
+                    btnT.style.borderColor = 'var(--acc)';
+                    btnY.style.background = 'var(--card)';
+                    btnY.style.color = 'var(--tx)';
+                    btnY.style.borderColor = 'var(--line)';
+                }
             }
-            const p = await fcPrompt('ระบุเวลาที่เริ่มงดอาหาร (HH:MM)', curr || '18:30');
-            if (p === null) return;
-            const parts = p.trim().split(':');
-            if (parts.length !== 2) return fcAlert('รูปแบบเวลาไม่ถูกต้อง (ใช้ HH:MM)');
+            updateIFEditPreview();
+        }
+
+        function updateIFEditPreview() {
+            const timeVal = document.getElementById('ifTimeInput')?.value || '19:45';
+            const prevEl = document.getElementById('ifEditPreviewText');
+            if (!prevEl) return;
+            const parts = timeVal.split(':');
+            if (parts.length !== 2) return;
+            const h = parseInt(parts[0]), m = parseInt(parts[1]);
+            if (isNaN(h) || isNaN(m)) return;
+
+            const now = new Date();
+            const todayIso = iso(now);
+            const p = todayIso.split('-');
+            const baseDate = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+            if (editIFSelectedDay === 'yesterday') {
+                baseDate.setDate(baseDate.getDate() - 1);
+            }
+            baseDate.setHours(h, m, 0, 0);
+
+            const diffSec = Math.max(0, Math.floor((now.getTime() - baseDate.getTime()) / 1000));
+            const diffH = Math.floor(diffSec / 3600);
+            const diffM = Math.floor((diffSec % 3600) / 60);
+
+            const goalHrs = (D.if && D.if.goal) ? D.if.goal : 16;
+            const goalSec = goalHrs * 3600;
+            const endMs = baseDate.getTime() + (goalSec * 1000);
+            const endDate = new Date(endMs);
+
+            const endDayStr = iso(endDate);
+            const isEndToday = endDayStr === todayIso;
+            const endDayLabel = isEndToday ? 'วันนี้' : (endDate.getDate() + '/' + (endDate.getMonth() + 1));
+
+            if (diffSec >= goalSec) {
+                const overM = Math.floor((diffSec - goalSec) / 60);
+                prevEl.innerHTML = `
+                    <div style="color:#22c55e; font-weight:700;">🎉 อดมาแล้ว: ${diffH} ชม. ${diffM} นาที (ครบ ${goalHrs} ชม. แล้ว)</div>
+                    <div style="color:var(--dim); font-size:11.5px; margin-top:2px;">เริ่มกินได้ตั้งแต่: ${endDayLabel} ${formatThaiTime(endDate)} น.</div>
+                `;
+            } else {
+                const remSec = goalSec - diffSec;
+                const remH = Math.floor(remSec / 3600);
+                const remM = Math.floor((remSec % 3600) / 60);
+                prevEl.innerHTML = `
+                    <div style="color:var(--acc); font-weight:700;">⏳ อดมาแล้ว: ${diffH} ชม. ${diffM} นาที (เหลืออีก ${remH} ชม. ${remM} นาที)</div>
+                    <div style="color:var(--dim); font-size:11.5px; margin-top:2px;">🎯 จะเริ่มกินได้ตอน: <b>${endDayLabel} ${formatThaiTime(endDate)} น.</b></div>
+                `;
+            }
+        }
+
+        async function editIFStart() {
+            // Determine default day and time
+            let initDay = 'yesterday';
+            let initTime = '19:45';
+
+            if (D.if && D.if.start) {
+                const curStart = new Date(D.if.start);
+                const curIso = iso(curStart);
+                const todayIso = iso(new Date());
+                initDay = (curIso === todayIso) ? 'today' : 'yesterday';
+                initTime = formatThaiTime(curStart);
+            }
+            editIFSelectedDay = initDay;
+
+            const html = `
+                <div style="text-align:left; font-size:14px; line-height:1.5;">
+                    <div style="font-weight:800; font-size:16px; color:var(--acc); margin-bottom:4px;">⏱️ ตั้งค่าเวลาเริ่มอดอาหาร</div>
+                    <div style="font-size:12px; color:var(--dim); margin-bottom:12px;">ระบุวันที่และเวลาที่ทานมื้อสุดท้ายเสร็จ เพื่อเริ่มนับเวลาอดอาหาร</div>
+
+                    <div style="background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px;">
+                        <label style="display:block; font-weight:700; font-size:12.5px; margin-bottom:6px;">1. วันที่เริ่มอดอาหาร:</label>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+                            <button type="button" id="ifBtnYesterday" class="btn sm" onclick="setIFEditDay('yesterday')" style="padding:8px; font-size:13px; font-weight:700; border-radius:8px; border:1.5px solid var(--acc); background:${initDay === 'yesterday' ? 'var(--acc)' : 'var(--card)'}; color:${initDay === 'yesterday' ? '#fff' : 'var(--tx)'};">เมื่อวานนี้</button>
+                            <button type="button" id="ifBtnToday" class="btn sm" onclick="setIFEditDay('today')" style="padding:8px; font-size:13px; font-weight:700; border-radius:8px; border:1.5px solid var(--line); background:${initDay === 'today' ? 'var(--acc)' : 'var(--card)'}; color:${initDay === 'today' ? '#fff' : 'var(--tx)'};">วันนี้</button>
+                        </div>
+
+                        <label style="display:block; font-weight:700; font-size:12.5px; margin-bottom:6px;">2. เวลาที่เริ่มอด (มื้อสุดท้ายเสร็จ):</label>
+                        <input type="time" id="ifTimeInput" value="${initTime}" oninput="updateIFEditPreview()" onchange="updateIFEditPreview()" style="width:100%; font-size:18px; font-weight:800; padding:10px 14px; border-radius:8px; border:1.5px solid var(--acc); background:var(--bg); color:var(--tx); text-align:center; box-sizing:border-box;">
+
+                        <div id="ifEditPreviewText" style="margin-top:12px; padding:10px; background:var(--card); border:1px solid var(--line); border-radius:8px; font-size:12.5px; text-align:center;">
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                updateIFEditPreview();
+            }, 60);
+
+            const ok = await fcConfirm(html, 'บันทึกเวลาเริ่มอดอาหาร');
+            if (!ok) return;
+
+            const timeVal = document.getElementById('ifTimeInput')?.value || '19:45';
+            const parts = timeVal.split(':');
+            if (parts.length !== 2) return fcAlert('รูปแบบเวลาไม่ถูกต้อง');
             const h = parseInt(parts[0]), m = parseInt(parts[1]);
             if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) return fcAlert('รูปแบบเวลาไม่ถูกต้อง');
-            
-            let d = new Date();
-            if (D.if.start) d = new Date(D.if.start);
-            d.setHours(h, m, 0, 0);
-            
-            if (!D.if.start && d.getTime() > Date.now()) {
-                d.setDate(d.getDate() - 1);
-            } else if (D.if.start && d.getTime() > Date.now() + 60000) {
-                d.setDate(d.getDate() - 1);
+
+            const now = new Date();
+            const todayIso = iso(now);
+            const p = todayIso.split('-');
+            const baseDate = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+            if (editIFSelectedDay === 'yesterday') {
+                baseDate.setDate(baseDate.getDate() - 1);
             }
-            
-            D.if.start = d.getTime();
+            baseDate.setHours(h, m, 0, 0);
+
+            if (!D.if) D.if = { goal: 16 };
+            D.if.start = baseDate.getTime();
+            D.if.updatedAt = Date.now();
+            D.if.notifiedComplete = false;
+
             save();
+            render();
             updateIFUI();
+            if (currentUser && fbDb) pushToCloud();
+            msg('✓ อัปเดตเวลาเริ่มอดอาหารและซิงก์คลาวด์แล้ว');
         }
 
         function updateIFUI() {
@@ -5565,19 +5690,19 @@ document.getElementById('schCtrls').innerHTML = `
             const goalTx = document.getElementById('ifGoalText');
             const eatWindowTx = document.getElementById('ifEatWindowText');
             const countdownTx = document.getElementById('ifCountdownText');
+            const btn = document.getElementById('btnToggleIF');
             const timerSub = document.getElementById('ifTimerSub');
-            const btn = document.getElementById('ifToggleBtn');
-
+            
             const goalHrs = (D.if && D.if.goal) ? D.if.goal : 16;
             if (goalTx) goalTx.textContent = goalHrs;
-            if (eatWindowTx) eatWindowTx.textContent = `กินได้ ${Math.max(1, 24 - goalHrs)} ชม.`;
+            if (eatWindowTx) eatWindowTx.textContent = `${24 - goalHrs} ชม.`;
 
             if (D.if && D.if.start) {
                 const now = Date.now();
                 const diffSec = Math.max(0, Math.floor((now - D.if.start) / 1000));
                 const goalSec = goalHrs * 3600;
 
-                // Check Fasting Completion
+                // Check Fasting Completion notification
                 if (diffSec >= goalSec && !D.if.notifiedComplete) {
                     D.if.notifiedComplete = true;
                     save();
@@ -5591,29 +5716,44 @@ document.getElementById('schCtrls').innerHTML = `
                         } catch(e) {}
                     }
                 }
-                
+
+                // Format Timer (HH:MM:SS)
                 const h = Math.floor(diffSec / 3600);
                 const m = Math.floor((diffSec % 3600) / 60);
                 const s = diffSec % 60;
-                disp.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+                disp.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
                 if (timerSub) timerSub.textContent = 'ระยะเวลาที่อดอาหารไปแล้ว';
 
-                // Format Start Time
+                // Format Start Time with accurate Thai day difference
                 const startDate = new Date(D.if.start);
                 const nowDate = new Date();
-                const isStartToday = startDate.toDateString() === nowDate.toDateString();
-                const startHM = String(startDate.getHours()).padStart(2, '0') + ':' + String(startDate.getMinutes()).padStart(2, '0');
-                if (stTime) stTime.textContent = (isStartToday ? 'วันนี้ ' : 'เมื่อวาน ') + startHM;
+                const todayIso = iso(nowDate);
+                const startDayIso = iso(startDate);
+
+                const todayMidnightMs = new Date(todayIso + 'T00:00:00+07:00').getTime();
+                const startMidnightMs = new Date(startDayIso + 'T00:00:00+07:00').getTime();
+                const daysDiff = Math.round((todayMidnightMs - startMidnightMs) / 864e5);
+
+                let startDayText = '';
+                if (daysDiff === 0) startDayText = 'วันนี้ ';
+                else if (daysDiff === 1) startDayText = 'เมื่อวาน ';
+                else if (daysDiff > 1) startDayText = `${startDate.getDate()}/${startDate.getMonth() + 1} (${daysDiff} วันก่อน) `;
+                else startDayText = `${startDate.getDate()}/${startDate.getMonth() + 1} `;
+
+                const startHM = formatThaiTime(startDate);
+                if (stTime) stTime.textContent = startDayText + startHM;
 
                 // Format End Time (When fasting ends and eating window begins)
                 const endDate = new Date(D.if.start + goalSec * 1000);
-                const endHM = String(endDate.getHours()).padStart(2, '0') + ':' + String(endDate.getMinutes()).padStart(2, '0');
+                const endHM = formatThaiTime(endDate);
+                const endDayIso = iso(endDate);
+                const endMidnightMs = new Date(endDayIso + 'T00:00:00+07:00').getTime();
+                const endDaysDiff = Math.round((endMidnightMs - todayMidnightMs) / 864e5);
+
                 let endDay = 'วันนี้ ';
-                if (endDate.toDateString() !== nowDate.toDateString()) {
-                    const tomorrow = new Date(nowDate);
-                    tomorrow.setDate(nowDate.getDate() + 1);
-                    endDay = (endDate.toDateString() === tomorrow.toDateString()) ? 'พรุ่งนี้ ' : (endDate.getDate() + '/' + (endDate.getMonth() + 1) + ' ');
-                }
+                if (endDaysDiff === 1) endDay = 'พรุ่งนี้ ';
+                else if (endDaysDiff === -1) endDay = 'เมื่อวาน ';
+                else if (endDaysDiff !== 0) endDay = `${endDate.getDate()}/${endDate.getMonth() + 1} `;
                 if (endTimeEl) endTimeEl.textContent = endDay + endHM + ' น.';
 
                 // Progress Bar
@@ -5669,7 +5809,7 @@ document.getElementById('schCtrls').innerHTML = `
                 btn.className = 'btn';
             }
         }
-        
+
         setInterval(() => {
             if (document.getElementById('p-if').classList.contains('on')) {
                 updateIFUI();
@@ -5681,7 +5821,7 @@ document.getElementById('schCtrls').innerHTML = `
         renderAuthUI();
         
         /* ============ PWA AUTO-UPDATE LIFECYCLE ============ */
-        const APP_VERSION = '2.6.2';
+        const APP_VERSION = '2.6.4';
         let newWorkerWaiting = null;
 
         function showAppUpdateNotification(worker) {
