@@ -1622,7 +1622,7 @@
                     <input id="inPain" type="number" min="0" max="10" placeholder="ปวดหลัง 0-10">
                     <input id="inCal" type="number" placeholder="แคลอรี่ (kcal)">
                     <input id="inProtein" type="number" placeholder="โปรตีน (กรัม)">
-                    <input id="inWater" type="number" min="0" max="20" placeholder="น้ำ (แก้ว)">
+                    <input id="inWater" type="number" step="50" min="0" max="10000" placeholder="น้ำ (มล. / ml)">
                 </div>
                 <button class="btn" style="margin-top:10px" onclick="addCheck()">บันทึก</button>
             </div>
@@ -1691,6 +1691,17 @@
                     <input id="aiKey" placeholder="Gemini API Key หลัก (AQ.Ab...)" type="password">
                     <input id="aiKeyBackup" placeholder="Gemini API Key สำรอง (ถ้ามี)" type="password">
                     <button class="btn g sm" onclick="saveCfg()">💾 บันทึกคีย์ลง Firebase Cloud</button>
+                </div>
+            </div>
+
+            <!-- Audio & Voice Loudness Settings -->
+            <div class="card">
+                <div class="row" style="align-items:center;">
+                    <div>
+                        <h3 style="font-size:15px;display:flex;align-items:center;gap:6px;">🔊 ระดับเสียงเตือน & เสียงโค้ชไทย</h3>
+                        <div class="sub" style="margin-top:2px;">ปรับเร่งความดังระดับสูงสุด 100% พร้อมคลื่นเสียงตัดเสียงรบกวน</div>
+                    </div>
+                    <button class="btn sm" onclick="testAudioVolume()" style="font-size:12px;padding:6px 12px;background:rgba(139,92,246,0.15);color:var(--vio);border:1px solid rgba(139,92,246,0.3);font-weight:700;">▶ ทดสอบเสียง</button>
                 </div>
             </div>
 
@@ -1866,7 +1877,7 @@
         </div>
     </div>
     <script>
-        const APP_VERSION = '2.7.3';
+        const APP_VERSION = '2.8.0';
         
         /* ============ CUSTOM MODALS ============ */
         let _fcRes = null;
@@ -2129,7 +2140,7 @@
                 let calTgt = Math.max(1200, Math.round(tdee - deficitNeeded));
                 let proMultiplier = gType === 'maintain' ? 1.8 : 2.0;
                 let proTgt = Math.round(w * proMultiplier);
-                let waterTgt = Math.round((w * 35) / 250);
+                let waterTgt = Math.round((w * 35) / 50) * 50;
 
                 const previewEl = document.getElementById('bmrPreviewBox');
                 if (previewEl) {
@@ -2166,7 +2177,7 @@
                             </div>
                             <div style="display:flex; justify-content:space-between;">
                                 <span style="color:var(--dim);">เป้าหมายโปรตีน & น้ำ:</span>
-                                <b style="color:var(--acc); font-size:14px;">${proTgt} g/วัน • น้ำ ${waterTgt} แก้ว (~${(waterTgt*250/1000).toFixed(1)}L)</b>
+                                <b style="color:var(--acc); font-size:14px;">${proTgt} g/วัน • น้ำ ${waterTgt.toLocaleString()} มล. (~${(waterTgt/1000).toFixed(1)}L)</b>
                             </div>
                         </div>
                     `;
@@ -2213,7 +2224,7 @@
             let targetCal = Math.max(1200, Math.round(tdee - deficitNeeded));
             let proMultiplier = goalType === 'maintain' ? 1.8 : 2.0;
             let targetPro = Math.round(w * proMultiplier);
-            let targetWater = Math.round((w * 35) / 250);
+            let targetWater = Math.round((w * 35) / 50) * 50;
 
             // Save to D.cfg
             D.cfg.courseWeeks = weeksVal;
@@ -2256,7 +2267,7 @@
                         <div style="color:var(--acc);font-weight:bold;">เป้าหมายประจำวัน:</div>
                         พลังงาน: <b>${targetCal}</b> kcal/วัน<br>
                         โปรตีน: <b>${targetPro}</b> g/วัน<br>
-                        น้ำดื่ม: <b>${targetWater}</b> แก้ว (~${(targetWater*250/1000).toFixed(1)} ลิตร)
+                        น้ำดื่ม: <b>${targetWater.toLocaleString()}</b> มล. (~${(targetWater/1000).toFixed(1)} ลิตร)
                     `);
                 }, 300);
             }
@@ -2651,7 +2662,16 @@
         let PROTEIN_TARGET = D.cfg.proteinTarget || 155;
         let FAT_TARGET = D.cfg.fatTarget || 50;
         let CARBS_TARGET = D.cfg.carbsTarget || 185;
-        let WATER_TARGET = D.cfg.waterTarget || 8;
+        // Migrate water target & records from glasses (<= 50) to ml (* 250)
+        if (D.cfg.waterTarget && D.cfg.waterTarget <= 50) {
+            D.cfg.waterTarget = D.cfg.waterTarget * 250;
+        }
+        let WATER_TARGET = D.cfg.waterTarget || 2700;
+        (D.checks || []).forEach(c => {
+            if (c.water != null && c.water > 0 && c.water <= 50) {
+                c.water = Math.round(c.water * 250);
+            }
+        });
 
         /* ============ THAI FOOD & MACRONUTRIENT DATABASE ============ */
         const TF_MACROS = [
@@ -3482,9 +3502,14 @@
         </div>
     </div>
 
-    <div class="tracker-row"><div class="icon-box ib-wat"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21c-3.87 0-7-3.13-7-7 0-4.18 5.04-10.15 6.35-11.59.36-.39.95-.39 1.3 0 1.31 1.44 6.35 7.41 6.35 11.59 0 3.87-3.13 7-7 7z"/></svg></div>
-    <div class="tracker-bar"><i style="width:${watPct}%;background:var(--vio)"></i></div>
-    <div class="tracker-val">💧 ${wat} / ${WATER_TARGET} แก้ว</div></div>
+    <div class="tracker-row" onclick="openWaterLogModal()" style="cursor:pointer;" title="แตะเพื่อบันทึกน้ำดื่ม">
+        <div class="icon-box ib-wat"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21c-3.87 0-7-3.13-7-7 0-4.18 5.04-10.15 6.35-11.59.36-.39.95-.39 1.3 0 1.31 1.44 6.35 7.41 6.35 11.59 0 3.87-3.13 7-7 7z"/></svg></div>
+        <div class="tracker-bar"><i style="width:${watPct}%;background:var(--vio)"></i></div>
+        <div class="tracker-val" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>💧 ${wat.toLocaleString()} / ${WATER_TARGET.toLocaleString()} มล. <span style="font-size:11px;color:var(--dim);">(~${(wat/1000).toFixed(1)} / ${(WATER_TARGET/1000).toFixed(1)}L)</span></span>
+            <button class="btn sm" onclick="event.stopPropagation();openWaterLogModal()" style="padding:2px 8px; font-size:10.5px; background:var(--card); border:1px solid var(--line); color:var(--vio); border-radius:6px; font-weight:700;">+ ดื่มน้ำ</button>
+        </div>
+    </div>
 
     <div class="tracker-divider"></div>
 
@@ -3522,7 +3547,7 @@
         <button class="btn sm" onclick="suggestNextMealAI()" style="width:100%; padding:9px; font-size:13px; background:linear-gradient(135deg, #ea580c, #f59e0b); color:#fff; font-weight:800; border:none; box-shadow:0 3px 12px rgba(234,88,12,0.25);">🤖 AI แนะนำเมนูมื้อถัดไป (ตามโควตาที่เหลือ)</button>
     </div>
     <div style="display:flex; gap:8px; margin-top:8px;">
-        <button class="qbtn" onclick="quickAdd('water')" style="flex:1;">💧 +น้ำ 1 แก้ว</button>
+        <button class="qbtn" onclick="openWaterLogModal()" style="flex:1;">💧 +ดื่มน้ำ</button>
         <button class="qbtn" onclick="logDailySteps()" style="flex:1;">👟 +ก้าวเดิน</button>
         <button class="qbtn" onclick="calcBMR()" style="flex:1;">🧮 ปรับแผน BMR</button>
     </div>
@@ -3792,16 +3817,30 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
         function speakCoach(text) {
             if (!text || (D.cfg && D.cfg.voiceCoach === false) || !('speechSynthesis' in window)) return;
             try {
+                // Wake up Web Audio subsystem on iOS/iPadOS
+                try {
+                    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+                    if (ac.state === 'suspended') ac.resume().catch(() => {});
+                } catch (e) {}
+
                 window.speechSynthesis.cancel(); // Stop prior utterance
                 const u = new SpeechSynthesisUtterance(text);
                 u.lang = 'th-TH';
-                u.rate = 1.05;
+                u.rate = 1.0; // Natural, clear pace
                 u.pitch = 1.0;
+                u.volume = 1.0; // Max hardware volume
                 if (thaiVoiceSelected) u.voice = thaiVoiceSelected;
                 window.speechSynthesis.speak(u);
             } catch (e) {
                 console.log('Speech error:', e);
             }
+        }
+
+        function testAudioVolume() {
+            beep(880, 150, 'triangle', 0.95);
+            setTimeout(() => {
+                speakCoach('ทดสอบระดับเสียงเตือนและความดังโค้ช ระดับหนึ่งร้อยเปอร์เซ็นต์ครับ');
+            }, 250);
         }
 
         function toggleVoiceCoach() {
@@ -4040,10 +4079,22 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 if (!playing) return; const s = ST[idx];
                 if (s.k === 'work' && s.type === 'reps') { up++; paint(); return; }
                 left--; 
-                if (left === 3) { beep(880, 90); speakCoach('สาม'); }
-                else if (left === 2) { beep(880, 90); speakCoach('สอง'); }
-                else if (left === 1) { beep(880, 90); speakCoach('หนึ่ง'); }
-                if (left <= 0) { beep(1320, 260); nextStep(); return; } paint();
+                if (left === 3) {
+                    if (D.cfg?.voiceCoach !== false) speakCoach('สาม');
+                    else beep(880, 120, 'triangle', 0.95);
+                } else if (left === 2) {
+                    if (D.cfg?.voiceCoach !== false) speakCoach('สอง');
+                    else beep(880, 120, 'triangle', 0.95);
+                } else if (left === 1) {
+                    if (D.cfg?.voiceCoach !== false) speakCoach('หนึ่ง');
+                    else beep(880, 120, 'triangle', 0.95);
+                }
+                if (left <= 0) {
+                    beep(1320, 300, 'square', 0.95); // High energy gym buzzer / finish bell
+                    nextStep();
+                    return;
+                }
+                paint();
             }, 1000);
         }
         async function togglePlay() {
@@ -4139,9 +4190,25 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             const volSummary = totalVol > 0 ? `\n🏋️ ยกสะสมรวม (Volume): ${totalVol.toLocaleString()} กก. (${totalReps} ครั้ง)` : '';
             await fcAlert('🏆 จบ ' + W[curK].n + '!\n⏱️ ใช้เวลา ' + fmt(dur) + ' • 🔥 ~' + estKcal + ' kcal' + volSummary + '\n\n🥩 ดื่มเวย์/โปรตีน 35-40 g ภายใน 90 นาที');
         }
-        let ac; function beep(f, d) {
-            try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); const o = ac.createOscillator(), g = ac.createGain(); o.connect(g); g.connect(ac.destination); o.frequency.value = f; g.gain.setValueAtTime(.28, ac.currentTime); g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + d / 1000); o.start(); o.stop(ac.currentTime + d / 1000) } catch (e) { }
-            if (navigator.vibrate) navigator.vibrate(60)
+        let ac;
+        function beep(f, d, type = 'triangle', vol = 0.95) {
+            try {
+                ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+                if (ac.state === 'suspended') ac.resume().catch(() => {});
+                const o = ac.createOscillator();
+                const g = ac.createGain();
+                o.type = type;
+                o.frequency.setValueAtTime(f, ac.currentTime);
+                // Crisp linear attack, full punch hold, clean exponential ramp release
+                g.gain.setValueAtTime(0.001, ac.currentTime);
+                g.gain.linearRampToValueAtTime(vol, ac.currentTime + 0.012);
+                g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + (d / 1000));
+                o.connect(g);
+                g.connect(ac.destination);
+                o.start(ac.currentTime);
+                o.stop(ac.currentTime + (d / 1000) + 0.05);
+            } catch (e) { }
+            if (navigator.vibrate) navigator.vibrate(60);
         }
 
 
@@ -4517,7 +4584,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
                     <div>
-                        <label style="display:block;font-weight:bold;font-size:12px;">💧 น้ำดื่ม (แก้ว)</label>
+                        <label style="display:block;font-weight:bold;font-size:12px;">💧 น้ำดื่ม (มล. / ml)</label>
                         <input type="number" id="edWat" value="${wat}" style="width:100%; font-size:14px; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
                     </div>
                     <div>
@@ -4639,7 +4706,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                             ${c.steps ? `• 👟 <b>${c.steps.toLocaleString()}</b> ก้าว ` : ''}
                             ${c.cal ? `• <b>${c.cal}</b> kcal ` : ''}
                             ${c.protein ? `• โปรตีน <b>${c.protein}</b>g ` : ''}
-                            ${c.water ? `• น้ำ <b>${c.water}</b> แก้ว` : ''}
+                            ${c.water ? `• น้ำ <b>${c.water >= 1000 ? (c.water/1000).toFixed(1) + 'L' : c.water + 'ml'}</b>` : ''}
                         </div>
                     </div>
                     <div style="display:flex; gap:6px;">
@@ -4940,6 +5007,114 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             setTimeout(() => quickAdd('cal'), 300);
         };
 
+        
+        /* ============ WATER INTAKE LOGGING (ML / LITER) ============ */
+        function openWaterLogModal() {
+            const tc = todayCheck();
+            const curWat = tc?.water || 0;
+            const tgt = WATER_TARGET || 2700;
+            const pct = Math.min(100, Math.round((curWat / tgt) * 100));
+
+            const html = `
+                <div style="text-align:center; margin-bottom:14px;">
+                    <div style="font-size:32px; font-weight:900; color:var(--vio); line-height:1.2;">
+                        ${curWat.toLocaleString()} <span style="font-size:16px; font-weight:600; color:var(--dim);">/ ${tgt.toLocaleString()} มล.</span>
+                    </div>
+                    <div style="font-size:12.5px; color:var(--dim); margin-top:2px;">
+                        ~${(curWat / 1000).toFixed(2)} / ${(tgt / 1000).toFixed(1)} ลิตร (${pct}%)
+                    </div>
+                    <div style="background:var(--card2); border-radius:8px; height:8px; overflow:hidden; margin-top:10px; border:1px solid var(--line);">
+                        <div style="width:${pct}%; height:100%; background:var(--vio); border-radius:8px; transition:width 0.3s;"></div>
+                    </div>
+                </div>
+
+                <div style="font-size:12.5px; font-weight:700; color:var(--dim); margin-bottom:8px;">⚡ เลือกขนาดภาชนะที่ดื่ม (กดเพื่อบวกทันที):</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
+                    <button class="btn sm" onclick="addWaterMl(250)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center;">
+                        🥛 <b>+250 ml</b><br><span style="font-size:10.5px; color:var(--dim);">แก้วน้ำทั่วไป / กาแฟ</span>
+                    </button>
+                    <button class="btn sm" onclick="addWaterMl(350)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center;">
+                        ☕ <b>+350 ml</b><br><span style="font-size:10.5px; color:var(--dim);">แก้วมัค / กระป๋อง</span>
+                    </button>
+                    <button class="btn sm" onclick="addWaterMl(500)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center;">
+                        🧴 <b>+500 ml</b><br><span style="font-size:10.5px; color:var(--dim);">ขวดน้ำเล็กมาตรฐาน</span>
+                    </button>
+                    <button class="btn sm" onclick="addWaterMl(600)" style="padding:10px 8px; font-size:12.5px; background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.3); color:var(--vio); text-align:center;">
+                        🥤 <b>+600 ml</b><br><span style="font-size:10.5px; color:var(--dim);">แก้ว Tyeso / ขวด 600</span>
+                    </button>
+                    <button class="btn sm" onclick="addWaterMl(750)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center;">
+                        🚴 <b>+750 ml</b><br><span style="font-size:10.5px; color:var(--dim);">กระบอกน้ำสปอร์ต</span>
+                    </button>
+                    <button class="btn sm" onclick="addWaterMl(1000)" style="padding:10px 8px; font-size:12.5px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:#059669; text-align:center;">
+                        🍶 <b>+1,000 ml (1L)</b><br><span style="font-size:10.5px; color:var(--dim);">ขวดลิตร / Yeti ใหญ่</span>
+                    </button>
+                </div>
+
+                <div style="border-top:1px solid var(--line); padding-top:12px; margin-top:8px;">
+                    <div style="font-size:12.5px; font-weight:700; color:var(--dim); margin-bottom:6px;">✍️ หรือกรอกปริมาณที่ดื่ม (มล. / ml):</div>
+                    <div style="display:flex; gap:8px;">
+                        <input type="number" id="customWaterInput" step="50" min="10" placeholder="เช่น 300 หรือ 450" style="flex:1; padding:10px; font-size:14px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px;">
+                        <button class="btn sm" onclick="addCustomWater()" style="padding:10px 16px; font-size:13px; font-weight:700; background:var(--acc); color:#fff; border-radius:8px;">+ เพิ่ม</button>
+                    </div>
+                </div>
+
+                ${curWat > 0 ? `
+                <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--line); padding-top:10px;">
+                    <button type="button" onclick="subtractWaterMl(250)" style="background:transparent; border:none; color:var(--dim); font-size:12px; cursor:pointer;">↺ ลบออก 250 ml</button>
+                    <button type="button" onclick="setWaterTotal(0)" style="background:transparent; border:none; color:var(--red); font-size:12px; cursor:pointer;">🗑️ ล้างเป็น 0</button>
+                </div>` : ''}
+            `;
+
+            fcAlert(html, '💧 บันทึกปริมาณน้ำดื่ม');
+        }
+
+        function addWaterMl(ml) {
+            if (!ml || isNaN(ml)) return;
+            let rec = D.checks.find(x => x.d === iso());
+            if (!rec) {
+                const prev = D.checks[D.checks.length - 1];
+                rec = { d: iso(), w: prev?.w || 77.9, bf: prev?.bf || null, hrv: null, pain: null, cal: null, protein: null, water: null };
+                D.checks.push(rec);
+            }
+            rec.water = (rec.water || 0) + ml;
+            save();
+            render();
+            if (currentUser && fbDb) autoSync();
+            fcClose();
+            msg('✓ ดื่มน้ำเพิ่ม +' + ml.toLocaleString() + ' ml แล้ว (รวมวันนี้: ' + rec.water.toLocaleString() + ' ml)');
+        }
+
+        function subtractWaterMl(ml) {
+            let rec = D.checks.find(x => x.d === iso());
+            if (rec && rec.water) {
+                rec.water = Math.max(0, rec.water - ml);
+                save();
+                render();
+                if (currentUser && fbDb) autoSync();
+                fcClose();
+                msg('✓ หักลบน้ำดื่ม -' + ml + ' ml แล้ว (เหลือ: ' + rec.water.toLocaleString() + ' ml)');
+            }
+        }
+
+        function setWaterTotal(val) {
+            let rec = D.checks.find(x => x.d === iso());
+            if (rec) {
+                rec.water = val;
+                save();
+                render();
+                if (currentUser && fbDb) autoSync();
+                fcClose();
+                msg('✓ ปรับค่าน้ำดื่มเป็น ' + val + ' ml แล้ว');
+            }
+        }
+
+        function addCustomWater() {
+            const input = document.getElementById('customWaterInput');
+            const val = parseInt(input?.value);
+            if (!val || val <= 0) return fcAlert('กรุณากรอกปริมาณน้ำที่มากกว่า 0 มล.');
+            addWaterMl(val);
+        }
+
         async function quickAdd(type) {
             let val, label;
             if (type === 'cal') { 
@@ -4977,7 +5152,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 if(r===null) return;
                 val = parseInt(r); label = 'โปรตีน'; 
             }
-            else if (type === 'water') { val = 1; label = 'น้ำ' }
+            else if (type === 'water') { openWaterLogModal(); return; }
             if (!val || isNaN(val) || val <= 0) return;
             let rec = D.checks.find(x => x.d === iso());
             if (!rec) {
@@ -5217,7 +5392,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 if (D.cfg.proteinTarget) PROTEIN_TARGET = D.cfg.proteinTarget;
                 if (D.cfg.fatTarget) FAT_TARGET = D.cfg.fatTarget;
                 if (D.cfg.carbsTarget) CARBS_TARGET = D.cfg.carbsTarget;
-                if (D.cfg.waterTarget) WATER_TARGET = D.cfg.waterTarget;
+                if (D.cfg.waterTarget) WATER_TARGET = D.cfg.waterTarget <= 50 ? D.cfg.waterTarget * 250 : D.cfg.waterTarget;
             }
 
             // Merge IF with timestamp conflict resolution
@@ -5652,7 +5827,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                     <div style="color:var(--acc);font-weight:bold;">เป้าหมายประจำวัน:</div>
                     พลังงาน: <b>${targetCal}</b> kcal/วัน<br>
                     โปรตีน: <b>${targetPro}</b> g/วัน<br>
-                    น้ำดื่ม: <b>${targetWater}</b> แก้ว (~${(targetWater*250/1000).toFixed(1)} ลิตร)<br><br>
+                    น้ำดื่ม: <b>${targetWater.toLocaleString()}</b> มล. (~${(targetWater/1000).toFixed(1)} ลิตร)<br><br>
                     <span style="color:var(--dim);font-size:13px;">${clearStats ? '(ล้างสถิติเดิม เริ่มนับ 1 ใหม่จากศูนย์)' : '(เก็บประวัติสถิติเดิมไว้)'}</span>
                 `);
             }, 300);

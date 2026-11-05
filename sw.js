@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fitcoach-v2.7.3';
+const CACHE_NAME = 'fitcoach-v2.8.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
