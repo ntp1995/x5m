@@ -1531,7 +1531,7 @@
                     <div class="v" id="sPain">–</div>
                     <div class="l">ปวดหลังวันนี้</div>
                 </div>
-                <div class="stat">
+                <div class="stat" onclick="go('sync')" style="cursor:pointer" title="ดูสถานะซิงก์คลาวด์">
                     <div class="icon-box ib-sync" id="sSync"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg></div>
                     <div class="l">คลาวด์</div>
                 </div>
@@ -1617,6 +1617,7 @@
                     <input id="inW" type="number" step="0.1" placeholder="น้ำหนัก (กก.)">
                     <input id="inBF" type="number" step="0.1" placeholder="ไขมัน %">
                     <input id="inMuscle" type="number" step="0.1" placeholder="กล้ามเนื้อ (กก.)">
+                    <input id="inSteps" type="number" step="100" placeholder="ก้าวเดิน (ก้าว)">
                     <input id="inHRV" type="number" placeholder="HRV (ms)">
                     <input id="inPain" type="number" min="0" max="10" placeholder="ปวดหลัง 0-10">
                     <input id="inCal" type="number" placeholder="แคลอรี่ (kcal)">
@@ -1950,8 +1951,13 @@
             const curBMRCustom = bio.bmrCustom || 1630;
             const targetW = D.cfg.targetWeight || 68.0;
             const courseWeeks = D.cfg.courseWeeks || 20;
-            const curAct = saved.activity || 1.55;
             const curGoalType = saved.goalType || 'recomp';
+            const curWorkType = D.cfg.workType || saved.workType || 'light';
+            const curExerciseType = D.cfg.exerciseType || saved.exerciseType || 'moderate';
+            const curStepTarget = D.cfg.stepTarget || saved.stepTarget || 8000;
+            const workFactors = { sedentary: 1.15, light: 1.28, active: 1.42 };
+            const exerciseFactors = { none: 0.0, light: 0.12, moderate: 0.25, heavy: 0.35 };
+            const curAct = (workFactors[curWorkType] || 1.28) + (exerciseFactors[curExerciseType] || 0.25);
 
             const html = `
             <div style="text-align:left; font-size:13.5px; line-height:1.5;">
@@ -2054,13 +2060,35 @@
                         </select>
                     </div>
 
-                    <div style="margin-top:8px;">
-                        <label style="font-size:12px; color:var(--dim);">ระดับกิจกรรม / ออกกำลังกาย</label>
-                        <select id="bmrActivity" onchange="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
-                            <option value="1.375" ${curAct == 1.375 ? 'selected' : ''}>ออกกำลังกายเบา 1-3 วัน/สัปดาห์</option>
-                            <option value="1.55" ${curAct == 1.55 ? 'selected' : ''}>ออกกำลังกาย 3-5 วัน/สัปดาห์ (ตามโปรแกรม FitCoach)</option>
-                            <option value="1.725" ${curAct == 1.725 ? 'selected' : ''}>ออกกำลังกายหนัก 6-7 วัน/สัปดาห์ หรือเดินเช้า+เวทเย็น</option>
+                    <!-- ช่องที่ 1: ลักษณะงาน & กิจวัตรประจำวัน (Occupational NEAT) -->
+                    <div style="margin-top:10px;">
+                        <label style="font-size:12px; color:var(--dim); font-weight:700;">1. ลักษณะงาน & กิจวัตรประจำวัน (Occupational NEAT)</label>
+                        <select id="bmrWorkType" onchange="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
+                            <option value="sedentary" ${curWorkType === 'sedentary' ? 'selected' : ''}>🪑 นั่งโต๊ะทำงานเป็นหลัก / ขับรถ (Sedentary Desk Job)</option>
+                            <option value="light" ${curWorkType === 'light' ? 'selected' : ''}>👮 เดินตรวจตรา / ยืนบ่อย / กึ่งลงพื้นที่ (Lightly Active - เช่น งานตำรวจ, เดินตรวจเวร)</option>
+                            <option value="active" ${curWorkType === 'active' ? 'selected' : ''}>🏃 ใช้แรงงานหนัก / ลงพื้นที่ภาคสนามตลอดวัน (Highly Active Fieldwork)</option>
                         </select>
+                    </div>
+
+                    <!-- ช่องที่ 2: การออกกำลังกาย (Structured Exercise / EAT) -->
+                    <div style="margin-top:10px;">
+                        <label style="font-size:12px; color:var(--dim); font-weight:700;">2. การออกกำลังกายแบบมีโครงสร้าง (Structured Exercise / EAT)</label>
+                        <select id="bmrExerciseType" onchange="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
+                            <option value="moderate" ${curExerciseType === 'moderate' ? 'selected' : ''}>🏋️ ออกกำลังกาย 3-5 วัน/สัปดาห์ (ตามโปรแกรม FitCoach เวท + เดินลู่)</option>
+                            <option value="light" ${curExerciseType === 'light' ? 'selected' : ''}>🧘 เวทเทรนนิ่งเบาๆ 1-3 วัน/สัปดาห์</option>
+                            <option value="heavy" ${curExerciseType === 'heavy' ? 'selected' : ''}>🔥 ออกกำลังกายหนัก 6-7 วัน/สัปดาห์ (เวทหนัก + คาร์ดิโอทุกวัน)</option>
+                            <option value="none" ${curExerciseType === 'none' ? 'selected' : ''}>🛋️ ไม่ออกกำลังกายเลย</option>
+                        </select>
+                    </div>
+
+                    <!-- ช่องที่ 3: เป้าหมายก้าวเดินเฉลี่ยต่อวัน -->
+                    <div style="margin-top:10px;">
+                        <label style="font-size:12px; color:var(--dim); font-weight:700;">3. เป้าหมายก้าวเดินเฉลี่ยต่อวัน (Step Count Goal / NEAT)</label>
+                        <div style="display:flex; align-items:center; gap:8px; margin-top:3px;">
+                            <input type="number" step="500" min="2000" max="30000" id="bmrStepTarget" value="${curStepTarget}" oninput="window.updateBmrPreview()" style="flex:1; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px; font-weight:bold;">
+                            <span style="font-size:13px; color:var(--dim); font-weight:600;">ก้าว/วัน</span>
+                        </div>
+                        <div style="font-size:11px; color:var(--dim); margin-top:3px;">💡 การเดิน 8,000 - 10,000 ก้าว ช่วยเพิ่มการเผาผลาญ (NEAT) ได้ 200 - 350 kcal/วัน</div>
                     </div>
                 </div>
 
@@ -2078,9 +2106,13 @@
                 const gender = document.getElementById('bmrGender')?.value || 'M';
                 const targetW = parseFloat(document.getElementById('bmrTargetW')?.value) || 68.0;
                 const weeks = parseInt(document.getElementById('bmrWeeks')?.value) || 20;
-                const act = parseFloat(document.getElementById('bmrActivity')?.value) || 1.55;
                 const customBmr = parseFloat(document.getElementById('bmrCustom')?.value) || 0;
                 const gType = document.getElementById('bmrGoalType')?.value || 'recomp';
+
+                const workType = document.getElementById('bmrWorkType')?.value || 'light';
+                const exerciseType = document.getElementById('bmrExerciseType')?.value || 'moderate';
+                const stepTarget = parseInt(document.getElementById('bmrStepTarget')?.value) || 8000;
+                const act = (workFactors[workType] || 1.28) + (exerciseFactors[exerciseType] || 0.25);
 
                 let bmr = customBmr > 1000 ? customBmr : (10 * w + 6.25 * h - 5 * age + (gender === 'M' ? 5 : -161));
                 let tdee = bmr * act;
@@ -2121,7 +2153,11 @@
                             <div style="border-top:1px dashed var(--line); margin:6px 0;"></div>
                             <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
                                 <span style="color:var(--dim);">BMR / TDEE:</span>
-                                <span>${Math.round(bmr)} / ${Math.round(tdee)} kcal</span>
+                                <span><b>${Math.round(bmr)}</b> / <b style="color:var(--acc);">${Math.round(tdee)}</b> kcal (ตัวคูณ ${act.toFixed(2)})</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:11.5px;">
+                                <span style="color:var(--dim);">กิจกรรม & ก้าวเดิน:</span>
+                                <span style="color:var(--tx);">${workType === 'light' ? 'เดินตรวจ/ยืนบ่อย' : (workType === 'sedentary' ? 'นั่งโต๊ะ' : 'ใช้แรงงาน')} + ${exerciseType === 'moderate' ? 'FitCoach 3-5 วัน' : (exerciseType === 'light' ? 'เวท 1-3 วัน' : (exerciseType === 'heavy' ? 'ออกกำลังหนัก' : 'ไม่ออกกำลัง'))} • 👟 ${stepTarget.toLocaleString()} ก้าว</span>
                             </div>
                             <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
                                 <span style="color:var(--dim);">เป้าหมายพลังงาน:</span>
@@ -2148,7 +2184,10 @@
             const w = parseFloat(document.getElementById('bmrWeight')?.value) || curW;
             const targetWVal = parseFloat(document.getElementById('bmrTargetW')?.value) || targetW;
             const weeksVal = parseInt(document.getElementById('bmrWeeks')?.value) || courseWeeks;
-            const act = parseFloat(document.getElementById('bmrActivity')?.value) || curAct;
+            const workType = document.getElementById('bmrWorkType')?.value || curWorkType;
+            const exerciseType = document.getElementById('bmrExerciseType')?.value || curExerciseType;
+            const stepTarget = parseInt(document.getElementById('bmrStepTarget')?.value) || curStepTarget;
+            const act = (workFactors[workType] || 1.28) + (exerciseFactors[exerciseType] || 0.25);
             const goalType = document.getElementById('bmrGoalType')?.value || curGoalType;
             const bfVal = parseFloat(document.getElementById('bmrBF')?.value) || curBF;
             const muscleVal = parseFloat(document.getElementById('bmrMuscle')?.value) || curMuscle;
@@ -2183,7 +2222,10 @@
             D.cfg.waterTarget = targetWater;
             D.cfg.lossPerWk = lossPerWk;
             D.cfg.lossPerMonth = lossPerMonth;
-            D.cfg.bmrInfo = { gender, age, height: h, activity: act, goalType };
+            D.cfg.workType = workType;
+            D.cfg.exerciseType = exerciseType;
+            D.cfg.stepTarget = stepTarget;
+            D.cfg.bmrInfo = { gender, age, height: h, workType, exerciseType, stepTarget, activity: act, goalType };
             D.cfg.biometrics = { 
                 gender, age, height: h, bf: bfVal, muscle: muscleVal, 
                 visceral: visceralVal, rhr: rhrVal, vo2max: vo2Val, hrv: hrvVal, 
@@ -2601,6 +2643,7 @@
 
         /* ============ STATE ============ */
         const D = JSON.parse(localStorage.getItem('fit') || 'null') || { start: iso(), bs: false, checks: [{ d: iso(), w: 77.3, bf: 25.9, hrv: 73, pain: null }], sessions: [], sets: [], cfg: { url: '', key: '', code: '' } };
+        if (D.schOffs && !D.schOffsUpdatedAt) { D.schOffsUpdatedAt = Date.now(); }
         D.cfg = D.cfg || { url: '', key: '', code: '', aiKey: '', aiKeyBackup: '' };
         let CAL_TARGET = D.cfg.calTarget || 1800;
         let PROTEIN_TARGET = D.cfg.proteinTarget || 155;
@@ -3263,20 +3306,31 @@
             /* --- Daily Tracker Card --- */
             const tc = todayCheck();
             const cal = tc?.cal || 0, pro = tc?.protein || 0, carbs = tc?.carbs || 0, fat = tc?.fat || 0, wat = tc?.water || 0;
-            const calPct = Math.min(100, Math.round(cal / CAL_TARGET * 100));
+            const steps = tc?.steps || 0;
+            const stepTarget = D.cfg?.stepTarget || 8000;
+            const stepPct = Math.min(100, Math.round((steps / stepTarget) * 100));
+
+            // Dynamic Step NEAT Calorie Burn calculation
+            const lastW = D.checks.filter(x => x.w).sort((a, b) => b.d.localeCompare(a.d))[0];
+            const curWeight = (tc?.w != null ? tc.w : (lastW?.w || 77.9));
+            const baselineSteps = (D.cfg?.workType === 'active') ? 9000 : (D.cfg?.workType === 'sedentary' ? 3000 : 6000);
+            const extraSteps = Math.max(0, steps - baselineSteps);
+            const extraStepCal = Math.round(extraSteps * (curWeight * 0.00055));
+            const effectiveCalTarget = CAL_TARGET + extraStepCal;
+
+            const calPct = Math.min(100, Math.round(cal / effectiveCalTarget * 100));
             const proPct = Math.min(100, Math.round(pro / PROTEIN_TARGET * 100));
             const carbsPct = Math.min(100, Math.round(carbs / CARBS_TARGET * 100));
             const fatPct = Math.min(100, Math.round(fat / FAT_TARGET * 100));
             const watPct = Math.min(100, Math.round(wat / WATER_TARGET * 100));
-            const calColor = cal > CAL_TARGET ? 'var(--red)' : cal > CAL_TARGET * 0.9 ? 'var(--warn)' : 'var(--acc)';
+            const calColor = cal > effectiveCalTarget ? 'var(--red)' : cal > effectiveCalTarget * 0.9 ? 'var(--warn)' : 'var(--acc)';
             const streak = weighStreak(), daysAgo = daysSinceWeigh();
-            const lastW = D.checks.filter(x => x.w).sort((a, b) => b.d.localeCompare(a.d))[0];
             let streakClass = '', streakIcon = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;color:#f24e1e"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>';
             if (daysAgo > WEIGH_WARN_DAYS) { streakClass = ' danger'; streakIcon = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' }
             else if (daysAgo === WEIGH_WARN_DAYS) { streakClass = ' warn'; streakIcon = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3L2 6"/><path d="M19 3l3 3"/></svg>' }
 
-            // 1. Calculate Remaining Macros Budget
-            const remCal = Math.max(0, CAL_TARGET - cal);
+            // 1. Calculate Remaining Macros Budget (Accounting for Step NEAT Burn)
+            const remCal = Math.max(0, effectiveCalTarget - cal);
             const remPro = Math.max(0, PROTEIN_TARGET - pro);
             const remCarbs = Math.max(0, CARBS_TARGET - carbs);
             const remFat = Math.max(0, FAT_TARGET - fat);
@@ -3348,7 +3402,7 @@
     <div style="background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:12px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
             <span style="font-weight:700; font-size:12.5px; color:var(--tx);">🎯 โควตาที่ยังกินได้อีกวันนี้:</span>
-            <span style="font-size:11px; color:var(--dim);">เป้า ${CAL_TARGET.toLocaleString()} kcal</span>
+            <span style="font-size:11px; color:var(--dim);">เป้า ${effectiveCalTarget.toLocaleString()} kcal${extraStepCal > 0 ? ' <span style="color:#10b981;font-weight:700;">(+' + extraStepCal + ' ก้าวเดิน)</span>' : ''}</span>
         </div>
         <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; text-align:center;">
             <div style="background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 2px;">
@@ -3377,7 +3431,7 @@
     <!-- 4 Macronutrient Tracking Bars -->
     <div class="tracker-row"><div class="icon-box ib-cal"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M11 21.9v-7h-6l10-13v7h6l-10 13z"/></svg></div>
     <div class="tracker-bar"><i style="width:${calPct}%;background:${calColor}"></i></div>
-    <div class="tracker-val" style="color:${calColor}">${cal.toLocaleString()} / ${CAL_TARGET.toLocaleString()} kcal</div></div>
+    <div class="tracker-val" style="color:${calColor}">${cal.toLocaleString()} / ${effectiveCalTarget.toLocaleString()} kcal${extraStepCal > 0 ? ' <small style="color:#10b981;">(+' + extraStepCal + ')</small>' : ''}</div></div>
 
     <div class="tracker-row"><div class="icon-box ib-pro"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div>
     <div class="tracker-bar"><i style="width:${proPct}%;background:var(--acc2)"></i></div>
@@ -3406,6 +3460,22 @@
             <span style="color:var(--acc2); font-weight:700;">🍗 P ${proRatio}%</span>
             <span style="color:#3b82f6; font-weight:700;">🍚 C ${carbsRatio}%</span>
             <span style="color:#10b981; font-weight:700;">🥑 F ${fatRatio}%</span>
+        </div>
+    </div>
+
+    <!-- Step Count & NEAT Tracker Row -->
+    <div class="tracker-row">
+        <div class="icon-box" style="background:rgba(234,88,12,0.15);color:var(--acc);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 16v-2.38C4 11.5 7 11 7 11l1-4h3l1 4s3 .5 3 2.62V16"/>
+                <path d="M4 20h16"/>
+                <circle cx="12" cy="4" r="2"/>
+            </svg>
+        </div>
+        <div class="tracker-bar"><i style="width:${stepPct}%;background:linear-gradient(90deg, #f59e0b, #ea580c)"></i></div>
+        <div class="tracker-val" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>👟 ${steps.toLocaleString()} / ${stepTarget.toLocaleString()} ก้าว${extraStepCal > 0 ? ' <b style="color:#10b981;font-size:11px;">(+' + extraStepCal + ' kcal)</b>' : ''}</span>
+            <button class="btn sm" onclick="logDailySteps()" style="padding:2px 8px; font-size:10.5px; background:var(--card); border:1px solid var(--line); color:var(--acc); border-radius:6px; cursor:pointer;" title="บันทึกก้าวเดิน">+ ก้าวเดิน</button>
         </div>
     </div>
 
@@ -3450,6 +3520,7 @@
     </div>
     <div style="display:flex; gap:8px; margin-top:8px;">
         <button class="qbtn" onclick="quickAdd('water')" style="flex:1;">💧 +น้ำ 1 แก้ว</button>
+        <button class="qbtn" onclick="logDailySteps()" style="flex:1;">👟 +ก้าวเดิน</button>
         <button class="qbtn" onclick="calcBMR()" style="flex:1;">🧮 ปรับแผน BMR</button>
     </div>
 
@@ -3555,10 +3626,14 @@
       ${i === dow ? '<span class="tag">วันนี้</span>' : '<span class="sub">›</span>'}</div>`;
 }).join('');
 
-document.getElementById('schCtrls').innerHTML = `
-<button class="qbtn" onclick="D.schOffs=((D.schOffs||0)+1)%7;save();render()" style="background:rgba(236,72,153,0.15);color:var(--acc2);border:1px solid rgba(236,72,153,0.3)"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg> เลื่อนชดเชยที่ขาด 1 วัน</button>
+const hasShift = (D.schOffs || 0) > 0;
+            document.getElementById('schCtrls').innerHTML = `
+<button class="qbtn" onclick="shiftSchedule(1)" style="background:rgba(236,72,153,0.15);color:var(--acc2);border:1px solid rgba(236,72,153,0.3)"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg> เลื่อนชดเชยที่ขาด 1 วัน ${hasShift ? `(+${D.schOffs} วัน)` : ''}</button>
+${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="background:rgba(148,163,184,0.15);color:var(--dim);border:1px solid rgba(148,163,184,0.3)"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> กลับตารางปกติ</button>` : ''}
 <button class="qbtn" onclick="resetProgram()" style="background:rgba(14,165,233,0.15);color:var(--acc);border:1px solid rgba(14,165,233,0.3)"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีเซ็ตโปรแกรมใหม่</button>
 `;
+            const verEl = document.getElementById('appVersionTxt');
+            if (verEl) verEl.textContent = 'เวอร์ชัน ' + APP_VERSION + ' (PWA พร้อมใช้งาน)';
 
             document.getElementById('phaseList').innerHTML = getPhases().map((p, i) => `
     <div class="card" style="${i === phIdx() ? 'border-color:var(--acc)' : ''}">
@@ -4249,6 +4324,48 @@ document.getElementById('schCtrls').innerHTML = `
 
         /* ============ DAILY TRACKER EDIT & CHECK-IN HISTORY ============ */
         
+        
+        /* ============ STEP COUNT & NEAT TRACKING ============ */
+        async function logDailySteps(targetDate) {
+            const dateStr = targetDate || iso();
+            let rec = D.checks.find(x => x.d === dateStr);
+            const curSteps = rec?.steps != null ? rec.steps : (D.cfg?.stepTarget || 8000);
+
+            const p = await fcPrompt(
+                'ระบุจำนวนก้าวเดินวันนี้ (จากสมาร์ทวอทช์/มือถือ):\n\n(แอปจะคำนวณพลังงานที่เผาผลาญเพิ่มจาก NEAT และนำไปเพิ่มในโควตาแคลอรี่ให้อัตโนมัติ)',
+                curSteps,
+                '👟 บันทึกก้าวเดินประจำวัน'
+            );
+            if (p === null) return;
+            const nSteps = parseInt(String(p).replace(/,/g, '').trim());
+            if (isNaN(nSteps) || nSteps < 0 || nSteps > 150000) {
+                fcAlert('กรุณาระบุจำนวนก้าวเดินให้ถูกต้อง (0 - 150,000 ก้าว)');
+                return;
+            }
+
+            if (!rec) {
+                const prev = D.checks[D.checks.length - 1];
+                rec = {
+                    d: dateStr,
+                    w: prev?.w || 77.9,
+                    steps: nSteps,
+                    cal: 0,
+                    protein: 0,
+                    carbs: 0,
+                    fat: 0,
+                    water: 0,
+                    meals: []
+                };
+                D.checks.push(rec);
+            } else {
+                rec.steps = nSteps;
+            }
+
+            save();
+            render();
+            msg('✓ บันทึก ' + nSteps.toLocaleString() + ' ก้าวเรียบร้อย');
+        }
+
         /* ============ MORNING WEIGH-IN & BODY COMPOSITION MODAL ============ */
         async function openMorningWeighInModal(targetDate) {
             const dateStr = targetDate || iso();
@@ -4292,6 +4409,11 @@ document.getElementById('schCtrls').innerHTML = `
                                 <input type="number" min="0" max="10" id="mWeighPain" value="${pain}" placeholder="0 = ไม่ปวดเลย" style="width:100%; font-size:14px; padding:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
                             </div>
                         </div>
+
+                        <div style="margin-top:10px;">
+                            <label style="display:block; font-weight:700; font-size:12px; color:var(--dim); margin-bottom:4px;">👟 จำนวนก้าวเดินวันนี้ (Steps)</label>
+                            <input type="number" step="100" id="mWeighSteps" value="${rec?.steps != null ? rec.steps : ''}" placeholder="เช่น 8500 (เว้นว่างได้)" style="width:100%; font-size:14px; padding:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
+                        </div>
                     </div>
                 </div>
             `;
@@ -4317,6 +4439,8 @@ document.getElementById('schCtrls').innerHTML = `
 
             const painVal = document.getElementById('mWeighPain')?.value.trim();
             const nPain = painVal !== '' ? parseInt(painVal) : null;
+            const stepsVal = document.getElementById('mWeighSteps')?.value.trim();
+            const nSteps = stepsVal !== '' ? parseInt(stepsVal) : null;
 
             let cur = D.checks.find(x => x.d === dateStr);
             if (!cur) {
@@ -4327,6 +4451,7 @@ document.getElementById('schCtrls').innerHTML = `
                     muscle: nMuscle,
                     hrv: nHrv,
                     pain: nPain,
+                    steps: nSteps,
                     cal: 0,
                     protein: 0,
                     carbs: 0,
@@ -4341,6 +4466,7 @@ document.getElementById('schCtrls').innerHTML = `
                 if (nMuscle != null) cur.muscle = nMuscle;
                 if (nHrv != null) cur.hrv = nHrv;
                 if (nPain != null) cur.pain = nPain;
+                if (nSteps != null) cur.steps = nSteps;
             }
 
             if (!D.cfg.biometrics) D.cfg.biometrics = {};
@@ -4386,8 +4512,16 @@ document.getElementById('schCtrls').innerHTML = `
                     </div>
                 </div>
 
-                <label style="display:block;font-weight:bold;font-size:13px;">น้ำดื่ม (แก้ว)</label>
-                <input type="number" id="edWat" value="${wat}" style="width:100%; font-size:15px; text-align:left; padding:8px; margin-top:2px; margin-bottom:10px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                    <div>
+                        <label style="display:block;font-weight:bold;font-size:12px;">💧 น้ำดื่ม (แก้ว)</label>
+                        <input type="number" id="edWat" value="${wat}" style="width:100%; font-size:14px; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="display:block;font-weight:bold;font-size:12px;color:var(--acc);">👟 ก้าวเดิน (ก้าว)</label>
+                        <input type="number" id="edSteps" value="${rec?.steps != null ? rec.steps : ''}" placeholder="เช่น 8500" style="width:100%; font-size:14px; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
+                    </div>
+                </div>
                 
                 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px;">
                     <div>
@@ -4423,6 +4557,8 @@ document.getElementById('schCtrls').innerHTML = `
             const nBf = bfVal !== '' ? parseFloat(bfVal) : null;
             const muscleVal = document.getElementById('edMuscle')?.value.trim();
             const nMuscle = muscleVal !== '' ? parseFloat(muscleVal) : null;
+            const stepsVal = document.getElementById('edSteps')?.value.trim();
+            const nSteps = stepsVal !== '' ? parseInt(stepsVal) : null;
 
             if (!rec) {
                 const prev = D.checks[D.checks.length - 1];
@@ -4437,6 +4573,7 @@ document.getElementById('schCtrls').innerHTML = `
                 if (nW != null && !isNaN(nW)) rec.w = nW;
                 if (nBf != null && !isNaN(nBf)) rec.bf = nBf;
                 if (nMuscle != null && !isNaN(nMuscle)) rec.muscle = nMuscle;
+                if (nSteps != null && !isNaN(nSteps)) rec.steps = nSteps;
             }
             if (!D.cfg.biometrics) D.cfg.biometrics = {};
             if (nBf != null && !isNaN(nBf)) D.cfg.biometrics.bf = nBf;
@@ -4496,6 +4633,7 @@ document.getElementById('schCtrls').innerHTML = `
                             ${c.w ? `น้ำหนัก: <b>${(+c.w).toFixed(1)}</b> กก. ` : ''}
                             ${c.bf ? `• ไขมัน <b>${c.bf}</b>% ` : ''}
                             ${c.muscle ? `• กล้ามเนื้อ <b>${c.muscle}</b> กก. ` : ''}
+                            ${c.steps ? `• 👟 <b>${c.steps.toLocaleString()}</b> ก้าว ` : ''}
                             ${c.cal ? `• <b>${c.cal}</b> kcal ` : ''}
                             ${c.protein ? `• โปรตีน <b>${c.protein}</b>g ` : ''}
                             ${c.water ? `• น้ำ <b>${c.water}</b> แก้ว` : ''}
@@ -4517,10 +4655,12 @@ document.getElementById('schCtrls').innerHTML = `
             const existing = D.checks.find(x => x.d === iso());
             const bf = parseFloat(document.getElementById('inBF').value) || prev?.bf || null;
             const muscle = parseFloat(document.getElementById('inMuscle')?.value) || prev?.muscle || null;
+            const steps = parseInt(document.getElementById('inSteps')?.value) || (existing?.steps || null);
             const rec = {
                 d: iso(), w, 
                 bf,
                 muscle,
+                steps,
                 hrv: parseInt(document.getElementById('inHRV').value) || null,
                 pain: document.getElementById('inPain').value === '' ? null : parseInt(document.getElementById('inPain').value),
                 cal: parseInt(document.getElementById('inCal').value) || (existing?.cal || null),
@@ -4536,7 +4676,7 @@ document.getElementById('schCtrls').innerHTML = `
             if (bf) D.cfg.biometrics.bf = bf;
             if (muscle) D.cfg.biometrics.muscle = muscle;
             save(); render(); autoSync();
-            ['inW', 'inBF', 'inMuscle', 'inHRV', 'inPain', 'inCal', 'inProtein', 'inWater'].forEach(id => {
+            ['inW', 'inBF', 'inMuscle', 'inSteps', 'inHRV', 'inPain', 'inCal', 'inProtein', 'inWater'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.value = '';
             });
@@ -5017,7 +5157,18 @@ document.getElementById('schCtrls').innerHTML = `
             if (!cloud) return;
             if (cloud.start) D.start = cloud.start;
             if (cloud.bs !== undefined) D.bs = cloud.bs;
-            if (cloud.schOffs !== undefined) D.schOffs = cloud.schOffs;
+            if (cloud.schOffs !== undefined) {
+                const localSchUpdated = D.schOffsUpdatedAt || 0;
+                const cloudSchUpdated = cloud.schOffsUpdatedAt || 0;
+                if (cloudSchUpdated > localSchUpdated) {
+                    D.schOffs = cloud.schOffs;
+                    D.schOffsUpdatedAt = cloudSchUpdated;
+                } else if (localSchUpdated === 0 && cloudSchUpdated === 0) {
+                    if (!D.schOffs && cloud.schOffs) {
+                        D.schOffs = cloud.schOffs;
+                    }
+                }
+            }
             if (cloud.forceFullCardio !== undefined) D.forceFullCardio = cloud.forceFullCardio;
             if (cloud.morningCardio !== undefined) D.morningCardio = cloud.morningCardio;
 
@@ -5113,6 +5264,7 @@ document.getElementById('schCtrls').innerHTML = `
                     start: D.start || iso(),
                     bs: !!D.bs,
                     schOffs: D.schOffs || 0,
+                    schOffsUpdatedAt: D.schOffsUpdatedAt || (D.schOffs ? Date.now() : 0),
                     forceFullCardio: !!D.forceFullCardio,
                     morningCardio: D.morningCardio || null,
                     checks: D.checks || [],
@@ -5411,6 +5563,32 @@ document.getElementById('schCtrls').innerHTML = `
         D.if = D.if || { start: null, goal: 16 };
         
         
+        
+        async function shiftSchedule(days = 1) {
+            D.schOffs = ((D.schOffs || 0) + days) % 7;
+            D.schOffsUpdatedAt = Date.now();
+            save();
+            render();
+            if (currentUser && fbDb) {
+                await pushToCloud();
+            }
+            const actualD = getThaiDayOfWeek();
+            const dow = (actualD - (D.schOffs || 0) + 7) % 7;
+            const targetWk = W[SCHED[dow]];
+            msg('✓ เลื่อนชดเชยแล้ว ➜ วันนี้เป็น: <b>' + (targetWk ? targetWk.n : 'ตารางใหม่') + '</b>');
+        }
+
+        async function resetScheduleShift() {
+            D.schOffs = 0;
+            D.schOffsUpdatedAt = Date.now();
+            save();
+            render();
+            if (currentUser && fbDb) {
+                await pushToCloud();
+            }
+            msg('✓ คืนค่าตารางปกติเรียบร้อยแล้ว');
+        }
+
         async function resetProgram() {
             const confirmed = await fcConfirm('ต้องการรีเซ็ตเพื่อเริ่มต้นโปรแกรมใหม่ (เริ่มสัปดาห์ที่ 1 วันนี้) ใช่หรือไม่?', '🔄 เริ่มโปรแกรมใหม่');
             if (!confirmed) return;
@@ -5426,6 +5604,7 @@ document.getElementById('schCtrls').innerHTML = `
             // Apply Reset
             D.start = iso();
             D.schOffs = (getThaiDayOfWeek() - 1 + 7) % 7;
+            D.schOffsUpdatedAt = Date.now();
             
             const prev = D.checks.length > 0 ? D.checks[D.checks.length - 1] : null;
             const rec = { 
@@ -5490,6 +5669,7 @@ document.getElementById('schCtrls').innerHTML = `
 
             D.start = iso();
             D.schOffs = (getThaiDayOfWeek() - 1 + 7) % 7;
+            D.schOffsUpdatedAt = Date.now();
             D.checks = [{ d: iso(), w: w, bf: null, hrv: null, pain: null, cal: null, protein: null, water: null }];
             D.sessions = [];
             D.sets = [];
@@ -5821,7 +6001,7 @@ document.getElementById('schCtrls').innerHTML = `
         renderAuthUI();
         
         /* ============ PWA AUTO-UPDATE LIFECYCLE ============ */
-        const APP_VERSION = '2.6.4';
+        const APP_VERSION = '2.7.1';
         let newWorkerWaiting = null;
 
         function showAppUpdateNotification(worker) {
