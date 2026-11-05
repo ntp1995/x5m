@@ -1866,6 +1866,7 @@
         </div>
     </div>
     <script>
+        const APP_VERSION = '2.7.3';
         
         /* ============ CUSTOM MODALS ============ */
         let _fcRes = null;
@@ -2241,6 +2242,7 @@
             PROTEIN_TARGET = targetPro;
             FAT_TARGET = targetFat;
             CARBS_TARGET = targetCarbs;
+            if (targetWater) { D.cfg.waterTarget = targetWater; WATER_TARGET = targetWater; }
             save();
             render();
 
@@ -2649,6 +2651,7 @@
         let PROTEIN_TARGET = D.cfg.proteinTarget || 155;
         let FAT_TARGET = D.cfg.fatTarget || 50;
         let CARBS_TARGET = D.cfg.carbsTarget || 185;
+        let WATER_TARGET = D.cfg.waterTarget || 8;
 
         /* ============ THAI FOOD & MACRONUTRIENT DATABASE ============ */
         const TF_MACROS = [
@@ -3147,7 +3150,7 @@
             addMealToToday(mType, name, portion, cal, pro, carbs, fat);
             fcClose();
         }
-        const WATER_TARGET = 8, WEIGH_WARN_DAYS = 2;
+        const WEIGH_WARN_DAYS = 2;
         function save() {
             try {
                 localStorage.setItem('fit', JSON.stringify(D));
@@ -6001,8 +6004,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
         renderAuthUI();
         
         /* ============ PWA AUTO-UPDATE LIFECYCLE ============ */
-        const APP_VERSION = '2.7.1';
-        let newWorkerWaiting = null;
+                let newWorkerWaiting = null;
 
         function showAppUpdateNotification(worker) {
             newWorkerWaiting = worker;
