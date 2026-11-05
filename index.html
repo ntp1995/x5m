@@ -660,7 +660,7 @@
         .tracker-bar{flex:1;height:10px;background:var(--card2);border-radius:99px;overflow:hidden}
         .tracker-bar i{display:block;height:100%;border-radius:99px;transition:.5s}
         .tracker-val{font-size:13px;font-weight:700;min-width:100px;text-align:right}
-        .streak-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(34,211,166,.12);color:var(--acc);padding:6px 12px;border-radius:99px;font-size:13px;font-weight:700}
+        .streak-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(34,211,166,.12);color:var(--acc);padding:5px 11px;border-radius:99px;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0;line-height:1.2}
         .streak-badge.warn{background:rgba(245,158,11,.15);color:var(--warn)}
         .streak-badge.danger{background:rgba(239,68,68,.15);color:var(--red)}
         .qbtn{background:var(--card2);border:1px solid var(--line);color:var(--tx);border-radius:12px;padding:10px;font-size:13px;font-weight:700;font-family:inherit;flex:1;cursor:pointer}
@@ -1499,56 +1499,114 @@
     <!-- ================= HOME ================= -->
     <div class="page on" id="p-home">
         <div class="wrap">
-            <div class="row" style="margin-bottom:14px">
+            <!-- Header Row -->
+            <div class="row" style="margin-bottom:12px; align-items:center;">
                 <div>
-                    <h1>สวัสดี <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--acc);vertical-align:-4px"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v4M11 10c-.83 0-1.5-.67-1.5-1.5V6c0-.83-.67-1.5-1.5-1.5S6.5 5.17 6.5 6v5.5M8 11.5c-.83 0-1.5-.67-1.5-1.5v-3c0-.83-.67-1.5-1.5-1.5S3.5 6.17 3.5 7v9.5c0 4.14 3.36 7.5 7.5 7.5h2c4.14 0 7.5-3.36 7.5-7.5v-4.5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v2.5M17.5 10c-.83 0-1.5-.67-1.5-1.5v-4c0-.83-.67-1.5-1.5-1.5S13 3.67 13 4.5v6"/></svg></h1>
-                    <div class="sub" id="hsub"></div>
+                    <h1 style="display:flex;align-items:center;gap:6px;margin:0;font-size:22px;font-weight:900;">
+                        <span>สวัสดี 💪</span>
+                    </h1>
+                    <div class="sub" id="hsub" style="margin-top:2px;font-size:12px;"></div>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <div class="tag" id="phaseTag">Phase 1</div>
+                    <div class="tag" id="phaseTag" style="font-weight:700;">Phase 1</div>
+                    <span class="sub" id="wkTxt" style="font-size:11.5px; font-weight:700; background:var(--card2); padding:3px 8px; border-radius:8px; border:1px solid var(--line);"></span>
                     <div id="userHeaderBadge" onclick="go('sync')" style="cursor:pointer; display:none;"></div>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="row">
-                    <h3>เป้าหมาย 5 เดือน</h3><span class="sub" id="wkTxt"></span>
+            <!-- CARD 1 (TOP HERO): 🏆 TODAY'S WORKOUT MISSION -->
+            <div id="todayBox" style="margin-bottom:12px;"></div>
+
+            <!-- CARD 2: ⚖️ BODY COMPOSITION BENTO CARD -->
+            <div class="card" id="bodyCompCard" style="margin-bottom:12px;">
+                <div class="row" style="align-items:center; margin-bottom:10px;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span class="section-icon" style="background:rgba(14,165,233,0.15); color:#0284c7; padding:6px; border-radius:8px; margin-right:0;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </span>
+                        <h3 style="margin:0; font-size:14.5px; font-weight:800;">ชั่งน้ำหนัก & องค์ประกอบร่างกาย</h3>
+                    </div>
+                    <button class="btn sm" onclick="openMorningWeighInModal()" style="width:auto; flex:0 0 auto; padding:4px 10px; font-size:11.5px; background:var(--card2); border:1px solid var(--acc); color:var(--acc); font-weight:700; border-radius:8px; cursor:pointer;">+ ชั่งเช้านี้</button>
                 </div>
-                <div style="display:flex;align-items:baseline;gap:8px;margin:12px 0 8px">
-                    <span style="font-size:34px;font-weight:800" id="curW">80.0</span><span class="sub">กก.</span>
-                    <span style="margin-left:auto" class="tag" id="delta">-0.0 กก.</span>
+
+                <!-- Weight Progress Hero Block -->
+                <div style="background:var(--card2); border-radius:12px; padding:12px 14px; border:1px solid var(--line); margin-bottom:10px;">
+                    <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px;">
+                        <div style="display:flex; align-items:baseline; gap:6px;">
+                            <span style="font-size:32px; font-weight:900; letter-spacing:-1px; color:var(--tx);" id="curW">--</span>
+                            <span class="sub" style="font-size:13px; font-weight:600;">กก.</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span class="tag" id="delta">-0.0 กก.</span>
+                        </div>
+                    </div>
+                    <div class="bar" style="height:7px;"><i id="wBar" style="width:2%;"></i></div>
+                    <div class="row sub" style="font-size:11px; margin-top:6px; color:var(--dim);">
+                        <span id="wStartTxt">เริ่ม 80.0 กก.</span>
+                        <span id="wTargetTxt">เป้า 65.0 กก.</span>
+                    </div>
                 </div>
-                <div class="bar"><i id="wBar"></i></div>
-                <div class="row sub" style="margin-top:7px"><span>เริ่ม 80.0</span><span>เป้า 72.0 กก.</span></div>
+
+                <!-- 4-Stat Metric Grid -->
+                <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; text-align:center;">
+                    <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:8px 4px;">
+                        <div style="font-size:10px; color:var(--dim); font-weight:700;">🥩 ไขมัน</div>
+                        <div style="font-size:15px; font-weight:800; color:var(--tx); margin-top:2px;" id="sBF">–</div>
+                    </div>
+                    <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:8px 4px;">
+                        <div style="font-size:10px; color:var(--dim); font-weight:700;">🦾 กล้ามเนื้อ</div>
+                        <div style="font-size:15px; font-weight:800; color:var(--tx); margin-top:2px;" id="sMuscle">–</div>
+                    </div>
+                    <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:8px 4px;">
+                        <div style="font-size:10px; color:var(--dim); font-weight:700;">💓 HRV</div>
+                        <div style="font-size:15px; font-weight:800; color:var(--tx); margin-top:2px;" id="sHRV">–</div>
+                    </div>
+                    <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:8px 4px;">
+                        <div style="font-size:10px; color:var(--dim); font-weight:700;">🛡️ ปวดหลัง</div>
+                        <div style="font-size:15px; font-weight:800; color:var(--tx); margin-top:2px;" id="sPain">–</div>
+                    </div>
+                </div>
+
+                <!-- Streak badge and timestamp footer -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px dashed var(--line); font-size:11.5px;">
+                    <span id="lastWeighTxt" style="color:var(--dim);">ยังไม่เคยชั่ง</span>
+                    <span id="bodyStreakBadge" class="streak-badge">🔥 1 วันติด</span>
+                </div>
+                <!-- Hidden sync icon for script compatibility -->
+                <span id="sSync" style="display:none;"></span>
             </div>
 
-            <div class="g3">
-                <div class="stat">
-                    <div class="v" id="sBF">27.1%</div>
-                    <div class="l">ไขมัน</div>
+            <!-- CARD 3: ⚡ DAILY VITALS BENTO GRID (2 COLUMNS: STEPS & WATER) -->
+            <div id="dailyVitalsGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;"></div>
+
+            <!-- CARD 4: 🥗 DAILY FUEL & NUTRITION BENTO CARD -->
+            <div class="card" id="dailyNutritionCard" style="margin-bottom:12px;"></div>
+
+            <!-- Backward compatibility dummy for dailyTracker -->
+            <div id="dailyTracker" style="display:none;"></div>
+
+            <!-- CARD 5: 📅 WEEKLY SCHEDULE & TRAINING CYCLE -->
+            <div class="card" style="margin-bottom:12px;">
+                <div class="row" style="align-items:center; margin-bottom:10px;">
+                    <h3 style="display:flex;align-items:center;gap:6px;margin:0;">
+                        <span class="section-icon si-week" style="margin-right:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/></svg></span>
+                        ตารางฝึกสัปดาห์นี้
+                    </h3>
                 </div>
-                <div class="stat">
-                    <div class="v" id="sPain">–</div>
-                    <div class="l">ปวดหลังวันนี้</div>
-                </div>
-                <div class="stat" onclick="go('sync')" style="cursor:pointer" title="ดูสถานะซิงก์คลาวด์">
-                    <div class="icon-box ib-sync" id="sSync"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg></div>
-                    <div class="l">คลาวด์</div>
-                </div>
+
+                <label class="sw" style="margin:0 0 12px 0;">
+                    <input type="checkbox" id="bsMode" onchange="toggleBS()">
+                    <span><b style="font-size:13.5px">โหมดหลังปลอดภัย (Back-Safe)</b>
+                        <div class="sub" style="font-size:11.5px">สลับท่าเสี่ยงหลังล่างอัตโนมัติ — เปิดไว้จนกว่าจะหายปวด 2 สัปดาห์ติด</div>
+                    </span>
+                </label>
+
+                <div id="weekBox"></div>
+                <div id="schCtrls" style="display:flex;gap:8px;margin-top:12px;justify-content:center;flex-wrap:wrap;"></div>
             </div>
 
-            <div class="card" id="dailyTracker" style="margin-top:12px"></div>
-
-            <label class="sw"><input type="checkbox" id="bsMode" onchange="toggleBS()">
-                <span><b style="font-size:14px">โหมดหลังปลอดภัย</b>
-                    <div class="sub">สลับท่าเสี่ยงหลังล่างอัตโนมัติ — เปิดไว้จนกว่าจะหายปวด 2 สัปดาห์ติด</div>
-                </span></label>
-
-            <h2 style="display:flex;align-items:center;gap:6px;"><span class="section-icon si-today"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M11 21.9v-7h-6l10-13v7h6l-10 13z"/></svg></span> วันนี้</h2>
-            <div id="todayBox"></div>
-            <h2 style="display:flex;align-items:center;gap:6px;"><span class="section-icon si-week"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/></svg></span> สัปดาห์นี้</h2>
-            <div id="weekBox"></div>
-            <div id="schCtrls" style="display:flex;gap:8px;margin-top:12px;margin-bottom:20px;justify-content:center"></div>
+            <!-- CARD 6: 📈 7-DAY PERFORMANCE & RECOVERY SUMMARY -->
+            <div class="card" id="weeklySummaryCard" style="margin-bottom:12px; background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px;"></div>
 
             <div class="card">
                 <h3 style="display:flex;align-items:center;gap:6px;"><span class="section-icon si-hr"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span> โซนหัวใจ</h3>
@@ -1611,9 +1669,12 @@
     <div class="page" id="p-stat">
         <div class="wrap">
             <h1>สถิติ</h1>
-            <div class="card" style="margin-top:12px">
-                <h3>เช็กอินประจำวัน</h3>
-                <div class="g2" style="margin-top:10px">
+            <details class="card" style="margin-top:12px">
+                <summary style="cursor:pointer; font-weight:700; font-size:13.5px; display:flex; justify-content:space-between; align-items:center; user-select:none;">
+                    <span style="display:flex; align-items:center; gap:6px;">✍️ บันทึกเช็กอินย้อนหลัง (ถ้ามี)</span>
+                    <span class="tag gr" style="font-size:11px; padding:2px 8px;">เปิด/ปิดฟอร์ม ▾</span>
+                </summary>
+                <div class="g2" style="margin-top:12px">
                     <input id="inW" type="number" step="0.1" placeholder="น้ำหนัก (กก.)">
                     <input id="inBF" type="number" step="0.1" placeholder="ไขมัน %">
                     <input id="inMuscle" type="number" step="0.1" placeholder="กล้ามเนื้อ (กก.)">
@@ -1624,8 +1685,8 @@
                     <input id="inProtein" type="number" placeholder="โปรตีน (กรัม)">
                     <input id="inWater" type="number" step="50" min="0" max="10000" placeholder="น้ำ (มล. / ml)">
                 </div>
-                <button class="btn" style="margin-top:10px" onclick="addCheck()">บันทึก</button>
-            </div>
+                <button class="btn" style="margin-top:10px" onclick="addCheck()">บันทึกข้อมูลย้อนหลัง</button>
+            </details>
             <div class="card">
                 <h3>น้ำหนัก</h3>
                 <div id="chart" style="margin-top:10px"></div>
@@ -1877,7 +1938,7 @@
         </div>
     </div>
     <script>
-        const APP_VERSION = '2.8.0';
+        const APP_VERSION = '2.8.1';
         
         /* ============ CUSTOM MODALS ============ */
         let _fcRes = null;
@@ -3302,40 +3363,72 @@
         /* ============ RENDER ============ */
         function render() {
             const last = D.checks[D.checks.length - 1] || null;
+            const tc = todayCheck();
             document.getElementById('wkTxt').textContent = 'สัปดาห์ ' + wkNo() + '/' + totalWeeks();
             document.getElementById('phaseTag').textContent = getPhases()[phIdx()].n.split(' · ')[0];
             document.getElementById('hsub').textContent = getPhases()[phIdx()].d;
-            document.getElementById('curW').textContent = last ? (+last.w).toFixed(1) : '–';
-            document.getElementById('sBF').textContent = last?.bf ? (+last.bf).toFixed(1) + '%' : '–';
-            document.getElementById('sPain').textContent = last?.pain == null ? '–' : last.pain + '/10';
-            document.getElementById('sSync').innerHTML = currentUser ? '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;color:var(--ok)"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' : '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>';
+
+            // 1. Body Composition Metrics Update
+            const curWEl = document.getElementById('curW');
+            if (curWEl) curWEl.textContent = last ? (+last.w).toFixed(1) : '–';
+            const sBFEl = document.getElementById('sBF');
+            if (sBFEl) sBFEl.textContent = last?.bf ? (+last.bf).toFixed(1) + '%' : '–';
+            const sMuscleEl = document.getElementById('sMuscle');
+            if (sMuscleEl) sMuscleEl.textContent = last?.muscle ? (+last.muscle).toFixed(1) + ' กก.' : '–';
+            const sHRVEl = document.getElementById('sHRV');
+            const curHrv = tc?.hrv || last?.hrv;
+            if (sHRVEl) sHRVEl.textContent = curHrv ? curHrv + ' ms' : '–';
+            const sPainEl = document.getElementById('sPain');
+            const curPain = tc?.pain != null ? tc.pain : (last?.pain != null ? last.pain : null);
+            if (sPainEl) sPainEl.textContent = curPain != null ? curPain + '/10' : '–';
+            const sSyncEl = document.getElementById('sSync');
+            if (sSyncEl) sSyncEl.innerHTML = currentUser ? '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;color:var(--ok)"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' : '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>';
+
             const startW = D.checks[0]?.w || last?.w || null;
-            const targetW = D.cfg.targetWeight || 68.0;
+            const targetW = D.cfg.targetWeight || 65.0;
             const lost = (startW && last) ? startW - last.w : 0;
             const totalToLose = (startW && targetW) ? Math.max(0.5, startW - targetW) : 8.0;
             const dl = document.getElementById('delta');
-            if (startW && last) {
-                dl.textContent = (lost >= 0 ? '-' : '+') + Math.abs(lost).toFixed(1) + ' กก.';
-                dl.className = 'tag' + (lost >= 0 ? '' : ' o');
-                const pct = Math.max(2, Math.min(100, (lost / totalToLose) * 100));
-                document.getElementById('wBar').style.width = pct + '%';
-            } else {
-                dl.textContent = 'เริ่มต้น';
-                dl.className = 'tag';
-                document.getElementById('wBar').style.width = '2%';
+            const wBar = document.getElementById('wBar');
+            if (dl && wBar) {
+                if (startW && last) {
+                    dl.textContent = (lost >= 0 ? '-' : '+') + Math.abs(lost).toFixed(1) + ' กก.';
+                    dl.className = 'tag' + (lost >= 0 ? '' : ' o');
+                    const pct = Math.max(2, Math.min(100, (lost / totalToLose) * 100));
+                    wBar.style.width = pct + '%';
+                } else {
+                    dl.textContent = 'เริ่มต้น';
+                    dl.className = 'tag';
+                    wBar.style.width = '2%';
+                }
             }
+            const wStartEl = document.getElementById('wStartTxt');
+            if (wStartEl) wStartEl.textContent = 'เริ่ม ' + (startW ? (+startW).toFixed(1) : '–') + ' กก.';
+            const wTargetEl = document.getElementById('wTargetTxt');
+            if (wTargetEl) wTargetEl.textContent = 'เป้า ' + (+targetW).toFixed(1) + ' กก.';
+
+            const streak = weighStreak(), daysAgo = daysSinceWeigh();
+            let streakClass = '', streakIcon = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;color:#f24e1e"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>';
+            if (daysAgo > WEIGH_WARN_DAYS) { streakClass = ' danger'; streakIcon = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' }
+            else if (daysAgo === WEIGH_WARN_DAYS) { streakClass = ' warn'; streakIcon = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3L2 6"/><path d="M19 3l3 3"/></svg>' }
+            
+            const lastWeighEl = document.getElementById('lastWeighTxt');
+            if (lastWeighEl) lastWeighEl.textContent = last ? 'ล่าสุด: ' + last.d.slice(5) + ' (' + (+last.w).toFixed(1) + ' กก.)' : 'ยังไม่เคยชั่ง — แตะเพื่อบันทึก';
+            const bodyStreakEl = document.getElementById('bodyStreakBadge');
+            if (bodyStreakEl) {
+                bodyStreakEl.className = 'streak-badge' + streakClass;
+                bodyStreakEl.innerHTML = streakIcon + ' ' + (daysAgo === 0 ? streak + ' วันติด' : 'ไม่ได้ชั่ง ' + daysAgo + ' วัน');
+            }
+
             document.getElementById('bsMode').checked = !!D.bs;
 
-            /* --- Daily Tracker Card --- */
-            const tc = todayCheck();
+            // 2. Nutrition & Activity Metrics
             const cal = tc?.cal || 0, pro = tc?.protein || 0, carbs = tc?.carbs || 0, fat = tc?.fat || 0, wat = tc?.water || 0;
             const steps = tc?.steps || 0;
             const stepTarget = D.cfg?.stepTarget || 8000;
             const stepPct = Math.min(100, Math.round((steps / stepTarget) * 100));
 
-            // Dynamic Step NEAT Calorie Burn calculation
-            const lastW = D.checks.filter(x => x.w).sort((a, b) => b.d.localeCompare(a.d))[0];
-            const curWeight = (tc?.w != null ? tc.w : (lastW?.w || 77.9));
+            const curWeight = (tc?.w != null ? tc.w : (last?.w || 77.9));
             const baselineSteps = (D.cfg?.workType === 'active') ? 9000 : (D.cfg?.workType === 'sedentary' ? 3000 : 6000);
             const extraSteps = Math.max(0, steps - baselineSteps);
             const extraStepCal = Math.round(extraSteps * (curWeight * 0.00055));
@@ -3347,24 +3440,61 @@
             const fatPct = Math.min(100, Math.round(fat / FAT_TARGET * 100));
             const watPct = Math.min(100, Math.round(wat / WATER_TARGET * 100));
             const calColor = cal > effectiveCalTarget ? 'var(--red)' : cal > effectiveCalTarget * 0.9 ? 'var(--warn)' : 'var(--acc)';
-            const streak = weighStreak(), daysAgo = daysSinceWeigh();
-            let streakClass = '', streakIcon = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;color:#f24e1e"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>';
-            if (daysAgo > WEIGH_WARN_DAYS) { streakClass = ' danger'; streakIcon = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' }
-            else if (daysAgo === WEIGH_WARN_DAYS) { streakClass = ' warn'; streakIcon = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3L2 6"/><path d="M19 3l3 3"/></svg>' }
 
-            // 1. Calculate Remaining Macros Budget (Accounting for Step NEAT Burn)
             const remCal = Math.max(0, effectiveCalTarget - cal);
             const remPro = Math.max(0, PROTEIN_TARGET - pro);
             const remCarbs = Math.max(0, CARBS_TARGET - carbs);
             const remFat = Math.max(0, FAT_TARGET - fat);
 
-            // 2. Calculate Actual Macronutrient Percentage Ratio (Energy split)
             const totalMacroKcal = (pro * 4) + (carbs * 4) + (fat * 9);
             const proRatio = totalMacroKcal > 0 ? Math.round((pro * 4) / totalMacroKcal * 100) : 0;
             const carbsRatio = totalMacroKcal > 0 ? Math.round((carbs * 4) / totalMacroKcal * 100) : 0;
             const fatRatio = totalMacroKcal > 0 ? Math.max(0, 100 - proRatio - carbsRatio) : 0;
 
-            // 3. Today's Meals Timeline
+            // 3. Render Card 3: Daily Vitals Bento Grid (Steps & Water)
+            const vitalsEl = document.getElementById('dailyVitalsGrid');
+            if (vitalsEl) {
+                vitalsEl.innerHTML = `
+                <!-- Left: Steps Card -->
+                <div class="card" style="margin:0; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <div style="font-size:11.5px; font-weight:800; color:var(--acc); display:flex; align-items:center; gap:4px;">
+                                <span>👟 ก้าวเดิน</span>
+                            </div>
+                            ${extraStepCal > 0 ? `<span class="tag" style="font-size:9.5px; padding:1px 5px; background:rgba(16,185,129,0.15); color:#10b981;">+${extraStepCal} kcal</span>` : ''}
+                        </div>
+                        <div style="display:flex; align-items:baseline; gap:4px; margin-bottom:6px;">
+                            <span style="font-size:20px; font-weight:900; color:var(--tx);">${steps.toLocaleString()}</span>
+                            <span style="font-size:11px; color:var(--dim);">/ ${(stepTarget/1000).toFixed(0)}k</span>
+                        </div>
+                        <div class="bar" style="height:6px; margin-bottom:6px;"><i style="width:${stepPct}%; background:linear-gradient(90deg, #f59e0b, #ea580c);"></i></div>
+                        <div style="font-size:10.5px; color:var(--dim);">${stepPct}% ของเป้าหมาย</div>
+                    </div>
+                    <button class="btn sm" onclick="logDailySteps()" style="width:100%; margin-top:8px; padding:5px; font-size:11px; background:var(--card2); border:1px solid var(--line); color:var(--acc); font-weight:700; border-radius:8px; cursor:pointer;">+ บันทึกก้าว</button>
+                </div>
+
+                <!-- Right: Water Card -->
+                <div class="card" onclick="openWaterLogModal()" style="margin:0; padding:12px; display:flex; flex-direction:column; justify-content:space-between; cursor:pointer;" title="แตะเพื่อบันทึกน้ำดื่ม">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <div style="font-size:11.5px; font-weight:800; color:var(--vio); display:flex; align-items:center; gap:4px;">
+                                <span>💧 น้ำดื่ม</span>
+                            </div>
+                            <span class="tag v" style="font-size:9.5px; padding:1px 5px;">~${(wat/1000).toFixed(1)}L</span>
+                        </div>
+                        <div style="display:flex; align-items:baseline; gap:4px; margin-bottom:6px;">
+                            <span style="font-size:20px; font-weight:900; color:var(--tx);">${wat.toLocaleString()}</span>
+                            <span style="font-size:11px; color:var(--dim);">/ ${WATER_TARGET.toLocaleString()} มล.</span>
+                        </div>
+                        <div class="bar" style="height:6px; margin-bottom:6px;"><i style="width:${watPct}%; background:var(--vio);"></i></div>
+                        <div style="font-size:10.5px; color:var(--dim);">${watPct}% (~{(WATER_TARGET/1000).toFixed(1)}L เป้า)</div>
+                    </div>
+                    <button class="btn sm" onclick="event.stopPropagation();openWaterLogModal()" style="width:100%; margin-top:8px; padding:5px; font-size:11px; background:var(--card2); border:1px solid var(--line); color:var(--vio); font-weight:700; border-radius:8px; cursor:pointer;">+ ดื่มน้ำ</button>
+                </div>`;
+            }
+
+            // 4. Render Card 4: Daily Fuel & Nutrition Bento Card
             const mealsList = tc?.meals || [];
             let mealsHtml = '';
             if (mealsList.length === 0) {
@@ -3396,7 +3526,108 @@
                 }).join('') + '</div>';
             }
 
-            // 4. Calculate 7-Day Weekly Summary
+            const nutritionEl = document.getElementById('dailyNutritionCard');
+            if (nutritionEl) {
+                nutritionEl.innerHTML = `
+                <!-- Card Header -->
+                <div class="row" style="align-items:center; margin-bottom:10px;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span class="section-icon" style="background:rgba(249,115,22,0.15); color:#ea580c; padding:6px; border-radius:8px; margin-right:0;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                        </span>
+                        <h3 style="margin:0; font-size:14.5px; font-weight:800;">โภชนาการ & พลังงานวันนี้</h3>
+                    </div>
+                    <div style="display:flex; gap:6px;">
+                        <button class="btn sm" onclick="calcBMR()" style="width:auto; flex:0 0 auto; padding:4px 9px; font-size:11.5px; border-radius:8px; border:1px solid var(--line); background:var(--card2); color:var(--dim); cursor:pointer;">🧮 ปรับเป้า</button>
+                        <button class="btn sm" onclick="editDailyTracker()" style="width:auto; flex:0 0 auto; padding:4px 9px; font-size:11.5px; border-radius:8px; border:1px solid var(--line); background:var(--card2); color:var(--dim); cursor:pointer;">✏️ สรุป</button>
+                    </div>
+                </div>
+
+                <!-- Remaining Macros Budget Box -->
+                <div style="background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <span style="font-weight:700; font-size:12px; color:var(--tx);">🎯 โควตาที่ยังกินได้อีกวันนี้:</span>
+                        <span style="font-size:11px; color:var(--dim);">เป้า ${effectiveCalTarget.toLocaleString()} kcal${extraStepCal > 0 ? ' <span style="color:#10b981;font-weight:700;">(+' + extraStepCal + ' ก้าวเดิน)</span>' : ''}</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; text-align:center;">
+                        <div style="background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 2px;">
+                            <div style="font-size:10px; color:var(--dim); font-weight:700;">พลังงาน</div>
+                            <div style="font-size:15px; font-weight:900; color:${remCal > 0 ? 'var(--acc)' : 'var(--red)'};">${remCal}</div>
+                            <div style="font-size:9.5px; color:var(--dim);">kcal เหลือ</div>
+                        </div>
+                        <div style="background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 2px;">
+                            <div style="font-size:10px; color:var(--dim); font-weight:700;">โปรตีน</div>
+                            <div style="font-size:15px; font-weight:900; color:var(--acc2);">${remPro}</div>
+                            <div style="font-size:9.5px; color:var(--dim);">g เหลือ</div>
+                        </div>
+                        <div style="background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 2px;">
+                            <div style="font-size:10px; color:var(--dim); font-weight:700;">คาร์บ</div>
+                            <div style="font-size:15px; font-weight:900; color:#3b82f6;">${remCarbs}</div>
+                            <div style="font-size:9.5px; color:var(--dim);">g เหลือ</div>
+                        </div>
+                        <div style="background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 2px;">
+                            <div style="font-size:10px; color:var(--dim); font-weight:700;">ไขมัน</div>
+                            <div style="font-size:15px; font-weight:900; color:#10b981;">${remFat}</div>
+                            <div style="font-size:9.5px; color:var(--dim);">g เหลือ</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 Macro Bars -->
+                <div class="tracker-row"><div class="icon-box ib-cal"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M11 21.9v-7h-6l10-13v7h6l-10 13z"/></svg></div>
+                <div class="tracker-bar"><i style="width:${calPct}%;background:${calColor}"></i></div>
+                <div class="tracker-val" style="color:${calColor}">${cal.toLocaleString()} / ${effectiveCalTarget.toLocaleString()} kcal${extraStepCal > 0 ? ' <small style="color:#10b981;">(+' + extraStepCal + ')</small>' : ''}</div></div>
+
+                <div class="tracker-row"><div class="icon-box ib-pro"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div>
+                <div class="tracker-bar"><i style="width:${proPct}%;background:var(--acc2)"></i></div>
+                <div class="tracker-val">🍗 ${pro} / ${PROTEIN_TARGET} g (${proPct}%)</div></div>
+
+                <div class="tracker-row"><div class="icon-box" style="background:rgba(59,130,246,0.15);color:#3b82f6;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+                <div class="tracker-bar"><i style="width:${carbsPct}%;background:#3b82f6"></i></div>
+                <div class="tracker-val">🍚 ${carbs} / ${CARBS_TARGET} g (${carbsPct}%)</div></div>
+
+                <div class="tracker-row"><div class="icon-box" style="background:rgba(16,185,129,0.15);color:#10b981;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                <div class="tracker-bar"><i style="width:${fatPct}%;background:#10b981"></i></div>
+                <div class="tracker-val">🥑 ${fat} / ${FAT_TARGET} g (${fatPct}%)</div></div>
+
+                <!-- Macronutrient Ratio Breakdown Bar -->
+                <div style="margin:10px 0 6px 0; padding:8px 10px; background:var(--card2); border-radius:10px; border:1px solid var(--line);">
+                    <div style="display:flex; justify-content:space-between; font-size:11.5px; font-weight:700; margin-bottom:5px;">
+                        <span>สัดส่วนสารอาหารที่กินจริง:</span>
+                        <span style="color:var(--dim);">เป้าหมาย ~35 : 40 : 25</span>
+                    </div>
+                    <div style="display:flex; height:8px; border-radius:99px; overflow:hidden; background:var(--line); margin-bottom:4px;">
+                        <div style="width:${proRatio}%; background:var(--acc2);" title="โปรตีน ${proRatio}%"></div>
+                        <div style="width:${carbsRatio}%; background:#3b82f6;" title="คาร์บ ${carbsRatio}%"></div>
+                        <div style="width:${fatRatio}%; background:#10b981;" title="ไขมัน ${fatRatio}%"></div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:10.5px; color:var(--dim);">
+                        <span style="color:var(--acc2); font-weight:700;">🍗 P ${proRatio}%</span>
+                        <span style="color:#3b82f6; font-weight:700;">🍚 C ${carbsRatio}%</span>
+                        <span style="color:#10b981; font-weight:700;">🥑 F ${fatRatio}%</span>
+                    </div>
+                </div>
+
+                <!-- Today's Meals Timeline -->
+                <div style="margin-top:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <div style="font-weight:800; font-size:13px; color:var(--tx);">🍽️ รายการอาหารวันนี้ (${mealsList.length} เมนู)</div>
+                        <button class="btn sm" onclick="openAddMealModal()" style="width:auto; flex:0 0 auto; padding:3px 10px; font-size:11.5px; background:rgba(234,88,12,0.1); border:1px solid var(--acc); color:var(--acc); border-radius:99px; font-weight:700; cursor:pointer;">+ เพิ่มมื้อ</button>
+                    </div>
+                    ${mealsHtml}
+                </div>
+
+                <!-- Action Buttons with AI Suggester -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
+                    <button class="btn sm" onclick="openAddMealModal()" style="padding:8px; font-size:12px; background:var(--acc); color:#fff; font-weight:700;">+ บันทึกมื้ออาหาร</button>
+                    <button class="btn sm" onclick="openAiFoodScanner()" style="padding:8px; font-size:12px; background:rgba(234,88,12,0.12); color:var(--acc); border:1px solid var(--acc); font-weight:700;">📸 สแกนอาหาร AI</button>
+                </div>
+                <div style="margin-top:8px;">
+                    <button class="btn sm" onclick="suggestNextMealAI()" style="width:100%; padding:9px; font-size:12.5px; background:linear-gradient(135deg, #ea580c, #f59e0b); color:#fff; font-weight:800; border:none; box-shadow:0 3px 12px rgba(234,88,12,0.25);">🤖 AI แนะนำเมนูมื้อถัดไป (ตามโควตาที่เหลือ)</button>
+                </div>`;
+            }
+
+            // 5. Render Card 6: Weekly Executive Summary Card
             const nowMs = Date.now();
             const oneWeekMs = 7 * 86400000;
             const weekChecks = (D.checks || []).filter(c => {
@@ -3415,165 +3646,33 @@
             const avgWeekCal = validCalDays > 0 ? Math.round(totalWeekCal / validCalDays) : cal;
             const avgWeekPro = validCalDays > 0 ? Math.round(totalWeekPro / validCalDays) : pro;
 
-            document.getElementById('dailyTracker').innerHTML = `
-    <div class="row" style="align-items:center;margin-bottom:8px;">
-        <h3 style="display:flex;align-items:center;gap:6px;margin:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--acc)"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg> โภชนาการ & กิจกรรมวันนี้</h3>
-        <button class="btn sm" onclick="editDailyTracker()" style="padding:4px 10px; font-size:12px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--dim); cursor:pointer;">✏️ แก้ไขสรุป</button>
-    </div>
+            const weeklyEl = document.getElementById('weeklySummaryCard');
+            if (weeklyEl) {
+                weeklyEl.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <div style="font-weight:800; font-size:13px; color:var(--tx); display:flex; align-items:center; gap:6px;">
+                        <span>📈 สรุปภาพรวมรอบ 7 วัน</span>
+                    </div>
+                    <span class="tag gr" style="font-size:10px; padding:1px 6px;">อัปเดตต่อเนื่อง</span>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:12px;">
+                    <div style="background:var(--card); padding:8px 10px; border-radius:8px; border:1px solid var(--line);">
+                        <div style="color:var(--dim); font-size:11px;">🏋️ เล่นเวทเทรนนิ่ง</div>
+                        <div style="font-weight:800; font-size:14px; color:var(--acc); margin-top:2px;">${weekSessions.length} วัน</div>
+                    </div>
+                    <div style="background:var(--card); padding:8px 10px; border-radius:8px; border:1px solid var(--line);">
+                        <div style="color:var(--dim); font-size:11px;">⚡ แคลอรี่เฉลี่ย</div>
+                        <div style="font-weight:800; font-size:14px; color:var(--tx); margin-top:2px;">${avgWeekCal.toLocaleString()} kcal</div>
+                    </div>
+                </div>
+                <div style="margin-top:8px; font-size:11.5px; color:var(--dim); line-height:1.4;">
+                    💡 <b>คำแนะนำโค้ช:</b> ${remPro > 50 ? 'วันนี้โปรตีนยังขาดค่อนข้างเยอะ แนะนำมื้อถัดไปเน้น อกไก่, ลาบคั่วไก่, หรือไข่ขาวต้ม' : (remCal < 200 ? 'พลังงานวันนี้ใกล้แตะเป้าแล้ว มื้อเย็นเน้นผักต้มน้ำพริกหนุ่มหรือซุปใส' : 'สัดส่วนอาหารและพลังงานอยู่ในเกณฑ์ยอดเยี่ยม รักษาความต่อเนื่องไว้ครับ!')}
+                </div>`;
+            }
 
-    <!-- Remaining Macros Budget Card -->
-    <div style="background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:12px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-weight:700; font-size:12.5px; color:var(--tx);">🎯 โควตาที่ยังกินได้อีกวันนี้:</span>
-            <span style="font-size:11px; color:var(--dim);">เป้า ${effectiveCalTarget.toLocaleString()} kcal${extraStepCal > 0 ? ' <span style="color:#10b981;font-weight:700;">(+' + extraStepCal + ' ก้าวเดิน)</span>' : ''}</span>
-        </div>
-        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; text-align:center;">
-            <div style="background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 2px;">
-                <div style="font-size:10px; color:var(--dim); font-weight:700;">พลังงาน</div>
-                <div style="font-size:15px; font-weight:900; color:${remCal > 0 ? 'var(--acc)' : 'var(--red)'};">${remCal}</div>
-                <div style="font-size:9.5px; color:var(--dim);">kcal เหลือ</div>
-            </div>
-            <div style="background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 2px;">
-                <div style="font-size:10px; color:var(--dim); font-weight:700;">โปรตีน</div>
-                <div style="font-size:15px; font-weight:900; color:var(--acc2);">${remPro}</div>
-                <div style="font-size:9.5px; color:var(--dim);">g เหลือ</div>
-            </div>
-            <div style="background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 2px;">
-                <div style="font-size:10px; color:var(--dim); font-weight:700;">คาร์บ</div>
-                <div style="font-size:15px; font-weight:900; color:#3b82f6;">${remCarbs}</div>
-                <div style="font-size:9.5px; color:var(--dim);">g เหลือ</div>
-            </div>
-            <div style="background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 2px;">
-                <div style="font-size:10px; color:var(--dim); font-weight:700;">ไขมัน</div>
-                <div style="font-size:15px; font-weight:900; color:#10b981;">${remFat}</div>
-                <div style="font-size:9.5px; color:var(--dim);">g เหลือ</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 4 Macronutrient Tracking Bars -->
-    <div class="tracker-row"><div class="icon-box ib-cal"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M11 21.9v-7h-6l10-13v7h6l-10 13z"/></svg></div>
-    <div class="tracker-bar"><i style="width:${calPct}%;background:${calColor}"></i></div>
-    <div class="tracker-val" style="color:${calColor}">${cal.toLocaleString()} / ${effectiveCalTarget.toLocaleString()} kcal${extraStepCal > 0 ? ' <small style="color:#10b981;">(+' + extraStepCal + ')</small>' : ''}</div></div>
-
-    <div class="tracker-row"><div class="icon-box ib-pro"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div>
-    <div class="tracker-bar"><i style="width:${proPct}%;background:var(--acc2)"></i></div>
-    <div class="tracker-val">🍗 ${pro} / ${PROTEIN_TARGET} g (${proPct}%)</div></div>
-
-    <div class="tracker-row"><div class="icon-box" style="background:rgba(59,130,246,0.15);color:#3b82f6;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-    <div class="tracker-bar"><i style="width:${carbsPct}%;background:#3b82f6"></i></div>
-    <div class="tracker-val">🍚 ${carbs} / ${CARBS_TARGET} g (${carbsPct}%)</div></div>
-
-    <div class="tracker-row"><div class="icon-box" style="background:rgba(16,185,129,0.15);color:#10b981;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-    <div class="tracker-bar"><i style="width:${fatPct}%;background:#10b981"></i></div>
-    <div class="tracker-val">🥑 ${fat} / ${FAT_TARGET} g (${fatPct}%)</div></div>
-
-    <!-- Macronutrient Ratio Breakdown Bar -->
-    <div style="margin:10px 0 6px 0; padding:8px 10px; background:var(--card2); border-radius:10px; border:1px solid var(--line);">
-        <div style="display:flex; justify-content:space-between; font-size:11.5px; font-weight:700; margin-bottom:5px;">
-            <span>สัดส่วนสารอาหารที่กินจริง:</span>
-            <span style="color:var(--dim);">เป้าหมาย ~35 : 40 : 25</span>
-        </div>
-        <div style="display:flex; height:8px; border-radius:99px; overflow:hidden; background:var(--line); margin-bottom:4px;">
-            <div style="width:${proRatio}%; background:var(--acc2);" title="โปรตีน ${proRatio}%"></div>
-            <div style="width:${carbsRatio}%; background:#3b82f6;" title="คาร์บ ${carbsRatio}%"></div>
-            <div style="width:${fatRatio}%; background:#10b981;" title="ไขมัน ${fatRatio}%"></div>
-        </div>
-        <div style="display:flex; justify-content:space-between; font-size:10.5px; color:var(--dim);">
-            <span style="color:var(--acc2); font-weight:700;">🍗 P ${proRatio}%</span>
-            <span style="color:#3b82f6; font-weight:700;">🍚 C ${carbsRatio}%</span>
-            <span style="color:#10b981; font-weight:700;">🥑 F ${fatRatio}%</span>
-        </div>
-    </div>
-
-    <!-- Step Count & NEAT Tracker Row -->
-    <div class="tracker-row">
-        <div class="icon-box" style="background:rgba(234,88,12,0.15);color:var(--acc);">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 16v-2.38C4 11.5 7 11 7 11l1-4h3l1 4s3 .5 3 2.62V16"/>
-                <path d="M4 20h16"/>
-                <circle cx="12" cy="4" r="2"/>
-            </svg>
-        </div>
-        <div class="tracker-bar"><i style="width:${stepPct}%;background:linear-gradient(90deg, #f59e0b, #ea580c)"></i></div>
-        <div class="tracker-val" style="display:flex; justify-content:space-between; align-items:center;">
-            <span>👟 ${steps.toLocaleString()} / ${stepTarget.toLocaleString()} ก้าว${extraStepCal > 0 ? ' <b style="color:#10b981;font-size:11px;">(+' + extraStepCal + ' kcal)</b>' : ''}</span>
-            <button class="btn sm" onclick="logDailySteps()" style="padding:2px 8px; font-size:10.5px; background:var(--card); border:1px solid var(--line); color:var(--acc); border-radius:6px; cursor:pointer;" title="บันทึกก้าวเดิน">+ ก้าวเดิน</button>
-        </div>
-    </div>
-
-    <div class="tracker-row" onclick="openWaterLogModal()" style="cursor:pointer;" title="แตะเพื่อบันทึกน้ำดื่ม">
-        <div class="icon-box ib-wat"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21c-3.87 0-7-3.13-7-7 0-4.18 5.04-10.15 6.35-11.59.36-.39.95-.39 1.3 0 1.31 1.44 6.35 7.41 6.35 11.59 0 3.87-3.13 7-7 7z"/></svg></div>
-        <div class="tracker-bar"><i style="width:${watPct}%;background:var(--vio)"></i></div>
-        <div class="tracker-val" style="display:flex; justify-content:space-between; align-items:center;">
-            <span>💧 ${wat.toLocaleString()} / ${WATER_TARGET.toLocaleString()} มล. <span style="font-size:11px;color:var(--dim);">(~${(wat/1000).toFixed(1)} / ${(WATER_TARGET/1000).toFixed(1)}L)</span></span>
-            <button class="btn sm" onclick="event.stopPropagation();openWaterLogModal()" style="padding:2px 8px; font-size:10.5px; background:var(--card); border:1px solid var(--line); color:var(--vio); border-radius:6px; font-weight:700;">+ ดื่มน้ำ</button>
-        </div>
-    </div>
-
-    <div class="tracker-divider"></div>
-
-    <!-- Weigh-in streak row with morning log button -->
-    <div class="row" style="margin:8px 0; align-items:center;">
-        <div style="flex:1; cursor:pointer;" onclick="openMorningWeighInModal()">
-            <div style="font-size:13px;color:var(--dim);display:flex;align-items:center;gap:4px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> <b>ชั่งน้ำหนัก & สัดส่วน</b>
-            </div>
-            <div style="font-size:12px;color:var(--dim);margin-top:2px">
-                ${lastW ? 'ล่าสุด: ' + lastW.d.slice(5) + ' (' + (+lastW.w).toFixed(1) + ' กก.' + (lastW.bf ? ' • ไขมัน ' + lastW.bf + '%' : '') + (lastW.muscle ? ' • กล้าม ' + lastW.muscle + ' กก.' : '') + ')' : 'ยังไม่เคยชั่ง — แตะเพื่อบันทึก'}
-            </div>
-        </div>
-        <div style="display:flex; align-items:center; gap:6px;">
-            <span class="streak-badge${streakClass}" style="margin:0;">${streakIcon} ${daysAgo === 0 ? streak + ' วันติด' : 'ไม่ได้ชั่ง ' + daysAgo + ' วัน'}</span>
-            <button class="btn sm" onclick="openMorningWeighInModal()" style="padding:4px 8px; font-size:11px; background:var(--card); border:1px solid var(--line); color:var(--acc); font-weight:700; border-radius:8px;">+ ชั่งเช้านี้</button>
-        </div>
-    </div>
-
-    <!-- Today's Meals Timeline -->
-    <div style="margin-top:12px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="font-weight:700; font-size:13px; color:var(--tx);">🍽️ รายการอาหารวันนี้ (${mealsList.length} เมนู)</div>
-            <button class="btn sm" onclick="openAddMealModal()" style="padding:2px 8px; font-size:11px; background:transparent; border:1px solid var(--acc); color:var(--acc);">+ เพิ่ม</button>
-        </div>
-        ${mealsHtml}
-    </div>
-
-    <!-- Action Buttons with AI Suggester -->
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
-        <button class="btn sm" onclick="openAddMealModal()" style="padding:8px; font-size:12.5px; background:var(--acc); color:#fff; font-weight:700;">+ บันทึกมื้ออาหาร</button>
-        <button class="btn sm" onclick="openAiFoodScanner()" style="padding:8px; font-size:12.5px; background:rgba(234,88,12,0.12); color:var(--acc); border:1px solid var(--acc); font-weight:700;">📸 สแกนอาหาร AI</button>
-    </div>
-    <div style="margin-top:8px;">
-        <button class="btn sm" onclick="suggestNextMealAI()" style="width:100%; padding:9px; font-size:13px; background:linear-gradient(135deg, #ea580c, #f59e0b); color:#fff; font-weight:800; border:none; box-shadow:0 3px 12px rgba(234,88,12,0.25);">🤖 AI แนะนำเมนูมื้อถัดไป (ตามโควตาที่เหลือ)</button>
-    </div>
-    <div style="display:flex; gap:8px; margin-top:8px;">
-        <button class="qbtn" onclick="openWaterLogModal()" style="flex:1;">💧 +ดื่มน้ำ</button>
-        <button class="qbtn" onclick="logDailySteps()" style="flex:1;">👟 +ก้าวเดิน</button>
-        <button class="qbtn" onclick="calcBMR()" style="flex:1;">🧮 ปรับแผน BMR</button>
-    </div>
-
-    <!-- Weekly Executive Summary Card -->
-    <div style="margin-top:14px; background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <div style="font-weight:800; font-size:13px; color:var(--tx); display:flex; align-items:center; gap:6px;">
-                <span>📈 สรุปภาพรวมรอบ 7 วัน</span>
-            </div>
-            <span class="tag gr" style="font-size:10px; padding:1px 6px;">อัปเดตต่อเนื่อง</span>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:12px;">
-            <div style="background:var(--card); padding:8px 10px; border-radius:8px; border:1px solid var(--line);">
-                <div style="color:var(--dim); font-size:11px;">🏋️ เล่นเวทเทรนนิ่ง</div>
-                <div style="font-weight:800; font-size:14px; color:var(--acc); margin-top:2px;">${weekSessions.length} วัน</div>
-            </div>
-            <div style="background:var(--card); padding:8px 10px; border-radius:8px; border:1px solid var(--line);">
-                <div style="color:var(--dim); font-size:11px;">⚡ แคลอรี่เฉลี่ย</div>
-                <div style="font-weight:800; font-size:14px; color:var(--tx); margin-top:2px;">${avgWeekCal.toLocaleString()} kcal</div>
-            </div>
-        </div>
-        <div style="margin-top:8px; font-size:11.5px; color:var(--dim); line-height:1.4;">
-            💡 <b>คำแนะนำโค้ช:</b> ${remPro > 50 ? 'วันนี้โปรตีนยังขาดค่อนข้างเยอะ แนะนำมื้อถัดไปเน้น อกไก่, ลาบคั่วไก่, หรือไข่ขาวต้ม' : (remCal < 200 ? 'พลังงานวันนี้ใกล้แตะเป้าแล้ว มื้อเย็นเน้นผักต้มน้ำพริกหนุ่มหรือซุปใส' : 'สัดส่วนอาหารและพลังงานอยู่ในเกณฑ์ยอดเยี่ยม รักษาความต่อเนื่องไว้ครับ!')}
-        </div>
-    </div>`;
+            // Fallback clear for dummy dailyTracker if present
+            const dtDummy = document.getElementById('dailyTracker');
+            if (dtDummy) dtDummy.innerHTML = '';
 
             let offs = D.schOffs || 0; const actualD = getThaiDayOfWeek(); const dow = (actualD - offs + 7) % 7, tk = SCHED[dow], t = W[tk];
             const morningM = getMorningCardioMinutesToday();
@@ -6048,7 +6147,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             const goalTx = document.getElementById('ifGoalText');
             const eatWindowTx = document.getElementById('ifEatWindowText');
             const countdownTx = document.getElementById('ifCountdownText');
-            const btn = document.getElementById('btnToggleIF');
+            const btn = document.getElementById('ifToggleBtn');
             const timerSub = document.getElementById('ifTimerSub');
             
             const goalHrs = (D.if && D.if.goal) ? D.if.goal : 16;
@@ -6147,8 +6246,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                     if (bar) bar.style.background = 'linear-gradient(90deg, var(--warn), var(--acc))';
                 }
                 
-                btn.textContent = '🍽️ สิ้นสุดการอด (บันทึกเริ่มกิน)';
-                btn.className = 'btn g';
+                if (btn) { btn.textContent = '🍽️ สิ้นสุดการอด (บันทึกเริ่มกิน)'; btn.className = 'btn g'; }
             } else {
                 disp.textContent = '00:00:00';
                 if (timerSub) timerSub.textContent = 'ยังไม่ได้เริ่มจับเวลา';
@@ -6163,8 +6261,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                     countdownTx.textContent = 'กดเริ่มเมื่อทานมื้อสุดท้ายเสร็จ';
                     countdownTx.style.color = 'var(--dim)';
                 }
-                btn.textContent = '⏳ เริ่มอดอาหาร (Start Fasting)';
-                btn.className = 'btn';
+                if (btn) { btn.textContent = '⏳ เริ่มอดอาหาร (Start Fasting)'; btn.className = 'btn'; }
             }
         }
 
@@ -6251,7 +6348,6 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             });
         }
     </script>
-</div>
     <!-- App Auto-Update Toast -->
     <div id="appUpdateToast" class="update-toast"></div>
 </body>
