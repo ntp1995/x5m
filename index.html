@@ -413,12 +413,28 @@
 
         .ring {
             position: relative;
-            margin: 4px auto 6px;
-            width: clamp(120px, 30vw, 150px);
+            margin: 6px auto 8px;
+            width: clamp(136px, 34vw, 168px);
             aspect-ratio: 1;
-            display: grid;
-            place-items: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             flex: 0 0 auto;
+        }
+
+        .ring-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 8px 12px;
+            box-sizing: border-box;
+            text-align: center;
+            pointer-events: none;
         }
 
         .ring svg {
@@ -434,11 +450,12 @@
         }
 
         .tim {
-            font-size: clamp(34px, 8.5vw, 42px);
+            font-size: clamp(30px, 7.5vw, 38px);
             font-weight: 800;
             font-variant-numeric: tabular-nums;
-            letter-spacing: -1.5px;
-            line-height: 1;
+            letter-spacing: -1px;
+            line-height: 1.15;
+            margin: 0;
         }
 
         /* Reps Display inside Ring (No text overlapping) */
@@ -472,10 +489,12 @@
         }
 
         .mode {
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 800;
-            letter-spacing: 1.5px;
-            margin-bottom: 2px;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            line-height: 1.25;
+            white-space: nowrap;
         }
 
         .exname {
@@ -801,10 +820,10 @@
         }
 
         #pl.is-rest .ring {
-            width: clamp(125px, 32vw, 165px) !important;
-            height: clamp(125px, 32vw, 165px) !important;
+            width: clamp(136px, 34vw, 168px) !important;
+            height: clamp(136px, 34vw, 168px) !important;
             aspect-ratio: 1 !important;
-            margin: 0 auto 6px auto !important;
+            margin: 0 auto 8px auto !important;
             flex: 0 0 auto !important;
         }
 
@@ -813,8 +832,10 @@
         }
 
         #pl.is-rest .tim {
-            font-size: clamp(38px, 10vw, 48px) !important;
-            letter-spacing: -1.5px !important;
+            font-size: clamp(34px, 8.5vw, 42px) !important;
+            letter-spacing: -1px !important;
+            line-height: 1.15 !important;
+            margin: 0 !important;
         }
 
         #pl.is-rest .mode {
@@ -1807,8 +1828,8 @@
                         <circle cx="120" cy="120" r="108" id="arc" stroke="var(--acc)" stroke-dasharray="678.6"
                             stroke-dashoffset="0" />
                     </svg>
-                    <div style="text-align:center">
-                        <div class="mode" id="plMode">พร้อม</div>
+                    <div class="ring-content">
+                        <div class="mode" id="plMode">ออก</div>
                         <div class="tim" id="plTime">00:00</div>
                         <div class="sub" id="plSet"></div>
                     </div>
@@ -1938,7 +1959,7 @@
         </div>
     </div>
     <script>
-        const APP_VERSION = '2.8.1';
+        const APP_VERSION = '2.8.2';
         
         /* ============ CUSTOM MODALS ============ */
         let _fcRes = null;
@@ -3488,7 +3509,7 @@
                             <span style="font-size:11px; color:var(--dim);">/ ${WATER_TARGET.toLocaleString()} มล.</span>
                         </div>
                         <div class="bar" style="height:6px; margin-bottom:6px;"><i style="width:${watPct}%; background:var(--vio);"></i></div>
-                        <div style="font-size:10.5px; color:var(--dim);">${watPct}% (~{(WATER_TARGET/1000).toFixed(1)}L เป้า)</div>
+                        <div style="font-size:10.5px; color:var(--dim);">${watPct}% (~${(WATER_TARGET/1000).toFixed(1)}L เป้า)</div>
                     </div>
                     <button class="btn sm" onclick="event.stopPropagation();openWaterLogModal()" style="width:100%; margin-top:8px; padding:5px; font-size:11px; background:var(--card2); border:1px solid var(--line); color:var(--vio); font-weight:700; border-radius:8px; cursor:pointer;">+ ดื่มน้ำ</button>
                 </div>`;
@@ -4006,12 +4027,46 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             const e = isW ? EX[s.e] : null;
             document.getElementById('plEx').textContent = s.name;
 
-            // Thai Voice Coach announcement
+            // Thai Voice Coach announcement with comprehensive cues and reps
             if (isW) {
-                const setTxt = s.sets > 1 ? (' เซ็ตที่ ' + s.set) : '';
-                speakCoach(s.name + setTxt);
+                const speechParts = [];
+                // 1. Exercise Name & Set Number
+                const setTxt = s.sets > 1 ? (' เซ็ตที่ ' + s.set + ' จาก ' + s.sets + ' เซ็ต') : '';
+                speechParts.push('ท่าต่อไป ' + s.name + setTxt);
+
+                // 2. Goal: Reps + Equipment Weight or Duration
+                if (s.type === 'reps') {
+                    const wInfo = getExerciseWeightInfo(s.e);
+                    const weightKg = s.actKg != null ? s.actKg : wInfo.kg;
+                    let targetText = 'เป้าหมาย ' + s.tgt;
+                    if (weightKg && weightKg > 0) {
+                        targetText += ' ใช้น้ำหนัก ' + weightKg + ' กิโลกรัม';
+                    }
+                    speechParts.push(targetText);
+                } else if (s.dur) {
+                    const mins = Math.floor(s.dur / 60);
+                    const secs = s.dur % 60;
+                    let timeStr = 'ทำต่อเนื่อง ';
+                    if (mins > 0 && secs > 0) timeStr += mins + ' นาที ' + secs + ' วินาที';
+                    else if (mins > 0) timeStr += mins + ' นาที';
+                    else timeStr += secs + ' วินาที';
+                    speechParts.push(timeStr);
+                }
+
+                // 3. Technique Cues from the bottom box
+                if (e && e.cue && e.cue.length) {
+                    const cleanCues = e.cue.map(c => c.replace(/[*#]/g, '').trim()).filter(Boolean);
+                    if (cleanCues.length) {
+                        speechParts.push('เทคนิคท่า: ' + cleanCues.join('. '));
+                    }
+                }
+
+                const fullSpeech = speechParts.join('. ');
+                speakCoach(fullSpeech);
             } else {
-                speakCoach('พักผ่อน ' + s.dur + ' วินาที ท่าต่อไปคือ ' + (s.next || ''));
+                const nextWork = ST.slice(idx + 1).find(x => x.k === 'work');
+                const nextName = nextWork ? nextWork.name : (s.next || '');
+                speakCoach('พักผ่อน ' + s.dur + ' วินาที ท่าต่อไปคือ ' + nextName);
             }
 
             // Ring Mode & Display (Big, bold reps without overflowing or overlapping)
