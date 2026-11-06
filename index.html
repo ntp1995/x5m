@@ -1962,7 +1962,7 @@
         </div>
     </div>
     <script>
-        const APP_VERSION = '2.9.3';
+        const APP_VERSION = '2.9.4';
         
         /* ============ CUSTOM MODALS ============ */
         let _fcRes = null;
@@ -3327,6 +3327,9 @@
         function save() {
             try {
                 localStorage.setItem('fit', JSON.stringify(D));
+                if (currentUser && fbDb) {
+                    localStorage.setItem('fc_dirty', '1');
+                }
             } catch (e) {
                 console.warn('localStorage save error:', e);
             }
@@ -6034,6 +6037,76 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
 
         function mergeCloudData(cloud) {
             if (!cloud) return;
+
+            // ================= CLOUD-FIRST ARCHITECTURE =================
+            // When user opens on another device without pending local offline changes (fc_dirty !== '1'):
+            // Cloud is 100% AUTHORITATIVE MASTER. LocalStorage never contaminates Cloud!
+            const isDirty = localStorage.getItem('fc_dirty') === '1';
+
+            if (!isDirty) {
+                // 100% PURE CLOUD-FIRST ADOPTION
+                if (cloud.start) D.start = cloud.start;
+                if (cloud.bs !== undefined) D.bs = !!cloud.bs;
+                if (cloud.schOffs !== undefined) {
+                    D.schOffs = cloud.schOffs;
+                    D.schOffsUpdatedAt = cloud.schOffsUpdatedAt || 0;
+                }
+                if (cloud.forceFullCardio !== undefined) D.forceFullCardio = !!cloud.forceFullCardio;
+                if (cloud.morningCardio !== undefined) D.morningCardio = cloud.morningCardio;
+
+                if (Array.isArray(cloud.checks) && cloud.checks.length > 0) {
+                    D.checks = JSON.parse(JSON.stringify(cloud.checks));
+                }
+                if (Array.isArray(cloud.sessions)) {
+                    D.sessions = JSON.parse(JSON.stringify(cloud.sessions));
+                }
+                if (Array.isArray(cloud.sets)) {
+                    D.sets = JSON.parse(JSON.stringify(cloud.sets));
+                }
+                if (cloud.cfg) {
+                    D.cfg = { ...(D.cfg || {}), ...cloud.cfg };
+                    if (D.cfg.calTarget) CAL_TARGET = D.cfg.calTarget;
+                    if (D.cfg.proteinTarget) PROTEIN_TARGET = D.cfg.proteinTarget;
+                    if (D.cfg.fatTarget) FAT_TARGET = D.cfg.fatTarget;
+                    if (D.cfg.carbsTarget) CARBS_TARGET = D.cfg.carbsTarget;
+                    if (D.cfg.waterTarget) WATER_TARGET = D.cfg.waterTarget <= 50 ? D.cfg.waterTarget * 250 : D.cfg.waterTarget;
+                }
+                if (cloud.if) {
+                    D.if = JSON.parse(JSON.stringify(cloud.if));
+                }
+
+                // Auto-recalculate macros from meals for all checks
+                (D.checks || []).forEach(c => {
+                    if (c.water != null && c.water > 0 && c.water <= 50) {
+                        c.water = Math.round(c.water * 250);
+                    }
+                    if (c.meals && c.meals.length > 0) {
+                        let mCal = 0, mPro = 0, mCarbs = 0, mFat = 0;
+                        c.meals.forEach(m => {
+                            mCal += Number(m.cal) || 0;
+                            mPro += Number(m.pro) || 0;
+                            mCarbs += Number(m.carbs) || 0;
+                            mFat += Number(m.fat) || 0;
+                        });
+                        c.cal = Math.round(mCal);
+                        c.protein = Math.round(mPro);
+                        c.carbs = Math.round(mCarbs);
+                        c.fat = Math.round(mFat);
+                    }
+                });
+
+                try {
+                    localStorage.setItem('fit', JSON.stringify(D));
+                } catch (e) {}
+                render();
+                updateIFUI();
+                const timeStr = typeof formatThaiTime === 'function' ? formatThaiTime(new Date()) : new Date().toLocaleTimeString('th-TH');
+                msg('<span style="color:#10b981;font-weight:600;">✓ โหลดข้อมูลคลาวด์ล่าสุดเรียบร้อย (' + timeStr + ' น.)</span>');
+                return;
+            }
+
+            // ================= OFFLINE CONFLICT RESOLUTION =================
+            // Only runs if user logged changes on THIS device while offline (fc_dirty === '1')
             if (cloud.start) D.start = cloud.start;
             if (cloud.bs !== undefined) D.bs = cloud.bs;
             if (cloud.schOffs !== undefined) {
@@ -6042,24 +6115,12 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 if (cloudSchUpdated > localSchUpdated) {
                     D.schOffs = cloud.schOffs;
                     D.schOffsUpdatedAt = cloudSchUpdated;
-                } else if (localSchUpdated === 0 && cloudSchUpdated === 0) {
-                    if (!D.schOffs && cloud.schOffs) {
-                        D.schOffs = cloud.schOffs;
-                    }
                 }
             }
             if (cloud.forceFullCardio !== undefined) D.forceFullCardio = cloud.forceFullCardio;
             if (cloud.morningCardio !== undefined) D.morningCardio = cloud.morningCardio;
 
-            // Merge checks (Weight, body fat %, muscle mass, macros, meals timeline, water & steps)
-            const isLocalDummy = !D.checks || D.checks.length === 0 || (D.checks.length === 1 && (
-                (D.checks[0].w === 80 && D.checks[0].bf === 27.1) ||
-                (D.checks[0].w === 77.3 && D.checks[0].bf === 25.9) ||
-                (!D.checks[0].meals?.length && !D.checks[0].water && !D.checks[0].steps && (!D.sessions || D.sessions.length === 0))
-            ));
-            if (isLocalDummy && cloud.checks && cloud.checks.length > 0) {
-                D.checks = [...cloud.checks];
-            } else if (cloud.checks && Array.isArray(cloud.checks)) {
+            if (cloud.checks && Array.isArray(cloud.checks)) {
                 const checkMap = new Map();
                 (D.checks || []).forEach(c => checkMap.set(c.d, { ...c }));
                 cloud.checks.forEach(c => {
@@ -6069,7 +6130,6 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                         const ex = checkMap.get(c.d);
                         const isCloudNewer = (c.updatedAt || 0) >= (ex.updatedAt || 0);
                         
-                        // Smart merge weights: Never let null/0 overwrite a valid weight
                         let mergedW = null;
                         if (c.w != null && c.w >= 30 && ex.w != null && ex.w >= 30) {
                             mergedW = isCloudNewer ? c.w : ex.w;
@@ -6079,7 +6139,6 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                             mergedW = ex.w;
                         }
 
-                        // Smart merge body fat %
                         let mergedBf = null;
                         if (c.bf != null && c.bf > 0 && ex.bf != null && ex.bf > 0) {
                             mergedBf = isCloudNewer ? c.bf : ex.bf;
@@ -6087,7 +6146,6 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                             mergedBf = (c.bf != null && c.bf > 0) ? c.bf : (ex.bf ?? null);
                         }
 
-                        // Smart merge muscle mass
                         let mergedMuscle = null;
                         if (c.muscle != null && c.muscle > 0 && ex.muscle != null && ex.muscle > 0) {
                             mergedMuscle = isCloudNewer ? c.muscle : ex.muscle;
@@ -6095,15 +6153,11 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                             mergedMuscle = (c.muscle != null && c.muscle > 0) ? c.muscle : (ex.muscle ?? null);
                         }
 
-                        // Smart merge HRV & Pain
                         const mergedHrv = (c.hrv != null && c.hrv > 0) ? c.hrv : (ex.hrv ?? null);
                         const mergedPain = (c.pain != null) ? (isCloudNewer ? c.pain : ex.pain) : (ex.pain ?? null);
-
-                        // Merge water & steps
                         const mergedWater = Math.max(ex.water || 0, c.water || 0);
                         const mergedSteps = Math.max(ex.steps || 0, c.steps || 0);
 
-                        // Merge meals by meal ID so neither local nor cloud meals are dropped
                         const mealMap = new Map();
                         (ex.meals || []).forEach(m => { if (m) mealMap.set(m.id || (m.name + '_' + m.time), m); });
                         (c.meals || []).forEach(m => { if (m) mealMap.set(m.id || (m.name + '_' + m.time), m); });
@@ -6126,8 +6180,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 });
                 D.checks = [...checkMap.values()].sort((a, b) => a.d.localeCompare(b.d));
             }
-            // Ensure any water values <= 50 (legacy glasses) are migrated to ml (* 250)
-            // and auto-recalculate cal, pro, carbs, fat from meals for all records
+
             (D.checks || []).forEach(c => {
                 if (c.water != null && c.water > 0 && c.water <= 50) {
                     c.water = Math.round(c.water * 250);
@@ -6147,19 +6200,16 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 }
             });
 
-            // Merge sessions
             const sessionMap = new Map();
             (D.sessions || []).forEach(s => sessionMap.set(s.id, s));
             (cloud.sessions || []).forEach(s => sessionMap.set(s.id, s));
             D.sessions = [...sessionMap.values()].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
 
-            // Merge sets
             const setMap = new Map();
             (D.sets || []).forEach(st => setMap.set(st.id, st));
             (cloud.sets || []).forEach(st => setMap.set(st.id, st));
             D.sets = [...setMap.values()];
 
-            // Merge Config (All targets, weights, myCombos, biometrics, BMR info)
             if (cloud.cfg) {
                 D.cfg = { ...(D.cfg || {}), ...cloud.cfg };
                 if (D.cfg.calTarget) CAL_TARGET = D.cfg.calTarget;
@@ -6169,7 +6219,6 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 if (D.cfg.waterTarget) WATER_TARGET = D.cfg.waterTarget <= 50 ? D.cfg.waterTarget * 250 : D.cfg.waterTarget;
             }
 
-            // Merge IF with timestamp conflict resolution
             if (cloud.if) {
                 if (!D.if) D.if = cloud.if;
                 else {
@@ -6184,12 +6233,13 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 }
             }
 
-            // Save locally without re-triggering pushToCloud
             try {
                 localStorage.setItem('fit', JSON.stringify(D));
             } catch (e) {}
             render();
             updateIFUI();
+            // Since this device had offline changes, push the merged result to Cloud and clear dirty flag
+            pushToCloud();
         }
 
         function deepCleanForFirestore(val) {
@@ -6238,6 +6288,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 const cleanPayload = deepCleanForFirestore(rawPayload);
 
                 await userDocRef.set(cleanPayload, { merge: true });
+                localStorage.removeItem('fc_dirty'); // Unsynced local changes are safely written to Cloud
                 const timeStr = typeof formatThaiTime === 'function' ? formatThaiTime(new Date()) : new Date().toLocaleTimeString('th-TH');
                 msg(`<span style="color:#10b981;font-weight:600;">✓ ซิงก์สมบูรณ์เวลา ${timeStr} น.</span>`);
                 return true;
@@ -6286,14 +6337,16 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 if (user) {
                     msg('กำลังเชื่อมต่อฐานข้อมูล...');
                     try {
+                        localStorage.setItem('fc_has_auth', '1');
                         const userDocRef = fbDb.collection('users').doc(user.uid);
                         const docSnap = await userDocRef.get();
                         if (docSnap.exists) {
                             mergeCloudData(docSnap.data());
-                            await pushToCloud();
+                            // CLOUD-FIRST: NEVER pushToCloud() on startup! Cloud is already master.
                         } else {
+                            // Only brand-new users without a Firestore doc push initial baseline
                             await pushToCloud();
-                            msg('ซิงก์ข้อมูลเริ่มต้นเข้าบัญชีใหม่สำเร็จ');
+                            msg('✓ สร้างฐานข้อมูล Cloud ใหม่เรียบร้อย');
                         }
 
                         if (fbUnsubscribe) fbUnsubscribe();
