@@ -1689,7 +1689,10 @@
     <!-- ================= STATS ================= -->
     <div class="page" id="p-stat">
         <div class="wrap">
-            <h1>สถิติ</h1>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <h1 style="margin:0;">สถิติ</h1>
+                <button class="btn sm" onclick="openWeeklyReportModal()" style="font-size:12px; padding:6px 12px; background:linear-gradient(135deg, var(--acc) 0%, #d97706 100%); color:#fff; font-weight:700; border-radius:8px; cursor:pointer;">📊 สรุปผลรอบสัปดาห์ (AI Report)</button>
+            </div>
             <details class="card" style="margin-top:12px">
                 <summary style="cursor:pointer; font-weight:700; font-size:13.5px; display:flex; justify-content:space-between; align-items:center; user-select:none;">
                     <span style="display:flex; align-items:center; gap:6px;">✍️ บันทึกเช็กอินย้อนหลัง (ถ้ามี)</span>
@@ -1959,7 +1962,7 @@
         </div>
     </div>
     <script>
-        const APP_VERSION = '2.8.2';
+        const APP_VERSION = '2.9.0';
         
         /* ============ CUSTOM MODALS ============ */
         let _fcRes = null;
@@ -2757,6 +2760,14 @@
 
         /* ============ THAI FOOD & MACRONUTRIENT DATABASE ============ */
         const TF_MACROS = [
+            /* --- เครื่องดื่มโปรตีน & RTD ยอดนิยม (Ready-to-Drink High Protein) --- */
+            { id: 'tf_meiji_high_pro', cat: 'protein', name: 'นมโปรตีน Meiji High Protein (ช็อกโกแลต)', portion: '1 ขวด (350ml)', cal: 170, pro: 28, carbs: 9, fat: 2 },
+            { id: 'tf_meiji_high_pro_vanilla', cat: 'protein', name: 'นมโปรตีน Meiji High Protein (วานิลลา)', portion: '1 ขวด (350ml)', cal: 170, pro: 28, carbs: 9, fat: 2 },
+            { id: 'tf_hoppe_high_pro', cat: 'protein', name: 'นมโปรตีน Hoppe High Protein', portion: '1 ขวด (~350ml)', cal: 180, pro: 30, carbs: 6, fat: 2 },
+            { id: 'tf_tofusan_high_pro', cat: 'protein', name: 'นมถั่วเหลือง Tofusan High Protein (ไม่ใส่น้ำตาล)', portion: '1 ขวด (350ml)', cal: 160, pro: 28, carbs: 5, fat: 3 },
+            { id: 'tf_dutchmill_high_pro', cat: 'protein', name: 'นม Dutch Mill High Protein Whey', portion: '1 ขวด (350ml)', cal: 170, pro: 28, carbs: 8, fat: 2 },
+            { id: 'tf_7eleven_chicken', cat: 'protein', name: 'อกไก่นุ่ม 7-Eleven (ปรุงสุก)', portion: '1 ซอง (~90g)', cal: 120, pro: 22, carbs: 1, fat: 2 },
+            { id: 'tf_cp_egg_boiled_2', cat: 'protein', name: 'ไข่ต้ม CP (2 ฟอง)', portion: '2 ฟอง (~100g)', cal: 150, pro: 13, carbs: 1, fat: 10 },
             /* --- อาหารเหนือยอดนิยม (Northern Thai Specialties) --- */
             { id: 'tf_khao_soi_chicken', cat: 'north', name: 'ข้าวซอยไก่ (น่องไก่ + เส้น)', portion: '1 ชาม (~400g)', cal: 540, pro: 26, carbs: 52, fat: 25 },
             { id: 'tf_khao_soi_beef', cat: 'north', name: 'ข้าวซอยเนื้อน่องลาย', portion: '1 ชาม (~400g)', cal: 580, pro: 28, carbs: 52, fat: 28 },
@@ -3024,10 +3035,12 @@
                     <!-- Category Tabs Filter -->
                     <div style="display:flex; gap:6px; margin-bottom:10px; overflow-x:auto; padding-bottom:2px;" id="foodCatTabs">
                         <button type="button" class="btn sm on" onclick="setFoodCategoryFilter('all', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto;">ทั้งหมด</button>
+                        <button type="button" class="btn sm" onclick="setFoodCategoryFilter('fav', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">⭐ เมนูโปรดคลาวด์</button>
+                        <button type="button" class="btn sm" onclick="setFoodCategoryFilter('protein', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">🥤 โปรตีนขวด & RTD</button>
                         <button type="button" class="btn sm" onclick="setFoodCategoryFilter('north', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">🍲 อาหารเหนือ</button>
                         <button type="button" class="btn sm" onclick="setFoodCategoryFilter('clean', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">💪 โปรตีน/คลีน</button>
                         <button type="button" class="btn sm" onclick="setFoodCategoryFilter('dish', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">🍚 อาหารจานเดียว</button>
-                        <button type="button" class="btn sm" onclick="setFoodCategoryFilter('combo', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">⭐ เซ็ตโปรด</button>
+                        <button type="button" class="btn sm" onclick="setFoodCategoryFilter('combo', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">🍱 เซ็ตโปรด</button>
                     </div>
 
                     <div style="position:relative; margin-bottom:10px;">
@@ -3066,6 +3079,47 @@
             const query = (document.getElementById('foodSearchInput')?.value || '').trim().toLowerCase();
             const container = document.getElementById('foodListContainer');
             if (!container) return;
+
+            // 1. Saved Cloud Favorites Tab
+            if (currentFoodCatFilter === 'fav') {
+                const favs = D.cfg.savedFoods || [];
+                const mType = document.getElementById('modalMealTypeSelect')?.value || 'lunch';
+                const filteredFavs = favs.filter(f => !query || f.name.toLowerCase().includes(query));
+
+                if (filteredFavs.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align:center; padding:20px; color:var(--dim); font-size:13px;">
+                            ${favs.length === 0 ? 'ยังไม่มีเมนูโปรดที่บันทึกไว้ในคลาวด์<br><span style="font-size:11.5px;">คุณสามารถสแกนโปรตีนขวด/อาหาร แล้วกด <b>"⭐ บันทึกลงคลัง"</b> หรือกดเพิ่มเองได้ครับ</span>' : 'ไม่พบเมนูโปรดที่ค้นหา'}<br>
+                            <button class="btn sm" onclick="addNewCustomFavoriteFood()" style="margin-top:12px; font-size:12px; padding:6px 14px; background:var(--acc); color:#fff; border-radius:8px;">+ เพิ่มเมนูโปรดใหม่ด้วยตัวเอง</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div style="padding:4px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:11.5px; color:var(--dim); font-weight:700;">☁️ บันทึกลงคลาวด์แล้ว (${filteredFavs.length} เมนู)</span>
+                        <button class="btn sm" onclick="addNewCustomFavoriteFood()" style="font-size:11px; padding:3px 8px; background:transparent; border:1px solid var(--acc); color:var(--acc); border-radius:6px;">+ เพิ่มเมนู</button>
+                    </div>
+                ` + filteredFavs.map(f => `
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-bottom:1px solid var(--line); border-radius:8px; background:var(--card2); margin-bottom:6px;">
+                        <div onclick="promptPortionAndLog(${JSON.stringify(f).replace(/"/g, '&quot;')}, '${mType}')" style="flex:1; padding-right:8px; cursor:pointer;">
+                            <div style="font-weight:800; font-size:13.5px; color:var(--tx); display:flex; align-items:center; gap:6px;">
+                                <span>⭐ ${f.name}</span>
+                                <span class="tag" style="font-size:9.5px; padding:1px 5px; background:rgba(234,88,12,0.15); color:var(--acc);">${f.portion || '1 หน่วย'}</span>
+                            </div>
+                            <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">
+                                ⚡ ${f.cal} kcal • <b style="color:var(--acc2);">🍗 P ${f.pro}g</b> • 🍚 C ${f.carbs}g • 🥑 F ${f.fat}g
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <button class="btn sm" onclick="quickLogSavedFood('${f.id}')" style="font-size:11px; padding:5px 8px; background:var(--acc); color:#fff; font-weight:700; border-radius:6px; white-space:nowrap;">+ บันทึก</button>
+                            <button onclick="deleteFavoriteFood('${f.id}', event)" style="background:none; border:none; color:var(--red); font-size:13px; cursor:pointer; padding:2px;" title="ลบออกจากคลัง">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+                return;
+            }
 
             if (currentFoodCatFilter === 'combo') {
                 const combos = D.cfg.myCombos || [];
@@ -3381,6 +3435,256 @@
         }
         function estMin(k) { let s = 0; fullItems(k).forEach(it => { const n = it.sets || 1; s += n * (it.t || 35) + (n - 1) * (it.rest || 0) + (it.after || 0) }); return Math.round(s / 60) }
 
+
+        /* ============ FEATURE 4: WEEKLY AI EXECUTIVE REPORT ============ */
+        function getWeeklyReportData() {
+            const today = new Date();
+            const past7Days = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(today);
+                d.setDate(d.getDate() - i);
+                past7Days.push(iso(d));
+            }
+
+            const checks7 = (D.checks || []).filter(c => past7Days.includes(c.d));
+            const wChecks = checks7.filter(c => c.w != null);
+            const wStart = wChecks.length > 0 ? wChecks[0].w : (D.checks[D.checks.length - 1]?.w || 77.9);
+            const wEnd = wChecks.length > 0 ? wChecks[wChecks.length - 1].w : wStart;
+            const wDelta = wEnd - wStart;
+
+            const bfChecks = checks7.filter(c => c.bf != null);
+            const bfEnd = bfChecks.length > 0 ? bfChecks[bfChecks.length - 1].bf : null;
+
+            const validCal = checks7.filter(c => c.cal != null && c.cal > 0);
+            const avgCal = validCal.length > 0 ? Math.round(validCal.reduce((a, b) => a + b.cal, 0) / validCal.length) : 0;
+
+            const validPro = checks7.filter(c => c.protein != null && c.protein > 0);
+            const avgPro = validPro.length > 0 ? Math.round(validPro.reduce((a, b) => a + b.protein, 0) / validPro.length) : 0;
+
+            const validWat = checks7.filter(c => c.water != null && c.water > 0);
+            const avgWat = validWat.length > 0 ? Math.round(validWat.reduce((a, b) => a + b.water, 0) / validWat.length) : 0;
+
+            const validSteps = checks7.filter(c => c.steps != null && c.steps > 0);
+            const avgSteps = validSteps.length > 0 ? Math.round(validSteps.reduce((a, b) => a + b.steps, 0) / validSteps.length) : 0;
+
+            const sessions7 = (D.sessions || []).filter(s => past7Days.includes(s.date));
+            const totalTrainSec = sessions7.reduce((a, b) => a + (b.duration_sec || 0), 0);
+            const totalTrainMin = Math.round(totalTrainSec / 60);
+
+            const sets7 = (D.sets || []).filter(st => past7Days.includes(st.date));
+            const totalVolumeKg = Math.round(sets7.reduce((a, b) => a + ((b.weight_kg || 0) * (b.reps || 0)), 0));
+
+            const painChecks = checks7.filter(c => c.pain != null);
+            const avgPain = painChecks.length > 0 ? +(painChecks.reduce((a, b) => a + b.pain, 0) / painChecks.length).toFixed(1) : 0;
+
+            return {
+                past7Days,
+                wStart,
+                wEnd,
+                wDelta,
+                bfEnd,
+                avgCal,
+                avgPro,
+                avgWat,
+                avgSteps,
+                sessions7Count: sessions7.length,
+                totalTrainMin,
+                totalVolumeKg,
+                avgPain,
+                daysLogged: checks7.length
+            };
+        }
+
+        function openWeeklyReportModal() {
+            const data = getWeeklyReportData();
+            const wSign = data.wDelta > 0 ? '+' : '';
+            const wColor = data.wDelta <= 0 ? 'var(--ok)' : 'var(--warn)';
+            const proPct = Math.round((data.avgPro / (PROTEIN_TARGET || 155)) * 100);
+            const watPct = Math.round((data.avgWat / (WATER_TARGET || 2700)) * 100);
+
+            let backHealthMsg = '';
+            let backHealthColor = 'var(--ok)';
+            if (data.avgPain <= 1) {
+                backHealthMsg = '🛡️ สุขภาพหลังยอดเยี่ยม (เฉลี่ย ' + data.avgPain + '/10) — แกนกลางลำตัวแข็งแรง ปลอดภัย พร้อมฝึกต่อเนื่อง';
+            } else if (data.avgPain <= 3) {
+                backHealthMsg = '⚠️ ระดับการตึงตัวเล็กน้อย (เฉลี่ย ' + data.avgPain + '/10) — แนะนำเน้น Bird Dog & Side Plank ไม่ก้มยกของหลังค่อม';
+                backHealthColor = 'var(--warn)';
+            } else {
+                backHealthMsg = '🚨 เฝ้าระวังหลังล่าง (เฉลี่ย ' + data.avgPain + '/10) — ระบบแนะนำเปิดโหมด Back-Safe และเน้น Active Recovery';
+                backHealthColor = 'var(--red)';
+            }
+
+            const html = `
+                <div style="text-align:left; font-size:13.5px; max-height:80vh; overflow-y:auto; padding-right:2px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <div>
+                            <div style="font-weight:900; font-size:17px; color:var(--acc);">📊 รายงานสรุปผลประจำสัปดาห์</div>
+                            <div style="font-size:12px; color:var(--dim);">ช่วงวันที่ ${data.past7Days[0].slice(5)} ถึง ${data.past7Days[6].slice(5)} (รอบ 7 วัน)</div>
+                        </div>
+                        <span class="tag o" style="font-size:11px; padding:3px 8px; font-weight:700;">Executive Report</span>
+                    </div>
+
+                    <!-- 4 Metric Bento Grid -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0;">
+                        <!-- Box 1: Weight -->
+                        <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:10px;">
+                            <div style="font-size:11px; color:var(--dim); font-weight:700;">⚖️ น้ำหนักตัว</div>
+                            <div style="font-size:18px; font-weight:900; color:var(--tx); margin-top:2px;">
+                                ${data.wEnd.toFixed(1)} <span style="font-size:12px; font-weight:600;">กก.</span>
+                            </div>
+                            <div style="font-size:11.5px; color:${wColor}; font-weight:700; margin-top:2px;">
+                                ${wSign}${data.wDelta.toFixed(1)} กก. ในสัปดาห์นี้
+                            </div>
+                        </div>
+
+                        <!-- Box 2: Protein & Nutrition -->
+                        <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:10px;">
+                            <div style="font-size:11px; color:var(--dim); font-weight:700;">🍗 โปรตีนเฉลี่ย</div>
+                            <div style="font-size:18px; font-weight:900; color:var(--acc2); margin-top:2px;">
+                                ${data.avgPro} <span style="font-size:12px; font-weight:600; color:var(--dim);">/ ${PROTEIN_TARGET}g</span>
+                            </div>
+                            <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">
+                                ${proPct}% ของเป้า (${data.avgCal.toLocaleString()} kcal/วัน)
+                            </div>
+                        </div>
+
+                        <!-- Box 3: Water & Steps -->
+                        <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:10px;">
+                            <div style="font-size:11px; color:var(--dim); font-weight:700;">💧 น้ำดื่ม & ก้าวเดิน</div>
+                            <div style="font-size:18px; font-weight:900; color:var(--vio); margin-top:2px;">
+                                ~{(${data.avgWat} / 1000).toFixed(1)}L <span style="font-size:12px; font-weight:600; color:var(--dim);">/ วัน</span>
+                            </div>
+                            <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">
+                                ${watPct}% เป้า • ${data.avgSteps.toLocaleString()} ก้าว/วัน
+                            </div>
+                        </div>
+
+                        <!-- Box 4: Training & Volume -->
+                        <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:10px;">
+                            <div style="font-size:11px; color:var(--dim); font-weight:700;">🏋️ ผลงานการฝึกซ้อม</div>
+                            <div style="font-size:18px; font-weight:900; color:var(--acc); margin-top:2px;">
+                                ${data.sessions7Count} วัน <span style="font-size:12px; font-weight:600; color:var(--dim);">(${data.totalTrainMin} นาที)</span>
+                            </div>
+                            <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">
+                                ยกสะสม ${data.totalVolumeKg.toLocaleString()} กก.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Back Health Section -->
+                    <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:10px; margin-bottom:12px;">
+                        <div style="font-size:11.5px; font-weight:800; color:${backHealthColor}; margin-bottom:2px;">
+                            ดัชนีสุขภาพหลังล่าง (McGill Method)
+                        </div>
+                        <div style="font-size:12.5px; color:var(--tx); line-height:1.4;">
+                            ${backHealthMsg}
+                        </div>
+                    </div>
+
+                    <!-- Strategic Advice -->
+                    <div style="background:rgba(234,88,12,0.06); border:1px solid rgba(234,88,12,0.25); border-radius:10px; padding:10px; margin-bottom:14px;">
+                        <div style="font-size:12px; font-weight:800; color:var(--acc); margin-bottom:4px;">💡 ข้อคิดเห็นและกลยุทธ์สำหรับสัปดาห์หน้า:</div>
+                        <ul style="margin:0; padding-left:18px; font-size:12.5px; color:var(--tx); line-height:1.5;">
+                            <li>${data.wDelta <= 0 ? 'อัตราการลดน้ำหนักอยู่ในเกณฑ์ที่ปลอดภัยและเหมาะสม รักษาความสม่ำเสมอนี้ไว้' : 'น้ำหนักแกว่งขึ้นเล็กน้อย อาจเกิดจากปริมาณโซเดียมหรือไกลโคเจนสะสม แนะนำคุมปริมาณน้ำดื่มให้ครบเป้า'}</li>
+                            <li>${proPct >= 90 ? 'ปริมาณโปรตีนถึงเป้ายอดเยี่ยม กล้ามเนื้อได้รับการซ่อมแซมเต็มที่' : 'โปรตีนยังเฉลี่ยต่ำกว่าเป้า แนะนำเพิ่มไข่ต้ม CP หรือนมโปรตีน RTD ในช่วงบ่าย/เย็น'}</li>
+                            <li>${data.sessions7Count >= 3 ? 'วินัยในการออกกำลังกายอยู่ในเกณฑ์ดีมาก ร่างกายเริ่มปรับตัวรับโหลดได้ดี' : 'สัปดาห์นี้ออกกำลังกายน้อยกว่าเป้าหมาย แนะนำจัดเวลาฝึกช่วงเช้าหรือหลังเลิกงาน'}</li>
+                        </ul>
+                    </div>
+
+                    <!-- Gemini AI Deep Dive Section -->
+                    <div id="geminiWeeklyReportBox">
+                        <button class="btn" onclick="generateGeminiWeeklyDeepReport()" style="width:100%; padding:10px; font-size:13px; font-weight:800; background:linear-gradient(135deg, var(--acc) 0%, #d97706 100%); color:#fff; border-radius:8px;">
+                            🧠 ขอคำวิเคราะห์เชิงลึกจาก Gemini AI
+                        </button>
+                    </div>
+
+                    <div style="margin-top:12px; text-align:right;">
+                        <button class="btn sm g" onclick="fcClose()" style="padding:6px 16px; font-size:12px;">ปิดรายงาน</button>
+                    </div>
+                </div>
+            `;
+
+            fcAlert(html);
+        }
+
+        async function generateGeminiWeeklyDeepReport() {
+            if (!D.cfg.aiKey) {
+                fcAlert('กรุณากรอก Gemini API Key ในหน้าซิงก์ เพื่อรับการวิเคราะห์เชิงลึกจาก AI ครับ');
+                return;
+            }
+            const box = document.getElementById('geminiWeeklyReportBox');
+            if (box) {
+                box.innerHTML = `
+                    <div style="text-align:center; padding:16px; background:var(--card2); border-radius:10px; border:1px solid var(--line);">
+                        <div style="font-size:20px; animation: spin 1s linear infinite; margin-bottom:8px;">⏳</div>
+                        <div style="font-size:12.5px; font-weight:700; color:var(--acc);">Gemini AI กำลังวิเคราะห์ผลงานรอบสัปดาห์ของคุณ...</div>
+                    </div>
+                `;
+            }
+
+            const data = getWeeklyReportData();
+            const prompt = `คุณคือหัวหน้านักวิทยาศาสตร์การกีฬาและโค้ชฟิตเนสส่วนตัว (FitCoach AI) กรุณาวิเคราะห์ข้อมูลสุขภาพรอบ 7 วันต่อไปนี้ของผู้ใช้:
+- น้ำหนักเริ่มต้นสัปดาห์: ${data.wStart.toFixed(1)} กก., น้ำหนักปัจจุบัน: ${data.wEnd.toFixed(1)} กก. (เปลี่ยนแปลง: ${data.wDelta.toFixed(1)} กก.)
+- แคลอรี่เฉลี่ย: ${data.avgCal} kcal/วัน (เป้าหมาย: ${CAL_TARGET} kcal)
+- โปรตีนเฉลี่ย: ${data.avgPro} g/วัน (เป้าหมาย: ${PROTEIN_TARGET} g)
+- น้ำดื่มเฉลี่ย: ${data.avgWat} ml/วัน (เป้าหมาย: ${WATER_TARGET} ml)
+- ก้าวเดินเฉลี่ย: ${data.avgSteps} ก้าว/วัน
+- จำนวนเซสชันเวท/ออกกำลังกายที่ทำได้: ${data.sessions7Count} ครั้ง (รวม ${data.totalTrainMin} นาที, น้ำหนักยกสะสม ${data.totalVolumeKg} กก.)
+- คะแนนปวดหลังล่างเฉลี่ย: ${data.avgPain}/10
+
+กรุณาเขียนรายงานประเมินผลเชิงบวก เป็นกันเอง สุภาพ ชัดเจนในภาษาไทย สรุปเป็น 3 ข้อสำคัญ:
+1. สิ่งที่ทำได้ยอดเยี่ยมในสัปดาห์นี้
+2. จุดที่ต้องระวังหรือปรับปรุงทันทีในสัปดาห์ถัดไป
+3. Action Plan 3 ข้อที่ต้องปฏิบัติใน 7 วันข้างหน้า`;
+
+            try {
+                const keysToTry = [(D.cfg.aiKey || '').trim(), (D.cfg.aiKeyBackup || '').trim()].filter(Boolean);
+                const models = ['gemini-3.5-flash', 'gemini-3.8-flash-lite', 'gemini-flash-latest', 'gemini-2.5-flash-lite'];
+                const payload = { contents: [{ parts: [{ text: prompt }] }] };
+
+                let resText = '';
+                keyLoop: for (const apiKey of keysToTry) {
+                    for (const model of models) {
+                        try {
+                            const ep = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+                            const r = await fetch(ep, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+                            if (r.ok) {
+                                const json = await r.json();
+                                if (json.candidates?.[0]?.content?.parts?.[0]?.text) {
+                                    resText = json.candidates[0].content.parts[0].text;
+                                    break keyLoop;
+                                }
+                            }
+                        } catch (e) {}
+                    }
+                }
+
+                if (!resText) throw new Error('ไม่สามารถเชื่อมต่อ Gemini ได้ในขณะนี้');
+
+                if (box) {
+                    box.innerHTML = `
+                        <div style="background:var(--card2); border:1px solid var(--acc); border-radius:10px; padding:12px; margin-top:8px;">
+                            <div style="font-size:12px; font-weight:800; color:var(--acc); margin-bottom:6px;">🤖 บทวิเคราะห์และกลยุทธ์จาก Gemini AI:</div>
+                            <div style="font-size:12.5px; color:var(--tx); line-height:1.5; white-space:pre-wrap;">${resText}</div>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                if (box) {
+                    box.innerHTML = `
+                        <div style="color:var(--warn); font-size:12px; padding:8px; background:var(--card2); border-radius:8px;">
+                            ⚠️ ${err.message}
+                        </div>
+                    `;
+                }
+            }
+        }
+
+
         /* ============ RENDER ============ */
         function render() {
             const last = D.checks[D.checks.length - 1] || null;
@@ -3671,10 +3975,10 @@
             if (weeklyEl) {
                 weeklyEl.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <div style="font-weight:800; font-size:13px; color:var(--tx); display:flex; align-items:center; gap:6px;">
-                        <span>📈 สรุปภาพรวมรอบ 7 วัน</span>
+                    <div style="font-weight:800; font-size:13.5px; color:var(--tx); display:flex; align-items:center; gap:6px;">
+                        <span>📈 สรุปภาพรวมรอบ 7 วัน (Weekly Overview)</span>
                     </div>
-                    <span class="tag gr" style="font-size:10px; padding:1px 6px;">อัปเดตต่อเนื่อง</span>
+                    <button class="btn sm" onclick="openWeeklyReportModal()" style="font-size:11px; padding:3px 8px; background:var(--acc); color:#fff; font-weight:700; border-radius:6px; cursor:pointer;">📊 ดูรายงานผู้บริหาร ❯</button>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:12px;">
                     <div style="background:var(--card); padding:8px 10px; border-radius:8px; border:1px solid var(--line);">
@@ -4233,6 +4537,33 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 if (!playing) return; const s = ST[idx];
                 if (s.k === 'work' && s.type === 'reps') { up++; paint(); return; }
                 left--; 
+
+                // Feature 3: Mid-Set Voice Coach & Form Reminders
+                if (D.cfg?.voiceCoach !== false && D.cfg?.voiceMidSet !== false && s.k === 'work' && s.dur) {
+                    const elapsed = s.dur - left;
+                    
+                    // Posture & form reminder 15s into the exercise
+                    if (elapsed === 15 && s.dur >= 30) {
+                        const eKey = (s.e || '').toLowerCase();
+                        const eName = (s.name || '').toLowerCase();
+                        if (eKey.includes('plank') || eKey.includes('dog') || eKey.includes('curl') || eKey.includes('deadbug') || eKey.includes('bridge') || eName.includes('แพลงก์') || eName.includes('เบิร์ดด็อก') || eName.includes('เคิร์ลอัป')) {
+                            speakCoach('เกร็งแกนกลางลำตัว หลังตรง ไม่แอ่นหลัง หายใจเข้าออกสม่ำเสมอนะครับ');
+                        } else if (eKey.includes('walk') || eKey.includes('cardio') || eKey.includes('treadmill') || eName.includes('เดิน') || eName.includes('คาร์ดิโอ')) {
+                            speakCoach('ยืดอก เปิดหัวไหล่ แกว่งแขนเป็นจังหวะ ปรับจังหวะก้าวให้มั่นคงครับ');
+                        } else if (eKey.includes('squat') || eKey.includes('lunge') || eName.includes('สควอท') || eName.includes('ลันจ์')) {
+                            speakCoach('อกผาย ทิ้งสะโพกไปด้านหลัง น้ำหนักลงเต็มฝ่าเท้า หัวเข่าไม่หุบเข้าด้านในนะครับ');
+                        }
+                    }
+                    // Halfway mark announcement
+                    else if (s.dur >= 40 && left === Math.floor(s.dur / 2)) {
+                        speakCoach('ผ่านไปครึ่งทางแล้วครับ รักษาฟอร์มและจังหวะหายใจไว้');
+                    }
+                    // 1-minute remaining alert
+                    else if (s.dur >= 90 && left === 60) {
+                        speakCoach('เหลืออีกหนึ่งนาทีสุดท้าย รีดพลังออกมาครับ');
+                    }
+                }
+
                 if (left === 3) {
                     if (D.cfg?.voiceCoach !== false) speakCoach('สาม');
                     else beep(880, 120, 'triangle', 0.95);
@@ -5081,9 +5412,18 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                                     </div>
                                 </div>
 
+                                <!-- CLOUD FAVORITE ACTION -->
+                                <div style="margin-bottom:12px; background:var(--card2); border:1px dashed var(--line); border-radius:10px; padding:10px; display:flex; justify-content:space-between; align-items:center;">
+                                    <div style="flex:1; padding-right:8px;">
+                                        <div style="font-size:12.5px; font-weight:800; color:var(--tx);">⭐ บันทึกลงคลังเมนูโปรด & คลาวด์</div>
+                                        <div style="font-size:11px; color:var(--dim); margin-top:2px;">เก็บไว้สำหรับดื่มหรือทานซ้ำ ครั้งหน้ากดเลือกได้ทันทีโดยไม่ต้องถ่ายซ้ำ</div>
+                                    </div>
+                                    <button id="btnSaveFavCloud" type="button" class="btn sm" onclick="saveScannedToFavorites('${portionVal}')" style="font-size:11px; padding:6px 10px; background:transparent; border:1px solid var(--acc); color:var(--acc); font-weight:700; border-radius:8px; white-space:nowrap;">+ บันทึกลงคลัง</button>
+                                </div>
+
                                 <div style="display:flex; gap:8px;">
                                     <button class="btn sm g" onclick="fcClose()" style="flex:1; padding:8px;">ยกเลิก</button>
-                                    <button class="btn sm" onclick="saveAiFoodMeal('${portionVal}')" style="flex:1.5; padding:8px;">💾 บันทึกมื้ออาหาร</button>
+                                    <button class="btn sm" onclick="saveAiFoodMeal('${portionVal}')" style="flex:1.5; padding:8px; background:var(--acc); color:#fff; font-weight:700;">💾 บันทึกมื้ออาหาร</button>
                                 </div>
                             </div>
                         `;
@@ -5128,10 +5468,103 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             }
         }
         
+        /* ============ CLOUD FAVORITES & PROTEIN LIBRARY ============ */
+        function saveScannedToFavorites(portion) {
+            const name = (document.getElementById('aiFoodName')?.value || 'อาหาร').trim();
+            const cal = Math.round(Number(document.getElementById('aiCal')?.value) || 0);
+            const pro = Math.round(Number(document.getElementById('aiPro')?.value) || 0);
+            const carbs = Math.round(Number(document.getElementById('aiCarbs')?.value) || 0);
+            const fat = Math.round(Number(document.getElementById('aiFat')?.value) || 0);
+            const pStr = portion || '1 หน่วยบริโภค';
+
+            if (!D.cfg.savedFoods) D.cfg.savedFoods = [];
+            const existingIdx = D.cfg.savedFoods.findIndex(f => f.name.toLowerCase() === name.toLowerCase());
+            const newFav = {
+                id: 'fav_' + Date.now(),
+                name: name,
+                portion: pStr,
+                cal: cal,
+                pro: pro,
+                carbs: carbs,
+                fat: fat,
+                cat: (pro >= 20 || name.includes('โปรตีน') || name.includes('เวย์')) ? 'protein' : 'fav',
+                updatedAt: Date.now()
+            };
+            if (existingIdx >= 0) {
+                D.cfg.savedFoods[existingIdx] = newFav;
+            } else {
+                D.cfg.savedFoods.unshift(newFav);
+            }
+            save();
+            if (currentUser && fbDb) pushToCloud();
+
+            const btn = document.getElementById('btnSaveFavCloud');
+            if (btn) {
+                btn.textContent = '✓ อยู่ในคลังแล้ว';
+                btn.style.background = 'rgba(16,185,129,0.15)';
+                btn.style.borderColor = '#10b981';
+                btn.style.color = '#10b981';
+                btn.onclick = null;
+            }
+            msg('✓ บันทึก "' + name + '" ลงคลังเมนูโปรด & ซิงก์คลาวด์แล้ว');
+        }
+
+        async function addNewCustomFavoriteFood() {
+            fcClose();
+            const name = await fcPrompt('ชื่อเมนูโปรดหรือเครื่องดื่ม (เช่น นมโปรตีน Hoppe รสกาแฟ):', '');
+            if (!name) return setTimeout(() => openAddMealModal(), 200);
+            const portion = await fcPrompt('ขนาด/หน่วยบริโภค (เช่น 1 ขวด 350ml):', '1 ขวด (~350ml)') || '1 ขวด';
+            const cal = parseInt(await fcPrompt('พลังงานทั้งหมด (kcal):', '180')) || 0;
+            const pro = parseInt(await fcPrompt('โปรตีน (กรัม):', '28')) || 0;
+            const carbs = parseInt(await fcPrompt('คาร์โบไฮเดรต (กรัม):', '6')) || 0;
+            const fat = parseInt(await fcPrompt('ไขมัน (กรัม):', '2')) || 0;
+
+            if (!D.cfg.savedFoods) D.cfg.savedFoods = [];
+            D.cfg.savedFoods.unshift({
+                id: 'fav_' + Date.now(),
+                name: name.trim(),
+                portion: portion.trim(),
+                cal: cal,
+                pro: pro,
+                carbs: carbs,
+                fat: fat,
+                cat: (pro >= 20 || name.includes('โปรตีน') || name.includes('เวย์')) ? 'protein' : 'fav',
+                updatedAt: Date.now()
+            });
+            save();
+            if (currentUser && fbDb) pushToCloud();
+            setTimeout(() => {
+                openAddMealModal();
+                setFoodCategoryFilter('fav');
+                fcAlert('✓ เพิ่มเมนู "' + name + '" ลงในคลังคลาวด์เรียบร้อยแล้ว!');
+            }, 300);
+        }
+
+        async function deleteFavoriteFood(id, event) {
+            if (event) event.stopPropagation();
+            const confirmed = await fcConfirm('ต้องการลบเมนูนี้ออกจากคลังคลาวด์ใช่หรือไม่?', '🗑️ ยืนยันการลบ');
+            if (!confirmed) return;
+            D.cfg.savedFoods = (D.cfg.savedFoods || []).filter(f => f.id !== id);
+            save();
+            if (currentUser && fbDb) pushToCloud();
+            filterFoodListUI();
+            msg('✓ ลบเมนูออกจากคลังเรียบร้อยแล้ว');
+        }
+
+        function quickLogSavedFood(id) {
+            const food = (D.cfg.savedFoods || []).find(f => f.id === id);
+            if (!food) return;
+            const mType = document.getElementById('modalMealTypeSelect')?.value || 'lunch';
+            addMealToToday(mType, food.name, food.portion, food.cal, food.pro, food.carbs, food.fat);
+            fcClose();
+            msg('✓ บันทึก "' + food.name + '" ลงในมื้อแล้ว');
+        }
+
         window.saveAIFoodAsFavorite = function(name, cal, event) {
             if (!D.cfg.myFoods) D.cfg.myFoods = [];
             D.cfg.myFoods.unshift({ n: name, c: cal });
             save();
+            if (currentUser && fbDb) pushToCloud();
             if (event) {
                 event.target.textContent = '⭐ บันทึกลงเมนูโปรดแล้ว!';
                 event.target.style.color = 'var(--acc)';
@@ -5233,7 +5666,9 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             rec.water = (rec.water || 0) + ml;
             save();
             render();
-            if (currentUser && fbDb) autoSync();
+            if (currentUser && fbDb) {
+                pushToCloud();
+            }
             fcClose();
             msg('✓ ดื่มน้ำเพิ่ม +' + ml.toLocaleString() + ' ml แล้ว (รวมวันนี้: ' + rec.water.toLocaleString() + ' ml)');
         }
@@ -5244,7 +5679,9 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 rec.water = Math.max(0, rec.water - ml);
                 save();
                 render();
-                if (currentUser && fbDb) autoSync();
+                if (currentUser && fbDb) {
+                    pushToCloud();
+                }
                 fcClose();
                 msg('✓ หักลบน้ำดื่ม -' + ml + ' ml แล้ว (เหลือ: ' + rec.water.toLocaleString() + ' ml)');
             }
@@ -5256,7 +5693,9 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 rec.water = val;
                 save();
                 render();
-                if (currentUser && fbDb) autoSync();
+                if (currentUser && fbDb) {
+                    pushToCloud();
+                }
                 fcClose();
                 msg('✓ ปรับค่าน้ำดื่มเป็น ' + val + ' ml แล้ว');
             }
@@ -5504,8 +5943,12 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             if (cloud.forceFullCardio !== undefined) D.forceFullCardio = cloud.forceFullCardio;
             if (cloud.morningCardio !== undefined) D.morningCardio = cloud.morningCardio;
 
-            // Merge checks (Weight, body fat %, muscle mass, macros, meals timeline)
-            const isLocalDummy = D.checks && D.checks.length === 1 && D.checks[0].w === 80 && D.checks[0].bf === 27.1;
+            // Merge checks (Weight, body fat %, muscle mass, macros, meals timeline, water & steps)
+            const isLocalDummy = !D.checks || D.checks.length === 0 || (D.checks.length === 1 && (
+                (D.checks[0].w === 80 && D.checks[0].bf === 27.1) ||
+                (D.checks[0].w === 77.3 && D.checks[0].bf === 25.9) ||
+                (!D.checks[0].meals?.length && !D.checks[0].water && !D.checks[0].steps && (!D.sessions || D.sessions.length === 0))
+            ));
             if (isLocalDummy && cloud.checks && cloud.checks.length > 0) {
                 D.checks = [...cloud.checks];
             } else if (cloud.checks && Array.isArray(cloud.checks)) {
@@ -5513,19 +5956,29 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 (D.checks || []).forEach(c => checkMap.set(c.d, { ...c }));
                 cloud.checks.forEach(c => {
                     if (!checkMap.has(c.d)) {
-                        checkMap.set(c.d, c);
+                        checkMap.set(c.d, { ...c });
                     } else {
                         const ex = checkMap.get(c.d);
                         const mergedMeals = (c.meals && c.meals.length) ? c.meals : (ex.meals || []);
+                        const mergedWater = Math.max(ex.water || 0, c.water || 0);
+                        const mergedSteps = Math.max(ex.steps || 0, c.steps || 0);
                         checkMap.set(c.d, {
                             ...ex,
                             ...c,
+                            water: mergedWater > 0 ? mergedWater : (c.water ?? ex.water ?? null),
+                            steps: mergedSteps > 0 ? mergedSteps : (c.steps ?? ex.steps ?? null),
                             meals: mergedMeals
                         });
                     }
                 });
                 D.checks = [...checkMap.values()].sort((a, b) => a.d.localeCompare(b.d));
             }
+            // Ensure any water values <= 50 (legacy glasses) are migrated to ml (* 250)
+            (D.checks || []).forEach(c => {
+                if (c.water != null && c.water > 0 && c.water <= 50) {
+                    c.water = Math.round(c.water * 250);
+                }
+            });
 
             // Merge sessions
             const sessionMap = new Map();
@@ -5587,8 +6040,13 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             return res;
         }
 
+        let isSyncPending = false;
         async function pushToCloud() {
-            if (!currentUser || !fbDb || isSyncing) return false;
+            if (!currentUser || !fbDb) return false;
+            if (isSyncing) {
+                isSyncPending = true;
+                return false;
+            }
             isSyncing = true;
             try {
                 const userDocRef = fbDb.collection('users').doc(currentUser.uid);
@@ -5626,6 +6084,10 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 return false;
             } finally {
                 isSyncing = false;
+                if (isSyncPending) {
+                    isSyncPending = false;
+                    setTimeout(() => pushToCloud(), 150);
+                }
             }
         }
 
