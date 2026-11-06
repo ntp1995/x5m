@@ -799,8 +799,8 @@
         #fcDesc { font-size:14.5px; color:var(--dim); line-height:1.55; white-space:pre-wrap; }
         #fcDesc div, #fcDesc label, #fcDesc select, #fcDesc input { white-space:normal; }
 
-        .fc-modal-box input { width:100%; margin-top:14px; font-size:22px; text-align:center; padding:12px; background:var(--bg); border:1px solid var(--line); border-radius:12px; font-weight:700; outline:none; color:var(--tx); box-sizing:border-box; }
-        .fc-modal-box input:focus { border-color:var(--acc); }
+        .fc-modal-box #fcInput { width:100%; margin-top:14px; font-size:22px; text-align:center; padding:12px; background:var(--bg); border:1px solid var(--line); border-radius:12px; font-weight:700; outline:none; color:var(--tx); box-sizing:border-box; }
+        .fc-modal-box #fcInput:focus { border-color:var(--acc); }
         .fc-modal-actions { display:flex; gap:8px; margin-top:14px; flex-shrink:0; }
         .fc-modal-actions .btn { flex:1; margin:0; padding:13px; font-size:15px; border-radius:12px; }
 
@@ -1946,7 +1946,7 @@
     
 
     <!-- Custom Modal -->
-    <div id="fcModal" class="fc-modal">
+    <div id="fcModal" class="fc-modal" onclick="if(event.target===this)fcClose(null)">
         <div class="fc-modal-box">
             <h3 id="fcTitle"></h3>
             <div class="fc-modal-body" id="fcModalBody">
@@ -1962,7 +1962,7 @@
         </div>
     </div>
     <script>
-        const APP_VERSION = '2.9.1';
+        const APP_VERSION = '2.9.2';
         
         /* ============ CUSTOM MODALS ============ */
         let _fcRes = null;
@@ -1988,8 +1988,9 @@
             document.getElementById('fcModal').classList.remove('on');
             const okBtn = document.getElementById('fcOk');
             const cancelBtn = document.getElementById('fcCancel');
-            if (okBtn) okBtn.style.display = 'block';
+            if (okBtn) { okBtn.style.display = 'block'; okBtn.textContent = 'ตกลง'; }
             if (cancelBtn) cancelBtn.textContent = 'ยกเลิก';
+            document.getElementById('fcDesc').innerHTML = '';
             if (_fcRes) _fcRes(val);
             _fcRes = null;
         }
@@ -2022,7 +2023,7 @@
                 m.classList.add('on');
             });
         }
-        window.fcAlert = (desc) => fcShow('alert', 'แจ้งเตือน', desc);
+        window.fcAlert = (desc, title) => fcShow('alert', title || 'แจ้งเตือน', desc);
         window.fcConfirm = (desc, title) => fcShow('confirm', title || 'ยืนยันการดำเนินการ', desc);
         window.fcPrompt = (desc, defVal, title) => fcShow('prompt', title || 'ระบุข้อมูล', desc, defVal);
         window.fcChoice = (title, desc, choices) => fcShowChoiceModal(title, desc, choices);
@@ -5650,6 +5651,26 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             const pct = Math.min(100, Math.round((curWat / tgt) * 100));
 
             const html = `
+                <style>
+                    .fc-modal-actions { display: none !important; }
+                    .water-quick-chip {
+                        background: var(--card2);
+                        border: 1px solid var(--line);
+                        color: var(--dim);
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        padding: 5px 9px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        transition: all 0.15s;
+                    }
+                    .water-quick-chip:active {
+                        background: var(--vio);
+                        color: #fff;
+                        border-color: var(--vio);
+                        transform: scale(0.96);
+                    }
+                </style>
                 <div style="text-align:center; margin-bottom:14px;">
                     <div style="font-size:32px; font-weight:900; color:var(--vio); line-height:1.2;">
                         ${curWat.toLocaleString()} <span style="font-size:16px; font-weight:600; color:var(--dim);">/ ${tgt.toLocaleString()} มล.</span>
@@ -5662,44 +5683,72 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                     </div>
                 </div>
 
-                <div style="font-size:12.5px; font-weight:700; color:var(--dim); margin-bottom:8px;">⚡ เลือกขนาดภาชนะที่ดื่ม (กดเพื่อบวกทันที):</div>
+                <div style="font-size:12.5px; font-weight:700; color:var(--dim); margin-bottom:8px; text-align:left;">⚡ เลือกขนาดภาชนะที่ดื่ม (กดเพื่อบวกทันที):</div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
-                    <button class="btn sm" onclick="addWaterMl(250)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center;">
+                    <button class="btn sm" onclick="addWaterMl(250)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center; border-radius:12px;">
                         🥛 <b>+250 ml</b><br><span style="font-size:10.5px; color:var(--dim);">แก้วน้ำทั่วไป / กาแฟ</span>
                     </button>
-                    <button class="btn sm" onclick="addWaterMl(350)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center;">
+                    <button class="btn sm" onclick="addWaterMl(350)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center; border-radius:12px;">
                         ☕ <b>+350 ml</b><br><span style="font-size:10.5px; color:var(--dim);">แก้วมัค / กระป๋อง</span>
                     </button>
-                    <button class="btn sm" onclick="addWaterMl(500)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center;">
+                    <button class="btn sm" onclick="addWaterMl(500)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center; border-radius:12px;">
                         🧴 <b>+500 ml</b><br><span style="font-size:10.5px; color:var(--dim);">ขวดน้ำเล็กมาตรฐาน</span>
                     </button>
-                    <button class="btn sm" onclick="addWaterMl(600)" style="padding:10px 8px; font-size:12.5px; background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.3); color:var(--vio); text-align:center;">
+                    <button class="btn sm" onclick="addWaterMl(600)" style="padding:10px 8px; font-size:12.5px; background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.3); color:var(--vio); text-align:center; border-radius:12px;">
                         🥤 <b>+600 ml</b><br><span style="font-size:10.5px; color:var(--dim);">แก้ว Tyeso / ขวด 600</span>
                     </button>
-                    <button class="btn sm" onclick="addWaterMl(750)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center;">
+                    <button class="btn sm" onclick="addWaterMl(750)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center; border-radius:12px;">
                         🚴 <b>+750 ml</b><br><span style="font-size:10.5px; color:var(--dim);">กระบอกน้ำสปอร์ต</span>
                     </button>
-                    <button class="btn sm" onclick="addWaterMl(1000)" style="padding:10px 8px; font-size:12.5px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:#059669; text-align:center;">
+                    <button class="btn sm" onclick="addWaterMl(1000)" style="padding:10px 8px; font-size:12.5px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:#059669; text-align:center; border-radius:12px;">
                         🍶 <b>+1,000 ml (1L)</b><br><span style="font-size:10.5px; color:var(--dim);">ขวดลิตร / Yeti ใหญ่</span>
                     </button>
                 </div>
 
                 <div style="border-top:1px solid var(--line); padding-top:12px; margin-top:8px;">
-                    <div style="font-size:12.5px; font-weight:700; color:var(--dim); margin-bottom:6px;">✍️ หรือกรอกปริมาณที่ดื่ม (มล. / ml):</div>
-                    <div style="display:flex; gap:8px;">
-                        <input type="number" id="customWaterInput" step="50" min="10" placeholder="เช่น 300 หรือ 450" style="flex:1; padding:10px; font-size:14px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px;">
-                        <button class="btn sm" onclick="addCustomWater()" style="padding:10px 16px; font-size:13px; font-weight:700; background:var(--acc); color:#fff; border-radius:8px;">+ เพิ่ม</button>
+                    <div style="font-size:12.5px; font-weight:700; color:var(--dim); margin-bottom:8px; text-align:left;">✍️ หรือกรอกปริมาณที่ดื่ม (มล. / ml):</div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <div style="position:relative; flex:1; min-width:0;">
+                            <input type="number" id="customWaterInput" step="50" min="10" max="5000" placeholder="เช่น 300 หรือ 450" 
+                                onkeyup="if(event.key==='Enter')addCustomWater()"
+                                style="width:100% !important; margin:0 !important; padding:11px 40px 11px 14px; font-size:15px; font-weight:700; background:var(--bg); border:1.5px solid var(--line); color:var(--tx); border-radius:12px; box-sizing:border-box; text-align:left; -moz-appearance:textfield;">
+                            <span style="position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:12px; color:var(--dim); pointer-events:none; font-weight:600;">มล.</span>
+                        </div>
+                        <button type="button" class="btn sm" onclick="addCustomWater()" 
+                            style="width:auto !important; flex:0 0 auto; margin:0 !important; padding:11px 18px; font-size:13.5px; font-weight:800; background:var(--acc); color:#fff; border-radius:12px; white-space:nowrap; cursor:pointer;">
+                            + เพิ่ม
+                        </button>
+                    </div>
+                    <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; justify-content:flex-start;">
+                        <button type="button" class="water-quick-chip" onclick="setCustomWaterVal(150)">150</button>
+                        <button type="button" class="water-quick-chip" onclick="setCustomWaterVal(200)">200</button>
+                        <button type="button" class="water-quick-chip" onclick="setCustomWaterVal(300)">300</button>
+                        <button type="button" class="water-quick-chip" onclick="setCustomWaterVal(450)">450</button>
+                        <button type="button" class="water-quick-chip" onclick="setCustomWaterVal(800)">800</button>
+                        <span style="font-size:11px; color:var(--dim); align-self:center; margin-left:2px;">มล.</span>
                     </div>
                 </div>
 
                 ${curWat > 0 ? `
                 <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--line); padding-top:10px;">
-                    <button type="button" onclick="subtractWaterMl(250)" style="background:transparent; border:none; color:var(--dim); font-size:12px; cursor:pointer;">↺ ลบออก 250 ml</button>
-                    <button type="button" onclick="setWaterTotal(0)" style="background:transparent; border:none; color:var(--red); font-size:12px; cursor:pointer;">🗑️ ล้างเป็น 0</button>
+                    <button type="button" onclick="subtractWaterMl(250)" style="background:transparent; border:none; color:var(--dim); font-size:12px; cursor:pointer; padding:4px 6px;">↺ ลบออก 250 ml</button>
+                    <button type="button" onclick="setWaterTotal(0)" style="background:transparent; border:none; color:var(--red); font-size:12px; cursor:pointer; padding:4px 6px;">🗑️ ล้างเป็น 0</button>
                 </div>` : ''}
+
+                <div style="margin-top:14px; text-align:center;">
+                    <button type="button" onclick="fcClose()" style="background:var(--card2); border:1px solid var(--line); color:var(--dim); font-size:13px; font-weight:700; padding:9px 24px; border-radius:99px; cursor:pointer; width:100%;">✕ ปิดหน้าต่าง</button>
+                </div>
             `;
 
             fcAlert(html, '💧 บันทึกปริมาณน้ำดื่ม');
+        }
+
+        function setCustomWaterVal(val) {
+            const inp = document.getElementById('customWaterInput');
+            if (inp) {
+                inp.value = val;
+                inp.focus();
+            }
         }
 
         function addWaterMl(ml) {
