@@ -1962,7 +1962,7 @@
         </div>
     </div>
     <script>
-        const APP_VERSION = '2.9.2';
+        const APP_VERSION = '2.9.3';
         
         /* ============ CUSTOM MODALS ============ */
         let _fcRes = null;
@@ -1988,9 +1988,11 @@
             document.getElementById('fcModal').classList.remove('on');
             const okBtn = document.getElementById('fcOk');
             const cancelBtn = document.getElementById('fcCancel');
+            const actionsEl = document.querySelector('.fc-modal-actions');
+            if (actionsEl) actionsEl.style.display = 'flex';
             if (okBtn) { okBtn.style.display = 'block'; okBtn.textContent = 'ตกลง'; }
             if (cancelBtn) cancelBtn.textContent = 'ยกเลิก';
-            document.getElementById('fcDesc').innerHTML = '';
+            // DO NOT clear fcDesc.innerHTML here: async callers need to read input values after fcConfirm resolves
             if (_fcRes) _fcRes(val);
             _fcRes = null;
         }
@@ -3702,15 +3704,16 @@
 
         /* ============ RENDER ============ */
         function render() {
-            const last = D.checks[D.checks.length - 1] || null;
             const tc = todayCheck();
+            const lastWeighRecord = (D.checks || []).filter(x => x.w != null && x.w > 0).slice(-1)[0] || null;
+            const last = (tc && tc.w != null && tc.w > 0) ? tc : (lastWeighRecord || D.checks[D.checks.length - 1] || null);
             document.getElementById('wkTxt').textContent = 'สัปดาห์ ' + wkNo() + '/' + totalWeeks();
             document.getElementById('phaseTag').textContent = getPhases()[phIdx()].n.split(' · ')[0];
             document.getElementById('hsub').textContent = getPhases()[phIdx()].d;
 
             // 1. Body Composition Metrics Update
             const curWEl = document.getElementById('curW');
-            if (curWEl) curWEl.textContent = last ? (+last.w).toFixed(1) : '–';
+            if (curWEl) curWEl.textContent = (last && last.w != null && last.w > 0) ? (+last.w).toFixed(1) : (lastWeighRecord ? (+lastWeighRecord.w).toFixed(1) : '–');
             const sBFEl = document.getElementById('sBF');
             if (sBFEl) sBFEl.textContent = last?.bf ? (+last.bf).toFixed(1) + '%' : '–';
             const sMuscleEl = document.getElementById('sMuscle');
@@ -3753,7 +3756,10 @@
             else if (daysAgo === WEIGH_WARN_DAYS) { streakClass = ' warn'; streakIcon = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3L2 6"/><path d="M19 3l3 3"/></svg>' }
             
             const lastWeighEl = document.getElementById('lastWeighTxt');
-            if (lastWeighEl) lastWeighEl.textContent = last ? 'ล่าสุด: ' + last.d.slice(5) + ' (' + (+last.w).toFixed(1) + ' กก.)' : 'ยังไม่เคยชั่ง — แตะเพื่อบันทึก';
+            if (lastWeighEl) {
+                const displayWeighRec = (tc && tc.w != null && tc.w > 0) ? tc : lastWeighRecord;
+                lastWeighEl.textContent = displayWeighRec ? 'ล่าสุด: ' + displayWeighRec.d.slice(5) + ' (' + (+displayWeighRec.w).toFixed(1) + ' กก.)' : 'ยังไม่เคยชั่ง — แตะเพื่อบันทึก';
+            }
             const bodyStreakEl = document.getElementById('bodyStreakBadge');
             if (bodyStreakEl) {
                 bodyStreakEl.className = 'streak-badge' + streakClass;
@@ -4975,7 +4981,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                     <div style="background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px;">
                         <div style="margin-bottom:10px;">
                             <label style="display:block; font-weight:700; font-size:12.5px; color:var(--tx); margin-bottom:4px;">⚖️ น้ำหนักตัว (กก.) <span style="color:var(--red)">*</span></label>
-                            <input type="number" step="0.1" id="mWeighW" value="${w}" placeholder="เช่น 70.5" style="width:100%; font-size:16px; font-weight:700; padding:9px; background:var(--bg); border:1.5px solid var(--acc); color:var(--tx); border-radius:8px; box-sizing:border-box;">
+                            <input type="number" step="0.1" id="mWeighW" value="${w}" oninput="window._tempWeighW=this.value" placeholder="เช่น 70.5" style="width:100%; font-size:16px; font-weight:700; padding:9px; background:var(--bg); border:1.5px solid var(--acc); color:var(--tx); border-radius:8px; box-sizing:border-box;">
                         </div>
 
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
@@ -5011,7 +5017,8 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             const ok = await fcConfirm(html, 'บันทึกข้อมูลยามเช้า');
             if (!ok) return;
 
-            const wVal = document.getElementById('mWeighW')?.value.trim();
+            const wVal = (document.getElementById('mWeighW')?.value || window._tempWeighW || '').toString().trim();
+            window._tempWeighW = null;
             const nW = wVal ? parseFloat(wVal) : null;
             if (!nW || nW < 30 || nW > 250) {
                 fcAlert('กรุณากรอกน้ำหนักตัวให้ถูกต้อง (30 - 250 กก.) ครับ');
@@ -5059,14 +5066,19 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 if (nSteps != null) cur.steps = nSteps;
             }
 
+            cur.updatedAt = Date.now();
             if (!D.cfg.biometrics) D.cfg.biometrics = {};
             if (nBf != null) D.cfg.biometrics.bf = nBf;
             if (nMuscle != null) D.cfg.biometrics.muscle = nMuscle;
+            if (nW != null) D.cfg.biometrics.w = nW;
 
             save();
             render();
-            if (typeof autoSync === 'function') autoSync();
-            else if (currentUser && fbDb) pushToCloud();
+            if (currentUser && fbDb) {
+                pushToCloud();
+            } else if (typeof autoSync === 'function') {
+                autoSync();
+            }
             msg('✓ บันทึกน้ำหนัก & สัดส่วนเช้านี้เรียบร้อยแล้ว!');
         }
 
@@ -6055,15 +6067,60 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                         checkMap.set(c.d, { ...c });
                     } else {
                         const ex = checkMap.get(c.d);
-                        const mergedMeals = (c.meals && c.meals.length) ? c.meals : (ex.meals || []);
+                        const isCloudNewer = (c.updatedAt || 0) >= (ex.updatedAt || 0);
+                        
+                        // Smart merge weights: Never let null/0 overwrite a valid weight
+                        let mergedW = null;
+                        if (c.w != null && c.w >= 30 && ex.w != null && ex.w >= 30) {
+                            mergedW = isCloudNewer ? c.w : ex.w;
+                        } else if (c.w != null && c.w >= 30) {
+                            mergedW = c.w;
+                        } else if (ex.w != null && ex.w >= 30) {
+                            mergedW = ex.w;
+                        }
+
+                        // Smart merge body fat %
+                        let mergedBf = null;
+                        if (c.bf != null && c.bf > 0 && ex.bf != null && ex.bf > 0) {
+                            mergedBf = isCloudNewer ? c.bf : ex.bf;
+                        } else {
+                            mergedBf = (c.bf != null && c.bf > 0) ? c.bf : (ex.bf ?? null);
+                        }
+
+                        // Smart merge muscle mass
+                        let mergedMuscle = null;
+                        if (c.muscle != null && c.muscle > 0 && ex.muscle != null && ex.muscle > 0) {
+                            mergedMuscle = isCloudNewer ? c.muscle : ex.muscle;
+                        } else {
+                            mergedMuscle = (c.muscle != null && c.muscle > 0) ? c.muscle : (ex.muscle ?? null);
+                        }
+
+                        // Smart merge HRV & Pain
+                        const mergedHrv = (c.hrv != null && c.hrv > 0) ? c.hrv : (ex.hrv ?? null);
+                        const mergedPain = (c.pain != null) ? (isCloudNewer ? c.pain : ex.pain) : (ex.pain ?? null);
+
+                        // Merge water & steps
                         const mergedWater = Math.max(ex.water || 0, c.water || 0);
                         const mergedSteps = Math.max(ex.steps || 0, c.steps || 0);
+
+                        // Merge meals by meal ID so neither local nor cloud meals are dropped
+                        const mealMap = new Map();
+                        (ex.meals || []).forEach(m => { if (m) mealMap.set(m.id || (m.name + '_' + m.time), m); });
+                        (c.meals || []).forEach(m => { if (m) mealMap.set(m.id || (m.name + '_' + m.time), m); });
+                        const mergedMeals = [...mealMap.values()];
+
                         checkMap.set(c.d, {
                             ...ex,
                             ...c,
+                            w: mergedW,
+                            bf: mergedBf,
+                            muscle: mergedMuscle,
+                            hrv: mergedHrv,
+                            pain: mergedPain,
                             water: mergedWater > 0 ? mergedWater : (c.water ?? ex.water ?? null),
                             steps: mergedSteps > 0 ? mergedSteps : (c.steps ?? ex.steps ?? null),
-                            meals: mergedMeals
+                            meals: mergedMeals,
+                            updatedAt: Math.max(ex.updatedAt || 0, c.updatedAt || 0)
                         });
                     }
                 });
