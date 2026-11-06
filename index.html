@@ -1962,7 +1962,7 @@
         </div>
     </div>
     <script>
-        const APP_VERSION = '2.9.0';
+        const APP_VERSION = '2.9.1';
         
         /* ============ CUSTOM MODALS ============ */
         let _fcRes = null;
@@ -2755,6 +2755,20 @@
         (D.checks || []).forEach(c => {
             if (c.water != null && c.water > 0 && c.water <= 50) {
                 c.water = Math.round(c.water * 250);
+            }
+            // Auto-heal cal, protein, carbs, fat if meals exist
+            if (c.meals && c.meals.length > 0) {
+                let mCal = 0, mPro = 0, mCarbs = 0, mFat = 0;
+                c.meals.forEach(m => {
+                    mCal += Number(m.cal) || 0;
+                    mPro += Number(m.pro) || 0;
+                    mCarbs += Number(m.carbs) || 0;
+                    mFat += Number(m.fat) || 0;
+                });
+                c.cal = Math.round(mCal);
+                c.protein = Math.round(mPro);
+                c.carbs = Math.round(mCarbs);
+                c.fat = Math.round(mFat);
             }
         });
 
@@ -3747,8 +3761,28 @@
 
             document.getElementById('bsMode').checked = !!D.bs;
 
-            // 2. Nutrition & Activity Metrics
-            const cal = tc?.cal || 0, pro = tc?.protein || 0, carbs = tc?.carbs || 0, fat = tc?.fat || 0, wat = tc?.water || 0;
+            // 2. Nutrition & Activity Metrics (Auto-heal from meals if present)
+            let cal = tc?.cal || 0, pro = tc?.protein || 0, carbs = tc?.carbs || 0, fat = tc?.fat || 0, wat = tc?.water || 0;
+            if (tc?.meals && tc.meals.length > 0) {
+                let mCal = 0, mPro = 0, mCarbs = 0, mFat = 0;
+                tc.meals.forEach(m => {
+                    mCal += Number(m.cal) || 0;
+                    mPro += Number(m.pro) || 0;
+                    mCarbs += Number(m.carbs) || 0;
+                    mFat += Number(m.fat) || 0;
+                });
+                cal = Math.round(mCal);
+                pro = Math.round(mPro);
+                carbs = Math.round(mCarbs);
+                fat = Math.round(mFat);
+                if (tc.cal !== cal || tc.protein !== pro || tc.carbs !== carbs || tc.fat !== fat) {
+                    tc.cal = cal;
+                    tc.protein = pro;
+                    tc.carbs = carbs;
+                    tc.fat = fat;
+                    try { localStorage.setItem('fit', JSON.stringify(D)); } catch (e) {}
+                }
+            }
             const steps = tc?.steps || 0;
             const stepTarget = D.cfg?.stepTarget || 8000;
             const stepPct = Math.min(100, Math.round((steps / stepTarget) * 100));
@@ -5211,6 +5245,19 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             const bf = parseFloat(document.getElementById('inBF').value) || prev?.bf || null;
             const muscle = parseFloat(document.getElementById('inMuscle')?.value) || prev?.muscle || null;
             const steps = parseInt(document.getElementById('inSteps')?.value) || (existing?.steps || null);
+            let checkCal = parseInt(document.getElementById('inCal')?.value);
+            let checkPro = parseInt(document.getElementById('inProtein')?.value);
+            if ((isNaN(checkCal) || checkCal <= 0) && existing?.meals?.length > 0) {
+                checkCal = existing.cal || 0;
+            } else if (isNaN(checkCal)) {
+                checkCal = existing?.cal || null;
+            }
+            if ((isNaN(checkPro) || checkPro <= 0) && existing?.meals?.length > 0) {
+                checkPro = existing.protein || 0;
+            } else if (isNaN(checkPro)) {
+                checkPro = existing?.protein || null;
+            }
+
             const rec = {
                 d: iso(), w, 
                 bf,
@@ -5218,8 +5265,8 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 steps,
                 hrv: parseInt(document.getElementById('inHRV').value) || null,
                 pain: document.getElementById('inPain').value === '' ? null : parseInt(document.getElementById('inPain').value),
-                cal: parseInt(document.getElementById('inCal').value) || (existing?.cal || null),
-                protein: parseInt(document.getElementById('inProtein').value) || (existing?.protein || null),
+                cal: checkCal,
+                protein: checkPro,
                 carbs: existing?.carbs || null,
                 fat: existing?.fat || null,
                 water: parseInt(document.getElementById('inWater').value) || (existing?.water || null),
@@ -5974,9 +6021,23 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 D.checks = [...checkMap.values()].sort((a, b) => a.d.localeCompare(b.d));
             }
             // Ensure any water values <= 50 (legacy glasses) are migrated to ml (* 250)
+            // and auto-recalculate cal, pro, carbs, fat from meals for all records
             (D.checks || []).forEach(c => {
                 if (c.water != null && c.water > 0 && c.water <= 50) {
                     c.water = Math.round(c.water * 250);
+                }
+                if (c.meals && c.meals.length > 0) {
+                    let mCal = 0, mPro = 0, mCarbs = 0, mFat = 0;
+                    c.meals.forEach(m => {
+                        mCal += Number(m.cal) || 0;
+                        mPro += Number(m.pro) || 0;
+                        mCarbs += Number(m.carbs) || 0;
+                        mFat += Number(m.fat) || 0;
+                    });
+                    c.cal = Math.round(mCal);
+                    c.protein = Math.round(mPro);
+                    c.carbs = Math.round(mCarbs);
+                    c.fat = Math.round(mFat);
                 }
             });
 
