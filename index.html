@@ -1962,7 +1962,7 @@
         </div>
     </div>
     <script>
-        const APP_VERSION = '2.9.4';
+        const APP_VERSION = '2.9.6';
         
         /* ============ CUSTOM MODALS ============ */
         let _fcRes = null;
@@ -2026,7 +2026,15 @@
             });
         }
         window.fcAlert = (desc, title) => fcShow('alert', title || 'แจ้งเตือน', desc);
-        window.fcConfirm = (desc, title) => fcShow('confirm', title || 'ยืนยันการดำเนินการ', desc);
+        window.fcConfirm = (desc, titleOrCallback, maybeTitle) => {
+            if (typeof titleOrCallback === 'function') {
+                return fcShow('confirm', maybeTitle || 'ยืนยันการดำเนินการ', desc).then(ok => {
+                    if (ok) titleOrCallback();
+                    return ok;
+                });
+            }
+            return fcShow('confirm', titleOrCallback || 'ยืนยันการดำเนินการ', desc);
+        };
         window.fcPrompt = (desc, defVal, title) => fcShow('prompt', title || 'ระบุข้อมูล', desc, defVal);
         window.fcChoice = (title, desc, choices) => fcShowChoiceModal(title, desc, choices);
         
@@ -2902,20 +2910,133 @@
             msg('✓ บันทึกมื้ออาหารเรียบร้อย (+ ' + newMealItem.cal + ' kcal)');
         }
 
-        function deleteMealItem(dateKey, mealIndex) {
+        /* ============ EDIT / ADJUST LOGGED MEAL PORTION ============ */
+        async function editMealItem(dateKey, mealIndex) {
+            const dStr = dateKey || iso();
+            let rec = D.checks.find(x => x.d === dStr);
+            if (!rec || !rec.meals || !rec.meals[mealIndex]) return;
+
+            const m = rec.meals[mealIndex];
+            const baseCal = m.baseCal || m.cal;
+            const basePro = m.basePro || m.pro;
+            const baseCarbs = m.baseCarbs || m.carbs;
+            const baseFat = m.baseFat || m.fat;
+            const basePortion = m.basePortion || m.portion || '1 จาน';
+
+            window._mealBaseValues = { cal: baseCal, pro: basePro, carbs: baseCarbs, fat: baseFat, portion: basePortion };
+            window.applyMealPortionPct = function(pct, label) {
+                const b = window._mealBaseValues;
+                if (!b) return;
+                const calInp = document.getElementById('edMealCal');
+                const proInp = document.getElementById('edMealPro');
+                const carbsInp = document.getElementById('edMealCarbs');
+                const fatInp = document.getElementById('edMealFat');
+                const portionInp = document.getElementById('edMealPortion');
+                const lbl = document.getElementById('edMealPortionLabel');
+
+                if (calInp) calInp.value = Math.round(b.cal * pct);
+                if (proInp) proInp.value = Math.round(b.pro * pct);
+                if (carbsInp) carbsInp.value = Math.round(b.carbs * pct);
+                if (fatInp) fatInp.value = Math.round(b.fat * pct);
+                if (lbl) lbl.textContent = label;
+                if (portionInp) {
+                    portionInp.value = pct === 1.0 ? b.portion : `${b.portion} (${label})`;
+                }
+            };
+
+            const html = `
+                <div style="text-align:left; font-size:13.5px; line-height:1.5;">
+                    <div style="font-weight:800; font-size:15px; color:var(--acc); margin-bottom:2px;">🍽️ ${m.name}</div>
+                    <div style="font-size:12px; color:var(--dim); margin-bottom:12px;">มื้อ: <b>${MEAL_LABELS[m.type] || m.type}</b> • เวลา: ${m.time || ''}</div>
+
+                    <div style="background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span style="font-size:12px; font-weight:700; color:var(--dim);">⚡ เลือกสัดส่วนที่ทานจริง:</span>
+                            <span id="edMealPortionLabel" style="font-size:11.5px; font-weight:800; color:var(--acc);">${m.portion ? m.portion : 'ปรับสัดส่วน'}</span>
+                        </div>
+                        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; margin-bottom:12px;">
+                            <button type="button" class="btn sm" onclick="applyMealPortionPct(1.0, 'ทานหมด 100%')" style="padding:6px 2px; font-size:11.5px; font-weight:700; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px;">100%<br><span style="font-size:9.5px; color:var(--dim); font-weight:400;">หมดจาน</span></button>
+                            <button type="button" class="btn sm" onclick="applyMealPortionPct(0.75, 'ทาน 75%')" style="padding:6px 2px; font-size:11.5px; font-weight:700; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px;">75%<br><span style="font-size:9.5px; color:var(--dim); font-weight:400;">เหลือ 1/4</span></button>
+                            <button type="button" class="btn sm" onclick="applyMealPortionPct(0.5, 'ทานครึ่งเดียว (50%)')" style="padding:6px 2px; font-size:11.5px; font-weight:700; background:rgba(234,88,12,0.12); border:1.5px solid var(--acc); color:var(--acc); border-radius:8px;">50%<br><span style="font-size:9.5px; color:var(--acc); font-weight:700;">ครึ่งเดียว</span></button>
+                            <button type="button" class="btn sm" onclick="applyMealPortionPct(0.33, 'ทาน 33% (1/3)')" style="padding:6px 2px; font-size:11.5px; font-weight:700; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px;">33%<br><span style="font-size:9.5px; color:var(--dim); font-weight:400;">1 ใน 3</span></button>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                            <div>
+                                <label style="font-size:11.5px; font-weight:700; color:var(--acc); display:block; margin-bottom:2px;">⚡ แคลอรี่ (kcal)</label>
+                                <input type="number" id="edMealCal" value="${m.cal}" style="width:100%; padding:8px; font-size:14px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:11.5px; font-weight:700; color:var(--acc2); display:block; margin-bottom:2px;">🍗 โปรตีน (g)</label>
+                                <input type="number" id="edMealPro" value="${m.pro || 0}" style="width:100%; padding:8px; font-size:14px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:11.5px; font-weight:700; color:#3b82f6; display:block; margin-bottom:2px;">🍚 คาร์บ (g)</label>
+                                <input type="number" id="edMealCarbs" value="${m.carbs || 0}" style="width:100%; padding:8px; font-size:14px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:11.5px; font-weight:700; color:#10b981; display:block; margin-bottom:2px;">🥑 ไขมัน (g)</label>
+                                <input type="number" id="edMealFat" value="${m.fat || 0}" style="width:100%; padding:8px; font-size:14px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                            </div>
+                        </div>
+
+                        <div style="margin-top:10px;">
+                            <label style="font-size:11.5px; font-weight:700; color:var(--dim); display:block; margin-bottom:2px;">คำอธิบายปริมาณ (Portion):</label>
+                            <input type="text" id="edMealPortion" value="${m.portion || ''}" placeholder="เช่น ทาน 50% หรือ ครึ่งจาน" style="width:100%; padding:8px; font-size:13px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const confirmed = await fcConfirm(html, '✏️ ปรับสัดส่วน / หักลบอาหารที่ทาน');
+            if (!confirmed) return;
+
+            const finalCal = parseInt(document.getElementById('edMealCal')?.value) || 0;
+            const finalPro = parseInt(document.getElementById('edMealPro')?.value) || 0;
+            const finalCarbs = parseInt(document.getElementById('edMealCarbs')?.value) || 0;
+            const finalFat = parseInt(document.getElementById('edMealFat')?.value) || 0;
+            const finalPortion = (document.getElementById('edMealPortion')?.value || m.portion || '').trim();
+
+            m.baseCal = baseCal;
+            m.basePro = basePro;
+            m.baseCarbs = baseCarbs;
+            m.baseFat = baseFat;
+            m.basePortion = basePortion;
+            m.cal = finalCal;
+            m.pro = finalPro;
+            m.carbs = finalCarbs;
+            m.fat = finalFat;
+            m.portion = finalPortion;
+
+            recalculateDailyNutrition(dStr);
+            save();
+            render();
+            if (currentUser && fbDb) {
+                pushToCloud();
+            }
+            msg('✓ ปรับสัดส่วนอาหารเรียบร้อย (คำนวณแคลอรี่ใหม่แล้ว)');
+        }
+
+        async function deleteMealItem(dateKey, mealIndex) {
             const dStr = dateKey || iso();
             let rec = D.checks.find(x => x.d === dStr);
             if (!rec || !rec.meals || !rec.meals[mealIndex]) return;
 
             const item = rec.meals[mealIndex];
-            fcConfirm('ต้องการลบรายการ <b>' + item.name + '</b> (' + item.cal + ' kcal) ออกจากบันทึกใช่หรือไม่?', () => {
-                rec.meals.splice(mealIndex, 1);
-                recalculateDailyNutrition(dStr);
-                save();
-                render();
-                if (typeof pushToCloud === 'function') pushToCloud();
-                msg('✓ ลบรายการอาหารแล้ว');
-            });
+            const confirmed = await fcConfirm(
+                `ต้องการลบรายการ <b>${item.name}</b> (${item.cal} kcal) ออกจากบันทึกใช่หรือไม่?`,
+                '🗑️ ยืนยันการลบรายการ'
+            );
+            if (!confirmed) return;
+
+            rec.meals.splice(mealIndex, 1);
+            recalculateDailyNutrition(dStr);
+            save();
+            render();
+            if (currentUser && fbDb) {
+                pushToCloud();
+            }
+            msg('✓ ลบรายการอาหารแล้ว');
         }
 
         
@@ -3883,12 +4004,13 @@
                                     🍗 ${m.pro || 0}g • 🍚 ${m.carbs || 0}g • 🥑 ${m.fat || 0}g
                                 </div>
                             </div>
-                            <div style="display:flex; align-items:center; gap:8px;">
+                            <div style="display:flex; align-items:center; gap:6px;">
                                 <div style="text-align:right;">
                                     <span style="font-weight:800; color:var(--acc); font-size:13.5px;">${m.cal || 0}</span>
                                     <span style="font-size:10.5px; color:var(--dim);"> kcal</span>
                                 </div>
-                                <button onclick="deleteMealItem('${tc.d}', ${idx})" style="background:transparent; border:none; color:var(--red); cursor:pointer; padding:4px 6px; font-size:14px; opacity:0.8;" title="ลบรายการนี้">🗑️</button>
+                                <button onclick="editMealItem('${tc.d}', ${idx})" style="background:transparent; border:none; color:var(--dim); cursor:pointer; padding:4px 5px; font-size:13px;" title="แตะเพื่อปรับสัดส่วนหรือหักลบแคลอรี่">✏️</button>
+                                <button onclick="deleteMealItem('${tc.d}', ${idx})" style="background:transparent; border:none; color:var(--red); cursor:pointer; padding:4px 5px; font-size:13px; opacity:0.8;" title="ลบรายการนี้">🗑️</button>
                             </div>
                         </div>
                     `;
@@ -5323,7 +5445,10 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             const carbs = Math.round(Number(document.getElementById('aiCarbs')?.value) || 0);
             const fat = Math.round(Number(document.getElementById('aiFat')?.value) || 0);
 
-            addMealToToday(mealType, name, portion || '1 จาน', cal, pro, carbs, fat);
+            const pLabel = document.getElementById('aiPortionLabel')?.textContent || '';
+            const finalPortion = (pLabel && !pLabel.includes('100%')) ? `${portion || '1 จาน'} (${pLabel})` : (portion || '1 จาน');
+
+            addMealToToday(mealType, name, finalPortion, cal, pro, carbs, fat);
             fcClose();
         }
 
@@ -5348,6 +5473,22 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             }
         }
         
+        // Helper for AI scan portion adjusting
+        window.applyAiPortion = function(pct, label) {
+            const base = window._aiScanBase;
+            if (!base) return;
+            const calEl = document.getElementById('aiCal');
+            const proEl = document.getElementById('aiPro');
+            const carbsEl = document.getElementById('aiCarbs');
+            const fatEl = document.getElementById('aiFat');
+            const lbl = document.getElementById('aiPortionLabel');
+            if (calEl) calEl.value = Math.round(base.cal * pct);
+            if (proEl) proEl.value = Math.round(base.pro * pct);
+            if (carbsEl) carbsEl.value = Math.round(base.carbs * pct);
+            if (fatEl) fatEl.value = Math.round(base.fat * pct);
+            if (lbl) lbl.textContent = label || (Math.round(pct * 100) + '%');
+        };
+
         async function processAIFood(file, text) {
             fcClose();
             // Show loading and hide buttons
@@ -5439,6 +5580,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                         const carbsVal = Math.round(Number(result.carbs) || 0);
                         const fatVal = Math.round(Number(result.fat) || 0);
                         const portionVal = (result.portion || '1 จาน').trim();
+                        window._aiScanBase = { cal: calVal, pro: proVal, carbs: carbsVal, fat: fatVal, portion: portionVal };
 
                         const resModalHtml = `
                             <div style="text-align:left; font-size:14px;">
@@ -5455,6 +5597,20 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                                     <option value="dinner">🌙 มื้อเย็น</option>
                                     <option value="snack">🍎 ของว่าง</option>
                                 </select>
+
+                                <!-- Quick Portion Selector for AI Scanner -->
+                                <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:8px 10px; margin-bottom:12px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                        <span style="font-size:11.5px; font-weight:700; color:var(--dim);">🍽️ สัดส่วนที่ทานจริง:</span>
+                                        <span id="aiPortionLabel" style="font-size:11px; font-weight:700; color:var(--acc);">100% (ทานหมด)</span>
+                                    </div>
+                                    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px;">
+                                        <button type="button" class="btn sm" onclick="applyAiPortion(1.0, '100% (ทานหมด)')" style="padding:5px 2px; font-size:11px; font-weight:700; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px;">100%</button>
+                                        <button type="button" class="btn sm" onclick="applyAiPortion(0.75, '75% (เหลือ 1/4)')" style="padding:5px 2px; font-size:11px; font-weight:700; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px;">75%</button>
+                                        <button type="button" class="btn sm" onclick="applyAiPortion(0.5, '50% (ครึ่งเดียว)')" style="padding:5px 2px; font-size:11px; font-weight:700; background:rgba(234,88,12,0.12); border:1.5px solid var(--acc); color:var(--acc); border-radius:8px;">50% (ครึ่ง)</button>
+                                        <button type="button" class="btn sm" onclick="applyAiPortion(0.33, '33% (1 ใน 3)')" style="padding:5px 2px; font-size:11px; font-weight:700; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px;">33% (1/3)</button>
+                                    </div>
+                                </div>
 
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
                                     <div>
