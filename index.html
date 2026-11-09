@@ -1531,6 +1531,10 @@
                 <div style="display:flex; align-items:center; gap:8px;">
                     <div class="tag" id="phaseTag" style="font-weight:700;">Phase 1</div>
                     <span class="sub" id="wkTxt" style="font-size:11.5px; font-weight:700; background:var(--card2); padding:3px 8px; border-radius:8px; border:1px solid var(--line);"></span>
+                    <div id="cloudSyncPill" onclick="handleCloudSyncPillClick()" style="cursor:pointer; display:flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:3px 8px; border-radius:99px; background:var(--card2); border:1px solid var(--line); white-space:nowrap; transition:all 0.2s;" title="สถานะ Cloud First Sync แตะเพื่อซิงก์">
+                        <span id="cloudSyncDot" style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#10b981;"></span>
+                        <span id="cloudSyncTxt" style="color:var(--tx);">ซิงก์แล้ว</span>
+                    </div>
                     <div id="userHeaderBadge" onclick="go('sync')" style="cursor:pointer; display:none;"></div>
                 </div>
             </div>
@@ -1962,7 +1966,7 @@
         </div>
     </div>
     <script>
-        const APP_VERSION = '2.9.6';
+        const APP_VERSION = '2.11.0';
         
         /* ============ CUSTOM MODALS ============ */
         let _fcRes = null;
@@ -2467,7 +2471,18 @@
             hiitR: { img: 'hiitR.jpg', n: 'Interval — เร่ง', eq: 'ลู่วิ่ง', cue: ['เร่งจน HR แตะ 158-172 bpm', 'ก้าวสั้นถี่ ลำตัวตั้ง ไม่ก้มหลัง'], yt: 'treadmill hiit intervals' },
             hiitW: { img: 'walk.jpg', n: 'Interval — เดินฟื้นตัว', eq: 'ลู่วิ่ง', cue: ['เดิน 4.5-5 km/h ให้ HR ลงต่ำกว่า 140', 'เดินต่อเนื่อง อย่าหยุดนิ่ง'], yt: 'active recovery walking' },
             hula: { img: 'hula.jpg', n: 'ฮูล่าฮูป', eq: 'ฮูล่าฮูป', cue: ['ดันสะโพกหน้า-หลัง ไม่ใช่หมุนวน', 'สลับทิศทุก 2 นาที', 'ถ้าปวดหลังเพิ่มขึ้นให้หยุดทันที'], yt: 'hula hoop workout' },
-            walk: { img: 'walk.jpg', n: 'เดินฟื้นตัว', eq: 'ลู่วิ่ง/นอกบ้าน', cue: ['ชีพจร 100-120 bpm', 'เพิ่ม NEAT โดยไม่กระทบการฟื้นตัว'], yt: 'recovery walk' }
+            walk: { img: 'walk.jpg', n: 'เดินฟื้นตัว', eq: 'ลู่วิ่ง/นอกบ้าน', cue: ['ชีพจร 100-120 bpm', 'เพิ่ม NEAT โดยไม่กระทบการฟื้นตัว'], yt: 'recovery walk' },
+            /* ---------- OUTDOOR PARK ACTIVE RECOVERY & MOBILITY ---------- */
+            w_out_walk: { img: 'walk.jpg', n: 'เดินปรับจังหวะในสวน (Brisk Walk)', eq: 'ทางเดินสวน', cue: ['ก้าวสั้นๆ ช้าๆ กวัดแกว่งแขนผ่อนคลาย', 'สูดหายใจลึกยาว ปรับอุณหภูมิร่างกาย', 'กระจายน้ำไขข้อ (Synovial Fluid) ในหมอนรองกระดูกและข้อต่อ'], yt: 'brisk walk warmup' },
+            w_out_hinge: { img: 'thrust.jpg', n: 'Standing Hip Hinge (ท่ายืนดันสะโพก)', eq: 'ไม่ต้องใช้อุปกรณ์', cue: ['ยืนขากว้างเท่าสะโพก มือแตะหน้าขา', 'แขม่วพุง ล็อกหลังตรง ดันก้นไปข้างหลัง 45°', 'ห้ามโก่งหลัง รู้สึกตึงก้นและต้นขาหลัง', 'เกร็งก้นดันตัวกลับมายืนตรง 10-12 ครั้ง ปลุกก้นโดยไม่กดทับหลัง'], yt: 'standing hip hinge warmup' },
+            w_out_march: { img: 'bmarch.jpg', n: 'Standing March with Core Brace', eq: 'ไม่ต้องใช้อุปกรณ์', cue: ['ยืนตัวตรง แขม่วหน้าท้องเก็บซี่โครง', 'ยกเข่าขึ้นช้าๆ ทีละข้างระดับสะโพก ค้าง 1 วินาที', 'ลำตัวตรงไม่เอียง ล็อกแกนกลางแนวดิ่ง', 'กระตุ้นกล้ามเนื้อหน้าท้องเหมือนเดินจริงโดยไม่ต้องนอนเสื่อ'], yt: 'standing high knee march core' },
+            w_out_lunge: { img: 'c_hip.jpg', side: 1, n: 'Standing Staggered Lunge Stretch', eq: 'ไม่ต้องใช้อุปกรณ์', cue: ['ก้าวขาไปข้างหลัง ยืนบนปลายเท้า ย่อเข่าหน้าเล็กน้อย', 'เกร็งก้นข้างหลัง แล้วดันสะโพกไปข้างหน้าเบาๆ', 'ยืดตัวตรง ไม่แอ่นหลังล่าง', 'คลายกล้ามเนื้อหน้างอสะโพก (Hip Flexor) โดยเข่าไม่แตะพื้นดิน'], yt: 'standing hip flexor lunge stretch' },
+            w_out_twist: { img: 'w_thor.jpg', n: 'Standing Thoracic Twist (หมุนอก)', eq: 'ไม่ต้องใช้อุปกรณ์', cue: ['ยืนกางขา มือประสานที่อกหรือแตะไหล่ตรงข้าม', 'ล็อกสะโพกและเชิงกรานให้นิ่ง หมุนเฉพาะช่วงอกซ้าย-ขวา', 'หมุนช้าๆ นุ่มนวล ไม่สะบัดเอว', 'เปิดการเคลื่อนไหวของกระดูกสันหลังส่วนอก หายใจโล่งขึ้น'], yt: 'standing thoracic rotation' },
+            c_out_walk: { img: 'walk.jpg', n: 'เดินชะลอความเร็ว (Deceleration Walk)', eq: 'ทางเดินสวน', cue: ['ลดความเร็วลงเรื่อยๆ ก้าวสบายๆ', 'หายใจเข้า 4 วินาที ออกยาว 6 วินาที', 'ให้ชีพจรค่อยๆ ลงต่ำกว่า 100 bpm อย่างปลอดภัย'], yt: 'cool down walk' },
+            c_out_fig4: { img: 'c_fig4.jpg', side: 1, n: 'Seated Park Bench Figure-4 (ยืดสลักเพชร)', eq: 'ม้านั่งสวนสาธารณะ', cue: ['นั่งหลังตรงบนม้านั่ง ยกข้อเท้าพาดบนเข่าตรงข้าม', 'ยืดอก โน้มตัวตรงจากข้อพับสะโพกไปข้างหน้า (ห้ามงอหลัง)', 'รู้สึกตึงลึกๆ ที่ก้น/สะโพก ค้าง 30 วินาที/ข้าง', 'คลายกล้ามเนื้อ Piriformis ป้องกันปวดสะโพกร้าวลงขา'], yt: 'seated figure 4 stretch bench' },
+            c_out_ham: { img: 'c_ham.jpg', side: 1, n: 'Bench / Curb Hamstring Stretch', eq: 'ม้านั่งเตี้ย / ขอบทางเดิน', cue: ['วางส้นเท้าข้างหนึ่งบนขอบม้านั่งเตี้ยหรือขอบทาง ปลายเท้าชี้ขึ้น', 'งอเข่าขาหลักเล็กน้อย ดันก้นไปข้างหลัง โน้มตัวตรงไปข้างหน้าเบาๆ', 'รู้สึกตึงที่ต้นขาหลัง ค้าง 20 วินาที/ข้าง', 'ยืดแฮมสตริงโดยแนวกระดูกสันหลังตรง ปลอดภัยต่อหมอนรองกระดูก'], yt: 'standing hamstring stretch bench' },
+            c_out_calf: { img: 'walk.jpg', side: 1, n: 'Tree / Post Calf Stretch (ยันต้นไม้ยืดน่อง)', eq: 'ต้นไม้ / เสา', cue: ['เอามือยันต้นไม้หรือเสา ก้าวขาข้างหนึ่งไปข้างหลัง', 'กดส้นเท้าแนบพื้น ปลายเท้าชี้ตรงไปข้างหน้า', 'โน้มตัวไปข้างหน้าเล็กน้อยจนรู้สึกตึงน่อง ค้าง 30 วินาที/ข้าง', 'คลายกล้ามเนื้อน่องจากการเดินบนพื้นแข็ง ป้องกันรองช้ำ'], yt: 'standing calf stretch tree' },
+            c_out_chest: { img: 'c_door.jpg', n: 'Tree / Post Chest & Lat Opener', eq: 'ต้นไม้ / เสา', cue: ['มือเกาะต้นไม้หรือเสาระดับอก ถอยเท้าไปข้างหลัง ดันสะโพกไปหลัง', 'ก้มศีรษะลงเบาๆ ให้ลำตัวขนานพื้น ยืดแผงอก ปีก และหลังส่วนบน', 'หายใจเข้า-ออกช้าๆ ลึกๆ ค้าง 30 วินาที', 'คลายกล้ามเนื้อหลังส่วนบนและสะบักจากการเดินแกว่งแขน'], yt: 'tree chest lat stretch' }
         };
 
         /* ============ WARM-UP / COOL-DOWN BLOCKS ============ */
@@ -2500,6 +2515,20 @@
             { e: 'c_door', sets: 1, type: 'time', t: 40, after: 10 },
             { e: 'c_twist', sets: 1, type: 'time', t: 40, after: 10 },
             { e: 'c_legs', sets: 1, type: 'time', t: 180, after: 0 }
+        ];
+        const WARM_OUTDOOR = [
+            { e: 'w_out_walk', sets: 1, type: 'time', t: 120, after: 10 },
+            { e: 'w_out_hinge', sets: 1, type: 'reps', r: '12 ครั้ง', after: 10 },
+            { e: 'w_out_march', sets: 1, type: 'reps', r: '10 ครั้ง/ข้าง', after: 10 },
+            { e: 'w_out_lunge', sets: 1, type: 'time', t: 20, after: 10 },
+            { e: 'w_out_twist', sets: 1, type: 'reps', r: '10 ครั้ง', after: 20 }
+        ];
+        const COOL_OUTDOOR = [
+            { e: 'c_out_walk', sets: 1, type: 'time', t: 90, after: 10 },
+            { e: 'c_out_fig4', sets: 1, type: 'time', t: 30, after: 10 },
+            { e: 'c_out_ham', sets: 1, type: 'time', t: 20, after: 10 },
+            { e: 'c_out_calf', sets: 1, type: 'time', t: 30, after: 10 },
+            { e: 'c_out_chest', sets: 1, type: 'time', t: 30, after: 0 }
         ];
         /* โหมดหลังปลอดภัย: ท่าเดิม -> ท่าแทน */
         const SAFE = { rdl: 'thrust', swing: 'bmarch', wheel: 'w_deadbug', row: 'csrow' };
@@ -2751,13 +2780,25 @@
         }
 
         /* ============ STATE ============ */
-        const D = JSON.parse(localStorage.getItem('fit') || 'null') || { start: iso(), bs: false, checks: [{ d: iso(), w: 77.3, bf: 25.9, hrv: 73, pain: null }], sessions: [], sets: [], cfg: { url: '', key: '', code: '' } };
+        const D = JSON.parse(localStorage.getItem('fit') || 'null') || { start: iso(), bs: false, outdoorMode: false, checks: [{ d: iso(), w: 77.3, bf: 25.9, hrv: 73, pain: null }], sessions: [], sets: [], cfg: { url: '', key: '', code: '' } };
         if (D.schOffs && !D.schOffsUpdatedAt) { D.schOffsUpdatedAt = Date.now(); }
+        if (D.outdoorMode === undefined) { D.outdoorMode = false; }
         D.cfg = D.cfg || { url: '', key: '', code: '', aiKey: '', aiKeyBackup: '' };
+        if (!D.cfg.savedFoods || D.cfg.savedFoods.length === 0) {
+            D.cfg.savedFoods = [
+                { id: 'fav_def_1', name: 'นมโปรตีนพาสเจอร์ไรส์ RTD', portion: '1 ขวด (350 มล.)', cal: 170, pro: 28, carbs: 8, fat: 2.5, sugar: 2, sodium: 160 },
+                { id: 'fav_def_2', name: 'กล้วยหอม', portion: '1 ผล', cal: 105, pro: 1, carbs: 27, fat: 0, sugar: 14, sodium: 1 },
+                { id: 'fav_def_3', name: 'ไข่ต้ม', portion: '2 ฟอง', cal: 140, pro: 12, carbs: 1, fat: 10, sugar: 0, sodium: 120 },
+                { id: 'fav_def_4', name: 'อกไก่นุ่ม 7-Eleven', portion: '1 ชิ้น (100g)', cal: 100, pro: 20, carbs: 1, fat: 1.5, sugar: 1, sodium: 350 },
+                { id: 'fav_def_5', name: 'ต้มยำไก่ใส่เห็ดพร้อมข้าวสวย', portion: '1 ชุด', cal: 470, pro: 32, carbs: 58, fat: 10, sugar: 4, sodium: 750 }
+            ];
+        }
         let CAL_TARGET = D.cfg.calTarget || 1800;
         let PROTEIN_TARGET = D.cfg.proteinTarget || 155;
         let FAT_TARGET = D.cfg.fatTarget || 50;
         let CARBS_TARGET = D.cfg.carbsTarget || 185;
+        let SUGAR_TARGET = D.cfg.sugarTarget || 25;
+        let SODIUM_TARGET = D.cfg.sodiumTarget || 2000;
         // Migrate water target & records from glasses (<= 50) to ml (* 250)
         if (D.cfg.waterTarget && D.cfg.waterTarget <= 50) {
             D.cfg.waterTarget = D.cfg.waterTarget * 250;
@@ -2767,90 +2808,94 @@
             if (c.water != null && c.water > 0 && c.water <= 50) {
                 c.water = Math.round(c.water * 250);
             }
-            // Auto-heal cal, protein, carbs, fat if meals exist
+            // Auto-heal cal, protein, carbs, fat, sugar, sodium if meals exist
             if (c.meals && c.meals.length > 0) {
-                let mCal = 0, mPro = 0, mCarbs = 0, mFat = 0;
+                let mCal = 0, mPro = 0, mCarbs = 0, mFat = 0, mSugar = 0, mSodium = 0;
                 c.meals.forEach(m => {
                     mCal += Number(m.cal) || 0;
                     mPro += Number(m.pro) || 0;
                     mCarbs += Number(m.carbs) || 0;
                     mFat += Number(m.fat) || 0;
+                    mSugar += Number(m.sugar) || 0;
+                    mSodium += Number(m.sodium) || 0;
                 });
                 c.cal = Math.round(mCal);
                 c.protein = Math.round(mPro);
                 c.carbs = Math.round(mCarbs);
                 c.fat = Math.round(mFat);
+                c.sugar = Math.round(mSugar);
+                c.sodium = Math.round(mSodium);
             }
         });
 
         /* ============ THAI FOOD & MACRONUTRIENT DATABASE ============ */
         const TF_MACROS = [
             /* --- เครื่องดื่มโปรตีน & RTD ยอดนิยม (Ready-to-Drink High Protein) --- */
-            { id: 'tf_meiji_high_pro', cat: 'protein', name: 'นมโปรตีน Meiji High Protein (ช็อกโกแลต)', portion: '1 ขวด (350ml)', cal: 170, pro: 28, carbs: 9, fat: 2 },
-            { id: 'tf_meiji_high_pro_vanilla', cat: 'protein', name: 'นมโปรตีน Meiji High Protein (วานิลลา)', portion: '1 ขวด (350ml)', cal: 170, pro: 28, carbs: 9, fat: 2 },
-            { id: 'tf_hoppe_high_pro', cat: 'protein', name: 'นมโปรตีน Hoppe High Protein', portion: '1 ขวด (~350ml)', cal: 180, pro: 30, carbs: 6, fat: 2 },
-            { id: 'tf_tofusan_high_pro', cat: 'protein', name: 'นมถั่วเหลือง Tofusan High Protein (ไม่ใส่น้ำตาล)', portion: '1 ขวด (350ml)', cal: 160, pro: 28, carbs: 5, fat: 3 },
-            { id: 'tf_dutchmill_high_pro', cat: 'protein', name: 'นม Dutch Mill High Protein Whey', portion: '1 ขวด (350ml)', cal: 170, pro: 28, carbs: 8, fat: 2 },
-            { id: 'tf_7eleven_chicken', cat: 'protein', name: 'อกไก่นุ่ม 7-Eleven (ปรุงสุก)', portion: '1 ซอง (~90g)', cal: 120, pro: 22, carbs: 1, fat: 2 },
-            { id: 'tf_cp_egg_boiled_2', cat: 'protein', name: 'ไข่ต้ม CP (2 ฟอง)', portion: '2 ฟอง (~100g)', cal: 150, pro: 13, carbs: 1, fat: 10 },
+            { id: 'tf_meiji_high_pro', cat: 'protein', name: 'นมโปรตีน Meiji High Protein (ช็อกโกแลต)', portion: '1 ขวด (350ml)', cal: 170, pro: 28, carbs: 9, fat: 2, sugar: 4, sodium: 150 },
+            { id: 'tf_meiji_high_pro_vanilla', cat: 'protein', name: 'นมโปรตีน Meiji High Protein (วานิลลา)', portion: '1 ขวด (350ml)', cal: 170, pro: 28, carbs: 9, fat: 2, sugar: 4, sodium: 150 },
+            { id: 'tf_hoppe_high_pro', cat: 'protein', name: 'นมโปรตีน Hoppe High Protein', portion: '1 ขวด (~350ml)', cal: 180, pro: 30, carbs: 6, fat: 2, sugar: 3, sodium: 130 },
+            { id: 'tf_tofusan_high_pro', cat: 'protein', name: 'นมถั่วเหลือง Tofusan High Protein (ไม่ใส่น้ำตาล)', portion: '1 ขวด (350ml)', cal: 160, pro: 28, carbs: 5, fat: 3, sugar: 0, sodium: 110 },
+            { id: 'tf_dutchmill_high_pro', cat: 'protein', name: 'นม Dutch Mill High Protein Whey', portion: '1 ขวด (350ml)', cal: 170, pro: 28, carbs: 8, fat: 2, sugar: 5, sodium: 140 },
+            { id: 'tf_7eleven_chicken', cat: 'protein', name: 'อกไก่นุ่ม 7-Eleven (ปรุงสุก)', portion: '1 ซอง (~90g)', cal: 120, pro: 22, carbs: 1, fat: 2, sugar: 0, sodium: 390 },
+            { id: 'tf_cp_egg_boiled_2', cat: 'protein', name: 'ไข่ต้ม CP (2 ฟอง)', portion: '2 ฟอง (~100g)', cal: 150, pro: 13, carbs: 1, fat: 10, sugar: 0.6, sodium: 140 },
             /* --- อาหารเหนือยอดนิยม (Northern Thai Specialties) --- */
-            { id: 'tf_khao_soi_chicken', cat: 'north', name: 'ข้าวซอยไก่ (น่องไก่ + เส้น)', portion: '1 ชาม (~400g)', cal: 540, pro: 26, carbs: 52, fat: 25 },
-            { id: 'tf_khao_soi_beef', cat: 'north', name: 'ข้าวซอยเนื้อน่องลาย', portion: '1 ชาม (~400g)', cal: 580, pro: 28, carbs: 52, fat: 28 },
-            { id: 'tf_khanom_jeen_nam_ngiao', cat: 'north', name: 'ขนมจีนน้ำเงี้ยว (กระดูกหมู+เลือด)', portion: '1 ชาม (~400g)', cal: 360, pro: 20, carbs: 44, fat: 12 },
-            { id: 'tf_nam_prik_num', cat: 'north', name: 'น้ำพริกหนุ่ม + ผักสด/ผักลวก', portion: '1 ถ้วยเล็ก (~50g)', cal: 35, pro: 1.5, carbs: 6, fat: 0.5 },
-            { id: 'tf_nam_prik_ong', cat: 'north', name: 'น้ำพริกอ่อง (หมูสับมะเขือส้ม)', portion: '1 ถ้วย (~100g)', cal: 160, pro: 11, carbs: 8, fat: 9.5 },
-            { id: 'tf_gaeng_hung_lay', cat: 'north', name: 'แกงฮังเลหมู', portion: '1 ถ้วย (~150g)', cal: 390, pro: 18, carbs: 10, fat: 31 },
-            { id: 'tf_sai_oua', cat: 'north', name: 'ไส้อั่วสมุนไพรย่าง (100g)', portion: '1 เส้น (~100g)', cal: 280, pro: 15, carbs: 3, fat: 23 },
-            { id: 'tf_larb_kua_pork', cat: 'north', name: 'ลาบคั่วหมูเมืองเหนือ (มะแขว่น)', portion: '1 จาน (~120g)', cal: 220, pro: 24, carbs: 4, fat: 12 },
-            { id: 'tf_larb_kua_chicken', cat: 'north', name: 'ลาบคั่วอกไก่เมืองเหนือ (คลีน)', portion: '1 จาน (~120g)', cal: 170, pro: 28, carbs: 3, fat: 5 },
-            { id: 'tf_gaeng_khae_chicken', cat: 'north', name: 'แกงแคไก่ (แกงผักพื้นบ้าน ไม่กะทิ)', portion: '1 ชาม (~250g)', cal: 160, pro: 18, carbs: 8, fat: 6 },
-            { id: 'tf_gaeng_ho', cat: 'north', name: 'แกงโฮะคั่วใส่วุ้นเส้น', portion: '1 จาน (~200g)', cal: 310, pro: 12, carbs: 32, fat: 14 },
-            { id: 'tf_gaeng_om_northern', cat: 'north', name: 'แกงอ่อมหมู/ไก่เมืองเหนือ (ไม่กะทิ)', portion: '1 ถ้วย (~200g)', cal: 210, pro: 22, carbs: 5, fat: 11 },
-            { id: 'tf_gaeng_phak_wan', cat: 'north', name: 'แกงผักหวานป่าใส่ไข่มดแดง/ปลาแห้ง', portion: '1 ถ้วย (~200g)', cal: 130, pro: 14, carbs: 8, fat: 4 },
-            { id: 'tf_tam_khanun', cat: 'north', name: 'ตำขนุนอ่อน (ตำบ่าหนุน)', portion: '1 จาน (~120g)', cal: 180, pro: 5, carbs: 18, fat: 10 },
-            { id: 'tf_jin_som_mok_khai', cat: 'north', name: 'จิ้นส้มหมกไข่ (แหนมหมูย่างใบตอง)', portion: '1 ห่อ (~100g)', cal: 190, pro: 16, carbs: 3, fat: 12.5 },
-            { id: 'tf_jin_neung_nam_prik_kha', cat: 'north', name: 'จิ้นนึ่งสมุนไพร + น้ำพริกข่า (เนื้อนึ่ง)', portion: '1 ชุด (~120g)', cal: 180, pro: 28, carbs: 2, fat: 6.5 },
-            { id: 'tf_khaep_mu_lean', cat: 'north', name: 'แคบหมูไร้มัน (โปรตีนสูง)', portion: '1 ถุงเล็ก (~30g)', cal: 150, pro: 19, carbs: 0, fat: 8 },
-            { id: 'tf_khaep_mu_fat', cat: 'north', name: 'แคบหมูติดมันโบราณ', portion: '1 ถุงเล็ก (~30g)', cal: 195, pro: 14, carbs: 0, fat: 15 },
-            { id: 'tf_khao_kan_jin', cat: 'north', name: 'ข้าวกั้นจิ๊น (ข้าวเงี้ยว)', portion: '1 ห่อ (~120g)', cal: 260, pro: 12, carbs: 36, fat: 7 },
-            { id: 'tf_gaeng_het_thob', cat: 'north', name: 'แกงเห็ดถอบ / เห็ดเผาะยอดชะอม', portion: '1 ถ้วย (~200g)', cal: 120, pro: 6, carbs: 14, fat: 4 },
+            { id: 'tf_khao_soi_chicken', cat: 'north', name: 'ข้าวซอยไก่ (น่องไก่ + เส้น)', portion: '1 ชาม (~400g)', cal: 540, pro: 26, carbs: 52, fat: 25, sugar: 6, sodium: 1250 },
+            { id: 'tf_khao_soi_beef', cat: 'north', name: 'ข้าวซอยเนื้อน่องลาย', portion: '1 ชาม (~400g)', cal: 580, pro: 28, carbs: 52, fat: 28, sugar: 6, sodium: 1320 },
+            { id: 'tf_khanom_jeen_nam_ngiao', cat: 'north', name: 'ขนมจีนน้ำเงี้ยว (กระดูกหมู+เลือด)', portion: '1 ชาม (~400g)', cal: 360, pro: 20, carbs: 44, fat: 12, sugar: 4, sodium: 1150 },
+            { id: 'tf_nam_prik_num', cat: 'north', name: 'น้ำพริกหนุ่ม + ผักสด/ผักลวก', portion: '1 ถ้วยเล็ก (~50g)', cal: 35, pro: 1.5, carbs: 6, fat: 0.5, sugar: 2, sodium: 420 },
+            { id: 'tf_nam_prik_ong', cat: 'north', name: 'น้ำพริกอ่อง (หมูสับมะเขือส้ม)', portion: '1 ถ้วย (~100g)', cal: 160, pro: 11, carbs: 8, fat: 9.5, sugar: 5, sodium: 580 },
+            { id: 'tf_gaeng_hung_lay', cat: 'north', name: 'แกงฮังเลหมู', portion: '1 ถ้วย (~150g)', cal: 390, pro: 18, carbs: 10, fat: 31, sugar: 8, sodium: 890 },
+            { id: 'tf_sai_oua', cat: 'north', name: 'ไส้อั่วสมุนไพรย่าง (100g)', portion: '1 เส้น (~100g)', cal: 280, pro: 15, carbs: 3, fat: 23, sugar: 2, sodium: 720 },
+            { id: 'tf_larb_kua_pork', cat: 'north', name: 'ลาบคั่วหมูเมืองเหนือ (มะแขว่น)', portion: '1 จาน (~120g)', cal: 220, pro: 24, carbs: 4, fat: 12, sugar: 1.5, sodium: 620 },
+            { id: 'tf_larb_kua_chicken', cat: 'north', name: 'ลาบคั่วอกไก่เมืองเหนือ (คลีน)', portion: '1 จาน (~120g)', cal: 170, pro: 28, carbs: 3, fat: 5, sugar: 1, sodium: 580 },
+            { id: 'tf_gaeng_khae_chicken', cat: 'north', name: 'แกงแคไก่ (แกงผักพื้นบ้าน ไม่กะทิ)', portion: '1 ชาม (~250g)', cal: 160, pro: 18, carbs: 8, fat: 6, sugar: 3, sodium: 680 },
+            { id: 'tf_gaeng_ho', cat: 'north', name: 'แกงโฮะคั่วใส่วุ้นเส้น', portion: '1 จาน (~200g)', cal: 310, pro: 12, carbs: 32, fat: 14, sugar: 4, sodium: 850 },
+            { id: 'tf_gaeng_om_northern', cat: 'north', name: 'แกงอ่อมหมู/ไก่เมืองเหนือ (ไม่กะทิ)', portion: '1 ถ้วย (~200g)', cal: 210, pro: 22, carbs: 5, fat: 11, sugar: 2, sodium: 740 },
+            { id: 'tf_gaeng_phak_wan', cat: 'north', name: 'แกงผักหวานป่าใส่ไข่มดแดง/ปลาแห้ง', portion: '1 ถ้วย (~200g)', cal: 130, pro: 14, carbs: 8, fat: 4, sugar: 3, sodium: 590 },
+            { id: 'tf_tam_khanun', cat: 'north', name: 'ตำขนุนอ่อน (ตำบ่าหนุน)', portion: '1 จาน (~120g)', cal: 180, pro: 5, carbs: 18, fat: 10, sugar: 3, sodium: 620 },
+            { id: 'tf_jin_som_mok_khai', cat: 'north', name: 'จิ้นส้มหมกไข่ (แหนมหมูย่างใบตอง)', portion: '1 ห่อ (~100g)', cal: 190, pro: 16, carbs: 3, fat: 12.5, sugar: 1, sodium: 650 },
+            { id: 'tf_jin_neung_nam_prik_kha', cat: 'north', name: 'จิ้นนึ่งสมุนไพร + น้ำพริกข่า (เนื้อนึ่ง)', portion: '1 ชุด (~120g)', cal: 180, pro: 28, carbs: 2, fat: 6.5, sugar: 1, sodium: 540 },
+            { id: 'tf_khaep_mu_lean', cat: 'north', name: 'แคบหมูไร้มัน (โปรตีนสูง)', portion: '1 ถุงเล็ก (~30g)', cal: 150, pro: 19, carbs: 0, fat: 8, sugar: 0, sodium: 320 },
+            { id: 'tf_khaep_mu_fat', cat: 'north', name: 'แคบหมูติดมันโบราณ', portion: '1 ถุงเล็ก (~30g)', cal: 195, pro: 14, carbs: 0, fat: 15, sugar: 0, sodium: 450 },
+            { id: 'tf_khao_kan_jin', cat: 'north', name: 'ข้าวกั้นจิ๊น (ข้าวเงี้ยว)', portion: '1 ห่อ (~120g)', cal: 260, pro: 12, carbs: 36, fat: 7, sugar: 2, sodium: 580 },
+            { id: 'tf_gaeng_het_thob', cat: 'north', name: 'แกงเห็ดถอบ / เห็ดเผาะยอดชะอม', portion: '1 ถ้วย (~200g)', cal: 120, pro: 6, carbs: 14, fat: 4, sugar: 2, sodium: 520 },
 
             /* --- เมนูโปรตีนสูง & อาหารคลีน (High Protein & Clean) --- */
-            { id: 'tf_chicken_breast', cat: 'clean', name: 'อกไก่ต้ม/นึ่ง (100g)', portion: '100 กรัม', cal: 165, pro: 31, carbs: 0, fat: 3.6 },
-            { id: 'tf_chicken_grill', cat: 'clean', name: 'อกไก่ย่างไร้น้ำมัน (100g)', portion: '100 กรัม', cal: 175, pro: 32, carbs: 1, fat: 4 },
-            { id: 'tf_egg_boiled', cat: 'clean', name: 'ไข่ต้ม (1 ฟอง)', portion: '1 ฟอง (~50g)', cal: 75, pro: 6.5, carbs: 0.6, fat: 5 },
-            { id: 'tf_egg_white', cat: 'clean', name: 'ไข่ขาวต้ม (1 ฟอง)', portion: '1 ฟอง (~33g)', cal: 17, pro: 3.6, carbs: 0.2, fat: 0.1 },
-            { id: 'tf_whey', cat: 'clean', name: 'เวย์โปรตีน (1 สกู๊ป)', portion: '1 สกู๊ป (~30g)', cal: 120, pro: 24, carbs: 2, fat: 1.5 },
-            { id: 'tf_salmon_grill', cat: 'clean', name: 'แซลมอนย่างเกลือ (150g)', portion: '150 กรัม', cal: 310, pro: 34, carbs: 0, fat: 18 },
-            { id: 'tf_tuna_water', cat: 'clean', name: 'ทูน่าในน้ำแร่ (1 กระป๋อง)', portion: '1 กระป๋อง (~130g)', cal: 120, pro: 28, carbs: 0, fat: 1 },
-            { id: 'tf_tofu_firm', cat: 'clean', name: 'เต้าหู้ขาวแข็ง (100g)', portion: '100 กรัม', cal: 85, pro: 9, carbs: 2, fat: 5 },
-            { id: 'tf_soy_milk_unsweet', cat: 'clean', name: 'นมถั่วเหลือง ไม่หวาน (250ml)', portion: '1 กล่อง (~250ml)', cal: 100, pro: 8, carbs: 5, fat: 5 },
-            { id: 'tf_milk_skim', cat: 'clean', name: 'นมขาดมันเนย 0% (200ml)', portion: '1 แก้ว (~200ml)', cal: 70, pro: 7, carbs: 10, fat: 0.2 },
-            { id: 'tf_greek_yogurt', cat: 'clean', name: 'กรีกโยเกิร์ตแท้ ไม่หวาน (150g)', portion: '1 ถ้วย (~150g)', cal: 95, pro: 15, carbs: 4, fat: 1.5 },
-            { id: 'tf_kaprao_chicken_clean', cat: 'clean', name: 'กะเพราอกไก่คลีน (ไม่ใส่น้ำมัน)', portion: '1 จาน (เฉพาะกับ)', cal: 210, pro: 32, carbs: 4, fat: 7 },
-            { id: 'tf_sukiyaki_chicken', cat: 'clean', name: 'สุกี้น้ำอกไก่ (ผักเยอะ)', portion: '1 ชาม', cal: 280, pro: 26, carbs: 28, fat: 6 },
-            { id: 'tf_tom_yum_goong', cat: 'clean', name: 'ต้มยำกุ้งน้ำใส', portion: '1 ถ้วย (กุ้ง 4 ตัว)', cal: 120, pro: 18, carbs: 5, fat: 2.5 },
-            { id: 'tf_avocado', cat: 'clean', name: 'อะโวคาโด (ครึ่งลูก ~75g)', portion: 'ครึ่งลูก', cal: 120, pro: 1.5, carbs: 6, fat: 11 },
-            { id: 'tf_almonds', cat: 'clean', name: 'อัลมอนด์อบ (1 กำมือ ~30g)', portion: '1 กำมือ (~30g)', cal: 170, pro: 6, carbs: 6, fat: 15 },
-            { id: 'tf_banana', cat: 'clean', name: 'กล้วยหอม (1 ลูกกลาง)', portion: '1 ลูก (~110g)', cal: 95, pro: 1.2, carbs: 24, fat: 0.3 },
-            { id: 'tf_apple', cat: 'clean', name: 'แอปเปิ้ล (1 ผลกลาง)', portion: '1 ผล (~150g)', cal: 80, pro: 0.4, carbs: 20, fat: 0.2 },
-            { id: 'tf_sweet_potato', cat: 'clean', name: 'มันเทศ/มันหวานนึ่ง (100g)', portion: '100 กรัม', cal: 90, pro: 1.6, carbs: 21, fat: 0.1 },
-            { id: 'tf_americano', cat: 'clean', name: 'อเมริกาโน่เย็น ไม่หวาน', portion: '1 แก้ว', cal: 10, pro: 0.5, carbs: 1, fat: 0.1 },
+            { id: 'tf_chicken_breast', cat: 'clean', name: 'อกไก่ต้ม/นึ่ง (100g)', portion: '100 กรัม', cal: 165, pro: 31, carbs: 0, fat: 3.6, sugar: 0, sodium: 75 },
+            { id: 'tf_chicken_grill', cat: 'clean', name: 'อกไก่ย่างไร้น้ำมัน (100g)', portion: '100 กรัม', cal: 175, pro: 32, carbs: 1, fat: 4, sugar: 0, sodium: 220 },
+            { id: 'tf_egg_boiled', cat: 'clean', name: 'ไข่ต้ม (1 ฟอง)', portion: '1 ฟอง (~50g)', cal: 75, pro: 6.5, carbs: 0.6, fat: 5, sugar: 0.3, sodium: 70 },
+            { id: 'tf_egg_white', cat: 'clean', name: 'ไข่ขาวต้ม (1 ฟอง)', portion: '1 ฟอง (~33g)', cal: 17, pro: 3.6, carbs: 0.2, fat: 0.1, sugar: 0.2, sodium: 55 },
+            { id: 'tf_whey', cat: 'clean', name: 'เวย์โปรตีน (1 สกู๊ป)', portion: '1 สกู๊ป (~30g)', cal: 120, pro: 24, carbs: 2, fat: 1.5, sugar: 1.5, sodium: 140 },
+            { id: 'tf_salmon_grill', cat: 'clean', name: 'แซลมอนย่างเกลือ (150g)', portion: '150 กรัม', cal: 310, pro: 34, carbs: 0, fat: 18, sugar: 0, sodium: 95 },
+            { id: 'tf_tuna_water', cat: 'clean', name: 'ทูน่าในน้ำแร่ (1 กระป๋อง)', portion: '1 กระป๋อง (~130g)', cal: 120, pro: 28, carbs: 0, fat: 1, sugar: 0, sodium: 280 },
+            { id: 'tf_tofu_firm', cat: 'clean', name: 'เต้าหู้ขาวแข็ง (100g)', portion: '100 กรัม', cal: 85, pro: 9, carbs: 2, fat: 5, sugar: 0.5, sodium: 15 },
+            { id: 'tf_soy_milk_unsweet', cat: 'clean', name: 'นมถั่วเหลือง ไม่หวาน (250ml)', portion: '1 กล่อง (~250ml)', cal: 100, pro: 8, carbs: 5, fat: 5, sugar: 1, sodium: 90 },
+            { id: 'tf_milk_skim', cat: 'clean', name: 'นมขาดมันเนย 0% (200ml)', portion: '1 แก้ว (~200ml)', cal: 70, pro: 7, carbs: 10, fat: 0.2, sugar: 10, sodium: 105 },
+            { id: 'tf_greek_yogurt', cat: 'clean', name: 'กรีกโยเกิร์ตแท้ ไม่หวาน (150g)', portion: '1 ถ้วย (~150g)', cal: 95, pro: 15, carbs: 4, fat: 1.5, sugar: 4, sodium: 65 },
+            { id: 'tf_kaprao_chicken_clean', cat: 'clean', name: 'กะเพราอกไก่คลีน (ไม่ใส่น้ำมัน)', portion: '1 จาน (เฉพาะกับ)', cal: 210, pro: 32, carbs: 4, fat: 7, sugar: 1.5, sodium: 480 },
+            { id: 'tf_sukiyaki_chicken', cat: 'clean', name: 'สุกี้น้ำอกไก่ (ผักเยอะ)', portion: '1 ชาม', cal: 280, pro: 26, carbs: 28, fat: 6, sugar: 5, sodium: 680 },
+            { id: 'tf_tom_yum_goong', cat: 'clean', name: 'ต้มยำกุ้งน้ำใส', portion: '1 ถ้วย (กุ้ง 4 ตัว)', cal: 120, pro: 18, carbs: 5, fat: 2.5, sugar: 2.5, sodium: 780 },
+            { id: 'tf_avocado', cat: 'clean', name: 'อะโวคาโด (ครึ่งลูก ~75g)', portion: 'ครึ่งลูก', cal: 120, pro: 1.5, carbs: 6, fat: 11, sugar: 0.5, sodium: 5 },
+            { id: 'tf_almonds', cat: 'clean', name: 'อัลมอนด์อบ (1 กำมือ ~30g)', portion: '1 กำมือ (~30g)', cal: 170, pro: 6, carbs: 6, fat: 15, sugar: 1.2, sodium: 1 },
+            { id: 'tf_banana', cat: 'clean', name: 'กล้วยหอม (1 ลูกกลาง)', portion: '1 ลูก (~110g)', cal: 95, pro: 1.2, carbs: 24, fat: 0.3, sugar: 14, sodium: 1 },
+            { id: 'tf_apple', cat: 'clean', name: 'แอปเปิ้ล (1 ผลกลาง)', portion: '1 ผล (~150g)', cal: 80, pro: 0.4, carbs: 20, fat: 0.2, sugar: 15, sodium: 2 },
+            { id: 'tf_sweet_potato', cat: 'clean', name: 'มันเทศ/มันหวานนึ่ง (100g)', portion: '100 กรัม', cal: 90, pro: 1.6, carbs: 21, fat: 0.1, sugar: 6, sodium: 55 },
+            { id: 'tf_americano', cat: 'clean', name: 'อเมริกาโน่เย็น ไม่หวาน', portion: '1 แก้ว', cal: 10, pro: 0.5, carbs: 1, fat: 0.1, sugar: 0, sodium: 5 },
 
             /* --- อาหารจานเดียว & สตรีทฟู้ดยอดนิยม (Single Dishes & Street Food) --- */
-            { id: 'tf_rice_jasmine', cat: 'dish', name: 'ข้าวสวยหอมมะลิ (1 ทัพพี)', portion: '1 ทัพพี (~80g)', cal: 110, pro: 2.2, carbs: 24, fat: 0.3 },
-            { id: 'tf_rice_berry', cat: 'dish', name: 'ข้าวไรซ์เบอร์รี่/กล้อง (1 ทัพพี)', portion: '1 ทัพพี (~80g)', cal: 100, pro: 2.5, carbs: 22, fat: 0.5 },
-            { id: 'tf_sticky_rice', cat: 'dish', name: 'ข้าวเหนียวนึ่ง (1 ห่อเล็ก)', portion: '1 ห่อ (~80g)', cal: 180, pro: 3.2, carbs: 40, fat: 0.5 },
-            { id: 'tf_egg_fried', cat: 'dish', name: 'ไข่ดาว (1 ฟอง)', portion: '1 ฟอง', cal: 120, pro: 6.5, carbs: 0.8, fat: 10 },
-            { id: 'tf_egg_omelet', cat: 'dish', name: 'ไข่เจียว (2 ฟอง)', portion: '1 จาน (ไข่ 2 ฟอง)', cal: 240, pro: 13, carbs: 2, fat: 20 },
-            { id: 'tf_kaprao_chicken_street', cat: 'dish', name: 'ข้าวกะเพราไก่สตรีทฟู้ด + ไข่ดาว', portion: '1 จานปกติ', cal: 620, pro: 28, carbs: 68, fat: 26 },
-            { id: 'tf_kaprao_pork', cat: 'dish', name: 'ข้าวกะเพราหมูสับ + ไข่ดาว', portion: '1 จานปกติ', cal: 680, pro: 24, carbs: 68, fat: 34 },
-            { id: 'tf_fried_rice_chicken', cat: 'dish', name: 'ข้าวผัดไก่ (จานเดียว)', portion: '1 จานปกติ', cal: 550, pro: 22, carbs: 70, fat: 20 },
-            { id: 'tf_chicken_rice', cat: 'dish', name: 'ข้าวมันไก่ต้ม (ไม่เอาหนัง)', portion: '1 จาน', cal: 520, pro: 26, carbs: 65, fat: 18 },
-            { id: 'tf_chicken_rice_skin', cat: 'dish', name: 'ข้าวมันไก่ต้ม (รวมหนัง)', portion: '1 จาน', cal: 640, pro: 24, carbs: 65, fat: 32 },
-            { id: 'tf_pork_leg_rice', cat: 'dish', name: 'ข้าวขาหมู (เนื้อล้วน ไม่หนัง)', portion: '1 จาน', cal: 480, pro: 28, carbs: 60, fat: 14 },
-            { id: 'tf_sukiyaki_dry', cat: 'dish', name: 'สุกี้แห้งอกไก่', portion: '1 จาน', cal: 360, pro: 25, carbs: 32, fat: 14 },
-            { id: 'tf_noodle_soup_chicken', cat: 'dish', name: 'ก๋วยเตี๋ยวน้ำใสไก่ฉีก', portion: '1 ชาม', cal: 320, pro: 20, carbs: 45, fat: 6 }
+            { id: 'tf_rice_jasmine', cat: 'dish', name: 'ข้าวสวยหอมมะลิ (1 ทัพพี)', portion: '1 ทัพพี (~80g)', cal: 110, pro: 2.2, carbs: 24, fat: 0.3, sugar: 0.1, sodium: 1 },
+            { id: 'tf_rice_berry', cat: 'dish', name: 'ข้าวไรซ์เบอร์รี่/กล้อง (1 ทัพพี)', portion: '1 ทัพพี (~80g)', cal: 100, pro: 2.5, carbs: 22, fat: 0.5, sugar: 0.2, sodium: 2 },
+            { id: 'tf_sticky_rice', cat: 'dish', name: 'ข้าวเหนียวนึ่ง (1 ห่อเล็ก)', portion: '1 ห่อ (~80g)', cal: 180, pro: 3.2, carbs: 40, fat: 0.5, sugar: 0.1, sodium: 1 },
+            { id: 'tf_egg_fried', cat: 'dish', name: 'ไข่ดาว (1 ฟอง)', portion: '1 ฟอง', cal: 120, pro: 6.5, carbs: 0.8, fat: 10, sugar: 0.4, sodium: 150 },
+            { id: 'tf_egg_omelet', cat: 'dish', name: 'ไข่เจียว (2 ฟอง)', portion: '1 จาน (ไข่ 2 ฟอง)', cal: 240, pro: 13, carbs: 2, fat: 20, sugar: 0.8, sodium: 320 },
+            { id: 'tf_kaprao_chicken_street', cat: 'dish', name: 'ข้าวกะเพราไก่สตรีทฟู้ด + ไข่ดาว', portion: '1 จานปกติ', cal: 620, pro: 28, carbs: 68, fat: 26, sugar: 4, sodium: 1100 },
+            { id: 'tf_kaprao_pork', cat: 'dish', name: 'ข้าวกะเพราหมูสับ + ไข่ดาว', portion: '1 จานปกติ', cal: 680, pro: 24, carbs: 68, fat: 34, sugar: 4, sodium: 1180 },
+            { id: 'tf_fried_rice_chicken', cat: 'dish', name: 'ข้าวผัดไก่ (จานเดียว)', portion: '1 จานปกติ', cal: 550, pro: 22, carbs: 70, fat: 20, sugar: 3, sodium: 920 },
+            { id: 'tf_chicken_rice', cat: 'dish', name: 'ข้าวมันไก่ต้ม (ไม่เอาหนัง)', portion: '1 จาน', cal: 520, pro: 26, carbs: 65, fat: 18, sugar: 2, sodium: 850 },
+            { id: 'tf_chicken_rice_skin', cat: 'dish', name: 'ข้าวมันไก่ต้ม (รวมหนัง)', portion: '1 จาน', cal: 640, pro: 24, carbs: 65, fat: 32, sugar: 2, sodium: 920 },
+            { id: 'tf_pork_leg_rice', cat: 'dish', name: 'ข้าวขาหมู (เนื้อล้วน ไม่หนัง)', portion: '1 จาน', cal: 480, pro: 28, carbs: 60, fat: 14, sugar: 5, sodium: 1050 },
+            { id: 'tf_sukiyaki_dry', cat: 'dish', name: 'สุกี้แห้งอกไก่', portion: '1 จาน', cal: 360, pro: 25, carbs: 32, fat: 14, sugar: 6, sodium: 880 },
+            { id: 'tf_noodle_soup_chicken', cat: 'dish', name: 'ก๋วยเตี๋ยวน้ำใสไก่ฉีก', portion: '1 ชาม', cal: 320, pro: 20, carbs: 45, fat: 6, sugar: 3, sodium: 980 }
         ];
 
         const MEAL_LABELS = {
@@ -2865,25 +2910,29 @@
             let rec = D.checks.find(x => x.d === dStr);
             if (!rec) return;
             if (rec.meals && rec.meals.length > 0) {
-                let totalCal = 0, totalPro = 0, totalCarbs = 0, totalFat = 0;
+                let totalCal = 0, totalPro = 0, totalCarbs = 0, totalFat = 0, totalSugar = 0, totalSodium = 0;
                 rec.meals.forEach(m => {
                     totalCal += Number(m.cal) || 0;
                     totalPro += Number(m.pro) || 0;
                     totalCarbs += Number(m.carbs) || 0;
                     totalFat += Number(m.fat) || 0;
+                    totalSugar += Number(m.sugar) || 0;
+                    totalSodium += Number(m.sodium) || 0;
                 });
                 rec.cal = Math.round(totalCal);
                 rec.protein = Math.round(totalPro);
                 rec.carbs = Math.round(totalCarbs);
                 rec.fat = Math.round(totalFat);
+                rec.sugar = Math.round(totalSugar);
+                rec.sodium = Math.round(totalSodium);
             }
         }
 
-        function addMealToToday(mealType, name, portion, cal, pro, carbs, fat) {
+        function addMealToToday(mealType, name, portion, cal, pro, carbs, fat, sugar = 0, sodium = 0) {
             const todayStr = iso();
             let rec = todayCheck();
             if (!rec) {
-                rec = { d: todayStr, w: null, cal: 0, protein: 0, carbs: 0, fat: 0, water: 0, meals: [] };
+                rec = { d: todayStr, w: null, cal: 0, protein: 0, carbs: 0, fat: 0, sugar: 0, sodium: 0, water: 0, meals: [] };
                 D.checks.push(rec);
             }
             if (!rec.meals) rec.meals = [];
@@ -2899,7 +2948,9 @@
                 cal: Math.round(Number(cal) || 0),
                 pro: Math.round(Number(pro) || 0),
                 carbs: Math.round(Number(carbs) || 0),
-                fat: Math.round(Number(fat) || 0)
+                fat: Math.round(Number(fat) || 0),
+                sugar: Math.round(Number(sugar) || 0),
+                sodium: Math.round(Number(sodium) || 0)
             };
 
             rec.meals.push(newMealItem);
@@ -2921,9 +2972,11 @@
             const basePro = m.basePro || m.pro;
             const baseCarbs = m.baseCarbs || m.carbs;
             const baseFat = m.baseFat || m.fat;
+            const baseSugar = m.baseSugar != null ? m.baseSugar : (m.sugar || 0);
+            const baseSodium = m.baseSodium != null ? m.baseSodium : (m.sodium || 0);
             const basePortion = m.basePortion || m.portion || '1 จาน';
 
-            window._mealBaseValues = { cal: baseCal, pro: basePro, carbs: baseCarbs, fat: baseFat, portion: basePortion };
+            window._mealBaseValues = { cal: baseCal, pro: basePro, carbs: baseCarbs, fat: baseFat, sugar: baseSugar, sodium: baseSodium, portion: basePortion };
             window.applyMealPortionPct = function(pct, label) {
                 const b = window._mealBaseValues;
                 if (!b) return;
@@ -2931,6 +2984,8 @@
                 const proInp = document.getElementById('edMealPro');
                 const carbsInp = document.getElementById('edMealCarbs');
                 const fatInp = document.getElementById('edMealFat');
+                const sugarInp = document.getElementById('edMealSugar');
+                const sodiumInp = document.getElementById('edMealSodium');
                 const portionInp = document.getElementById('edMealPortion');
                 const lbl = document.getElementById('edMealPortionLabel');
 
@@ -2938,6 +2993,8 @@
                 if (proInp) proInp.value = Math.round(b.pro * pct);
                 if (carbsInp) carbsInp.value = Math.round(b.carbs * pct);
                 if (fatInp) fatInp.value = Math.round(b.fat * pct);
+                if (sugarInp) sugarInp.value = Math.round(b.sugar * pct);
+                if (sodiumInp) sodiumInp.value = Math.round(b.sodium * pct);
                 if (lbl) lbl.textContent = label;
                 if (portionInp) {
                     portionInp.value = pct === 1.0 ? b.portion : `${b.portion} (${label})`;
@@ -2980,6 +3037,17 @@
                             </div>
                         </div>
 
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;">
+                            <div>
+                                <label style="font-size:11.5px; font-weight:700; color:#ec4899; display:block; margin-bottom:2px;">🍭 น้ำตาล (g)</label>
+                                <input type="number" id="edMealSugar" value="${m.sugar || 0}" style="width:100%; padding:8px; font-size:14px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:11.5px; font-weight:700; color:#8b5cf6; display:block; margin-bottom:2px;">🧂 โซเดียม (mg)</label>
+                                <input type="number" id="edMealSodium" value="${m.sodium || 0}" style="width:100%; padding:8px; font-size:14px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                            </div>
+                        </div>
+
                         <div style="margin-top:10px;">
                             <label style="font-size:11.5px; font-weight:700; color:var(--dim); display:block; margin-bottom:2px;">คำอธิบายปริมาณ (Portion):</label>
                             <input type="text" id="edMealPortion" value="${m.portion || ''}" placeholder="เช่น ทาน 50% หรือ ครึ่งจาน" style="width:100%; padding:8px; font-size:13px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
@@ -2995,17 +3063,23 @@
             const finalPro = parseInt(document.getElementById('edMealPro')?.value) || 0;
             const finalCarbs = parseInt(document.getElementById('edMealCarbs')?.value) || 0;
             const finalFat = parseInt(document.getElementById('edMealFat')?.value) || 0;
+            const finalSugar = parseInt(document.getElementById('edMealSugar')?.value) || 0;
+            const finalSodium = parseInt(document.getElementById('edMealSodium')?.value) || 0;
             const finalPortion = (document.getElementById('edMealPortion')?.value || m.portion || '').trim();
 
             m.baseCal = baseCal;
             m.basePro = basePro;
             m.baseCarbs = baseCarbs;
             m.baseFat = baseFat;
+            m.baseSugar = baseSugar;
+            m.baseSodium = baseSodium;
             m.basePortion = basePortion;
             m.cal = finalCal;
             m.pro = finalPro;
             m.carbs = finalCarbs;
             m.fat = finalFat;
+            m.sugar = finalSugar;
+            m.sodium = finalSodium;
             m.portion = finalPortion;
 
             recalculateDailyNutrition(dStr);
@@ -3037,6 +3111,54 @@
                 pushToCloud();
             }
             msg('✓ ลบรายการอาหารแล้ว');
+        }
+
+        /* ============ FEATURE: QUICK FAVORITE MEALS & 1-TAP LOGGING ============ */
+        function toggleMealFavorite(dateKey, mealIndex) {
+            const dStr = dateKey || iso();
+            const rec = D.checks.find(x => x.d === dStr);
+            if (!rec || !rec.meals || !rec.meals[mealIndex]) return;
+            const m = rec.meals[mealIndex];
+            if (!D.cfg.savedFoods) D.cfg.savedFoods = [];
+
+            const cleanName = m.name.trim();
+            const existingIdx = D.cfg.savedFoods.findIndex(f => f.name.trim().toLowerCase() === cleanName.toLowerCase());
+
+            if (existingIdx >= 0) {
+                D.cfg.savedFoods.splice(existingIdx, 1);
+                msg('ลบ "' + cleanName + '" ออกจากเมนูโปรดแล้ว');
+            } else {
+                D.cfg.savedFoods.unshift({
+                    id: 'fav_' + Date.now(),
+                    name: cleanName,
+                    portion: m.portion || '1 จาน',
+                    cal: m.cal || 0,
+                    pro: m.pro || 0,
+                    carbs: m.carbs || 0,
+                    fat: m.fat || 0,
+                    sugar: m.sugar || 0,
+                    sodium: m.sodium || 0
+                });
+                msg('⭐ บันทึก "' + cleanName + '" ลงเมนูโปรดแล้ว!');
+            }
+            save();
+            render();
+            if (typeof pushToCloud === 'function') pushToCloud();
+        }
+
+        function quickLogFavoriteMeal(favId) {
+            const fav = (D.cfg.savedFoods || []).find(f => f.id === favId);
+            if (!fav) return;
+
+            const nowH = new Date().getHours() + (new Date().getMinutes() / 60);
+            let mType = 'lunch';
+            if (nowH < 10.5) mType = 'breakfast';
+            else if (nowH < 14.5) mType = 'lunch';
+            else if (nowH < 17.5) mType = 'snack';
+            else mType = 'dinner';
+
+            addMealToToday(mType, fav.name, fav.portion, fav.cal, fav.pro, fav.carbs, fav.fat, fav.sugar || 0, fav.sodium || 0);
+            msg('⭐ บันทึก "' + fav.name + '" ลงในมื้อ' + (MEAL_LABELS[mType] || '') + ' เรียบร้อย (+ ' + fav.cal + ' kcal)');
         }
 
         
@@ -3333,16 +3455,18 @@
         }
 
         function promptPortionAndLog(food, mealType) {
+            const sSugar = (food.sugar != null && food.sugar > 0) ? ' • 🍭 ' + food.sugar + 'g' : '';
+            const sSodium = (food.sodium != null && food.sodium > 0) ? ' • 🧂 ' + food.sodium + 'mg' : '';
             const html = `
                 <div style="text-align:left; font-size:14px;">
                     <div style="font-weight:800; font-size:15px; color:var(--acc); margin-bottom:4px;">${food.name}</div>
-                    <div style="font-size:12px; color:var(--dim); margin-bottom:14px;">ขนาดปกติ: ${food.portion} (⚡ ${food.cal} kcal, P ${food.pro}g, C ${food.carbs}g, F ${food.fat}g)</div>
+                    <div style="font-size:12px; color:var(--dim); margin-bottom:14px;">ขนาดปกติ: ${food.portion} (⚡ ${food.cal} kcal, P ${food.pro}g, C ${food.carbs}g, F ${food.fat}g${sSugar}${sSodium})</div>
 
                     <label style="font-weight:700; font-size:13px; display:block; margin-bottom:4px;">จำนวนหน่วยบริโภค (เท่า):</label>
-                    <input type="number" id="foodMultiplierInput" value="1" step="0.25" min="0.25" max="10" oninput="updatePortionPreview(${food.cal}, ${food.pro}, ${food.carbs}, ${food.fat})" style="width:100%; padding:10px; font-size:16px; font-weight:700; border-radius:10px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                    <input type="number" id="foodMultiplierInput" value="1" step="0.25" min="0.25" max="10" oninput="updatePortionPreview(${food.cal}, ${food.pro}, ${food.carbs}, ${food.fat}, ${food.sugar || 0}, ${food.sodium || 0})" style="width:100%; padding:10px; font-size:16px; font-weight:700; border-radius:10px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
 
                     <div id="portionPreviewBox" style="margin-top:12px; padding:10px 14px; background:var(--card2); border-radius:10px; border:1px solid var(--line); font-size:13px;">
-                        สรุป: ⚡ <b style="color:var(--acc);">${food.cal}</b> kcal • 🍗 <b>${food.pro}g</b> • 🍚 <b>${food.carbs}g</b> • 🥑 <b>${food.fat}g</b>
+                        สรุป: ⚡ <b style="color:var(--acc);">${food.cal}</b> kcal • 🍗 <b>${food.pro}g</b> • 🍚 <b>${food.carbs}g</b> • 🥑 <b>${food.fat}g</b>${(food.sugar != null && food.sugar > 0) ? ' • 🍭 <b>' + food.sugar + 'g</b>' : ''}${(food.sodium != null && food.sodium > 0) ? ' • 🧂 <b>' + food.sodium + 'mg</b>' : ''}
                     </div>
 
                     <div style="margin-top:16px; display:flex; gap:8px;">
@@ -3354,11 +3478,11 @@
             fcAlert(html);
         }
 
-        function updatePortionPreview(baseCal, basePro, baseCarbs, baseFat) {
+        function updatePortionPreview(baseCal, basePro, baseCarbs, baseFat, baseSugar = 0, baseSodium = 0) {
             const mult = parseFloat(document.getElementById('foodMultiplierInput')?.value) || 1;
             const pBox = document.getElementById('portionPreviewBox');
             if (pBox) {
-                pBox.innerHTML = 'สรุป: ⚡ <b style="color:var(--acc);">' + Math.round(baseCal * mult) + '</b> kcal • 🍗 <b>' + Math.round(basePro * mult) + 'g</b> • 🍚 <b>' + Math.round(baseCarbs * mult) + 'g</b> • 🥑 <b>' + Math.round(baseFat * mult) + 'g</b>';
+                pBox.innerHTML = 'สรุป: ⚡ <b style="color:var(--acc);">' + Math.round(baseCal * mult) + '</b> kcal • 🍗 <b>' + Math.round(basePro * mult) + 'g</b> • 🍚 <b>' + Math.round(baseCarbs * mult) + 'g</b> • 🥑 <b>' + Math.round(baseFat * mult) + 'g</b>' + (baseSugar > 0 ? ' • 🍭 <b>' + Math.round(baseSugar * mult) + 'g</b>' : '') + (baseSodium > 0 ? ' • 🧂 <b>' + Math.round(baseSodium * mult) + 'mg</b>' : '');
             }
         }
 
@@ -3374,7 +3498,9 @@
                 Math.round(food.cal * mult),
                 Math.round(food.pro * mult),
                 Math.round(food.carbs * mult),
-                Math.round(food.fat * mult)
+                Math.round(food.fat * mult),
+                Math.round((food.sugar || 0) * mult),
+                Math.round((food.sodium || 0) * mult)
             );
             fcClose();
         }
@@ -3399,7 +3525,7 @@
                     <label style="font-size:12px; font-weight:700; color:var(--dim); display:block; margin-bottom:3px;">ปริมาณ / ขนาดบริโภค:</label>
                     <input type="text" id="manFoodPortion" value="1 จาน" placeholder="เช่น 1 จาน, 1 ถ้วย" style="width:100%; padding:9px; font-size:14px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box; margin-bottom:10px;">
 
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
                         <div>
                             <label style="font-size:12px; font-weight:700; color:var(--acc); display:block; margin-bottom:3px;">⚡ แคลอรี่ (kcal)*</label>
                             <input type="number" id="manFoodCal" placeholder="0" style="width:100%; padding:9px; font-size:15px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
@@ -3415,6 +3541,17 @@
                         <div>
                             <label style="font-size:12px; font-weight:700; color:#10b981; display:block; margin-bottom:3px;">🥑 ไขมัน (g)</label>
                             <input type="number" id="manFoodFat" placeholder="0" style="width:100%; padding:9px; font-size:15px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:#ec4899; display:block; margin-bottom:3px;">🍭 น้ำตาล (g)</label>
+                            <input type="number" id="manFoodSugar" placeholder="0" style="width:100%; padding:9px; font-size:15px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:#8b5cf6; display:block; margin-bottom:3px;">🧂 โซเดียม (mg)</label>
+                            <input type="number" id="manFoodSodium" placeholder="0" style="width:100%; padding:9px; font-size:15px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                         </div>
                     </div>
 
@@ -3435,13 +3572,15 @@
             const pro = Math.round(Number(document.getElementById('manFoodPro')?.value) || 0);
             const carbs = Math.round(Number(document.getElementById('manFoodCarbs')?.value) || 0);
             const fat = Math.round(Number(document.getElementById('manFoodFat')?.value) || 0);
+            const sugar = Math.round(Number(document.getElementById('manFoodSugar')?.value) || 0);
+            const sodium = Math.round(Number(document.getElementById('manFoodSodium')?.value) || 0);
 
             if (cal <= 0 && pro <= 0 && carbs <= 0 && fat <= 0) {
                 msg('กรุณากรอกพลังงานหรือสารอาหารอย่างน้อย 1 ค่า');
                 return;
             }
 
-            addMealToToday(mType, name, portion, cal, pro, carbs, fat);
+            addMealToToday(mType, name, portion, cal, pro, carbs, fat, sugar, sodium);
             fcClose();
         }
         const WEIGH_WARN_DAYS = 2;
@@ -3526,12 +3665,26 @@
         }
 
         /* ============ BUILD FULL SESSION ============ */
+        function toggleOutdoorMode() {
+            D.outdoorMode = !D.outdoorMode;
+            save();
+            render();
+            if (typeof pushToCloud === 'function') pushToCloud();
+            msg(D.outdoorMode ? '🌲 สลับเป็นโหมดเดินสวนสาธารณะ (ไม่ใช้เสื่อโยคะ)' : '🏠 สลับเป็นโหมดในบ้าน (ใช้เสื่อโยคะ)');
+        }
+
         function fullItems(k) {
             const w = W[k];
-            let warm = (w.warm === 'full' ? WARM_FULL : WARM_LITE).map(x => ({ ...x, ph: 'warm' }));
+            const isOutdoor = !!D.outdoorMode && (['R', 'Z'].includes(k) || w.warm === 'lite');
+            let warm = (isOutdoor ? WARM_OUTDOOR : (w.warm === 'full' ? WARM_FULL : WARM_LITE)).map(x => ({ ...x, ph: 'warm' }));
             let items = w.items.map(x => ({ ...x }));
-            let cool = COOL.map(x => ({ ...x, ph: 'cool' }));
+            let cool = (isOutdoor ? COOL_OUTDOOR : COOL).map(x => ({ ...x, ph: 'cool' }));
             const morningM = getMorningCardioMinutesToday();
+
+            if (isOutdoor && k === 'R') {
+                // Outdoor Park Walking Active Recovery: 30 minutes continuous walk in the park
+                items = [{ e: 'walk', sets: 1, type: 'time', t: 1800, after: 60 }];
+            }
 
             if (morningM > 0) {
                 // Smart Cardio Adaptation based on morning walk
@@ -3539,34 +3692,34 @@
                     if (morningM >= 30) {
                         // Walked 30+ mins in the morning: Zone 2 goal fulfilled!
                         items = items.filter(x => x.e !== 'z2');
-                        warm = warm.filter(x => x.e !== 'w_walk');
-                        cool = cool.filter(x => x.e !== 'c_walk');
+                        warm = warm.filter(x => x.e !== 'w_walk' && x.e !== 'w_out_walk');
+                        cool = cool.filter(x => x.e !== 'c_walk' && x.e !== 'c_out_walk');
                     } else {
                         // Deduct morning minutes from 35-min target
                         const remM = Math.max(5, 35 - morningM);
                         items = items.map(x => x.e === 'z2' ? { ...x, t: remM * 60 } : x);
-                        warm = warm.filter(x => x.e !== 'w_walk');
-                        cool = cool.filter(x => x.e !== 'c_walk');
+                        warm = warm.filter(x => x.e !== 'w_walk' && x.e !== 'w_out_walk');
+                        cool = cool.filter(x => x.e !== 'c_walk' && x.e !== 'c_out_walk');
                     }
                 } else if (k === 'R' && !D.forceFullCardio) {
                     if (morningM >= 20) {
                         items = items.filter(x => x.e !== 'walk');
-                        warm = warm.filter(x => x.e !== 'w_walk');
-                        cool = cool.filter(x => x.e !== 'c_walk');
+                        warm = warm.filter(x => x.e !== 'w_walk' && x.e !== 'w_out_walk');
+                        cool = cool.filter(x => x.e !== 'c_walk' && x.e !== 'c_out_walk');
                     } else {
-                        const remM = Math.max(5, 25 - morningM);
+                        const remM = Math.max(5, (isOutdoor ? 30 : 25) - morningM);
                         items = items.map(x => x.e === 'walk' ? { ...x, t: remM * 60 } : x);
-                        warm = warm.filter(x => x.e !== 'w_walk');
-                        cool = cool.filter(x => x.e !== 'c_walk');
+                        warm = warm.filter(x => x.e !== 'w_walk' && x.e !== 'w_out_walk');
+                        cool = cool.filter(x => x.e !== 'c_walk' && x.e !== 'c_out_walk');
                     }
                 } else if (k === 'A' && !D.forceEveningCardio) {
                     items = items.filter(x => x.e !== 'z2');
-                    warm = warm.filter(x => x.e !== 'w_walk');
-                    cool = cool.filter(x => x.e !== 'c_walk');
+                    warm = warm.filter(x => x.e !== 'w_walk' && x.e !== 'w_out_walk');
+                    cool = cool.filter(x => x.e !== 'c_walk' && x.e !== 'c_out_walk');
                 } else if (['B', 'C', 'H'].includes(k)) {
                     // Already walked in morning: remove redundant walking warm-up & cool-down
-                    warm = warm.filter(x => x.e !== 'w_walk');
-                    cool = cool.filter(x => x.e !== 'c_walk');
+                    warm = warm.filter(x => x.e !== 'w_walk' && x.e !== 'w_out_walk');
+                    cool = cool.filter(x => x.e !== 'c_walk' && x.e !== 'c_out_walk');
                 }
             }
 
@@ -3602,6 +3755,12 @@
             const validPro = checks7.filter(c => c.protein != null && c.protein > 0);
             const avgPro = validPro.length > 0 ? Math.round(validPro.reduce((a, b) => a + b.protein, 0) / validPro.length) : 0;
 
+            const validSugar = checks7.filter(c => c.sugar != null && c.sugar > 0);
+            const avgSugar = validSugar.length > 0 ? Math.round(validSugar.reduce((a, b) => a + b.sugar, 0) / validSugar.length) : 0;
+
+            const validSodium = checks7.filter(c => c.sodium != null && c.sodium > 0);
+            const avgSodium = validSodium.length > 0 ? Math.round(validSodium.reduce((a, b) => a + b.sodium, 0) / validSodium.length) : 0;
+
             const validWat = checks7.filter(c => c.water != null && c.water > 0);
             const avgWat = validWat.length > 0 ? Math.round(validWat.reduce((a, b) => a + b.water, 0) / validWat.length) : 0;
 
@@ -3626,6 +3785,8 @@
                 bfEnd,
                 avgCal,
                 avgPro,
+                avgSugar,
+                avgSodium,
                 avgWat,
                 avgSteps,
                 sessions7Count: sessions7.length,
@@ -3893,26 +4054,62 @@
             document.getElementById('bsMode').checked = !!D.bs;
 
             // 2. Nutrition & Activity Metrics (Auto-heal from meals if present)
-            let cal = tc?.cal || 0, pro = tc?.protein || 0, carbs = tc?.carbs || 0, fat = tc?.fat || 0, wat = tc?.water || 0;
+            let cal = tc?.cal || 0, pro = tc?.protein || 0, carbs = tc?.carbs || 0, fat = tc?.fat || 0, wat = tc?.water || 0, sugar = tc?.sugar || 0, sodium = tc?.sodium || 0;
             if (tc?.meals && tc.meals.length > 0) {
-                let mCal = 0, mPro = 0, mCarbs = 0, mFat = 0;
+                let mCal = 0, mPro = 0, mCarbs = 0, mFat = 0, mSugar = 0, mSodium = 0;
                 tc.meals.forEach(m => {
                     mCal += Number(m.cal) || 0;
                     mPro += Number(m.pro) || 0;
                     mCarbs += Number(m.carbs) || 0;
                     mFat += Number(m.fat) || 0;
+                    mSugar += Number(m.sugar) || 0;
+                    mSodium += Number(m.sodium) || 0;
                 });
                 cal = Math.round(mCal);
                 pro = Math.round(mPro);
                 carbs = Math.round(mCarbs);
                 fat = Math.round(mFat);
-                if (tc.cal !== cal || tc.protein !== pro || tc.carbs !== carbs || tc.fat !== fat) {
+                sugar = Math.round(mSugar);
+                sodium = Math.round(mSodium);
+                if (tc.cal !== cal || tc.protein !== pro || tc.carbs !== carbs || tc.fat !== fat || tc.sugar !== sugar || tc.sodium !== sodium) {
                     tc.cal = cal;
                     tc.protein = pro;
                     tc.carbs = carbs;
                     tc.fat = fat;
+                    tc.sugar = sugar;
+                    tc.sodium = sodium;
                     try { localStorage.setItem('fit', JSON.stringify(D)); } catch (e) {}
                 }
+            }
+            const sugarPct = Math.min(100, Math.round((sugar / SUGAR_TARGET) * 100));
+            const sodiumPct = Math.min(100, Math.round((sodium / SODIUM_TARGET) * 100));
+
+            let sugarStatusText = 'ปลอดภัย', sugarStatusColor = '#10b981', sugarBarColor = '#ec4899', sugarBorderColor = 'var(--line)';
+            if (sugar > SUGAR_TARGET) {
+                sugarStatusText = 'เกินเกณฑ์ (+' + (sugar - SUGAR_TARGET) + 'g)';
+                sugarStatusColor = 'var(--red)';
+                sugarBarColor = 'var(--red)';
+                sugarBorderColor = 'rgba(239,68,68,0.4)';
+            } else if (sugar >= SUGAR_TARGET * 0.8) {
+                sugarStatusText = 'ใกล้เต็ม (' + (SUGAR_TARGET - sugar) + 'g เหลือ)';
+                sugarStatusColor = 'var(--warn)';
+                sugarBarColor = 'var(--warn)';
+            } else {
+                sugarStatusText = 'เหลือ ' + (SUGAR_TARGET - sugar) + 'g';
+            }
+
+            let sodiumStatusText = 'ปลอดภัย', sodiumStatusColor = '#10b981', sodiumBarColor = '#8b5cf6', sodiumBorderColor = 'var(--line)';
+            if (sodium > SODIUM_TARGET) {
+                sodiumStatusText = 'เกินเกณฑ์ (+' + (sodium - SODIUM_TARGET).toLocaleString() + 'mg)';
+                sodiumStatusColor = 'var(--red)';
+                sodiumBarColor = 'var(--red)';
+                sodiumBorderColor = 'rgba(239,68,68,0.4)';
+            } else if (sodium >= SODIUM_TARGET * 0.8) {
+                sodiumStatusText = 'ใกล้เต็ม (' + (SODIUM_TARGET - sodium).toLocaleString() + 'mg เหลือ)';
+                sodiumStatusColor = 'var(--warn)';
+                sodiumBarColor = 'var(--warn)';
+            } else {
+                sodiumStatusText = 'เหลือ ' + (SODIUM_TARGET - sodium).toLocaleString() + 'mg';
             }
             const steps = tc?.steps || 0;
             const stepTarget = D.cfg?.stepTarget || 8000;
@@ -3990,7 +4187,29 @@
             if (mealsList.length === 0) {
                 mealsHtml = '<div style="text-align:center; padding:12px; color:var(--dim); font-size:12.5px; background:var(--card2); border-radius:10px; margin-top:8px;">ยังไม่มีรายการอาหารวันนี้ — กดปุ่มด้านล่างเพื่อบันทึก</div>';
             } else {
-                mealsHtml = '<div style="margin-top:8px; display:flex; flex-direction:column; gap:6px;">' + mealsList.map((m, idx) => {
+                const favsList = D.cfg.savedFoods || [];
+            let favPillsHtml = '';
+            if (favsList.length > 0) {
+                favPillsHtml = `
+                    <div style="margin-top:10px; padding:8px 10px; background:var(--card2); border-radius:10px; border:1px solid var(--line);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <span style="font-size:11.5px; font-weight:700; color:var(--dim); display:flex; align-items:center; gap:4px;">
+                                ⭐ เมนูกินประจำ (แตะเพื่อบวกทันที):
+                            </span>
+                            <button onclick="openAddMealModal('lunch')" style="background:transparent; border:none; color:var(--acc); font-size:11px; font-weight:700; cursor:pointer;">ดูคลัง</button>
+                        </div>
+                        <div style="display:flex; gap:6px; overflow-x:auto; padding-bottom:3px;">
+                            ${favsList.slice(0, 6).map(f => `
+                                <button onclick="quickLogFavoriteMeal('${f.id}')" style="white-space:nowrap; flex:0 0 auto; padding:4px 8px; font-size:11px; font-weight:700; background:var(--card); border:1px solid var(--line); color:var(--tx); border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:4px;">
+                                    <span style="color:#eab308;">+</span> ${f.name} <span style="font-size:9.5px; color:var(--dim); font-weight:400;">(${f.cal})</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            mealsHtml = '<div style="margin-top:8px; display:flex; flex-direction:column; gap:6px;">' + mealsList.map((m, idx) => {
                     const typeLabel = MEAL_LABELS[m.type] || '🍽️ อาหาร';
                     return `
                         <div style="display:flex; align-items:center; justify-content:space-between; background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:12.5px;">
@@ -4001,7 +4220,7 @@
                                 </div>
                                 <div style="font-weight:700; color:var(--tx); margin-top:1px;">${m.name} ${m.portion ? '<span style="color:var(--dim);font-weight:400;font-size:11.5px;">(' + m.portion + ')</span>' : ''}</div>
                                 <div style="font-size:11px; color:var(--dim); margin-top:2px;">
-                                    🍗 ${m.pro || 0}g • 🍚 ${m.carbs || 0}g • 🥑 ${m.fat || 0}g
+                                    🍗 ${m.pro || 0}g • 🍚 ${m.carbs || 0}g • 🥑 ${m.fat || 0}g${(m.sugar != null && m.sugar > 0) ? ' • <span style="color:#ec4899;font-weight:600;">🍭 ' + m.sugar + 'g</span>' : ''}${(m.sodium != null && m.sodium > 0) ? ' • <span style="color:#8b5cf6;font-weight:600;">🧂 ' + m.sodium + 'mg</span>' : ''}
                                 </div>
                             </div>
                             <div style="display:flex; align-items:center; gap:6px;">
@@ -4009,12 +4228,14 @@
                                     <span style="font-weight:800; color:var(--acc); font-size:13.5px;">${m.cal || 0}</span>
                                     <span style="font-size:10.5px; color:var(--dim);"> kcal</span>
                                 </div>
+                                <!-- Star Favorite Button -->
+                                <button onclick="toggleMealFavorite('${tc.d}', ${idx})" style="background:transparent; border:none; color:${(D.cfg.savedFoods || []).some(f => f.name.trim().toLowerCase() === m.name.trim().toLowerCase()) ? '#eab308' : 'var(--dim)'}; cursor:pointer; padding:4px 5px; font-size:13px;" title="${(D.cfg.savedFoods || []).some(f => f.name.trim().toLowerCase() === m.name.trim().toLowerCase()) ? 'อยู่ในเมนูโปรดแล้ว (แตะเพื่อลบ)' : 'แตะเพื่อบันทึกเป็นเมนูโปรด'}">${(D.cfg.savedFoods || []).some(f => f.name.trim().toLowerCase() === m.name.trim().toLowerCase()) ? '⭐' : '☆'}</button>
                                 <button onclick="editMealItem('${tc.d}', ${idx})" style="background:transparent; border:none; color:var(--dim); cursor:pointer; padding:4px 5px; font-size:13px;" title="แตะเพื่อปรับสัดส่วนหรือหักลบแคลอรี่">✏️</button>
                                 <button onclick="deleteMealItem('${tc.d}', ${idx})" style="background:transparent; border:none; color:var(--red); cursor:pointer; padding:4px 5px; font-size:13px; opacity:0.8;" title="ลบรายการนี้">🗑️</button>
                             </div>
                         </div>
                     `;
-                }).join('') + '</div>';
+                }).join('') + '</div>' + favPillsHtml;
             }
 
             const nutritionEl = document.getElementById('dailyNutritionCard');
@@ -4096,6 +4317,39 @@
                         <span style="color:var(--acc2); font-weight:700;">🍗 P ${proRatio}%</span>
                         <span style="color:#3b82f6; font-weight:700;">🍚 C ${carbsRatio}%</span>
                         <span style="color:#10b981; font-weight:700;">🥑 F ${fatRatio}%</span>
+                    </div>
+                </div>
+
+                <!-- Sugar & Sodium Health Guard Monitor -->
+                <div style="margin:8px 0 10px 0; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <!-- Sugar Card -->
+                    <div style="background:var(--card2); border:1px solid ${sugarBorderColor}; border-radius:10px; padding:8px 10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <span style="font-size:11.5px; font-weight:800; color:var(--tx); display:flex; align-items:center; gap:4px;">
+                                <span>🍭 น้ำตาล</span>
+                            </span>
+                            <span style="font-size:10px; font-weight:700; color:${sugarStatusColor};">${sugarStatusText}</span>
+                        </div>
+                        <div style="display:flex; align-items:baseline; gap:4px; margin-bottom:4px;">
+                            <span style="font-size:16px; font-weight:900; color:${sugar > SUGAR_TARGET ? 'var(--red)' : 'var(--tx)'};">${sugar}</span>
+                            <span style="font-size:11px; color:var(--dim);">/ ${SUGAR_TARGET} g</span>
+                        </div>
+                        <div class="bar" style="height:5px; margin:0; background:var(--line);"><i style="width:${sugarPct}%; background:${sugarBarColor};"></i></div>
+                    </div>
+
+                    <!-- Sodium Card -->
+                    <div style="background:var(--card2); border:1px solid ${sodiumBorderColor}; border-radius:10px; padding:8px 10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <span style="font-size:11.5px; font-weight:800; color:var(--tx); display:flex; align-items:center; gap:4px;">
+                                <span>🧂 โซเดียม</span>
+                            </span>
+                            <span style="font-size:10px; font-weight:700; color:${sodiumStatusColor};">${sodiumStatusText}</span>
+                        </div>
+                        <div style="display:flex; align-items:baseline; gap:4px; margin-bottom:4px;">
+                            <span style="font-size:16px; font-weight:900; color:${sodium > SODIUM_TARGET ? 'var(--red)' : 'var(--tx)'};">${sodium.toLocaleString()}</span>
+                            <span style="font-size:11px; color:var(--dim);">/ ${SODIUM_TARGET.toLocaleString()} mg</span>
+                        </div>
+                        <div class="bar" style="height:5px; margin:0; background:var(--line);"><i style="width:${sodiumPct}%; background:${sodiumBarColor};"></i></div>
                     </div>
                 </div>
 
@@ -4220,14 +4474,34 @@
                 </div>`;
             }
 
-            const warmTag = (morningM > 0 && ['Z', 'R', 'A'].includes(tk)) ? '<span class="tag o">Warm-up ยืดข้อต่อ (ไม่มีเดินซ้ำ)</span>' : `<span class="tag o"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="4.22" x2="19.78" y2="5.64"/></svg> Warm-up ${t.warm === 'full' ? '9' : '6'} นาที</span>`;
-            const coolTag = (morningM > 0 && ['Z', 'R', 'A'].includes(tk)) ? '<span class="tag v">Cool-down คลายกล้ามเนื้อ</span>' : '<span class="tag v"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="20" y1="16" x2="16" y2="20"/><line x1="4" y1="8" x2="8" y2="4"/><line x1="20" y1="8" x2="16" y2="4"/><line x1="4" y1="16" x2="8" y2="20"/></svg> Cool-down 8 นาที</span>';
+            const isOutdoorActive = !!D.outdoorMode && (['R', 'Z'].includes(tk) || t.warm === 'lite');
+            const warmTag = isOutdoorActive 
+                ? '<span class="tag o">🌲 Warm-up สวนสาธารณะ (ท่ายืน 4 นาที)</span>'
+                : ((morningM > 0 && ['Z', 'R', 'A'].includes(tk)) 
+                    ? '<span class="tag o">Warm-up ยืดข้อต่อ (ไม่มีเดินซ้ำ)</span>' 
+                    : `<span class="tag o"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="4.22" x2="19.78" y2="5.64"/></svg> Warm-up ${t.warm === 'full' ? '9' : '6'} นาที</span>`);
+            const coolTag = isOutdoorActive
+                ? '<span class="tag v">🌲 Cool-down สวนสาธารณะ (ม้านั่ง 4 นาที)</span>'
+                : ((morningM > 0 && ['Z', 'R', 'A'].includes(tk)) 
+                    ? '<span class="tag v">Cool-down คลายกล้ามเนื้อ</span>' 
+                    : '<span class="tag v"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="20" y1="16" x2="16" y2="20"/><line x1="4" y1="8" x2="8" y2="4"/><line x1="20" y1="8" x2="16" y2="4"/><line x1="4" y1="16" x2="8" y2="20"/></svg> Cool-down 8 นาที</span>');
+
+            const outdoorSwitcherHtml = (['R', 'Z'].includes(tk) || t.warm === 'lite') ? `
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px; padding:6px 10px; background:var(--card2); border-radius:10px; border:1px solid var(--line);">
+                    <span style="font-size:12px; font-weight:700; color:var(--tx); display:flex; align-items:center; gap:5px;">
+                        ${D.outdoorMode ? '🌲 โหมดเดินสวนสาธารณะ (ท่ายืน/ม้านั่ง ไม่ใช้เสื่อ)' : '🏠 โหมดในบ้าน (ใช้เสื่อโยคะ/พื้น)'}
+                    </span>
+                    <button class="btn sm" onclick="toggleOutdoorMode()" style="width:auto; padding:3px 9px; font-size:11px; border-radius:6px; background:${D.outdoorMode ? 'rgba(16,185,129,0.15)' : 'var(--card)'}; border:1px solid ${D.outdoorMode ? '#10b981' : 'var(--line)'}; color:${D.outdoorMode ? '#059669' : 'var(--dim)'}; cursor:pointer; font-weight:700;">
+                        ${D.outdoorMode ? '🌲 สวน (เปิดอยู่)' : '🏠 สลับเป็นสวน'}
+                    </button>
+                </div>
+            ` : '';
 
             document.getElementById('todayBox').innerHTML = `<div class="card" style="border-color:var(--acc)">
     <div class="row"><div><h3>${t.ic} ${t.n}</h3>
     <div class="sub">วัน${DN[dow]} • ~${estMin(tk)} นาที • ~${(tk === 'Z' && morningM >= 30 && !D.forceFullCardio) ? 140 : t.kcal} kcal</div></div>
     ${done ? '<span class="tag">✓ เสร็จแล้ว</span>' : ''}</div>
-    <div style="margin-top:8px">${warmTag} ${coolTag}${D.bs ? ' <span class="tag b"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> หลังปลอดภัย</span>' : ''}</div>
+    <div style="margin-top:8px">${warmTag} ${coolTag}${D.bs ? ' <span class="tag b"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> หลังปลอดภัย</span>' : ''}</div>${outdoorSwitcherHtml}
     ${cardioNote}
     <button class="btn" style="margin-top:12px;" onclick="startW('${tk}')">${startBtnTxt}</button>
     <div class="g2" style="margin-top:8px;">
@@ -4273,7 +4547,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             document.getElementById('log').innerHTML = D.sessions.length ? D.sessions.slice(-14).reverse().map(s =>
                 `<div class="row" style="padding:7px 0;border-bottom:1px solid var(--line)">
      <span style="font-size:13px">${W[s.workout_key] ? W[s.workout_key].ic : '•'} ${s.workout_name}</span>
-     <span class="sub">${s.date.slice(5)} • ${s.kcal} kcal${s.total_volume_kg ? ` • 🏋️ ${s.total_volume_kg.toLocaleString()} กก.` : ''}</span></div>`).join('') : '<div class="sub">ยังไม่มีบันทึก</div>';
+     <span class="sub">${s.date.slice(5)} • ${s.kcal} kcal${s.total_volume_kg ? ` • <span title="น้ำหนักยกสะสมรวมทั้งเซสชัน (Total Training Volume = น้ำหนัก × จำนวนครั้ง)">🏋️ ยกสะสม ${s.total_volume_kg.toLocaleString()} กก.</span>` : ''}</span></div>`).join('') : '<div class="sub">ยังไม่มีบันทึก</div>';
             if (document.getElementById('aiKey')) document.getElementById('aiKey').value = D.cfg.aiKey || '';
             if (document.getElementById('aiKeyBackup')) document.getElementById('aiKeyBackup').value = D.cfg.aiKeyBackup || '';
             renderAuthUI();
@@ -4302,8 +4576,20 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
     <a class="yt" href="javascript:void(0)" onclick="showExModal('${it.e}')">▶ ดูตัวอย่างท่านี้</a>
     </div></div>`;
             });
+            const outdoorDetailSwitcher = (['R', 'Z'].includes(k) || W[k].warm === 'lite') ? `
+                <div style="display:flex; align-items:center; justify-content:space-between; margin:10px 0; padding:8px 12px; background:var(--card2); border-radius:10px; border:1px solid var(--line);">
+                    <div>
+                        <div style="font-weight:700; font-size:12.5px; color:var(--tx);">${D.outdoorMode ? '🌲 โหมดเดินสวนสาธารณะ (ไม่ใช้เสื่อ)' : '🏠 โหมดในบ้าน (ใช้เสื่อโยคะ)'}</div>
+                        <div style="font-size:11px; color:var(--dim);">${D.outdoorMode ? 'ชุดวอร์ม & คูลดาวน์ท่ายืน/ม้านั่ง เหมาะกับการไปเดินสวน' : 'ชุดวอร์ม & คูลดาวน์มาตรฐานบนเสื่อโยคะ'}</div>
+                    </div>
+                    <button class="btn sm" onclick="toggleOutdoorMode(); showW('${k}')" style="width:auto; padding:4px 10px; font-size:11.5px; font-weight:700; border-radius:8px; background:${D.outdoorMode ? 'rgba(16,185,129,0.15)' : 'var(--card)'}; border:1px solid ${D.outdoorMode ? '#10b981' : 'var(--line)'}; color:${D.outdoorMode ? '#059669' : 'var(--dim)'}; cursor:pointer;">
+                        ${D.outdoorMode ? '🌲 สวนสาธารณะ ⇄' : '🏠 ในบ้าน ⇄'}
+                    </button>
+                </div>
+            ` : '';
+
             document.getElementById('wDetail').innerHTML = `<div class="card">
-    <div class="row"><h3>${W[k].ic} ${W[k].n}</h3><span class="tag b">~${estMin(k)} นาที</span></div>${h}
+    <div class="row"><h3>${W[k].ic} ${W[k].n}</h3><span class="tag b">~${estMin(k)} นาที</span></div>${outdoorDetailSwitcher}${h}
     <button class="btn" style="margin-top:14px" onclick="startW('${k}')">▶ เริ่มเลย</button></div>`;
         }
         function toggleBS() { D.bs = document.getElementById('bsMode').checked; save(); render() }
@@ -5241,6 +5527,17 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
                     <div>
+                        <label style="display:block;font-weight:bold;font-size:12px;color:#ec4899;">🍭 น้ำตาล (g)</label>
+                        <input type="number" id="edSugar" value="${rec?.sugar || 0}" style="width:100%; font-size:14px; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="display:block;font-weight:bold;font-size:12px;color:#8b5cf6;">🧂 โซเดียม (mg)</label>
+                        <input type="number" id="edSodium" value="${rec?.sodium || 0}" style="width:100%; font-size:14px; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                    <div>
                         <label style="display:block;font-weight:bold;font-size:12px;">💧 น้ำดื่ม (มล. / ml)</label>
                         <input type="number" id="edWat" value="${wat}" style="width:100%; font-size:14px; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
                     </div>
@@ -5277,6 +5574,8 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             const nPro = parseInt(document.getElementById('edPro').value) || 0;
             const nCarbs = parseInt(document.getElementById('edCarbs').value) || 0;
             const nFat = parseInt(document.getElementById('edFat').value) || 0;
+            const nSugar = parseInt(document.getElementById('edSugar')?.value) || 0;
+            const nSodium = parseInt(document.getElementById('edSodium')?.value) || 0;
             const nWat = parseInt(document.getElementById('edWat').value) || 0;
             const wVal = document.getElementById('edW').value.trim();
             const nW = wVal !== '' ? parseFloat(wVal) : null;
@@ -5289,13 +5588,15 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
 
             if (!rec) {
                 const prev = D.checks[D.checks.length - 1];
-                rec = { d: dateStr, w: nW || (prev?.w || 70), bf: nBf != null ? nBf : (prev?.bf || null), muscle: nMuscle != null ? nMuscle : (prev?.muscle || null), hrv: null, pain: null, cal: nCal, protein: nPro, carbs: nCarbs, fat: nFat, water: nWat, meals: [] };
+                rec = { d: dateStr, w: nW || (prev?.w || 70), bf: nBf != null ? nBf : (prev?.bf || null), muscle: nMuscle != null ? nMuscle : (prev?.muscle || null), hrv: null, pain: null, cal: nCal, protein: nPro, carbs: nCarbs, fat: nFat, sugar: nSugar, sodium: nSodium, water: nWat, meals: [] };
                 D.checks.push(rec);
             } else {
                 rec.cal = nCal;
                 rec.protein = nPro;
                 rec.carbs = nCarbs;
                 rec.fat = nFat;
+                rec.sugar = nSugar;
+                rec.sodium = nSodium;
                 rec.water = nWat;
                 if (nW != null && !isNaN(nW)) rec.w = nW;
                 if (nBf != null && !isNaN(nBf)) rec.bf = nBf;
@@ -5444,11 +5745,13 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             const pro = Math.round(Number(document.getElementById('aiPro')?.value) || 0);
             const carbs = Math.round(Number(document.getElementById('aiCarbs')?.value) || 0);
             const fat = Math.round(Number(document.getElementById('aiFat')?.value) || 0);
+            const sugar = Math.round(Number(document.getElementById('aiSugar')?.value) || 0);
+            const sodium = Math.round(Number(document.getElementById('aiSodium')?.value) || 0);
 
             const pLabel = document.getElementById('aiPortionLabel')?.textContent || '';
             const finalPortion = (pLabel && !pLabel.includes('100%')) ? `${portion || '1 จาน'} (${pLabel})` : (portion || '1 จาน');
 
-            addMealToToday(mealType, name, finalPortion, cal, pro, carbs, fat);
+            addMealToToday(mealType, name, finalPortion, cal, pro, carbs, fat, sugar, sodium);
             fcClose();
         }
 
@@ -5481,11 +5784,15 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             const proEl = document.getElementById('aiPro');
             const carbsEl = document.getElementById('aiCarbs');
             const fatEl = document.getElementById('aiFat');
+            const sugarEl = document.getElementById('aiSugar');
+            const sodiumEl = document.getElementById('aiSodium');
             const lbl = document.getElementById('aiPortionLabel');
             if (calEl) calEl.value = Math.round(base.cal * pct);
             if (proEl) proEl.value = Math.round(base.pro * pct);
             if (carbsEl) carbsEl.value = Math.round(base.carbs * pct);
             if (fatEl) fatEl.value = Math.round(base.fat * pct);
+            if (sugarEl) sugarEl.value = Math.round((base.sugar || 0) * pct);
+            if (sodiumEl) sodiumEl.value = Math.round((base.sodium || 0) * pct);
             if (lbl) lbl.textContent = label || (Math.round(pct * 100) + '%');
         };
 
@@ -5579,8 +5886,10 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                         const proVal = Math.round(Number(result.protein) || 0);
                         const carbsVal = Math.round(Number(result.carbs) || 0);
                         const fatVal = Math.round(Number(result.fat) || 0);
+                        const sugarVal = Math.round(Number(result.sugar) || 0);
+                        const sodiumVal = Math.round(Number(result.sodium) || 0);
                         const portionVal = (result.portion || '1 จาน').trim();
-                        window._aiScanBase = { cal: calVal, pro: proVal, carbs: carbsVal, fat: fatVal, portion: portionVal };
+                        window._aiScanBase = { cal: calVal, pro: proVal, carbs: carbsVal, fat: fatVal, sugar: sugarVal, sodium: sodiumVal, portion: portionVal };
 
                         const resModalHtml = `
                             <div style="text-align:left; font-size:14px;">
@@ -5631,6 +5940,17 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                                     </div>
                                 </div>
 
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
+                                    <div>
+                                        <label style="font-size:11.5px; font-weight:700; color:#ec4899; display:block; margin-bottom:2px;">🍭 น้ำตาล (g)</label>
+                                        <input type="number" id="aiSugar" value="${sugarVal}" style="width:100%; padding:8px; font-size:15px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:11.5px; font-weight:700; color:#8b5cf6; display:block; margin-bottom:2px;">🧂 โซเดียม (mg)</label>
+                                        <input type="number" id="aiSodium" value="${sodiumVal}" style="width:100%; padding:8px; font-size:15px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                                    </div>
+                                </div>
+
                                 <!-- CLOUD FAVORITE ACTION -->
                                 <div style="margin-bottom:12px; background:var(--card2); border:1px dashed var(--line); border-radius:10px; padding:10px; display:flex; justify-content:space-between; align-items:center;">
                                     <div style="flex:1; padding-right:8px;">
@@ -5655,7 +5975,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             };
 
             let parts = [
-                { text: 'Analyze this food thoroughly as an expert Thai nutritionist specializing in Thai and Northern Thai cuisine (อาหารเหนือ เช่น ข้าวซอย, น้ำพริกหนุ่ม, น้ำพริกอ่อง, ขนมจีนน้ำเงี้ยว, แกงฮังเล, ไส้อั่ว, ลาบคั่ว, แกงแค, แกงโฮะ ฯลฯ). Estimate the calories (kcal), protein (g), carbohydrates (g), and fat (g). If the user provides a specific food name, use that exact name in the "name" field. Respond ONLY in valid JSON format without markdown or formatting backticks, exactly like this: {"name": "ชื่ออาหารภาษาไทย", "calories": 450, "protein": 30, "carbs": 45, "fat": 15, "portion": "1 จาน"}' }
+                { text: 'Analyze this food thoroughly as an expert Thai nutritionist specializing in Thai and Northern Thai cuisine (อาหารเหนือ เช่น ข้าวซอย, น้ำพริกหนุ่ม, น้ำพริกอ่อง, ขนมจีนน้ำเงี้ยว, แกงฮังเล, ไส้อั่ว, ลาบคั่ว, แกงแค, แกงโฮะ ฯลฯ). Estimate calories (kcal), protein (g), carbohydrates (g), fat (g), sugar (g), and sodium (mg). If the user provides a specific food name, use that exact name in the "name" field. Respond ONLY in valid JSON format without markdown or formatting backticks, exactly like this: {"name": "ชื่ออาหารภาษาไทย", "calories": 450, "protein": 30, "carbs": 45, "fat": 15, "sugar": 4, "sodium": 650, "portion": "1 จาน"}' }
             ];
             
             if (text) {
@@ -5694,6 +6014,8 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             const pro = Math.round(Number(document.getElementById('aiPro')?.value) || 0);
             const carbs = Math.round(Number(document.getElementById('aiCarbs')?.value) || 0);
             const fat = Math.round(Number(document.getElementById('aiFat')?.value) || 0);
+            const sugar = Math.round(Number(document.getElementById('aiSugar')?.value) || 0);
+            const sodium = Math.round(Number(document.getElementById('aiSodium')?.value) || 0);
             const pStr = portion || '1 หน่วยบริโภค';
 
             if (!D.cfg.savedFoods) D.cfg.savedFoods = [];
@@ -5706,6 +6028,8 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 pro: pro,
                 carbs: carbs,
                 fat: fat,
+                sugar: sugar,
+                sodium: sodium,
                 cat: (pro >= 20 || name.includes('โปรตีน') || name.includes('เวย์')) ? 'protein' : 'fav',
                 updatedAt: Date.now()
             };
@@ -5774,7 +6098,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             const food = (D.cfg.savedFoods || []).find(f => f.id === id);
             if (!food) return;
             const mType = document.getElementById('modalMealTypeSelect')?.value || 'lunch';
-            addMealToToday(mType, food.name, food.portion, food.cal, food.pro, food.carbs, food.fat);
+            addMealToToday(mType, food.name, food.portion, food.cal, food.pro, food.carbs, food.fat, food.sugar || 0, food.sodium || 0);
             fcClose();
             msg('✓ บันทึก "' + food.name + '" ลงในมื้อแล้ว');
         }
@@ -6155,6 +6479,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                     userBadge.style.display = 'block';
                 }
             }
+            updateCloudSyncPill();
         }
 
         async function loginWithGoogle() {
@@ -6225,6 +6550,8 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                     if (D.cfg.proteinTarget) PROTEIN_TARGET = D.cfg.proteinTarget;
                     if (D.cfg.fatTarget) FAT_TARGET = D.cfg.fatTarget;
                     if (D.cfg.carbsTarget) CARBS_TARGET = D.cfg.carbsTarget;
+                    if (D.cfg.sugarTarget) SUGAR_TARGET = D.cfg.sugarTarget;
+                    if (D.cfg.sodiumTarget) SODIUM_TARGET = D.cfg.sodiumTarget;
                     if (D.cfg.waterTarget) WATER_TARGET = D.cfg.waterTarget <= 50 ? D.cfg.waterTarget * 250 : D.cfg.waterTarget;
                 }
                 if (cloud.if) {
@@ -6237,17 +6564,21 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                         c.water = Math.round(c.water * 250);
                     }
                     if (c.meals && c.meals.length > 0) {
-                        let mCal = 0, mPro = 0, mCarbs = 0, mFat = 0;
+                        let mCal = 0, mPro = 0, mCarbs = 0, mFat = 0, mSugar = 0, mSodium = 0;
                         c.meals.forEach(m => {
                             mCal += Number(m.cal) || 0;
                             mPro += Number(m.pro) || 0;
                             mCarbs += Number(m.carbs) || 0;
                             mFat += Number(m.fat) || 0;
+                            mSugar += Number(m.sugar) || 0;
+                            mSodium += Number(m.sodium) || 0;
                         });
                         c.cal = Math.round(mCal);
                         c.protein = Math.round(mPro);
                         c.carbs = Math.round(mCarbs);
                         c.fat = Math.round(mFat);
+                        c.sugar = Math.round(mSugar);
+                        c.sodium = Math.round(mSodium);
                     }
                 });
 
@@ -6256,7 +6587,10 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 } catch (e) {}
                 render();
                 updateIFUI();
+                if (cloud.outdoorMode !== undefined) D.outdoorMode = !!cloud.outdoorMode;
                 const timeStr = typeof formatThaiTime === 'function' ? formatThaiTime(new Date()) : new Date().toLocaleTimeString('th-TH');
+                lastCloudSyncTime = timeStr;
+                updateCloudSyncPill('synced');
                 msg('<span style="color:#10b981;font-weight:600;">✓ โหลดข้อมูลคลาวด์ล่าสุดเรียบร้อย (' + timeStr + ' น.)</span>');
                 return;
             }
@@ -6342,17 +6676,21 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                     c.water = Math.round(c.water * 250);
                 }
                 if (c.meals && c.meals.length > 0) {
-                    let mCal = 0, mPro = 0, mCarbs = 0, mFat = 0;
+                    let mCal = 0, mPro = 0, mCarbs = 0, mFat = 0, mSugar = 0, mSodium = 0;
                     c.meals.forEach(m => {
                         mCal += Number(m.cal) || 0;
                         mPro += Number(m.pro) || 0;
                         mCarbs += Number(m.carbs) || 0;
                         mFat += Number(m.fat) || 0;
+                        mSugar += Number(m.sugar) || 0;
+                        mSodium += Number(m.sodium) || 0;
                     });
                     c.cal = Math.round(mCal);
                     c.protein = Math.round(mPro);
                     c.carbs = Math.round(mCarbs);
                     c.fat = Math.round(mFat);
+                    c.sugar = Math.round(mSugar);
+                    c.sodium = Math.round(mSodium);
                 }
             });
 
@@ -6392,6 +6730,10 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             try {
                 localStorage.setItem('fit', JSON.stringify(D));
             } catch (e) {}
+            if (cloud.outdoorMode !== undefined) D.outdoorMode = !!cloud.outdoorMode;
+            if (cloud.cfg && cloud.cfg.savedFoods && Array.isArray(cloud.cfg.savedFoods)) {
+                D.cfg.savedFoods = cloud.cfg.savedFoods;
+            }
             render();
             updateIFUI();
             // Since this device had offline changes, push the merged result to Cloud and clear dirty flag
@@ -6414,18 +6756,91 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
         }
 
         let isSyncPending = false;
+        let lastCloudSyncTime = '';
+
+        function updateCloudSyncPill(status, customTxt) {
+            const pill = document.getElementById('cloudSyncPill');
+            const dot = document.getElementById('cloudSyncDot');
+            const txt = document.getElementById('cloudSyncTxt');
+            if (!pill || !dot || !txt) return;
+
+            if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                dot.style.background = '#ef4444';
+                dot.style.boxShadow = 'none';
+                txt.style.color = '#ef4444';
+                txt.textContent = 'ออฟไลน์';
+                pill.title = 'ไม่ได้เชื่อมต่ออินเทอร์เน็ต — ข้อมูลถูกบันทึกในเครื่องปลอดภัย';
+                return;
+            }
+
+            if (!currentUser) {
+                dot.style.background = 'var(--dim)';
+                dot.style.boxShadow = 'none';
+                txt.style.color = 'var(--dim)';
+                txt.textContent = 'ยังไม่ล็อกอิน';
+                pill.title = 'แตะเพื่อเข้าสู่ระบบ Google เพื่อเปิดระบบซิงก์คลาวด์อัตโนมัติ';
+                return;
+            }
+
+            if (status === 'syncing') {
+                dot.style.background = '#f59e0b';
+                dot.style.boxShadow = '0 0 6px #f59e0b';
+                txt.style.color = '#d97706';
+                txt.textContent = 'กำลังซิงก์...';
+                pill.title = 'กำลังอัปเดตข้อมูลขึ้น Google Cloud...';
+            } else if (status === 'dirty' || localStorage.getItem('fc_dirty') === '1') {
+                dot.style.background = '#f59e0b';
+                dot.style.boxShadow = 'none';
+                txt.style.color = '#d97706';
+                txt.textContent = 'รอซิงก์';
+                pill.title = 'มีข้อมูลใหม่ในเครื่องรอส่งขึ้นคลาวด์ แตะเพื่อซิงก์ทันที';
+            } else {
+                dot.style.background = '#10b981';
+                dot.style.boxShadow = '0 0 5px #10b981';
+                txt.style.color = '#059669';
+                txt.textContent = customTxt || (lastCloudSyncTime ? 'ซิงก์แล้ว ' + lastCloudSyncTime : 'ซิงก์แล้ว');
+                pill.title = 'ข้อมูลซิงก์กับ Google Cloud สมบูรณ์ ' + (lastCloudSyncTime ? '(ล่าสุด ' + lastCloudSyncTime + ' น.)' : '') + ' แตะเพื่อซิงก์ซ้ำ';
+            }
+        }
+
+        async function handleCloudSyncPillClick() {
+            if (!currentUser) {
+                go('sync');
+                return;
+            }
+            updateCloudSyncPill('syncing');
+            const ok = await pushToCloud();
+            if (ok) {
+                lastCloudSyncTime = typeof formatThaiTime === 'function' ? formatThaiTime(new Date()) : new Date().toLocaleTimeString('th-TH');
+                updateCloudSyncPill('synced');
+                msg('✓ ซิงก์คลาวด์สำเร็จ (' + lastCloudSyncTime + ' น.)');
+            } else {
+                updateCloudSyncPill('dirty');
+            }
+        }
+
+        if (typeof window !== 'undefined') {
+            window.addEventListener('online', () => updateCloudSyncPill());
+            window.addEventListener('offline', () => updateCloudSyncPill());
+        }
+
         async function pushToCloud() {
-            if (!currentUser || !fbDb) return false;
+            if (!currentUser || !fbDb) {
+                updateCloudSyncPill();
+                return false;
+            }
             if (isSyncing) {
                 isSyncPending = true;
                 return false;
             }
             isSyncing = true;
+            updateCloudSyncPill('syncing');
             try {
                 const userDocRef = fbDb.collection('users').doc(currentUser.uid);
                 const rawPayload = {
                     start: D.start || iso(),
                     bs: !!D.bs,
+                    outdoorMode: !!D.outdoorMode,
                     schOffs: D.schOffs || 0,
                     schOffsUpdatedAt: D.schOffsUpdatedAt || (D.schOffs ? Date.now() : 0),
                     forceFullCardio: !!D.forceFullCardio,
@@ -6446,10 +6861,13 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                 await userDocRef.set(cleanPayload, { merge: true });
                 localStorage.removeItem('fc_dirty'); // Unsynced local changes are safely written to Cloud
                 const timeStr = typeof formatThaiTime === 'function' ? formatThaiTime(new Date()) : new Date().toLocaleTimeString('th-TH');
+                lastCloudSyncTime = timeStr;
+                updateCloudSyncPill('synced');
                 msg(`<span style="color:#10b981;font-weight:600;">✓ ซิงก์สมบูรณ์เวลา ${timeStr} น.</span>`);
                 return true;
             } catch (err) {
                 console.error("Cloud push error:", err);
+                updateCloudSyncPill('dirty');
                 if (err.code === 'permission-denied' || (err.message && err.message.includes('permission'))) {
                     msg('⚠️ ซิงก์ไม่สำเร็จ: ยังไม่ได้ตั้งค่า Rules ใน Firestore');
                 } else {
