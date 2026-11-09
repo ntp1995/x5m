@@ -1607,6 +1607,9 @@
             <!-- CARD 4: 🥗 DAILY FUEL & NUTRITION BENTO CARD -->
             <div class="card" id="dailyNutritionCard" style="margin-bottom:12px;"></div>
 
+            <!-- CARD 4.5: 💊 DAILY SUPPLEMENT MASTER TIME TABLE SUMMARY CARD -->
+            <div class="card" id="homeSuppCard" style="margin-bottom:12px;"></div>
+
             <!-- Backward compatibility dummy for dailyTracker -->
             <div id="dailyTracker" style="display:none;"></div>
 
@@ -1912,6 +1915,13 @@
         </div>
     </div>
 
+    <!-- ================= SUPPLEMENTS (MASTER TIME TABLE) ================= -->
+    <div class="page" id="p-supp">
+        <div class="wrap">
+            <div id="suppPageContainer"></div>
+        </div>
+    </div>
+
     <nav>
         <button class="on" data-p="home">
             <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -1920,6 +1930,10 @@
         <button data-p="prog">
             <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="16" y2="16"></line><line x1="8" y1="8" x2="8.01" y2="8"></line><line x1="12" y1="8" x2="16" y2="8"></line></svg>
             โปรแกรม
+        </button>
+        <button data-p="supp">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg>
+            อาหารเสริม
         </button>
         <button data-p="if">
             <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -1966,7 +1980,7 @@
         </div>
     </div>
     <script>
-        const APP_VERSION = '2.12.0';
+        const APP_VERSION = '2.13.0';
         
         /* ============ CUSTOM MODALS ============ */
         let _fcRes = null;
@@ -4747,8 +4761,592 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
             if (document.getElementById('aiKeyBackup')) document.getElementById('aiKeyBackup').value = D.cfg.aiKeyBackup || '';
             renderAuthUI();
             document.getElementById('localInfo').textContent = `เช็กอิน ${D.checks.length} วัน • เซสชัน ${D.sessions.length} • เซ็ตที่บันทึก ${D.sets.length}`;
-            charts(); renderCheckHistory(); renderWeightProgressionUI(); showW(document.querySelector('#wSel button.on')?.dataset.w || 'A');
+            charts(); renderCheckHistory(); renderWeightProgressionUI(); renderSupplementsUI(); showW(document.querySelector('#wSel button.on')?.dataset.w || 'A');
         }
+
+        /* ============ DAILY SUPPLEMENT MASTER TIME TABLE ENGINE (v2.13.0) ============ */
+        const SUPP_MASTER_SLOTS = [
+            {
+                id: 'slot_morning',
+                icon: '☀️',
+                title: 'ช่วงเช้า (ตื่นนอน & ก่อน Cardio Zone 2)',
+                timeHint: '06:30 – 08:30 น.',
+                badge: 'ปลุกระบบเผาผลาญ & เติมน้ำ',
+                color: '#f59e0b',
+                note: 'หมายเหตุ: วันไหนเข้าเวรเหนื่อยแล้วงดออกกำลังกาย ให้งด L-Carnitine แล้วย้าย Medita A1C ไปกินก่อนมื้อกลางวันแทนครับ',
+                items: [
+                    {
+                        id: 'supp_morn_water',
+                        timing: 'หลังตื่นนอนทันที',
+                        name: 'ดื่มน้ำเปล่า 1–2 แก้ว (~500 ml)',
+                        dose: '1–2 แก้ว',
+                        benefit: 'เริ่มต้นเก็บยอดน้ำ 3 ลิตรจากแก้ว 1 ลิตร กระตุ้นระบบขับถ่ายและตับ',
+                        tag: '💧 เติมน้ำ',
+                        waterMl: 500
+                    },
+                    {
+                        id: 'supp_morn_medita',
+                        timing: 'ก่อนเดินลู่วิ่ง 30 นาที',
+                        name: 'Medita A1C',
+                        dose: '1 แคปซูล',
+                        benefit: 'ดูแลระดับน้ำตาลสะสมและเพิ่มความไวอินซูลินก่อนคาร์ดิโอ',
+                        tag: '🩸 คุมน้ำตาล',
+                        shiftMoveToLunch: true
+                    },
+                    {
+                        id: 'supp_morn_carnitine',
+                        timing: 'ก่อนเดินลู่วิ่ง 30 นาที',
+                        name: 'L-Carnitine 500mg',
+                        dose: '1 แคปซูล',
+                        benefit: 'ลำเลียงกรดไขมันเข้าสู่ไมโทคอนเดรียเพื่อเผาผลาญช่วง Cardio Zone 2',
+                        tag: '🔥 เบิร์นไขมัน',
+                        skipOnShift: true
+                    }
+                ]
+            },
+            {
+                id: 'slot_lunch',
+                icon: '🍽️',
+                title: 'มื้อที่ 1 (มื้อกลางวัน / อาหารตามสั่งเลี่ยงไขมันแฝง)',
+                timeHint: '11:45 – 13:00 น.',
+                badge: 'ดรอปไตรกลีเซอไรด์ & ลดผิวอักเสบ',
+                color: '#ea580c',
+                items: [
+                    {
+                        id: 'supp_lunch_acv',
+                        timing: 'ก่อนอาหาร 15 นาที',
+                        name: 'ดื่ม Apple Cider Vinegar (ACV) ผสมน้ำ',
+                        dose: '1 แก้ว',
+                        benefit: 'ชะลอการดูดซึมแป้งและน้ำตาล ลดอินซูลินพุ่งสูงหลังมื้ออาหาร',
+                        tag: '🍏 ก่อนอาหาร 15 นาที'
+                    },
+                    {
+                        id: 'supp_lunch_vitc',
+                        timing: 'หลังอาหารทันที (รวบยอดเม็ดที่ 1/3)',
+                        name: 'Watsons Triple C',
+                        dose: '1 เม็ด',
+                        benefit: 'สร้างฐานคอลลาเจนและต้านอนุมูลอิสระ ฟื้นฟูผิวหลังเลเซอร์',
+                        tag: '🍊 สร้างฐานคอลลาเจน'
+                    },
+                    {
+                        id: 'supp_lunch_fishoil',
+                        timing: 'หลังอาหารทันที (รวบยอดเม็ดที่ 2/3)',
+                        name: 'Fish Oil (โอเมก้า-3)',
+                        dose: '1 แคปซูล',
+                        benefit: 'ดรอปไตรกลีเซอไรด์ (ลดจาก 333) และลดไขมันพอกตับ/ช่องท้อง',
+                        tag: '🐟 ดรอปไตรกลีเซอไรด์'
+                    },
+                    {
+                        id: 'supp_lunch_asta',
+                        timing: 'หลังอาหารทันที (รวบยอดเม็ดที่ 3/3)',
+                        name: 'Astaxanthin Plus Vit E',
+                        dose: '1 ซอฟต์เจล',
+                        benefit: 'ลดผิวอักเสบแดงจากเลเซอร์ (ละลายในไขมัน ดูดซึมดีที่สุดหลังอาหาร)',
+                        tag: '✨ ลดผิวอักเสบเลเซอร์'
+                    }
+                ]
+            },
+            {
+                id: 'slot_evening',
+                icon: '💪',
+                title: 'ช่วงเย็น (ประมาณ 17:00 น. หรือหลังออกกำลังกาย)',
+                timeHint: '17:00 – 18:00 น.',
+                badge: 'ซ่อมกล้ามเนื้อ + สร้างผิวเร่งด่วน',
+                color: '#10b981',
+                note: 'ออปชันเสริม: หากรู้สึกเพลีย สามารถดื่มน้ำมะพร้าว 1 กล่องเล็กในจังหวะนี้เพื่อเติมโพแทสเซียมได้ครับ',
+                items: [
+                    {
+                        id: 'supp_eve_combo',
+                        timing: 'สูตรคอมโบ (ชงในแก้วเดียวกัน)',
+                        name: 'BAAM Soy Isolate (1 สกู๊ป) + Whitelab Hydrolyzed Collagen+',
+                        dose: '1 แก้วคอมโบ',
+                        benefit: 'ซ่อมแซมมวลกล้ามเนื้อหลังเวท/คาร์ดิโอ พร้อมเติมคอลลาเจนสร้างผิวใหม่',
+                        tag: '🥤 ซ่อมกล้ามเนื้อ+สร้างผิว'
+                    },
+                    {
+                        id: 'supp_eve_vida',
+                        timing: 'ทานคู่กับเชคโปรตีนคอลลาเจน',
+                        name: 'Vida Collagen Dipeptide C',
+                        dose: '2 แคปซูล',
+                        benefit: 'ดูดซึมเข้าสู่เซลล์ผิวระดับ Dipeptide เสริมฤทธิ์คอลลาเจนชง',
+                        tag: '✨ เร่งสมานผิว'
+                    },
+                    {
+                        id: 'supp_eve_coconut',
+                        timing: 'ออปชันเสริม (เมื่อรู้สึกเพลีย)',
+                        name: 'น้ำมะพร้าว 1 กล่องเล็ก (Optional)',
+                        dose: '1 กล่องเล็ก',
+                        benefit: 'เติมโพแทสเซียมและอิเล็กโทรไลต์ธรรมชาติ ลดอาการล้าหลังซ้อม/เข้าเวร',
+                        tag: '🥥 ออปชันเสริม',
+                        optional: true
+                    }
+                ]
+            },
+            {
+                id: 'slot_dinner',
+                icon: '🌙',
+                title: 'มื้อที่ 2 (มื้อเย็น / จบโควตา 1,650 – 1,750 kcal)',
+                timeHint: '18:30 – 19:45 น.',
+                badge: 'คุมไขมันช่องท้อง & ปิดหน้าต่าง IF',
+                color: '#3b82f6',
+                items: [
+                    {
+                        id: 'supp_din_acv',
+                        timing: 'ก่อนอาหาร 15 นาที',
+                        name: 'ดื่ม Apple Cider Vinegar (ACV) ผสมน้ำ',
+                        dose: '1 แก้ว',
+                        benefit: 'ช่วยย่อยโปรตีนและคุมระดับน้ำตาลมื้อสุดท้ายก่อนเริ่มนับเวลา IF',
+                        tag: '🍏 ก่อนอาหาร 15 นาที'
+                    },
+                    {
+                        id: 'supp_din_fishoil',
+                        timing: 'หลังอาหารทันที',
+                        name: 'Fish Oil (โอเมก้า-3)',
+                        dose: '1 แคปซูล',
+                        benefit: 'กดระดับไตรกลีเซอไรด์ช่วงกลางคืนและลดการอักเสบของหลอดเลือด',
+                        tag: '🐟 ดรอปไตรกลีเซอไรด์'
+                    }
+                ]
+            },
+            {
+                id: 'slot_bedtime',
+                icon: '🛌',
+                title: 'ช่วงค่ำ / ก่อนเข้านอน (ตอนท้องว่าง)',
+                timeHint: '21:30 – 22:30 น.',
+                badge: 'ฟื้นฟูระบบประสาท & ดีท็อกซ์ตับ',
+                color: '#8b5cf6',
+                items: [
+                    {
+                        id: 'supp_night_gluta',
+                        timing: 'ก่อนนอน (ตอนท้องว่าง)',
+                        name: 'Whitelab Liposomal Gluta+',
+                        dose: '1 แคปซูล',
+                        benefit: 'สมานแผลเลเซอร์ด้วย Zinc 30mg และดีท็อกซ์ตับช่วงหลับลึก',
+                        tag: '🛡️ Zinc 30mg + เซฟตับ'
+                    },
+                    {
+                        id: 'supp_night_probio',
+                        timing: 'ก่อนนอน (ตอนท้องว่าง)',
+                        name: 'Probiotic',
+                        dose: '1 เม็ด',
+                        benefit: 'ปรับสมดุลจุลินทรีย์ลำไส้ (เคลียร์สต็อก 8 เม็ดสุดท้าย)',
+                        tag: '🦠 เคลียร์สต็อก',
+                        hasStockCounter: true
+                    },
+                    {
+                        id: 'supp_night_banana',
+                        timing: 'ก่อนเข้านอน',
+                        name: 'กล้วยหอม 1 ลูก',
+                        dose: '1 ลูก',
+                        benefit: 'คลายความตึงเครียดของเส้นประสาทที่หน้าผากด้วยโพแทสเซียมธรรมชาติ & ทริปโตเฟน',
+                        tag: '🍌 คลายประสาทหน้าผาก'
+                    }
+                ]
+            }
+        ];
+
+        function getTodaySuppRecord() {
+            const todayStr = iso();
+            let rec = todayCheck();
+            if (!rec) {
+                const prev = D.checks[D.checks.length - 1];
+                rec = {
+                    d: todayStr,
+                    w: prev?.w || null,
+                    cal: 0, protein: 0, carbs: 0, fat: 0, sugar: 0, sodium: 0, water: 0,
+                    meals: [],
+                    supps: {},
+                    suppShiftMode: false
+                };
+                D.checks.push(rec);
+            }
+            if (!rec.supps) rec.supps = {};
+            return rec;
+        }
+
+        function getSuppProgressStats(rec) {
+            const r = rec || todayCheck() || {};
+            const supps = r.supps || {};
+            const isShift = !!r.suppShiftMode;
+            let totalReq = 0;
+            let doneReq = 0;
+            let optionalDone = 0;
+
+            SUPP_MASTER_SLOTS.forEach(slot => {
+                slot.items.forEach(item => {
+                    if (isShift && item.skipOnShift) return; // L-Carnitine skipped on shift/rest day
+                    if (item.optional) {
+                        if (supps[item.id]) optionalDone++;
+                        return;
+                    }
+                    totalReq++;
+                    if (supps[item.id]) doneReq++;
+                });
+            });
+
+            const pct = totalReq > 0 ? Math.min(100, Math.round((doneReq / totalReq) * 100)) : 0;
+            return { totalReq, doneReq, optionalDone, pct, isShift };
+        }
+
+        function toggleSuppItem(itemId) {
+            const rec = getTodaySuppRecord();
+            const newState = !rec.supps[itemId];
+            rec.supps[itemId] = newState;
+            rec.updatedAt = Date.now();
+
+            // Handle Probiotic 8-pill stock counter
+            if (itemId === 'supp_night_probio') {
+                if (D.cfg.probioticStock == null) D.cfg.probioticStock = 8;
+                if (newState) {
+                    D.cfg.probioticStock = Math.max(0, D.cfg.probioticStock - 1);
+                } else {
+                    D.cfg.probioticStock = Math.min(30, D.cfg.probioticStock + 1);
+                }
+            }
+
+            save();
+            render();
+            if (typeof pushToCloud === 'function') pushToCloud();
+        }
+
+        function toggleSuppSlotAll(slotId) {
+            const rec = getTodaySuppRecord();
+            const isShift = !!rec.suppShiftMode;
+            const slot = SUPP_MASTER_SLOTS.find(s => s.id === slotId);
+            if (!slot) return;
+
+            const activeItems = slot.items.filter(it => !(isShift && it.skipOnShift) && !it.optional);
+            // If slot is lunch and shiftMode is ON, also include supp_morn_medita
+            if (slotId === 'slot_lunch' && isShift) {
+                const medita = SUPP_MASTER_SLOTS[0].items.find(x => x.id === 'supp_morn_medita');
+                if (medita) activeItems.push(medita);
+            }
+            const allChecked = activeItems.every(it => !!rec.supps[it.id]);
+            const targetState = !allChecked;
+
+            activeItems.forEach(it => {
+                const prev = !!rec.supps[it.id];
+                rec.supps[it.id] = targetState;
+                if (it.id === 'supp_night_probio' && prev !== targetState) {
+                    if (D.cfg.probioticStock == null) D.cfg.probioticStock = 8;
+                    D.cfg.probioticStock = targetState ? Math.max(0, D.cfg.probioticStock - 1) : Math.min(30, D.cfg.probioticStock + 1);
+                }
+            });
+
+            rec.updatedAt = Date.now();
+            save();
+            render();
+            if (typeof pushToCloud === 'function') pushToCloud();
+            msg(targetState ? '✓ เช็กอาหารเสริมครบช่วงเวลานี้แล้ว!' : '↺ ยกเลิกการเช็กช่วงเวลานี้แล้ว');
+        }
+
+        function toggleSuppShiftMode() {
+            const rec = getTodaySuppRecord();
+            rec.suppShiftMode = !rec.suppShiftMode;
+            rec.updatedAt = Date.now();
+            save();
+            render();
+            if (typeof pushToCloud === 'function') pushToCloud();
+            msg(rec.suppShiftMode
+                ? '🏥 เปิดโหมดวันเข้าเวรเหนื่อย/งดซ้อม: งด L-Carnitine และย้าย Medita A1C ไปก่อนมื้อกลางวัน'
+                : '🏃‍♂️ สลับกลับเป็นโหมดวันออกกำลังกายปกติ');
+        }
+
+        function checkAllSuppsToday(markDone) {
+            const rec = getTodaySuppRecord();
+            const isShift = !!rec.suppShiftMode;
+            SUPP_MASTER_SLOTS.forEach(slot => {
+                slot.items.forEach(it => {
+                    if (isShift && it.skipOnShift) {
+                        rec.supps[it.id] = false;
+                        return;
+                    }
+                    if (!it.optional) {
+                        const prev = !!rec.supps[it.id];
+                        rec.supps[it.id] = !!markDone;
+                        if (it.id === 'supp_night_probio' && prev !== !!markDone) {
+                            if (D.cfg.probioticStock == null) D.cfg.probioticStock = 8;
+                            D.cfg.probioticStock = markDone ? Math.max(0, D.cfg.probioticStock - 1) : Math.min(30, D.cfg.probioticStock + 1);
+                        }
+                    } else if (!markDone) {
+                        rec.supps[it.id] = false;
+                    }
+                });
+            });
+            rec.updatedAt = Date.now();
+            save();
+            render();
+            if (typeof pushToCloud === 'function') pushToCloud();
+            msg(markDone ? '🎉 เช็กอาหารเสริมครบทุกรายการของวันนี้แล้ว!' : '↺ รีเซ็ตตารางอาหารเสริมวันนี้แล้ว');
+        }
+
+        async function editProbioticStock(ev) {
+            if (ev) ev.stopPropagation();
+            if (D.cfg.probioticStock == null) D.cfg.probioticStock = 8;
+            const res = await fcPrompt('ปรับจำนวนสต็อก Probiotic ที่เหลือ (เม็ด):', String(D.cfg.probioticStock), '🦠 สต็อก Probiotic คงเหลือ');
+            if (res === null) return;
+            const n = parseInt(res);
+            if (!isNaN(n) && n >= 0 && n <= 200) {
+                D.cfg.probioticStock = n;
+                save();
+                render();
+                if (typeof pushToCloud === 'function') pushToCloud();
+                msg('✓ อัปเดตสต็อก Probiotic เหลือ ' + n + ' เม็ด');
+            }
+        }
+
+        function renderSupplementsUI() {
+            const tc = todayCheck() || {};
+            const stats = getSuppProgressStats(tc);
+            const supps = tc.supps || {};
+            const isShift = stats.isShift;
+            if (D.cfg.probioticStock == null) D.cfg.probioticStock = 8;
+            const probioLeft = D.cfg.probioticStock;
+
+            // Determine current recommended slot by hour
+            const nowH = new Date().getHours() + (new Date().getMinutes() / 60);
+            let activeSlotIdx = 0;
+            if (nowH < 10.5) activeSlotIdx = 0;
+            else if (nowH < 15.0) activeSlotIdx = 1;
+            else if (nowH < 18.0) activeSlotIdx = 2;
+            else if (nowH < 20.5) activeSlotIdx = 3;
+            else activeSlotIdx = 4;
+            const curSlot = SUPP_MASTER_SLOTS[activeSlotIdx];
+
+            // 1. Render Home Quick Summary Card (#homeSuppCard)
+            const homeEl = document.getElementById('homeSuppCard');
+            if (homeEl) {
+                homeEl.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="background:rgba(16,185,129,0.15); color:#059669; padding:6px; border-radius:8px; display:inline-flex;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg>
+                            </span>
+                            <div>
+                                <h3 style="margin:0; font-size:14.5px; font-weight:800;">ตารางอาหารเสริมวันนี้ (Master Time Table)</h3>
+                                <div style="font-size:11px; color:var(--dim);">เซฟตับ • ลดไตรกลีเซอไรด์ (333) • สมานผิวเลเซอร์</div>
+                            </div>
+                        </div>
+                        <span class="tag" style="font-size:11px; font-weight:800; background:${stats.pct === 100 ? 'rgba(16,185,129,0.18)' : 'rgba(249,115,22,0.15)'}; color:${stats.pct === 100 ? '#059669' : 'var(--acc)'};">
+                            ${stats.doneReq}/${stats.totalReq} รายการ (${stats.pct}%)
+                        </span>
+                    </div>
+
+                    <div class="bar" style="height:7px; margin-bottom:9px;">
+                        <i style="width:${stats.pct}%; background:linear-gradient(90deg, #10b981, #059669);"></i>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:8px 10px;">
+                        <div style="font-size:12px; color:var(--tx); flex:1;">
+                            <span style="font-weight:800; color:${curSlot.color};">${curSlot.icon} ช่วงเวลานี้:</span> ${curSlot.title.split(' (')[0]}
+                            ${isShift ? ' <span style="font-size:10.5px; color:#d97706; font-weight:700;">(🏥 โหมดวันเข้าเวร/งดซ้อม)</span>' : ''}
+                        </div>
+                        <button class="btn sm" onclick="go('supp')" style="width:auto; flex:0 0 auto; padding:6px 12px; font-size:11.5px; background:var(--acc); color:#fff; font-weight:800; border-radius:8px; cursor:pointer;">
+                            💊 เปิดตารางเช็กชื่อ ❯
+                        </button>
+                    </div>
+                `;
+            }
+
+            // 2. Render Full Supplements Page (#suppPageContainer)
+            const pageEl = document.getElementById('suppPageContainer');
+            if (!pageEl) return;
+
+            const renderItemRow = (it, extraBadgeHtml = '') => {
+                const isSkipped = isShift && it.skipOnShift;
+                const isMovedOut = isShift && it.shiftMoveToLunch && !extraBadgeHtml;
+                const isDone = !!supps[it.id];
+
+                if (isSkipped) {
+                    return `
+                        <div style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border-radius:10px; background:var(--card2); border:1px dashed var(--line); opacity:0.65; margin-bottom:8px;">
+                            <div style="font-size:16px; line-height:1.2; margin-top:2px;">⏸️</div>
+                            <div style="flex:1;">
+                                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                    <span style="font-weight:800; font-size:13.5px; color:var(--dim); text-decoration:line-through;">${it.name} (${it.dose})</span>
+                                    <span style="background:rgba(245,158,11,0.15); color:#d97706; font-size:10px; font-weight:800; padding:1px 6px; border-radius:6px;">งดทาน (วันเข้าเวร/ไม่ได้ออกกำลังกาย)</span>
+                                </div>
+                                <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">${it.benefit}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (isMovedOut) {
+                    return `
+                        <div style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border-radius:10px; background:rgba(245,158,11,0.08); border:1px dashed rgba(245,158,11,0.4); margin-bottom:8px;">
+                            <div style="font-size:16px; line-height:1.2; margin-top:2px;">↪️</div>
+                            <div style="flex:1;">
+                                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                    <span style="font-weight:800; font-size:13.5px; color:#d97706;">${it.name} (${it.dose})</span>
+                                    <span style="background:rgba(245,158,11,0.2); color:#b45309; font-size:10px; font-weight:800; padding:1px 6px; border-radius:6px;">ย้ายไปทานก่อนมื้อกลางวันแล้ว</span>
+                                </div>
+                                <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">เนื่องจากเปิดโหมดวันเข้าเวร/งดออกกำลังกาย ระบบจึงย้ายไปอยู่ในมื้อที่ 1 (มื้อกลางวัน) ให้เรียบร้อยครับ</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const stockBadge = it.hasStockCounter ? `
+                    <button type="button" onclick="editProbioticStock(event)" style="background:${probioLeft <= 3 ? 'rgba(239,68,68,0.15)' : 'rgba(139,92,246,0.15)'}; color:${probioLeft <= 3 ? '#ef4444' : '#8b5cf6'}; border:1px solid ${probioLeft <= 3 ? 'rgba(239,68,68,0.35)' : 'rgba(139,92,246,0.35)'}; font-size:10.5px; font-weight:800; padding:2px 7px; border-radius:6px; cursor:pointer;" title="แตะเพื่อปรับจำนวนสต็อก">
+                        📦 เหลือสต็อก ${probioLeft} เม็ด ✏️
+                    </button>
+                ` : '';
+
+                const waterQuickBtn = it.waterMl ? `
+                    <button type="button" onclick="event.stopPropagation(); addWaterMl(${it.waterMl}); if(!todayCheck()?.supps?.['${it.id}']) toggleSuppItem('${it.id}');" style="background:rgba(139,92,246,0.12); color:var(--vio); border:1px solid rgba(139,92,246,0.3); font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; cursor:pointer;">
+                        💧 +บวกน้ำ ${it.waterMl}ml
+                    </button>
+                ` : '';
+
+                return `
+                    <div onclick="toggleSuppItem('${it.id}')" style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border-radius:11px; background:${isDone ? 'rgba(16,185,129,0.08)' : 'var(--card2)'}; border:1.5px solid ${isDone ? '#10b981' : 'var(--line)'}; margin-bottom:8px; cursor:pointer; transition:all 0.15s ease;">
+                        <div style="width:22px; height:22px; border-radius:6px; border:2px solid ${isDone ? '#10b981' : 'var(--dim)'}; background:${isDone ? '#10b981' : 'var(--bg)'}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:900; flex-shrink:0; margin-top:2px;">
+                            ${isDone ? '✓' : ''}
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap;">
+                                <span style="font-size:11px; font-weight:800; color:var(--acc);">${it.timing}</span>
+                                <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
+                                    ${extraBadgeHtml}
+                                    ${stockBadge}
+                                    ${waterQuickBtn}
+                                    <span style="font-size:10px; font-weight:700; padding:1px 6px; border-radius:6px; background:var(--card); border:1px solid var(--line); color:var(--dim);">${it.tag}</span>
+                                </div>
+                            </div>
+                            <div style="font-weight:800; font-size:14px; color:${isDone ? '#059669' : 'var(--tx)'}; margin-top:2px; ${isDone ? 'text-decoration:line-through; opacity:0.85;' : ''}">
+                                ${it.name} <span style="font-size:12px; font-weight:700; color:var(--acc);">(${it.dose})</span>
+                            </div>
+                            <div style="font-size:11.5px; color:var(--dim); margin-top:2px; line-height:1.4;">
+                                ${it.benefit}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            };
+
+            const slotsHtml = SUPP_MASTER_SLOTS.map((slot, sIdx) => {
+                let slotItemsHtml = '';
+                // If this is lunch and shiftMode is ON, inject moved Medita A1C right after ACV
+                slot.items.forEach(it => {
+                    slotItemsHtml += renderItemRow(it);
+                    if (slot.id === 'slot_lunch' && it.id === 'supp_lunch_acv' && isShift) {
+                        const meditaItem = SUPP_MASTER_SLOTS[0].items.find(x => x.id === 'supp_morn_medita');
+                        if (meditaItem) {
+                            slotItemsHtml += renderItemRow(
+                                { ...meditaItem, timing: 'ก่อนอาหารกลางวัน (ย้ายมาจากช่วงเช้า)' },
+                                '<span style="background:rgba(245,158,11,0.2); color:#d97706; font-size:10px; font-weight:800; padding:1px 6px; border-radius:6px;">↪️ โหมดวันเข้าเวร</span>'
+                            );
+                        }
+                    }
+                });
+
+                const reqItems = slot.items.filter(it => !(isShift && it.skipOnShift) && !(isShift && it.shiftMoveToLunch && slot.id === 'slot_morning') && !it.optional);
+                if (slot.id === 'slot_lunch' && isShift) {
+                    const meditaItem = SUPP_MASTER_SLOTS[0].items.find(x => x.id === 'supp_morn_medita');
+                    if (meditaItem) reqItems.push(meditaItem);
+                }
+                const slotDoneCount = reqItems.filter(it => !!supps[it.id]).length;
+                const slotAllDone = reqItems.length > 0 && slotDoneCount === reqItems.length;
+                const isCurrentWindow = sIdx === activeSlotIdx;
+
+                return `
+                    <div class="card" style="margin-bottom:12px; border:${isCurrentWindow ? '1.5px solid ' + slot.color : '1px solid var(--line)'};">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:10px;">
+                            <div>
+                                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                    <span style="font-size:18px;">${slot.icon}</span>
+                                    <h3 style="margin:0; font-size:15px; font-weight:900; color:var(--tx);">${slot.title}</h3>
+                                    ${isCurrentWindow ? `<span style="background:${slot.color}22; color:${slot.color}; border:1px solid ${slot.color}55; font-size:10px; font-weight:800; padding:1px 7px; border-radius:99px;">⏰ ช่วงเวลานี้</span>` : ''}
+                                </div>
+                                <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">
+                                    🕒 แนะนำ: <b>${slot.timeHint}</b> • <span style="color:${slot.color}; font-weight:700;">${slot.badge}</span>
+                                </div>
+                            </div>
+                            <button type="button" class="btn sm" onclick="toggleSuppSlotAll('${slot.id}')" style="width:auto; flex:0 0 auto; padding:5px 10px; font-size:11px; font-weight:800; border-radius:8px; background:${slotAllDone ? 'rgba(16,185,129,0.16)' : 'var(--card2)'}; color:${slotAllDone ? '#059669' : 'var(--tx)'}; border:1px solid ${slotAllDone ? '#10b981' : 'var(--line)'}; cursor:pointer;">
+                                ${slotAllDone ? '✓ ครบมื้อนี้แล้ว' : `เช็กครบ (${slotDoneCount}/${reqItems.length})`}
+                            </button>
+                        </div>
+
+                        ${slotItemsHtml}
+
+                        ${slot.note ? `
+                            <div style="margin-top:6px; padding:8px 10px; border-radius:8px; background:rgba(245,158,11,0.08); border-left:3px solid #f59e0b; font-size:11.5px; color:var(--tx); line-height:1.45;">
+                                💡 <b>คำแนะนำพิเศษ:</b> ${slot.note}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            pageEl.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:6px;">
+                    <div>
+                        <h1 style="margin:0; font-size:22px;">💊 ตารางอาหารเสริมประจำวัน</h1>
+                        <div class="sub" style="margin-top:3px;">MASTER TIME TABLE • เซฟตับ • ลดไขมันช่องท้อง (ไตรกลีเซอไรด์ 333) • เร่งสมานผิวหลังทำเลเซอร์</div>
+                    </div>
+                </div>
+
+                <!-- Master Summary & Shift Mode Card -->
+                <div class="card" style="margin-bottom:12px; background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color:#fff; border:none; box-shadow:0 6px 18px rgba(15,23,42,0.18);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <div>
+                            <div style="font-size:11px; color:#94a3b8; font-weight:700;">📅 ความคืบหน้าวันนี้ (${iso()})</div>
+                            <div style="display:flex; align-items:baseline; gap:6px; margin-top:2px;">
+                                <span style="font-size:28px; font-weight:900; color:#10b981; line-height:1;">${stats.doneReq}/${stats.totalReq}</span>
+                                <span style="font-size:13px; color:#cbd5e1; font-weight:700;">รายการหลัก (${stats.pct}%)</span>
+                                ${stats.optionalDone > 0 ? `<span style="font-size:11px; color:#fde047; font-weight:700;">+${stats.optionalDone} เสริม</span>` : ''}
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <button type="button" class="btn sm" onclick="checkAllSuppsToday(true)" style="width:auto; padding:6px 10px; font-size:11px; background:#10b981; color:#fff; font-weight:800; border-radius:8px; border:none; cursor:pointer;">✓ เช็กครบทั้งวัน</button>
+                            <button type="button" class="btn sm" onclick="checkAllSuppsToday(false)" style="width:auto; padding:6px 9px; font-size:11px; background:rgba(255,255,255,0.12); color:#cbd5e1; font-weight:700; border-radius:8px; border:1px solid rgba(255,255,255,0.2); cursor:pointer;">↺ รีเซ็ต</button>
+                        </div>
+                    </div>
+
+                    <div class="bar" style="height:8px; background:rgba(255,255,255,0.14); margin-bottom:12px;">
+                        <i style="width:${stats.pct}%; background:linear-gradient(90deg, #10b981, #34d399);"></i>
+                    </div>
+
+                    <!-- 1-Tap Shift / Rest Day Switcher -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:8px 10px;">
+                        <div style="flex:1;">
+                            <div style="font-size:12px; font-weight:800; color:${isShift ? '#fde047' : '#fff'};">
+                                ${isShift ? '🏥 โหมดวันเข้าเวรเหนื่อย / งดออกกำลังกาย (เปิดอยู่)' : '🏃‍♂️ โหมดวันออกกำลังกายปกติ (Cardio / เวท)'}
+                            </div>
+                            <div style="font-size:10.5px; color:#cbd5e1; margin-top:1px;">
+                                ${isShift ? 'ระบบงด L-Carnitine และย้าย Medita A1C ไปก่อนมื้อกลางวันให้อัตโนมัติแล้ว' : 'แตะปุ่มขวาหากวันนี้เข้าเวรเหนื่อยและงดเดินลู่ เพื่อปรับตารางยาอัตโนมัติ'}
+                            </div>
+                        </div>
+                        <button type="button" class="btn sm" onclick="toggleSuppShiftMode()" style="width:auto; flex:0 0 auto; padding:6px 10px; font-size:11px; font-weight:800; border-radius:8px; background:${isShift ? '#f59e0b' : 'rgba(255,255,255,0.15)'}; color:#fff; border:none; cursor:pointer;">
+                            ${isShift ? '🏥 วันเข้าเวร ⇄' : 'สลับวันเข้าเวร ⇄'}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3 Clinical Pillars Banner -->
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:12px; text-align:center;">
+                    <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 6px;">
+                        <div style="font-size:16px;">🛡️</div>
+                        <div style="font-size:11px; font-weight:800; color:var(--tx); margin-top:2px;">เซฟตับ & ดีท็อกซ์</div>
+                        <div style="font-size:10px; color:var(--dim);">รวบมื้อยา • Gluta+Zinc</div>
+                    </div>
+                    <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 6px;">
+                        <div style="font-size:16px;">🔥</div>
+                        <div style="font-size:11px; font-weight:800; color:var(--acc); margin-top:2px;">ลดไตรกลีเซอไรด์</div>
+                        <div style="font-size:10px; color:var(--dim);">Fish Oil ×2 • ACV ×2 • A1C</div>
+                    </div>
+                    <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 6px;">
+                        <div style="font-size:16px;">✨</div>
+                        <div style="font-size:11px; font-weight:800; color:#10b981; margin-top:2px;">สมานผิวเลเซอร์</div>
+                        <div style="font-size:10px; color:var(--dim);">Collagen×2 • Asta • Vit C</div>
+                    </div>
+                </div>
+
+                ${slotsHtml}
+            `;
+        }
+
 
         function showW(k) {
             document.querySelectorAll('#wSel button').forEach(b => b.classList.toggle('on', b.dataset.w === k));
@@ -6991,6 +7589,8 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
                             water: mergedWater > 0 ? mergedWater : (c.water ?? ex.water ?? null),
                             steps: mergedSteps > 0 ? mergedSteps : (c.steps ?? ex.steps ?? null),
                             meals: mergedMeals,
+                            supps: { ...(ex.supps || {}), ...(c.supps || {}) },
+                            suppShiftMode: isCloudNewer ? (c.suppShiftMode ?? ex.suppShiftMode ?? false) : (ex.suppShiftMode ?? c.suppShiftMode ?? false),
                             updatedAt: Math.max(ex.updatedAt || 0, c.updatedAt || 0)
                         });
                     }
