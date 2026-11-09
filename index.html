@@ -1966,7 +1966,7 @@
         </div>
     </div>
     <script>
-        const APP_VERSION = '2.11.0';
+        const APP_VERSION = '2.11.1';
         
         /* ============ CUSTOM MODALS ============ */
         let _fcRes = null;
@@ -4379,10 +4379,18 @@
                 const cTime = new Date(c.d).getTime();
                 return nowMs - cTime <= oneWeekMs;
             });
+            const todayWeekly = new Date();
+            const past7DaysWeekly = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(todayWeekly);
+                d.setDate(d.getDate() - i);
+                past7DaysWeekly.push(iso(d));
+            }
             const weekSessions = (D.sessions || []).filter(s => {
-                const sTime = s.t || (s.d ? new Date(s.d).getTime() : 0);
-                return nowMs - sTime <= oneWeekMs;
+                const sDate = s.date || s.d || '';
+                return past7DaysWeekly.includes(sDate) && s.workout_key !== 'M';
             });
+            const weekWorkoutDays = new Set(weekSessions.map(s => s.date || s.d)).size;
             
             let totalWeekCal = 0, totalWeekPro = 0, validCalDays = 0;
             weekChecks.forEach(c => {
