@@ -1,5 +1,5 @@
 /* FitCoach v3.0 — Core Modals & App Version */
-const APP_VERSION = '3.0.0';
+const APP_VERSION = '3.1.0';
 
 /* ============ CUSTOM MODALS ============ */
 let _fcRes = null;

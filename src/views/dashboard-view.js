@@ -407,46 +407,43 @@ function render() {
     const carbsRatio = totalMacroKcal > 0 ? Math.round((carbs * 4) / totalMacroKcal * 100) : 0;
     const fatRatio = totalMacroKcal > 0 ? Math.max(0, 100 - proRatio - carbsRatio) : 0;
 
-    // 3. Render Card 3: Daily Vitals Bento Grid (Steps & Water)
+    // 3. Render Card 3: WiseMeal Water Cup & Steps Bento Grid
     const vitalsEl = document.getElementById('dailyVitalsGrid');
     if (vitalsEl) {
         vitalsEl.innerHTML = `
-        <!-- Left: Steps Card -->
-        <div class="card" style="margin:0; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
-            <div>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <div style="font-size:11.5px; font-weight:800; color:var(--acc); display:flex; align-items:center; gap:4px;">
-                        <span>👟 ก้าวเดิน</span>
+        <!-- Left: WiseMeal Water Cup Card -->
+        <div class="wm-vital-card" onclick="openWaterLogModal()" style="cursor:pointer;" title="แตะเพื่อบันทึกน้ำดื่ม">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                <div>
+                    <div style="font-size:13px; font-weight:900; color:#0f172a; margin-bottom:4px;">ดื่มน้ำ</div>
+                    <div style="display:flex; align-items:baseline; gap:3px;">
+                        <span style="font-size:24px; font-weight:900; color:#0f172a; letter-spacing:-0.5px;">${wat.toLocaleString()}</span>
+                        <span style="font-size:12px; font-weight:700; color:#64748b;">ml</span>
                     </div>
-                    ${extraStepCal > 0 ? `<span class="tag" style="font-size:9.5px; padding:1px 5px; background:rgba(16,185,129,0.15); color:#10b981;">+${extraStepCal} kcal</span>` : ''}
+                    <div style="font-size:11px; color:#64748b; margin-top:2px;">เป้าหมาย ${WATER_TARGET.toLocaleString()}ml</div>
+                    <div style="display:inline-block; margin-top:6px; font-size:10px; font-weight:700; color:#2563eb; background:#eff6ff; padding:2px 8px; border-radius:99px;">~${(wat/1000).toFixed(2)} / 3.0 ลิตร</div>
                 </div>
-                <div style="display:flex; align-items:baseline; gap:4px; margin-bottom:6px;">
-                    <span style="font-size:20px; font-weight:900; color:var(--tx);">${steps.toLocaleString()}</span>
-                    <span style="font-size:11px; color:var(--dim);">/ ${(stepTarget/1000).toFixed(0)}k</span>
+                <div class="wm-water-cup">
+                    <div class="wm-water-fill" style="height:${watPct}%;"></div>
+                    <div class="wm-water-plus">＋</div>
                 </div>
-                <div class="bar" style="height:6px; margin-bottom:6px;"><i style="width:${stepPct}%; background:linear-gradient(90deg, #f59e0b, #ea580c);"></i></div>
-                <div style="font-size:10.5px; color:var(--dim);">${stepPct}% ของเป้าหมาย</div>
             </div>
-            <button class="btn sm" onclick="logDailySteps()" style="width:100%; margin-top:8px; padding:5px; font-size:11px; background:var(--card2); border:1px solid var(--line); color:var(--acc); font-weight:700; border-radius:8px; cursor:pointer;">+ บันทึกก้าว</button>
         </div>
 
-        <!-- Right: Water Card -->
-        <div class="card" onclick="openWaterLogModal()" style="margin:0; padding:12px; display:flex; flex-direction:column; justify-content:space-between; cursor:pointer;" title="แตะเพื่อบันทึกน้ำดื่ม">
-            <div>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <div style="font-size:11.5px; font-weight:800; color:var(--vio); display:flex; align-items:center; gap:4px;">
-                        <span>💧 น้ำดื่ม</span>
+        <!-- Right: Steps & Active Burn Card -->
+        <div class="wm-vital-card" onclick="logDailySteps()" style="cursor:pointer;" title="แตะเพื่อบันทึกก้าวเดิน">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                <div>
+                    <div style="font-size:13px; font-weight:900; color:#0f172a; margin-bottom:4px;">ก้าวเดิน</div>
+                    <div style="display:flex; align-items:baseline; gap:3px;">
+                        <span style="font-size:24px; font-weight:900; color:#0f172a; letter-spacing:-0.5px;">${steps.toLocaleString()}</span>
+                        <span style="font-size:11px; font-weight:700; color:#64748b;">ก้าว</span>
                     </div>
-                    <span class="tag v" style="font-size:9.5px; padding:1px 5px;">~${(wat/1000).toFixed(1)}L</span>
+                    <div style="font-size:11px; color:#64748b; margin-top:2px;">เป้าหมาย ${stepTarget.toLocaleString()}</div>
+                    <div style="display:inline-block; margin-top:6px; font-size:10px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:99px;">${extraStepCal > 0 ? `+${extraStepCal} kcal โบนัส` : `${stepPct}% ของเป้า`}</div>
                 </div>
-                <div style="display:flex; align-items:baseline; gap:4px; margin-bottom:6px;">
-                    <span style="font-size:20px; font-weight:900; color:var(--tx);">${wat.toLocaleString()}</span>
-                    <span style="font-size:11px; color:var(--dim);">/ ${WATER_TARGET.toLocaleString()} มล.</span>
-                </div>
-                <div class="bar" style="height:6px; margin-bottom:6px;"><i style="width:${watPct}%; background:var(--vio);"></i></div>
-                <div style="font-size:10.5px; color:var(--dim);">${watPct}% (~${(WATER_TARGET/1000).toFixed(1)}L เป้า)</div>
+                <div style="width:50px; height:50px; border-radius:16px; background:linear-gradient(135deg,#fef3c7,#fde68a); display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:0 4px 10px rgba(245,158,11,0.18);">👟</div>
             </div>
-            <button class="btn sm" onclick="event.stopPropagation();openWaterLogModal()" style="width:100%; margin-top:8px; padding:5px; font-size:11px; background:var(--card2); border:1px solid var(--line); color:var(--vio); font-weight:700; border-radius:8px; cursor:pointer;">+ ดื่มน้ำ</button>
         </div>`;
     }
 
@@ -512,66 +509,84 @@ function render() {
     const nutritionEl = document.getElementById('dailyNutritionCard');
     if (nutritionEl) {
         nutritionEl.innerHTML = `
-        <!-- Card Header -->
-        <div class="row" style="align-items:center; margin-bottom:10px;">
-            <div style="display:flex; align-items:center; gap:6px;">
-                <span class="section-icon" style="background:rgba(249,115,22,0.15); color:#ea580c; padding:6px; border-radius:8px; margin-right:0;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
-                </span>
-                <h3 style="margin:0; font-size:14.5px; font-weight:800;">โภชนาการ & พลังงานวันนี้</h3>
+        <!-- WiseMeal Header: งบประมาณรายวัน -->
+        <div class="row" style="align-items:center; margin-bottom:12px;">
+            <div>
+                <h3 style="margin:0; font-size:18px; font-weight:900; color:#0f172a; letter-spacing:-0.3px;">งบประมาณรายวัน</h3>
+                <div style="font-size:11px; color:#64748b;">ทานแล้ว ${cal.toLocaleString()} kcal ${extraStepCal > 0 ? `<span style="color:#10b981;font-weight:700;">(+${extraStepCal} ก้าวเดิน)</span>` : ''}</div>
             </div>
             <div style="display:flex; gap:6px;">
-                <button class="btn sm" onclick="calcBMR()" style="width:auto; flex:0 0 auto; padding:4px 9px; font-size:11.5px; border-radius:8px; border:1px solid var(--line); background:var(--card2); color:var(--dim); cursor:pointer;">🧮 ปรับเป้า</button>
-                <button class="btn sm" onclick="editDailyTracker()" style="width:auto; flex:0 0 auto; padding:4px 9px; font-size:11.5px; border-radius:8px; border:1px solid var(--line); background:var(--card2); color:var(--dim); cursor:pointer;">✏️ สรุป</button>
+                <button class="btn sm" onclick="calcBMR()" style="width:auto; padding:5px 10px; font-size:11.5px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer;">🧮 ปรับเป้า</button>
+                <button class="btn sm" onclick="editDailyTracker()" style="width:auto; padding:5px 10px; font-size:11.5px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer;">✏️ แก้ไข</button>
             </div>
         </div>
 
-        <!-- Remaining Macros Budget Box -->
-        <div style="background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <span style="font-weight:700; font-size:12px; color:var(--tx);">🎯 โควตาที่ยังกินได้อีกวันนี้:</span>
-                <span style="font-size:11px; color:var(--dim);">เป้า ${effectiveCalTarget.toLocaleString()} kcal${extraStepCal > 0 ? ' <span style="color:#10b981;font-weight:700;">(+' + extraStepCal + ' ก้าวเดิน)</span>' : ''}</span>
+        <!-- WiseMeal 2-Column Hero: Liquid Calorie Sphere (Left) + 3 Macro Rings (Right) -->
+        <div class="wm-budget-grid" style="margin-bottom:12px;">
+            <!-- Left: Calorie Sphere -->
+            <div class="wm-sphere-card">
+                <div class="wm-sphere-wrap">
+                    <svg viewBox="0 0 140 140" width="142" height="142" style="transform:rotate(-90deg);">
+                        <circle cx="70" cy="70" r="62" fill="none" stroke="#e2e8f0" stroke-width="8"/>
+                        <circle cx="70" cy="70" r="62" fill="none" stroke="#2563eb" stroke-width="8" stroke-linecap="round" stroke-dasharray="389.5" stroke-dashoffset="${Math.max(0, 389.5 - (389.5 * calPct) / 100)}"/>
+                    </svg>
+                    <div class="wm-sphere-inner">
+                        <div style="font-size:11px; font-weight:700; color:#1e3a8a; opacity:0.85;">ที่เหลืออยู่</div>
+                        <div style="font-size:30px; font-weight:900; letter-spacing:-1px; line-height:1.05; color:#0f172a;">${remCal.toLocaleString()}</div>
+                        <div style="font-size:12px; font-weight:800; color:#1e3a8a;">kcal</div>
+                    </div>
+                </div>
+                <div style="font-size:11.5px; font-weight:700; color:#475569; margin-top:8px;">เป้าหมาย ${effectiveCalTarget.toLocaleString()} kcal</div>
             </div>
-            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; text-align:center;">
-                <div style="background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 2px;">
-                    <div style="font-size:10px; color:var(--dim); font-weight:700;">พลังงาน</div>
-                    <div style="font-size:15px; font-weight:900; color:${remCal > 0 ? 'var(--acc)' : 'var(--red)'};">${remCal}</div>
-                    <div style="font-size:9.5px; color:var(--dim);">kcal เหลือ</div>
+
+            <!-- Right: 3 Macro Circular Rings (Carbs, Protein, Fat) -->
+            <div class="wm-macro-col">
+                <!-- Carbs -->
+                <div class="wm-macro-row">
+                    <div>
+                        <div style="font-size:14px; font-weight:900; color:#0f172a;">${carbs} <span style="font-size:11.5px; color:#64748b; font-weight:600;">/ ${CARBS_TARGET}g</span></div>
+                        <div style="font-size:11.5px; color:#64748b; font-weight:700;">คาร์บ</div>
+                    </div>
+                    <div class="wm-macro-ring">
+                        <svg viewBox="0 0 44 44" width="42" height="42" style="transform:rotate(-90deg);">
+                            <circle cx="22" cy="22" r="18" fill="none" stroke="#e2e8f0" stroke-width="4"/>
+                            <circle cx="22" cy="22" r="18" fill="none" stroke="#84cc16" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="${Math.max(0, 113 - (113 * carbsPct) / 100)}"/>
+                        </svg>
+                        <span>🍞</span>
+                    </div>
                 </div>
-                <div style="background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 2px;">
-                    <div style="font-size:10px; color:var(--dim); font-weight:700;">โปรตีน</div>
-                    <div style="font-size:15px; font-weight:900; color:var(--acc2);">${remPro}</div>
-                    <div style="font-size:9.5px; color:var(--dim);">g เหลือ</div>
+
+                <!-- Protein -->
+                <div class="wm-macro-row">
+                    <div>
+                        <div style="font-size:14px; font-weight:900; color:#0f172a;">${pro} <span style="font-size:11.5px; color:#64748b; font-weight:600;">/ ${PROTEIN_TARGET}g</span></div>
+                        <div style="font-size:11.5px; color:#64748b; font-weight:700;">โปรตีน</div>
+                    </div>
+                    <div class="wm-macro-ring">
+                        <svg viewBox="0 0 44 44" width="42" height="42" style="transform:rotate(-90deg);">
+                            <circle cx="22" cy="22" r="18" fill="none" stroke="#e2e8f0" stroke-width="4"/>
+                            <circle cx="22" cy="22" r="18" fill="none" stroke="#f97316" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="${Math.max(0, 113 - (113 * proPct) / 100)}"/>
+                        </svg>
+                        <span>🍗</span>
+                    </div>
                 </div>
-                <div style="background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 2px;">
-                    <div style="font-size:10px; color:var(--dim); font-weight:700;">คาร์บ</div>
-                    <div style="font-size:15px; font-weight:900; color:#3b82f6;">${remCarbs}</div>
-                    <div style="font-size:9.5px; color:var(--dim);">g เหลือ</div>
-                </div>
-                <div style="background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 2px;">
-                    <div style="font-size:10px; color:var(--dim); font-weight:700;">ไขมัน</div>
-                    <div style="font-size:15px; font-weight:900; color:#10b981;">${remFat}</div>
-                    <div style="font-size:9.5px; color:var(--dim);">g เหลือ</div>
+
+                <!-- Fat -->
+                <div class="wm-macro-row">
+                    <div>
+                        <div style="font-size:14px; font-weight:900; color:#0f172a;">${fat} <span style="font-size:11.5px; color:#64748b; font-weight:600;">/ ${FAT_TARGET}g</span></div>
+                        <div style="font-size:11.5px; color:#64748b; font-weight:700;">ไขมัน</div>
+                    </div>
+                    <div class="wm-macro-ring">
+                        <svg viewBox="0 0 44 44" width="42" height="42" style="transform:rotate(-90deg);">
+                            <circle cx="22" cy="22" r="18" fill="none" stroke="#e2e8f0" stroke-width="4"/>
+                            <circle cx="22" cy="22" r="18" fill="none" stroke="#eab308" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="${Math.max(0, 113 - (113 * fatPct) / 100)}"/>
+                        </svg>
+                        <span>🧀</span>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- 4 Macro Bars -->
-        <div class="tracker-row"><div class="icon-box ib-cal"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M11 21.9v-7h-6l10-13v7h6l-10 13z"/></svg></div>
-        <div class="tracker-bar"><i style="width:${calPct}%;background:${calColor}"></i></div>
-        <div class="tracker-val" style="color:${calColor}">${cal.toLocaleString()} / ${effectiveCalTarget.toLocaleString()} kcal${extraStepCal > 0 ? ' <small style="color:#10b981;">(+' + extraStepCal + ')</small>' : ''}</div></div>
-
-        <div class="tracker-row"><div class="icon-box ib-pro"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div>
-        <div class="tracker-bar"><i style="width:${proPct}%;background:var(--acc2)"></i></div>
-        <div class="tracker-val">🍗 ${pro} / ${PROTEIN_TARGET} g (${proPct}%)</div></div>
-
-        <div class="tracker-row"><div class="icon-box" style="background:rgba(59,130,246,0.15);color:#3b82f6;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-        <div class="tracker-bar"><i style="width:${carbsPct}%;background:#3b82f6"></i></div>
-        <div class="tracker-val">🍚 ${carbs} / ${CARBS_TARGET} g (${carbsPct}%)</div></div>
-
-        <div class="tracker-row"><div class="icon-box" style="background:rgba(16,185,129,0.15);color:#10b981;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-        <div class="tracker-bar"><i style="width:${fatPct}%;background:#10b981"></i></div>
-        <div class="tracker-val">🥑 ${fat} / ${FAT_TARGET} g (${fatPct}%)</div></div>
 
         <!-- Macronutrient Ratio Breakdown Bar -->
         <div style="margin:10px 0 6px 0; padding:8px 10px; background:var(--card2); border-radius:10px; border:1px solid var(--line);">
@@ -776,17 +791,35 @@ function render() {
         </div>
     ` : '';
 
-    document.getElementById('todayBox').innerHTML = `<div class="card" style="border-color:var(--acc)">
-    <div class="row"><div><h3>${t.ic} ${t.n}</h3>
-    <div class="sub">วัน${DN[dow]} • ~${estMin(tk)} นาที • ~${(tk === 'Z' && morningM >= 30 && !D.forceFullCardio) ? 140 : t.kcal} kcal</div></div>
-    ${done ? '<span class="tag">✓ เสร็จแล้ว</span>' : ''}</div>
-    <div style="margin-top:8px">${warmTag} ${coolTag}${D.bs ? ' <span class="tag b"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> หลังปลอดภัย</span>' : ''}</div>${outdoorSwitcherHtml}
-    ${cardioNote}
-    <button class="btn" style="margin-top:12px;" onclick="startW('${tk}')">${startBtnTxt}</button>
-    <div class="g2" style="margin-top:8px;">
-<button class="btn g sm" style="background:rgba(245,158,11,0.12);color:#d97706;border:1px solid rgba(245,158,11,0.25);display:flex;align-items:center;justify-content:center;gap:4px;" onclick="startMorningCardio()">🌅 ${morningDone ? `เดินลู่เช้า (${morningM} น.) ✓` : 'เดินลู่เช้า'}</button>
-<button class="btn g sm" style="display:flex;align-items:center;justify-content:center;" onclick="showW('${tk}');go('prog')">ดูรายละเอียดท่า</button>
-    </div></div>`;
+    const bgImgMap = { A: 'goblet.jpg', B: 'row.jpg', C: 'hipthrust.jpg', Z: 'walk.jpg', H: 'farmer.jpg', R: 'catcow.jpg' };
+    const heroBgImg = bgImgMap[tk] || 'landing_bg.jpg';
+    document.getElementById('todayBox').innerHTML = `
+    <div class="hw-hero-card" style="background-image:url('${heroBgImg}');">
+        <div class="hw-hero-overlay"></div>
+        <div class="hw-hero-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="background:rgba(255,255,255,0.18); backdrop-filter:blur(6px); color:#fff; font-size:11px; font-weight:800; padding:4px 10px; border-radius:99px;">วัน${DN[dow]} • ~${estMin(tk)} นาที • ~${(tk === 'Z' && morningM >= 30 && !D.forceFullCardio) ? 140 : t.kcal} kcal</span>
+                ${done ? '<span style="background:#10b981; color:#fff; font-size:11px; font-weight:800; padding:4px 10px; border-radius:99px;">✓ สำเร็จวันนี้</span>' : '<span style="background:rgba(59,130,246,0.35); color:#bfdbfe; font-size:11px; font-weight:800; padding:4px 10px; border-radius:99px;">ภารกิจวันนี้</span>'}
+            </div>
+            <h2 style="margin:4px 0 6px; font-size:22px; font-weight:900; color:#ffffff; letter-spacing:-0.4px; display:flex; align-items:center; gap:8px;">
+                <span>${t.ic} ${t.n}</span>
+            </h2>
+            <div style="margin-top:6px; display:flex; flex-wrap:wrap; gap:6px;">
+                ${warmTag} ${coolTag}
+                ${D.bs ? '<span class="tag b" style="background:rgba(16,185,129,0.25); color:#a7f3d0; border:none;">🛡️ เซฟหลัง McGill Big 3</span>' : ''}
+            </div>
+            ${outdoorSwitcherHtml}
+            ${cardioNote}
+            <button type="button" class="hw-cta-pill" onclick="startW('${tk}')">
+                <span>${startBtnTxt}</span>
+                <span class="hw-cta-arrow">➔</span>
+            </button>
+            <div class="g2" style="margin-top:10px;">
+                <button class="btn sm" style="background:rgba(255,255,255,0.15); color:#fef08a; border:1px solid rgba(255,255,255,0.22); border-radius:99px; font-weight:700;" onclick="startMorningCardio()">🌅 ${morningDone ? `เดินลู่เช้า (${morningM} น.) ✓` : 'เดินลู่เช้า Zone 2'}</button>
+                <button class="btn sm" style="background:rgba(255,255,255,0.15); color:#ffffff; border:1px solid rgba(255,255,255,0.22); border-radius:99px; font-weight:700;" onclick="showW('${tk}');go('prog')">📋 ดูตารางท่าฝึก</button>
+            </div>
+        </div>
+    </div>`;
 
     document.getElementById('weekBox').innerHTML = SCHED.map((k, i) => {
     let actualDay = (i + (D.schOffs || 0)) % 7;

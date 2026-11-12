@@ -42,14 +42,21 @@ const IF_METABOLIC_STAGES = [
 ];
 
 function renderFastingMetabolicStages() {
-    const el = document.getElementById('v3FastingStagesCard');
-    if (!el) return;
-
     let elapsedHours = 0;
     const isFasting = Boolean(D && D.if && D.if.start);
     if (isFasting) {
         elapsedHours = Math.max(0, (Date.now() - D.if.start) / 3600000);
     }
+
+    const arcEl = document.getElementById('v3IfArcPath');
+    if (arcEl && typeof arcEl.setAttribute === 'function') {
+        const goalH = (D && D.if && D.if.goal) ? D.if.goal : 16;
+        const pct = isFasting ? Math.min(1, Math.max(0.03, elapsedHours / goalH)) : 0.03;
+        arcEl.setAttribute('stroke-dashoffset', String(Math.round(395 * (1 - pct))));
+    }
+
+    const el = document.getElementById('v3FastingStagesCard');
+    if (!el) return;
 
     el.innerHTML = `
         <div class="row" style="align-items:center; margin-bottom:10px;">
@@ -81,7 +88,36 @@ function renderFastingMetabolicStages() {
     `;
 }
 
+
+function renderWeekCalendarStrip() {
+    const el = document.getElementById('v3WeekCalendarStrip');
+    if (!el) return;
+    const today = new Date();
+    const todayIso = iso(today);
+    const dowNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    const curDow = today.getDay();
+    const daysHtml = [];
+
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - curDow + i);
+        const dIso = iso(d);
+        const isToday = dIso === todayIso;
+        const hasLog = ((D.checks || []).some(c => c.d === dIso && ((c.cal || 0) > 0 || (c.w || 0) > 0))) ||
+                       ((D.sessions || []).some(s => (s.date || s.d) === dIso));
+        daysHtml.push(`
+            <div class="wm-cal-day ${isToday ? 'is-today' : ''}">
+                <div class="wm-dow">${dowNames[i]}</div>
+                <div class="wm-num">${d.getDate()}</div>
+                ${hasLog || isToday ? '<div class="wm-cal-dot"></div>' : '<div style="height:8px;"></div>'}
+            </div>
+        `);
+    }
+    el.innerHTML = daysHtml.join('');
+}
+
 function renderV3AllWidgets() {
+    renderWeekCalendarStrip();
     renderInBodyAndRadarWidgets();
     renderMuscleRecoveryWidget();
     renderFastingMetabolicStages();
