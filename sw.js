@@ -1,12 +1,33 @@
-const CACHE_NAME = 'fitcoach-v2.15.1';
+const CACHE_NAME = 'fitcoach-v3.0.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
-  './icon.svg'
+  './icon.svg',
+  './src/styles/main.css',
+  './src/styles/tokens.css',
+  './src/styles/layout.css',
+  './src/styles/components.css',
+  './src/styles/views-workout.css',
+  './src/styles/views-v3.css',
+  './src/core/modals.js',
+  './src/data/exercises-db.js',
+  './src/core/store.js',
+  './src/data/thai-foods-db.js',
+  './src/data/supplements-db.js',
+  './src/views/dashboard-view.js',
+  './src/views/workout-player-view.js',
+  './src/views/stats-inbody-view.js',
+  './src/core/cloud-sync.js',
+  './src/core/router.js',
+  './src/components/quick-action-sheet.js',
+  './src/components/muscle-heatmap.js',
+  './src/components/inbody-radar.js',
+  './src/components/fasting-stages.js',
+  './src/core/app.js'
 ];
 
-// Install: Pre-cache core shell & activate immediately
+// Install: Pre-cache core shell + modular files & activate immediately
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
@@ -33,20 +54,21 @@ self.addEventListener('activate', event => {
 });
 
 // Fetch: Smart Strategy
-// - HTML/Navigation: NETWORK-FIRST (Always fetch latest code if online, fallback to cache if offline)
-// - Static assets: STALE-WHILE-REVALIDATE (Fast load + background refresh)
+// - HTML & App Code Modules (src/*.js, src/*.css): NETWORK-FIRST (Always fetch latest code if online, fallback to cache if offline)
+// - Media & Static Assets: STALE-WHILE-REVALIDATE (Fast load + background refresh)
 self.addEventListener('fetch', event => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // 1. Navigation / HTML Requests: NETWORK-FIRST
-  const isHtml = req.mode === 'navigate' || 
+  // 1. Navigation / HTML / Modular Source Code Requests: NETWORK-FIRST
+  const isAppCode = req.mode === 'navigate' || 
                  req.headers.get('accept')?.includes('text/html') || 
                  url.pathname.endsWith('index.html') || 
                  url.pathname === '/' || 
-                 url.pathname.endsWith('/');
+                 url.pathname.endsWith('/') ||
+                 url.pathname.includes('/src/');
 
-  if (isHtml) {
+  if (isAppCode) {
     event.respondWith(
       fetch(req)
         .then(res => {
@@ -71,7 +93,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // 3. Static assets (Images, Videos, Styles): Stale-While-Revalidate
+  // 3. Static media assets (Images, Videos, Icons): Stale-While-Revalidate
   event.respondWith(
     caches.match(req).then(cached => {
       const networkFetch = fetch(req).then(fresh => {

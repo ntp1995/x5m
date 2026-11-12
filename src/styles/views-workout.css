@@ -1,0 +1,660 @@
+/* FitCoach v3.0 — Workout Player, Cinema Mode & Exercise Cues */
+/* ============ REST SCREEN (BIG CLOCK & NEXT PREVIEW) ============ */
+#pl.is-rest .pl-body {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    flex: 1 1 auto !important;
+}
+
+#pl.is-rest .pl-body > :not(.ring):not(.exname):not(#plRestPreview) {
+    display: none !important;
+}
+
+#pl.is-rest .ring {
+    width: clamp(136px, 34vw, 168px) !important;
+    height: clamp(136px, 34vw, 168px) !important;
+    aspect-ratio: 1 !important;
+    margin: 0 auto 8px auto !important;
+    flex: 0 0 auto !important;
+}
+
+#pl.is-rest .ring circle {
+    stroke-width: 10 !important;
+}
+
+#pl.is-rest .tim {
+    font-size: clamp(34px, 8.5vw, 42px) !important;
+    letter-spacing: -1px !important;
+    line-height: 1.15 !important;
+    margin: 0 !important;
+}
+
+#pl.is-rest .mode {
+    font-size: 11.5px !important;
+    letter-spacing: 2px !important;
+    margin-bottom: 2px !important;
+}
+
+#pl.is-rest .exname {
+    font-size: 19px !important;
+    font-weight: 800 !important;
+    margin: 0 0 4px 0 !important;
+    line-height: 1.25 !important;
+    text-align: center !important;
+    flex: 0 0 auto !important;
+    color: var(--dim) !important;
+}
+
+#pl.is-rest #plRestPreview {
+    display: block !important;
+}
+
+#pl:not(.is-rest) #plRestPreview {
+    display: none !important;
+}
+
+/* ============ EXERCISE CUES & TARGET PILL ============ */
+.pl-target-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(242, 78, 30, 0.12);
+    border: 1px solid rgba(242, 78, 30, 0.35);
+    color: #ff6b3d;
+    padding: 8px 18px;
+    border-radius: 99px;
+    font-size: 16px;
+    font-weight: 800;
+    margin: 6px auto;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(242, 78, 30, 0.1);
+}
+
+#plCue {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 14px !important;
+    padding: 14px 18px 14px 34px !important;
+    margin: 10px auto !important;
+    width: 100% !important;
+    max-width: 480px !important;
+    box-sizing: border-box !important;
+    color: #0f172a !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    line-height: 1.65 !important;
+    text-align: left !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+}
+
+#plCue li {
+    margin-bottom: 8px !important;
+    color: #0f172a !important;
+    font-size: 14.5px !important;
+    font-weight: 600 !important;
+    line-height: 1.5 !important;
+    opacity: 1 !important;
+}
+
+#plCue li:last-child {
+    margin-bottom: 0 !important;
+}
+
+#plCue li::marker {
+    color: #ea580c !important;
+    font-size: 1.25em !important;
+}
+
+/* ============ REST PREVIEW CARD ============ */
+.pl-rest-preview {
+    width: 100%;
+    max-width: 440px;
+    margin: 6px auto 10px auto;
+    box-sizing: border-box;
+    animation: fadeIn .25s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.rest-preview-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.rest-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.rest-badge-step {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: var(--acc);
+    background: rgba(242, 78, 30, 0.12);
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid rgba(242, 78, 30, 0.25);
+}
+
+.rest-badge-set {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--tx);
+    background: var(--card2);
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid var(--line);
+}
+
+.rest-badge-remain {
+    font-size: 12px;
+    font-weight: 800;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    margin-left: auto;
+}
+
+.rest-badge-remain.last-set {
+    color: #f43f5e;
+    background: rgba(244, 63, 94, 0.15);
+    border-color: rgba(244, 63, 94, 0.35);
+}
+
+.rest-card-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rest-media-box {
+    position: relative;
+    flex: 0 0 90px;
+    width: 90px;
+    height: 90px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1.5px solid var(--line);
+    background: #0b0f14;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.rest-thumb-media {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.rest-media-zoom {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 5px;
+    pointer-events: none;
+}
+
+.rest-info-box {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: left;
+}
+
+.rest-ex-title {
+    font-size: 15.5px;
+    font-weight: 800;
+    color: var(--tx);
+    line-height: 1.3;
+    margin-bottom: 3px;
+}
+
+.rest-target-line, .rest-eq-line {
+    font-size: 13px;
+    color: var(--dim);
+    margin-bottom: 3px;
+    line-height: 1.4;
+}
+
+.rest-val-highlight {
+    font-weight: 800;
+    color: var(--tx);
+}
+
+.rest-cue-hint {
+    font-size: 11.5px;
+    color: var(--dim);
+    margin-top: 4px;
+    line-height: 1.35;
+    background: var(--card2);
+    padding: 4px 8px;
+    border-radius: 7px;
+    border-left: 3px solid var(--acc);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+#pl.landscape.is-rest {
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 0 !important;
+}
+
+#pl.landscape.is-rest .pl-land-left {
+    display: none !important;
+}
+
+#pl.landscape.is-rest .pl-right-col {
+    flex: 1 !important;
+    width: 100% !important;
+    max-width: 560px !important;
+    margin: 0 auto !important;
+}
+
+#pl.landscape.is-rest .pl-right-col .ring {
+    width: clamp(130px, 34vh, 175px) !important;
+    height: clamp(130px, 34vh, 175px) !important;
+    margin: 0 auto 10px auto !important;
+}
+
+#pl.landscape.is-rest .pl-right-col .tim {
+    font-size: clamp(38px, 10vh, 48px) !important;
+    letter-spacing: -1.5px !important;
+}
+
+#pl.landscape.is-rest .pl-right-col .mode {
+    font-size: 12px !important;
+    letter-spacing: 2px !important;
+}
+
+#pl.landscape.is-rest .pl-right-col .exname {
+    font-size: 18px !important;
+    margin: 0 0 4px 0 !important;
+}
+
+/* ============ LANDSCAPE ORIENTATION SUPPORT ============ */
+.pl-land-left {
+    display: none;
+}
+
+.pl-right-col {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+#pl.landscape {
+    flex-direction: row !important;
+    padding: 8px calc(16px + env(safe-area-inset-right, 0px)) 8px calc(16px + env(safe-area-inset-left, 0px)) !important;
+    gap: 16px !important;
+}
+
+#pl.landscape .pl-land-left {
+    display: flex !important;
+    flex: 1.15 !important;
+    height: 100% !important;
+    max-height: calc(100dvh - 16px) !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+}
+
+#pl.landscape .pl-land-left #plFig {
+    height: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+#pl.landscape .pl-land-left #plFig img,
+#pl.landscape .pl-land-left #plFig video {
+    height: 100% !important;
+    max-height: calc(100dvh - 16px) !important;
+    width: auto !important;
+    aspect-ratio: 3 / 4 !important;
+    border-radius: 18px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28) !important;
+}
+
+#pl.landscape .pl-right-col {
+    flex: 0.85 !important;
+    height: 100% !important;
+    max-height: calc(100dvh - 16px) !important;
+}
+
+#pl.landscape .pl-right-col .pl-body,
+.pl-right-col .pl-body {
+    justify-content: flex-start !important;
+    overflow-y: auto !important;
+    padding: 4px 10px !important;
+    gap: 2px !important;
+}
+
+#pl.landscape .pl-right-col .ring,
+.pl-right-col .ring {
+    width: clamp(75px, 16vh, 92px) !important;
+    height: clamp(75px, 16vh, 92px) !important;
+    margin: 2px auto 4px auto !important;
+    flex: 0 0 auto !important;
+}
+
+#pl.landscape .pl-right-col .tim {
+    font-size: 26px !important;
+    letter-spacing: -1px !important;
+}
+
+#pl.landscape .pl-right-col .tim.is-reps .rep-num {
+    font-size: 24px !important;
+    line-height: 1 !important;
+}
+
+#pl.landscape .pl-right-col .tim.is-reps .rep-unit {
+    font-size: 9.5px !important;
+    line-height: 1 !important;
+    margin-top: 1px !important;
+}
+
+#pl.landscape .pl-right-col .sub {
+    font-size: 10px !important;
+    margin-top: 1px !important;
+}
+
+#pl.landscape .pl-right-col .pl-target-pill {
+    padding: 4px 12px !important;
+    font-size: 13px !important;
+    margin: 3px auto !important;
+}
+
+#pl.landscape .pl-right-col .mode {
+    font-size: 10px !important;
+    margin-bottom: 0 !important;
+}
+
+#pl.landscape .pl-right-col .exname {
+    font-size: 16px !important;
+    margin: 2px 0 !important;
+}
+
+#pl.landscape .pl-right-col ul.cue {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    margin-top: 2px !important;
+}
+
+#pl.landscape .pl-right-col .nx {
+    padding: 5px 10px !important;
+    font-size: 11.5px !important;
+    margin-top: 2px !important;
+}
+
+#pl.landscape .pl-right-col .ctrl {
+    margin-top: 6px !important;
+}
+
+#pl.landscape .pl-right-col .ctrl button {
+    padding: 10px !important;
+    font-size: 14px !important;
+}
+
+#pl.landscape .pl-right-col #plAdd {
+    margin-top: 4px !important;
+    padding: 7px !important;
+    font-size: 12px !important;
+}
+
+@media (orientation: landscape) {
+    #pl.is-rest {
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 0 !important;
+    }
+
+    #pl.is-rest .pl-land-left {
+        display: none !important;
+    }
+
+    #pl.is-rest .pl-right-col {
+        flex: 1 !important;
+        width: 100% !important;
+        max-width: 560px !important;
+        margin: 0 auto !important;
+    }
+
+    #pl.is-rest .pl-right-col .ring {
+        width: clamp(130px, 34vh, 175px) !important;
+        height: clamp(130px, 34vh, 175px) !important;
+        margin: 0 auto 10px auto !important;
+    }
+
+    #pl.is-rest .pl-right-col .tim {
+        font-size: clamp(38px, 10vh, 48px) !important;
+        letter-spacing: -1.5px !important;
+    }
+
+    #pl.is-rest .pl-right-col .mode {
+        font-size: 12px !important;
+        letter-spacing: 2px !important;
+    }
+
+    #pl.is-rest .pl-right-col .exname {
+        font-size: 18px !important;
+        margin: 2px 0 4px !important;
+    }
+
+    .wrap {
+        max-width: 720px;
+    }
+
+    body {
+        padding-bottom: calc(56px + var(--sat));
+    }
+
+    nav {
+        height: 50px;
+    }
+
+    nav button {
+        font-size: 10px;
+        padding: 4px 0;
+    }
+
+    nav button svg {
+        width: 17px;
+        height: 17px;
+    }
+
+    /* Player 2-Column Cinema Mode */
+    #pl {
+        flex-direction: row;
+        padding: 8px calc(16px + env(safe-area-inset-right, 0px)) 8px calc(16px + env(safe-area-inset-left, 0px));
+        gap: 16px;
+    }
+
+    .pl-land-left {
+        display: flex;
+        flex: 1.15;
+        height: 100%;
+        max-height: calc(100dvh - 16px);
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .pl-land-left #plFig {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .pl-land-left #plFig img, .pl-land-left #plFig video {
+        height: 100% !important;
+        max-height: calc(100dvh - 16px) !important;
+        width: auto !important;
+        aspect-ratio: 3 / 4;
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+    }
+
+    .pl-right-col {
+        flex: 0.85;
+        height: 100%;
+        max-height: calc(100dvh - 16px);
+    }
+
+    .pl-right-col .ring {
+        width: clamp(75px, 16vh, 92px) !important;
+        height: clamp(75px, 16vh, 92px) !important;
+        margin: 2px auto 4px auto !important;
+    }
+
+    .pl-right-col .tim.is-reps .rep-num {
+        font-size: clamp(19px, 4vh, 23px) !important;
+        line-height: 1 !important;
+    }
+
+    .pl-right-col .tim.is-reps .rep-unit {
+        font-size: clamp(8.5px, 1.7vh, 10px) !important;
+        white-space: nowrap !important;
+        line-height: 1.1 !important;
+        margin-top: 1px !important;
+    }
+
+    .pl-right-col .sub {
+        font-size: clamp(8.5px, 1.7vh, 10px) !important;
+        white-space: nowrap !important;
+        line-height: 1.2 !important;
+        margin-top: 2px !important;
+    }
+
+    .pl-right-col .tim {
+        font-size: 26px !important;
+        letter-spacing: -1px !important;
+    }
+
+    .pl-right-col .mode {
+        font-size: 10px !important;
+        margin-bottom: 0 !important;
+    }
+
+    .pl-right-col .exname {
+        font-size: 16px !important;
+        margin: 2px 0 !important;
+    }
+
+    .pl-right-col ul.cue {
+        font-size: 11px !important;
+        line-height: 1.35 !important;
+        margin-top: 2px !important;
+    }
+
+    .pl-right-col .nx {
+        padding: 5px 10px !important;
+        font-size: 11.5px !important;
+        margin-top: 2px !important;
+    }
+
+    .pl-right-col .ctrl {
+        margin-top: 6px !important;
+    }
+
+    .pl-right-col .ctrl button {
+        padding: 10px !important;
+        font-size: 14px !important;
+    }
+
+    .pl-right-col #plAdd {
+        margin-top: 4px !important;
+        padding: 7px !important;
+        font-size: 12px !important;
+    }
+
+    /* Exercise Modal in Landscape */
+    .modal-box {
+        max-width: 620px !important;
+        padding: 16px 20px !important;
+        display: grid !important;
+        grid-template-columns: 1.05fr 0.95fr !important;
+        grid-template-rows: auto auto auto auto !important;
+        gap: 8px 16px !important;
+        align-items: center !important;
+    }
+
+    .modal-fig {
+        grid-column: 1 !important;
+        grid-row: 1 / span 4 !important;
+        margin: 0 !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .modal-fig img, .modal-fig video {
+        height: clamp(200px, 60vh, 260px) !important;
+        width: auto !important;
+        aspect-ratio: 3 / 4 !important;
+        border-radius: 14px !important;
+    }
+
+    .modal-name {
+        grid-column: 2 !important;
+        text-align: left !important;
+        font-size: 18px !important;
+        margin: 0 !important;
+    }
+
+    .modal-eq {
+        grid-column: 2 !important;
+        justify-content: flex-start !important;
+        margin-bottom: 4px !important;
+    }
+
+    .modal-cue {
+        grid-column: 2 !important;
+        font-size: 12px !important;
+        line-height: 1.45 !important;
+        margin: 0 0 0 16px !important;
+    }
+
+    .modal-yt {
+        grid-column: 2 !important;
+        margin-top: 8px !important;
+        padding: 9px 14px !important;
+        font-size: 13px !important;
+    }
+}
