@@ -58,16 +58,13 @@
             <div class="v3-topbar">
                 <div class="v3-brand-wrap">
                     <h1 style="margin:0; font-size:22px; font-weight:900; letter-spacing:-0.5px; color:#0f172a;">FitCoach</h1>
-                    <span class="v3-pro-pill">👑 PRO 3.2</span>
+                    <span class="v3-pro-pill">👑 PRO</span>
                 </div>
                 <div class="v3-top-actions">
                     <div id="cloudSyncPill" onclick="handleCloudSyncPillClick()" style="cursor:pointer; display:flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:5px 10px; border-radius:99px; background:#ffffff; border:1px solid var(--line); white-space:nowrap; box-shadow:0 2px 6px rgba(15,23,42,0.04);" title="สถานะ Cloud First Sync แตะเพื่อซิงก์">
                         <span id="cloudSyncDot" style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#10b981;"></span>
                         <span id="cloudSyncTxt" style="color:var(--tx);">ซิงก์แล้ว</span>
                     </div>
-                    <button type="button" onclick="go('sync')" title="ตั้งค่า & ซิงก์คลาวด์" style="height:32px; padding:0 10px; border-radius:99px; border:1px solid var(--line); background:#ffffff; display:inline-flex; align-items:center; gap:4px; cursor:pointer; box-shadow:0 2px 6px rgba(15,23,42,0.05); font-size:11.5px; font-weight:800; color:var(--tx);">
-                        <span>⚙️ ซิงก์</span>
-                    </button>
                     <div id="userHeaderBadge" onclick="go('sync')" style="cursor:pointer; display:none;"></div>
                 </div>
             </div>
@@ -552,6 +549,74 @@
     </div>
 
     
+
+    <!-- ================= FULL-SCREEN AI FOOD CAMERA SCANNER (v3.4.1) ================= -->
+    <div id="fcCameraScannerModal" class="fc-cam-modal" style="display:none;">
+        <div class="fc-cam-container">
+            <!-- Top Controls -->
+            <div class="fc-cam-header">
+                <button type="button" class="fc-cam-btn-icon" onclick="closeAiCameraScanner()" title="ปิดกล้อง">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <div class="fc-cam-title">สแกนอาหาร (AI Food Vision)</div>
+                <button type="button" class="fc-cam-btn-icon" id="btnToggleCamFacing" onclick="toggleCameraFacing()" title="สลับกล้องหน้า/หลัง">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0-4.418-3.582-8-8-8s-8 3.582-8 8c0 1.5.4 2.9 1.1 4.1L3 17l4.5-1.5c1.3.8 2.8 1.3 4.5 1.3 4.418 0 8-3.582 8-8z"/><path d="M16 14l4 4-4 4"/></svg>
+                </button>
+            </div>
+
+            <!-- Live Viewfinder Frame -->
+            <div class="fc-cam-viewport">
+                <video id="fcCameraVideo" autoplay playsinline muted></video>
+                <div class="fc-cam-frame">
+                    <div class="fc-cam-corner top-left"></div>
+                    <div class="fc-cam-corner top-right"></div>
+                    <div class="fc-cam-corner bottom-left"></div>
+                    <div class="fc-cam-corner bottom-right"></div>
+                </div>
+                <div id="fcCamPlaceholder" class="fc-cam-placeholder" style="display:none;">
+                    <div style="font-size:36px; margin-bottom:8px;">📷</div>
+                    <div style="font-size:14px; font-weight:700; color:#fff;">ไม่สามารถเปิดกล้องได้</div>
+                    <div style="font-size:11.5px; color:#94a3b8; margin:6px 0 14px; max-width:260px;">อาจเกิดจากยังไม่ได้อนุญาตสิทธิ์ หรือเปิดจากเบราว์เซอร์ที่ไม่มีกล้อง</div>
+                    <button type="button" class="btn sm" onclick="triggerCameraGallery()" style="background:#2563eb; color:#fff; padding:8px 16px; border-radius:99px; font-weight:700; cursor:pointer;">🖼️ เลือกรูปจากอัลบั้มแทน</button>
+                </div>
+                <div class="fc-cam-tip-banner">
+                    <span>✨ ถ่ายได้หลายภาพ (จานหลัก, เครื่องเคียง, ฉลาก)</span>
+                </div>
+            </div>
+
+            <!-- Multi-Image Thumbnails Tray -->
+            <div id="fcCamThumbnailsTray" class="fc-cam-tray"></div>
+
+            <!-- Food Description & Portion Note Input Bar -->
+            <div class="fc-cam-note-wrap">
+                <div class="fc-cam-note-bar">
+                    <span style="font-size:14px;">📝</span>
+                    <input id="cameraFoodNote" type="text" placeholder="ระบุรายละเอียด เช่น ไม่เอาหนัง ข้าวครึ่งจาน น้ำจิ้ม 2 ช้อน..." autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Bottom Camera Controls -->
+            <div class="fc-cam-bottom-bar">
+                <!-- Gallery Picker Button -->
+                <button type="button" class="fc-cam-sub-btn" onclick="triggerCameraGallery()" title="เลือกรูปจากอัลบั้ม">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>อัลบั้ม</span>
+                </button>
+                <input type="file" id="cameraGalleryInput" accept="image/*" multiple style="display:none;" onchange="handleCameraGallerySelection(event)">
+
+                <!-- Big Shutter Button -->
+                <button type="button" id="fcCamShutterBtn" class="fc-cam-shutter" onclick="captureCameraPhoto()" title="กดถ่ายภาพ">
+                    <div class="fc-cam-shutter-inner"></div>
+                </button>
+
+                <!-- Analyze Action Button -->
+                <button type="button" id="fcCamAnalyzeBtn" class="fc-cam-analyze-btn" onclick="submitMultiImageFoodScan()" title="ส่งวิเคราะห์">
+                    <div style="font-size:13.5px; font-weight:900;">⚡ วิเคราะห์</div>
+                    <div id="fcCamAnalyzeCount" style="font-size:10px; opacity:0.85; font-weight:700;">(0 รูป)</div>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Custom Modal -->
     <div id="fcModal" class="fc-modal" onclick="if(event.target===this)fcClose(null)">
