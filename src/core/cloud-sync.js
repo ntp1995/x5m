@@ -414,6 +414,18 @@ function msg(t) {
     if (el) el.innerHTML = t;
 }
 
+function toggleKeyVisibility(inputId, btnEl) {
+    const inp = document.getElementById(inputId);
+    if (!inp) return;
+    if (inp.type === 'password') {
+        inp.type = 'text';
+        if (btnEl) btnEl.textContent = '🔒 ซ่อนคีย์';
+    } else {
+        inp.type = 'password';
+        if (btnEl) btnEl.textContent = '👁️ แสดงคีย์';
+    }
+}
+
 function saveCfg() {
     if (document.getElementById('aiKey')) {
         D.cfg.aiKey = document.getElementById('aiKey').value.trim();
@@ -422,8 +434,175 @@ function saveCfg() {
         }
         save();
         autoSync();
+        renderAiQuotaWidget();
         fcAlert('✓ บันทึก Gemini API Key ลงเครื่องและซิงก์เข้า Firebase เรียบร้อยแล้ว!');
     }
+}
+
+/* ============ GEMINI API KEY & QUOTA INSPECTOR ============ */
+async function testGeminiKey(keyType = 'primary') {
+    const inputId = keyType === 'backup' ? 'aiKeyBackup' : 'aiKey';
+    const inputEl = document.getElementById(inputId);
+    const keyVal = inputEl ? inputEl.value.trim() : (keyType === 'backup' ? (D.cfg.aiKeyBackup || '') : (D.cfg.aiKey || ''));
+    const statusBox = document.getElementById('aiKeyStatusBox');
+
+    if (!keyVal) {
+        if (statusBox) {
+            statusBox.style.display = 'block';
+            statusBox.className = 'ai-key-status-box warn';
+            statusBox.innerHTML = `⚠️ กรุณากรอก <b>${keyType === 'backup' ? 'Gemini API Key สำรอง' : 'Gemini API Key หลัก'}</b> ก่อนทำการทดสอบ`;
+        }
+        return;
+    }
+
+    if (statusBox) {
+        statusBox.style.display = 'block';
+        statusBox.className = 'ai-key-status-box loading';
+        statusBox.innerHTML = `
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span class="ai-spin">⏳</span>
+                <span>กำลังเชื่อมต่อทดสอบกับ Google Generative Language API (${keyType === 'backup' ? 'คีย์สำรอง' : 'คีย์หลัก'})...</span>
+            </div>
+        `;
+    }
+
+    const tStart = Date.now();
+    try {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(keyVal)}`, {
+            method: 'GET'
+        });
+        const latency = Date.now() - tStart;
+
+        if (resp.ok) {
+            const data = await resp.json();
+            const modelCount = data && Array.isArray(data.models) ? data.models.length : 0;
+            if (typeof recordAiUsage === 'function') {
+                recordAiUsage(`ทดสอบสถานะคีย์ (${keyType === 'backup' ? 'สำรอง' : 'หลัก'})`, true);
+            }
+            if (statusBox) {
+                statusBox.className = 'ai-key-status-box ok';
+                statusBox.innerHTML = `
+                    <div style="font-weight:800; font-size:12.5px; color:#059669; display:flex; align-items:center; gap:6px;">
+                        <span>🟢 คีย์ถูกต้องและพร้อมใช้งาน 100%!</span>
+                        <span style="font-size:11px; font-weight:700; background:#dcfce7; color:#15803d; padding:2px 7px; border-radius:99px;">Ping ${latency}ms</span>
+                    </div>
+                    <div style="font-size:11.5px; color:#334155; margin-top:4px; line-height:1.4;">
+                        เชื่อมต่อเซิร์ฟเวอร์ Google สำเร็จ เข้าถึงได้ <b>${modelCount} โมเดล</b> (รองรับ gemini-1.5-flash / gemini-2.0 / gemini-2.5)
+                    </div>
+                `;
+            }
+        } else if (resp.status === 429) {
+            if (typeof recordAiUsage === 'function') {
+                recordAiUsage(`ทดสอบคีย์ (${keyType === 'backup' ? 'สำรอง' : 'หลัก'}) - 429`, false);
+            }
+            if (statusBox) {
+                statusBox.className = 'ai-key-status-box warn';
+                statusBox.innerHTML = `
+                    <div style="font-weight:800; font-size:12.5px; color:#d97706;">
+                        🟡 โควต้าชนเพดานชั่วคราว (429 Rate Limit / Quota Exhausted)
+                    </div>
+                    <div style="font-size:11.5px; color:#475569; margin-top:4px; line-height:1.4;">
+                        คำขอเกินเพดาน 15 ครั้ง/นาที (RPM) หรือครบ 1,500 ครั้ง/วัน (RPD) แนะนำให้รอ 1 นาที หรือสลับใช้คีย์สำรอง
+                    </div>
+                `;
+            }
+        } else if (resp.status === 400 || resp.status === 403) {
+            if (statusBox) {
+                statusBox.className = 'ai-key-status-box error';
+                statusBox.innerHTML = `
+                    <div style="font-weight:800; font-size:12.5px; color:#dc2626;">
+                        🔴 คีย์ไม่ถูกต้องหรือไม่มีสิทธิ์ใช้งาน (HTTP ${resp.status} Invalid API Key)
+                    </div>
+                    <div style="font-size:11.5px; color:#475569; margin-top:4px; line-height:1.4;">
+                        กรุณาตรวจสอบว่าคัดลอกคีย์มาครบถ้วน (ขึ้นต้นด้วย AIzaSy...) หรือสร้างคีย์ใหม่ใน Google AI Studio
+                    </div>
+                `;
+            }
+        } else {
+            const errTxt = await resp.text();
+            if (statusBox) {
+                statusBox.className = 'ai-key-status-box warn';
+                statusBox.innerHTML = `
+                    <div style="font-weight:800; font-size:12.5px; color:#d97706;">
+                        ⚠️ ผลการทดสอบ: HTTP ${resp.status}
+                    </div>
+                    <div style="font-size:11px; color:#475569; margin-top:2px;">${errTxt.substring(0, 100)}</div>
+                `;
+            }
+        }
+    } catch (netErr) {
+        if (statusBox) {
+            statusBox.className = 'ai-key-status-box error';
+            statusBox.innerHTML = `
+                <div style="font-weight:800; font-size:12.5px; color:#dc2626;">
+                    ⚠️ ไม่สามารถเชื่อมต่อกับ Google ได้
+                </div>
+                <div style="font-size:11.5px; color:#475569; margin-top:2px;">
+                    กรุณาตรวจสอบสัญญาณอินเทอร์เน็ต (${netErr.message})
+                </div>
+            `;
+        }
+    }
+}
+
+function renderAiQuotaWidget() {
+    const el = document.getElementById('aiQuotaWidget');
+    if (!el) return;
+    const u = (typeof getAiUsageToday === 'function') ? getAiUsageToday() : { count: 0, dailyLimit: 500, remaining: 500, lastTime: '' };
+    const pct = Math.min(100, Math.round((u.count / u.dailyLimit) * 100));
+
+    el.innerHTML = `
+        <div style="background:#f8fafd; border:1px solid #e2e8f0; border-radius:12px; padding:12px; margin-top:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:14px;">📊</span>
+                    <span style="font-size:12.5px; font-weight:800; color:#0f172a;">สถิติการใช้งาน & โควต้าวันนี้</span>
+                </div>
+                <span style="font-size:11px; font-weight:800; color:${u.remaining > 50 ? '#059669' : '#d97706'}; background:${u.remaining > 50 ? '#ecfdf5' : '#fffbeb'}; padding:2px 8px; border-radius:99px; border:1px solid ${u.remaining > 50 ? '#a7f3d0' : '#fde68a'};">
+                    เหลืออีก ~${u.remaining.toLocaleString()} ครั้ง
+                </span>
+            </div>
+
+            <!-- Active Model Badge -->
+            <div style="display:flex; align-items:center; gap:6px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:6px 10px; margin-bottom:10px; font-size:11.5px; color:#1d4ed8; font-weight:700;">
+                <span>⚡ โมเดลหลัก: <b>Gemini 3.1 Flash Lite</b> (โควต้าสูงสุด 500 ครั้ง/วัน)</span>
+            </div>
+
+            <!-- Progress Bar -->
+            <div style="display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:4px;">
+                <span style="color:#64748b; font-weight:600;">เรียกใช้ AI วันนี้</span>
+                <span style="color:#0f172a; font-weight:800;">${u.count} / ${u.dailyLimit.toLocaleString()} คำขอ (${pct}%)</span>
+            </div>
+            <div style="height:7px; background:#e2e8f0; border-radius:99px; overflow:hidden; margin-bottom:10px;">
+                <div style="width:${Math.max(2, pct)}%; height:100%; background:linear-gradient(90deg, #10b981, #059669); border-radius:99px; transition:width 0.3s ease;"></div>
+            </div>
+
+            <!-- Quota Specs Grid -->
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; text-align:center; margin-bottom:10px;">
+                <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:6px 4px;">
+                    <div style="font-size:10px; color:#64748b; font-weight:700;">จำกัดต่อนาที</div>
+                    <div style="font-size:12px; font-weight:900; color:#2563eb; margin-top:2px;">15 RPM</div>
+                </div>
+                <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:6px 4px;">
+                    <div style="font-size:10px; color:#64748b; font-weight:700;">จำกัดต่อวัน</div>
+                    <div style="font-size:12px; font-weight:900; color:#10b981; margin-top:2px;">500 RPD</div>
+                </div>
+                <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:6px 4px;">
+                    <div style="font-size:10px; color:#64748b; font-weight:700;">โทเคนต่อนาที</div>
+                    <div style="font-size:12px; font-weight:900; color:#8b5cf6; margin-top:2px;">250K TPM</div>
+                </div>
+            </div>
+
+            <!-- External Link Button -->
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <a href="https://aistudio.google.com/app/plan_information" target="_blank" rel="noopener" style="flex:1; min-width:180px; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px; background:#ffffff; color:#1e293b; border:1px solid #cbd5e1; font-size:11.5px; font-weight:700; padding:8px 10px; border-radius:8px; cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+                    <span>📊 ดูโควต้าจริงบน Google AI Studio</span>
+                    <span style="font-size:11px; color:#64748b;">↗</span>
+                </a>
+            </div>
+            ${u.lastTime ? `<div style="font-size:10.5px; color:#94a3b8; text-align:right; margin-top:6px;">ใช้งานล่าสุดวันนี้: ${u.lastTime} น.</div>` : ''}
+        </div>
+    `;
 }
 
 function renderAuthUI() {
@@ -467,10 +646,19 @@ function renderAuthUI() {
             <div class="sub" id="syncMsg" style="margin-top:12px; font-size:12.5px; text-align:center;">ยังไม่ได้เชื่อมต่อบัญชี</div>
         `;
         if (userBadge) {
-            userBadge.innerHTML = `<span style="font-size:12px; font-weight:600; padding:4px 8px; border-radius:12px; background:var(--card2); color:var(--dim); border:1px solid var(--line);">เข้าสู่ระบบ</span>`;
-            userBadge.style.display = 'block';
+            userBadge.innerHTML = `<span style="font-size:12px; font-weight:700; padding:5px 10px; border-radius:99px; background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe; display:inline-flex; align-items:center; gap:4px;">🔑 เข้าสู่ระบบ</span>`;
+            userBadge.style.display = 'inline-flex';
         }
     }
+    const kInp = document.getElementById('aiKey');
+    if (kInp && D && D.cfg && D.cfg.aiKey && !kInp.value) {
+        kInp.value = D.cfg.aiKey;
+    }
+    const kbInp = document.getElementById('aiKeyBackup');
+    if (kbInp && D && D.cfg && D.cfg.aiKeyBackup && !kbInp.value) {
+        kbInp.value = D.cfg.aiKeyBackup;
+    }
+    renderAiQuotaWidget();
     updateCloudSyncPill();
 }
 

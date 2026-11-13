@@ -182,4 +182,48 @@ function fullItems(k) {
 }
 function estMin(k) { let s = 0; fullItems(k).forEach(it => { const n = it.sets || 1; s += n * (it.t || 35) + (n - 1) * (it.rest || 0) + (it.after || 0) }); return Math.round(s / 60) }
 
+/* ============ AI USAGE & QUOTA ENGINE ============ */
+if (!D.aiUsage) { D.aiUsage = {}; }
+
+function recordAiUsage(actionType = 'วิเคราะห์ AI', isSuccess = true) {
+    try {
+        const today = iso();
+        if (!D.aiUsage) D.aiUsage = {};
+        if (!D.aiUsage[today]) {
+            D.aiUsage[today] = { count: 0, items: [], lastTime: '' };
+        }
+        D.aiUsage[today].count = (D.aiUsage[today].count || 0) + 1;
+        D.aiUsage[today].lastTime = formatThaiTime();
+        if (!D.aiUsage[today].items) D.aiUsage[today].items = [];
+        D.aiUsage[today].items.unshift({
+            time: formatThaiTime(),
+            action: actionType,
+            success: isSuccess
+        });
+        if (D.aiUsage[today].items.length > 20) {
+            D.aiUsage[today].items = D.aiUsage[today].items.slice(0, 20);
+        }
+        if (typeof save === 'function') save();
+        if (typeof renderAiQuotaWidget === 'function') renderAiQuotaWidget();
+    } catch (e) {
+        console.warn('recordAiUsage error:', e);
+    }
+}
+
+function getAiUsageToday() {
+    const today = iso();
+    const u = (D.aiUsage && D.aiUsage[today]) ? D.aiUsage[today] : { count: 0, items: [], lastTime: '' };
+    return {
+        today,
+        count: u.count || 0,
+        dailyLimit: 500,
+        rpmLimit: 15,
+        tpmLimit: 250000,
+        remaining: Math.max(0, 500 - (u.count || 0)),
+        lastTime: u.lastTime || '',
+        items: u.items || []
+    };
+}
+
+
 

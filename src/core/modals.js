@@ -1,5 +1,6 @@
 /* FitCoach v3.0 — Core Modals & App Version */
-const APP_VERSION = '3.1.0';
+const APP_VERSION = '3.4.0';
+const DEMO_BYPASS_AUTH = false; // Set to false for Production Google Login gate
 
 /* ============ CUSTOM MODALS ============ */
 let _fcRes = null;
@@ -76,6 +77,10 @@ window.fcPrompt = (desc, defVal, title) => fcShow('prompt', title || 'ระบ�
 window.fcChoice = (title, desc, choices) => fcShowChoiceModal(title, desc, choices);
 
 async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
+    if (!isSilent && typeof openOnboardingWizard === 'function') {
+        openOnboardingWizard(1, isProgramSetup ? 'register' : 'recalibrate');
+        return;
+    }
     const lastCheck = D.checks[D.checks.length - 1] || {};
     const lastW = lastCheck.w || 77.3;
     const bio = D.cfg.biometrics || {};
@@ -419,11 +424,11 @@ function updateAuthGateState(user) {
     const gateBtn = document.getElementById('authGateBtn');
     const gateMsg = document.getElementById('authGateMsg');
 
-    if (user) {
+    if (user || DEMO_BYPASS_AUTH) {
         document.body.classList.remove('auth-required');
         if (gate) {
             gate.classList.add('hidden');
-            setTimeout(() => { gate.style.display = 'none'; }, 500);
+            gate.style.display = 'none';
         }
         if (nav) nav.style.display = '';
         let hasActive = false;

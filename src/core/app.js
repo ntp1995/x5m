@@ -1,5 +1,14 @@
 /* FitCoach v3.0 — Application Bootstrap & PWA Auto-Update Lifecycle */
 render();
+// Hide branded boot splash smoothly once initial UI renders
+setTimeout(() => {
+    const sp = document.getElementById('fcBootSplash');
+    if (sp) sp.classList.add('hide');
+    if (typeof openOnboardingWizard === 'function' && D && D.cfg && !D.cfg.onboardingDone) {
+        openOnboardingWizard(1);
+    }
+}, 480);
+
 updateIFUI();
 renderAuthUI();
 

@@ -210,7 +210,7 @@ async function generateGeminiWeeklyDeepReport() {
 
     try {
         const keysToTry = [(D.cfg.aiKey || '').trim(), (D.cfg.aiKeyBackup || '').trim()].filter(Boolean);
-        const models = ['gemini-3.5-flash', 'gemini-3.8-flash-lite', 'gemini-flash-latest', 'gemini-2.5-flash-lite'];
+        const models = ['gemini-3.1-flash-lite', 'gemini-3.6-flash', 'gemini-3.8-flash', 'gemini-2.5-flash-lite'];
         const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
         let resText = '';
@@ -227,6 +227,9 @@ async function generateGeminiWeeklyDeepReport() {
                         const json = await r.json();
                         if (json.candidates?.[0]?.content?.parts?.[0]?.text) {
                             resText = json.candidates[0].content.parts[0].text;
+                            if (typeof recordAiUsage === 'function') {
+                                recordAiUsage('วิเคราะห์กลยุทธ์สุขภาพ', true);
+                            }
                             break keyLoop;
                         }
                     }
@@ -263,7 +266,8 @@ function render() {
     const last = (tc && tc.w != null && tc.w > 0) ? tc : (lastWeighRecord || D.checks[D.checks.length - 1] || null);
     document.getElementById('wkTxt').textContent = 'สัปดาห์ ' + wkNo() + '/' + totalWeeks();
     document.getElementById('phaseTag').textContent = getPhases()[phIdx()].n.split(' · ')[0];
-    document.getElementById('hsub').textContent = getPhases()[phIdx()].d;
+    const hsubEl = document.getElementById('hsub');
+    if (hsubEl) hsubEl.textContent = '';
 
     // 1. Body Composition Metrics Update
     const curWEl = document.getElementById('curW');
@@ -528,12 +532,14 @@ function render() {
                 <div class="wm-sphere-wrap">
                     <svg viewBox="0 0 140 140" width="142" height="142" style="transform:rotate(-90deg);">
                         <circle cx="70" cy="70" r="62" fill="none" stroke="#e2e8f0" stroke-width="8"/>
-                        <circle cx="70" cy="70" r="62" fill="none" stroke="#2563eb" stroke-width="8" stroke-linecap="round" stroke-dasharray="389.5" stroke-dashoffset="${Math.max(0, 389.5 - (389.5 * calPct) / 100)}"/>
+                        <circle class="wm-sphere-ring-arc" cx="70" cy="70" r="62" fill="none" stroke="#2563eb" stroke-width="8" stroke-linecap="round" stroke-dasharray="389.5" stroke-dashoffset="${Math.max(0, 389.5 - (389.5 * calPct) / 100)}"/>
                     </svg>
                     <div class="wm-sphere-inner">
-                        <div style="font-size:11px; font-weight:700; color:#1e3a8a; opacity:0.85;">ที่เหลืออยู่</div>
-                        <div style="font-size:30px; font-weight:900; letter-spacing:-1px; line-height:1.05; color:#0f172a;">${remCal.toLocaleString()}</div>
-                        <div style="font-size:12px; font-weight:800; color:#1e3a8a;">kcal</div>
+                        <div class="wm-sphere-wave"></div>
+                        <div class="wm-sphere-wave wave2"></div>
+                        <div style="position:relative; z-index:2; font-size:11px; font-weight:700; color:#1e3a8a; opacity:0.85;">ที่เหลืออยู่</div>
+                        <div style="position:relative; z-index:2; font-size:30px; font-weight:900; letter-spacing:-1px; line-height:1.05; color:#0f172a;">${remCal.toLocaleString()}</div>
+                        <div style="position:relative; z-index:2; font-size:12px; font-weight:800; color:#1e3a8a;">kcal</div>
                     </div>
                 </div>
                 <div style="font-size:11.5px; font-weight:700; color:#475569; margin-top:8px;">เป้าหมาย ${effectiveCalTarget.toLocaleString()} kcal</div>
@@ -816,7 +822,7 @@ function render() {
             </button>
             <div class="g2" style="margin-top:10px;">
                 <button class="btn sm" style="background:rgba(255,255,255,0.15); color:#fef08a; border:1px solid rgba(255,255,255,0.22); border-radius:99px; font-weight:700;" onclick="startMorningCardio()">🌅 ${morningDone ? `เดินลู่เช้า (${morningM} น.) ✓` : 'เดินลู่เช้า Zone 2'}</button>
-                <button class="btn sm" style="background:rgba(255,255,255,0.15); color:#ffffff; border:1px solid rgba(255,255,255,0.22); border-radius:99px; font-weight:700;" onclick="showW('${tk}');go('prog')">📋 ดูตารางท่าฝึก</button>
+                <button class="btn sm" style="background:rgba(255,255,255,0.15); color:#ffffff; border:1px solid rgba(255,255,255,0.22); border-radius:99px; font-weight:700;" onclick="toggleShiftDutyMode()">${typeof isShiftDutyToday === "function" && isShiftDutyToday() ? "🌙 เข้าเวร/พัก (ON)" : "🏥 โหมดเข้าเวร"}</button>
             </div>
         </div>
     </div>`;

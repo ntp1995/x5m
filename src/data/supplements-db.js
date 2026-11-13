@@ -869,7 +869,7 @@ ${currentStackStr}
 {"name": "ชื่ออาหารเสริม", "activeIngredients": "สารสำคัญหลัก", "dose": "1 แคปซูล", "slotId": "slot_lunch", "timing": "หลังอาหาร", "goalCat": "liver_lipid หรือ skin หรือ workout หรือ nerve_gut", "tag": "ป้ายสั้นๆ เช่น 🛡️ เซฟตับ", "benefit": "สรรพคุณสั้นๆ 1 ประโยค", "rationale": "เหตุผลว่าทำไมทานเวลานี้ถึงดูดซึมดีที่สุดและเซฟตับ ไม่ตีกับตัวเดิมอย่างไร", "skipOnShift": false}`;
 
             const fullParts = [{ text: sysText }, ...parts];
-            const models = ['gemini-3.5-flash', 'gemini-flash-latest', 'gemini-2.5-flash-lite'];
+            const models = ['gemini-3.1-flash-lite', 'gemini-3.6-flash', 'gemini-3.8-flash', 'gemini-2.5-flash-lite'];
             let res = null;
             for (const m of models) {
                 const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${D.cfg.aiKey.trim()}`, {
@@ -885,6 +885,9 @@ ${currentStackStr}
             const jm = txt.match(/\{[\s\S]*\}/);
             if (!jm) throw new Error('รูปแบบ JSON ไม่สมบูรณ์');
             const aiRes = JSON.parse(jm[0]);
+            if (typeof recordAiUsage === 'function') {
+                recordAiUsage('วิเคราะห์อาหารเสริม', true);
+            }
 
             if (aiRes.name && document.getElementById('newSuppName')) document.getElementById('newSuppName').value = aiRes.name;
             if (aiRes.activeIngredients && document.getElementById('newSuppIng')) document.getElementById('newSuppIng').value = aiRes.activeIngredients;
@@ -1535,15 +1538,15 @@ function renderSupplementsUI() {
     ` : '';
 
     pageEl.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
-            <div>
-                <h1 style="margin:0; font-size:21px;">💊 Daily Supplement & IF Routine</h1>
-                <div class="sub" style="margin-top:5px; line-height:1.5;">
-                    <b style="color:var(--acc);">Core Goals (Daily Maintenance):</b><br>
-                    1. ลดไตรกลีเซอไรด์ (เป้าหมายจาก 333) และบำรุงตับ<br>
-                    2. ลดไขมันช่องท้อง (Visceral Fat 11) และสร้างกล้ามเนื้อ<br>
-                    3. บำรุงระบบประสาท สุขภาพผิวพรรณ และข้อต่อในระยะยาว<br>
-                    <b style="color:#059669;">Rules:</b> ทำ IF 2 มื้อ • เซฟตับ (ห้าม Overdose) • ไม่กินสารให้ความหวานช่วงฟาสต์
+        <div class="card" style="margin-bottom:12px; background:#ffffff; border:1px solid #dbeafe; box-shadow:0 4px 14px rgba(37,99,235,0.06); padding:16px 16px 14px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                <div>
+                    <h1 style="margin:0; font-size:22px; font-weight:900; color:#0f172a; letter-spacing:-0.5px;">💊 ตารางอาหารเสริม & IF ประจำวัน</h1>
+                    <div style="font-size:12px; font-weight:800; color:#1d4ed8; margin-top:4px;">🎯 เป้าหมายหลัก (Daily Routine):</div>
+                    <div style="font-size:12px; color:#334155; line-height:1.6; margin-top:3px; font-weight:600;">
+                        • คุมน้ำตาลและลดไขมันสะสม • บำรุงตับและข้อต่อ • เสริมสร้างกล้ามเนื้อ<br>
+                        <span style="color:#059669; font-weight:800;">✓ กฎเหล็ก:</span> ทานตามเวลา IF • เซฟตับ (ไม่เกินขนาด) • ดื่มน้ำเปล่าให้ถึงเป้าหมาย
+                    </div>
                 </div>
             </div>
         </div>
@@ -1558,38 +1561,38 @@ function renderSupplementsUI() {
             </button>
         </div>
 
-        <!-- Master Summary & Shift Mode Card -->
-        <div class="card" style="margin-bottom:12px; background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color:#fff; border:none; box-shadow:0 6px 18px rgba(15,23,42,0.18);">
+        <!-- Master Summary & Shift Mode Card (Light Clean Theme) -->
+        <div class="card" style="margin-bottom:12px; background:#ffffff !important; color:#0f172a !important; border:1.5px solid #dbeafe !important; box-shadow:0 6px 20px rgba(37,99,235,0.08) !important;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <div>
-                    <div style="font-size:11px; color:#94a3b8; font-weight:700;">📅 DAILY TIME TABLE วันนี้ (${iso()})</div>
+                    <div style="font-size:11px; color:#64748b; font-weight:700;">📅 DAILY TIME TABLE วันนี้ (${iso()})</div>
                     <div style="display:flex; align-items:baseline; gap:6px; margin-top:2px;">
-                        <span style="font-size:28px; font-weight:900; color:#10b981; line-height:1;">${stats.doneReq}/${stats.totalReq}</span>
-                        <span style="font-size:13px; color:#cbd5e1; font-weight:700;">รายการหลัก (${stats.pct}%)</span>
-                        ${stats.optionalDone > 0 ? `<span style="font-size:11px; color:#fde047; font-weight:700;">+${stats.optionalDone} เสริม</span>` : ''}
+                        <span style="font-size:30px; font-weight:900; color:#10b981; line-height:1;">${stats.doneReq}/${stats.totalReq}</span>
+                        <span style="font-size:13px; color:#475569; font-weight:800;">รายการหลัก (${stats.pct}%)</span>
+                        ${stats.optionalDone > 0 ? `<span style="font-size:11px; color:#d97706; font-weight:800;">+${stats.optionalDone} เสริม</span>` : ''}
                     </div>
                 </div>
                 <div style="display:flex; gap:6px;">
-                    <button type="button" class="btn sm" onclick="checkAllSuppsToday(true)" style="width:auto; padding:6px 10px; font-size:11px; background:#10b981; color:#fff; font-weight:800; border-radius:8px; border:none; cursor:pointer;">✓ เช็กครบทั้งวัน</button>
-                    <button type="button" class="btn sm" onclick="checkAllSuppsToday(false)" style="width:auto; padding:6px 9px; font-size:11px; background:rgba(255,255,255,0.12); color:#cbd5e1; font-weight:700; border-radius:8px; border:1px solid rgba(255,255,255,0.2); cursor:pointer;">↺ รีเซ็ต</button>
+                    <button type="button" class="btn sm" onclick="checkAllSuppsToday(true)" style="width:auto; padding:6px 12px; font-size:11.5px; background:#10b981; color:#fff; font-weight:800; border-radius:10px; border:none; cursor:pointer; box-shadow:0 2px 6px rgba(16,185,129,0.3);">✓ เช็กครบทั้งวัน</button>
+                    <button type="button" class="btn sm" onclick="checkAllSuppsToday(false)" style="width:auto; padding:6px 9px; font-size:11px; background:#f1f5f9; color:#475569; font-weight:700; border-radius:10px; border:1px solid #cbd5e1; cursor:pointer;">↺ รีเซ็ต</button>
                 </div>
             </div>
 
-            <div class="bar" style="height:8px; background:rgba(255,255,255,0.14); margin-bottom:12px;">
-                <i style="width:${stats.pct}%; background:linear-gradient(90deg, #10b981, #34d399);"></i>
+            <div class="bar" style="height:8px; background:#e2e8f0; margin-bottom:12px; border-radius:99px; overflow:hidden;">
+                <i style="width:${stats.pct}%; background:linear-gradient(90deg, #10b981, #059669); height:100%; display:block; border-radius:99px;"></i>
             </div>
 
             <!-- 1-Tap Shift / Rest Day Switcher -->
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:8px 10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; background:${isShift ? '#fffbeb' : '#f8fafd'}; border:1px solid ${isShift ? '#fde68a' : '#e2e8f0'}; border-radius:12px; padding:10px 12px;">
                 <div style="flex:1;">
-                    <div style="font-size:12px; font-weight:800; color:${isShift ? '#fde047' : '#fff'};">
+                    <div style="font-size:12.5px; font-weight:900; color:${isShift ? '#b45309' : '#0f172a'};">
                         ${isShift ? '🏥 โหมดวันเข้าเวรเหนื่อย / งดออกกำลังกาย (เปิดอยู่)' : '🏋️ โหมดวันออกกำลังกายปกติ (Pre & Post-Workout)'}
                     </div>
-                    <div style="font-size:10.5px; color:#cbd5e1; margin-top:1px;">
+                    <div style="font-size:11px; color:#475569; font-weight:600; margin-top:2px; line-height:1.4;">
                         ${isShift ? 'งดเซ็ต Pre-Workout (Creatine + L-Carnitine) และย้าย Medita A1C ไปมื้อแรกให้อัตโนมัติ' : 'วันที่เลิกงานดึก ห้ามทานข้าวเย็นก่อนออกกำลัง ให้ทานเซ็ต Pre-Workout รองท้องแล้วไปลุยเลย'}
                     </div>
                 </div>
-                <button type="button" class="btn sm" onclick="toggleSuppShiftMode()" style="width:auto; flex:0 0 auto; padding:6px 10px; font-size:11px; font-weight:800; border-radius:8px; background:${isShift ? '#f59e0b' : 'rgba(255,255,255,0.15)'}; color:#fff; border:none; cursor:pointer;">
+                <button type="button" class="btn sm" onclick="toggleSuppShiftMode()" style="width:auto; flex:0 0 auto; padding:7px 11px; font-size:11.5px; font-weight:800; border-radius:8px; background:${isShift ? '#f59e0b' : '#2563eb'}; color:#fff; border:none; cursor:pointer; box-shadow:0 2px 6px rgba(37,99,235,0.2);">
                     ${isShift ? '🏥 วันเข้าเวร ⇄' : 'สลับวันเข้าเวร ⇄'}
                 </button>
             </div>
@@ -1597,20 +1600,20 @@ function renderSupplementsUI() {
 
         <!-- 3 Core Goals Banner -->
         <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:12px; text-align:center;">
-            <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 6px;">
-                <div style="font-size:16px;">🛡️</div>
-                <div style="font-size:11px; font-weight:800; color:var(--acc); margin-top:2px;">ลด TG (333) & บำรุงตับ</div>
-                <div style="font-size:10px; color:var(--dim);">Fish Oil×2 • ACV • Gluta+</div>
+            <div style="background:#ffffff; border:1px solid #bfdbfe; border-radius:12px; padding:10px 6px; box-shadow:0 2px 6px rgba(15,23,42,0.04);">
+                <div style="font-size:18px;">🛡️</div>
+                <div style="font-size:12px; font-weight:900; color:#1d4ed8; margin-top:2px;">ลดไขมัน & บำรุงตับ</div>
+                <div style="font-size:10.5px; font-weight:700; color:#475569; margin-top:2px;">Fish Oil • ACV • Gluta+</div>
             </div>
-            <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 6px;">
-                <div style="font-size:16px;">💪</div>
-                <div style="font-size:11px; font-weight:800; color:#3b82f6; margin-top:2px;">ลด VF 11 & กล้ามเนื้อ</div>
-                <div style="font-size:10px; color:var(--dim);">Creatine • Carnitine • Soy</div>
+            <div style="background:#ffffff; border:1px solid #bfdbfe; border-radius:12px; padding:10px 6px; box-shadow:0 2px 6px rgba(15,23,42,0.04);">
+                <div style="font-size:18px;">💪</div>
+                <div style="font-size:12px; font-weight:900; color:#0284c7; margin-top:2px;">กล้ามเนื้อ & ออกกำลัง</div>
+                <div style="font-size:10.5px; font-weight:700; color:#475569; margin-top:2px;">Creatine • Carnitine • Soy</div>
             </div>
-            <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 6px;">
-                <div style="font-size:16px;">✨</div>
-                <div style="font-size:11px; font-weight:800; color:#10b981; margin-top:2px;">ประสาท ผิว & ข้อต่อ</div>
-                <div style="font-size:10px; color:var(--dim);">B Complex • Vida • Asta</div>
+            <div style="background:#ffffff; border:1px solid #bbf7d0; border-radius:12px; padding:10px 6px; box-shadow:0 2px 6px rgba(15,23,42,0.04);">
+                <div style="font-size:18px;">✨</div>
+                <div style="font-size:12px; font-weight:900; color:#059669; margin-top:2px;">ประสาท ผิว & ข้อต่อ</div>
+                <div style="font-size:10.5px; font-weight:700; color:#475569; margin-top:2px;">B Complex • Vida • Asta</div>
             </div>
         </div>
 

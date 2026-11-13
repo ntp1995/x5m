@@ -525,14 +525,12 @@ async function processAIFood(file, text) {
 
             const payload = { contents: [{ parts }] };
             
-            // Verified active Google Gemini models
+            // Verified active Google Gemini models based on project Rate Limits
             const models = [
-                'gemini-3.5-flash',
-                'gemini-3.8-flash-lite',
-                'gemini-flash-latest',
                 'gemini-3.1-flash-lite',
-                'gemini-2.5-flash-lite',
-                'gemini-3.8-flash'
+                'gemini-3.6-flash',
+                'gemini-3.8-flash',
+                'gemini-2.5-flash-lite'
             ];
 
             let res = null;
@@ -581,6 +579,9 @@ async function processAIFood(file, text) {
             }
 
             const data = await res.json();
+            if (typeof recordAiUsage === 'function') {
+                recordAiUsage('สแกนอาหารด้วยภาพ', true);
+            }
             if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
                 throw new Error('AI ส่งผลลัพธ์ไม่สมบูรณ์ (No candidates)');
             }

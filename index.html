@@ -15,15 +15,21 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <!-- FitCoach v3.0 Modular Stylesheets -->
-    <link rel="stylesheet" href="src/styles/tokens.css?v=3.1.0">
-    <link rel="stylesheet" href="src/styles/layout.css?v=3.1.0">
-    <link rel="stylesheet" href="src/styles/components.css?v=3.1.0">
-    <link rel="stylesheet" href="src/styles/views-workout.css?v=3.1.0">
-    <link rel="stylesheet" href="src/styles/views-v3.css?v=3.1.0">
+    <link rel="stylesheet" href="src/styles/tokens.css?v=3.4.0">
+    <link rel="stylesheet" href="src/styles/layout.css?v=3.4.0">
+    <link rel="stylesheet" href="src/styles/components.css?v=3.4.0">
+    <link rel="stylesheet" href="src/styles/views-workout.css?v=3.4.0">
+    <link rel="stylesheet" href="src/styles/views-v3.css?v=3.4.0">
 </head>
 
-<body class="auth-required">
-    <!-- ================= LANDING PAGE (UNIQUE) ================= -->
+<body>
+    <!-- Branded Animated Boot Splash -->
+    <div id="fcBootSplash" class="fc-boot-splash" aria-hidden="true">
+        <div class="fc-boot-logo">fitcoach<span>.</span></div>
+        <div class="fc-boot-bar"><i></i></div>
+        <div style="font-size:12px; color:#64748b; font-weight:700;">กำลังเตรียมข้อมูลสุขภาพของคุณ...</div>
+    </div>
+    <!-- ================= LANDING PAGE ================= -->
     <div id="p-landing" class="landing-page">
         <div class="landing-header-unique">
             <div class="fc-logo">fitcoach<span>.</span></div>
@@ -48,23 +54,29 @@
     <!-- ================= HOME (FitCoach v3.1 WiseMeal + HomeWorkout Inspired) ================= -->
     <div class="page on" id="p-home">
         <div class="wrap">
-            <!-- Top Brand Bar -->
-            <div class="row" style="margin-bottom:6px; align-items:center;">
-                <div>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <h1 style="margin:0; font-size:25px; font-weight:900; letter-spacing:-0.6px; color:#0f172a;">FitCoach</h1>
-                        <span style="background:linear-gradient(135deg,#0f172a,#1e293b); color:#38bdf8; font-size:10.5px; font-weight:800; padding:3px 9px; border-radius:99px; display:inline-flex; align-items:center; gap:4px;">👑 PRO 3.1</span>
-                    </div>
-                    <div class="sub" id="hsub" style="margin-top:2px; font-size:11.5px; color:#475569; font-weight:600;"></div>
+            <!-- Top Brand Bar (Clean, uncluttered, no overlapping elements) -->
+            <div class="v3-topbar">
+                <div class="v3-brand-wrap">
+                    <h1 style="margin:0; font-size:22px; font-weight:900; letter-spacing:-0.5px; color:#0f172a;">FitCoach</h1>
+                    <span class="v3-pro-pill">👑 PRO 3.2</span>
                 </div>
-                <div style="display:flex; align-items:center; gap:6px;">
-                    <div class="tag" id="phaseTag" style="font-weight:800; background:rgba(37,99,235,0.12); color:#2563eb; border:none;">Phase 1</div>
-                    <span class="sub" id="wkTxt" style="font-size:11px; font-weight:800; background:#ffffff; padding:4px 9px; border-radius:99px; border:1px solid var(--line);"></span>
-                    <div id="cloudSyncPill" onclick="handleCloudSyncPillClick()" style="cursor:pointer; display:flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:4px 9px; border-radius:99px; background:#ffffff; border:1px solid var(--line); white-space:nowrap;" title="สถานะ Cloud First Sync แตะเพื่อซิงก์">
+                <div class="v3-top-actions">
+                    <div id="cloudSyncPill" onclick="handleCloudSyncPillClick()" style="cursor:pointer; display:flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:5px 10px; border-radius:99px; background:#ffffff; border:1px solid var(--line); white-space:nowrap; box-shadow:0 2px 6px rgba(15,23,42,0.04);" title="สถานะ Cloud First Sync แตะเพื่อซิงก์">
                         <span id="cloudSyncDot" style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#10b981;"></span>
                         <span id="cloudSyncTxt" style="color:var(--tx);">ซิงก์แล้ว</span>
                     </div>
+                    <button type="button" onclick="go('sync')" title="ตั้งค่า & ซิงก์คลาวด์" style="height:32px; padding:0 10px; border-radius:99px; border:1px solid var(--line); background:#ffffff; display:inline-flex; align-items:center; gap:4px; cursor:pointer; box-shadow:0 2px 6px rgba(15,23,42,0.05); font-size:11.5px; font-weight:800; color:var(--tx);">
+                        <span>⚙️ ซิงก์</span>
+                    </button>
                     <div id="userHeaderBadge" onclick="go('sync')" style="cursor:pointer; display:none;"></div>
+                </div>
+            </div>
+            <div class="v3-subbar">
+                <div class="sub" id="hsub" style="display:none;"></div>
+                <div class="v3-meta-chips" style="margin-left:auto;">
+                    <button type="button" onclick="openOnboardingWizard(1)" title="ประเมินสุขภาพ & จัดโปรแกรม" style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:800; padding:4px 9px; border-radius:99px; background:linear-gradient(135deg,#eff6ff,#ecfdf5); border:1px solid #bfdbfe; color:#1d4ed8; white-space:nowrap;">🧬 ประเมินแผน</button>
+                    <div class="tag" id="phaseTag" style="font-weight:800; background:rgba(37,99,235,0.12); color:#2563eb; border:none; white-space:nowrap;">Phase 1</div>
+                    <span class="sub" id="wkTxt" style="font-size:11px; font-weight:800; background:#ffffff; padding:4px 9px; border-radius:99px; border:1px solid var(--line); white-space:nowrap;"></span>
                 </div>
             </div>
 
@@ -317,13 +329,39 @@
             </div>
 
             <!-- AI Settings -->
-            <div class="card">
-                <h3>ตั้งค่า AI (Gemini)</h3>
-                <div class="sub" style="margin-bottom:10px">ใส่ API Key สำหรับฟีเจอร์กล้องสแกนอาหาร (ข้อมูลจะบันทึกลงบัญชีอัตโนมัติ)</div>
-                <div style="display:grid;gap:9px;">
-                    <input id="aiKey" placeholder="Gemini API Key หลัก (AQ.Ab...)" type="password">
-                    <input id="aiKeyBackup" placeholder="Gemini API Key สำรอง (ถ้ามี)" type="password">
-                    <button class="btn g sm" onclick="saveCfg()">💾 บันทึกคีย์ลง Firebase Cloud</button>
+            <div class="card" style="border:1.5px solid #bfdbfe; box-shadow:0 4px 14px rgba(37,99,235,0.06);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <h3 style="margin:0; font-size:16px; font-weight:800; color:#0f172a;">🤖 ตั้งค่า AI (Gemini API Key)</h3>
+                    <span style="font-size:10.5px; font-weight:800; background:#eff6ff; color:#2563eb; padding:3px 8px; border-radius:99px; border:1px solid #bfdbfe;">Google AI</span>
+                </div>
+                <div class="sub" style="margin-bottom:12px; font-size:12px; color:#64748b; line-height:1.5;">ใช้สำหรับสแกนอาหารด้วยภาพ วิเคราะห์สารอาหาร และประเมินสมดุลตับอัตโนมัติ (คีย์จะถูกบันทึกในเครื่องและซิงก์กับ Firebase)</div>
+                <div style="display:grid; gap:10px;">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+                            <label style="font-size:11.5px; font-weight:700; color:#334155;">Gemini API Key หลัก</label>
+                            <button type="button" onclick="toggleKeyVisibility('aiKey', this)" style="background:none; border:none; font-size:11px; font-weight:700; color:#2563eb; cursor:pointer; padding:0;">👁️ แสดงคีย์</button>
+                        </div>
+                        <input id="aiKey" placeholder="วางคีย์ AIzaSy..." type="password" style="width:100%; box-sizing:border-box; font-family:monospace; font-size:13px; padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:var(--bg); color:var(--tx);">
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+                            <label style="font-size:11.5px; font-weight:700; color:#334155;">Gemini API Key สำรอง (ถ้ามี)</label>
+                            <button type="button" onclick="toggleKeyVisibility('aiKeyBackup', this)" style="background:none; border:none; font-size:11px; font-weight:700; color:#2563eb; cursor:pointer; padding:0;">👁️ แสดงคีย์</button>
+                        </div>
+                        <input id="aiKeyBackup" placeholder="วางคีย์สำรอง (ถ้ามี)..." type="password" style="width:100%; box-sizing:border-box; font-family:monospace; font-size:13px; padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:var(--bg); color:var(--tx);">
+                    </div>
+                    <button class="btn sm" onclick="saveCfg()" style="margin-top:4px; padding:11px; font-size:13px; font-weight:800; background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; border:none; border-radius:10px; box-shadow:0 3px 8px rgba(37,99,235,0.25); cursor:pointer;">💾 บันทึกคีย์ลง Firebase Cloud</button>
+                    
+                    <div style="display:flex; gap:8px; margin-top:2px;">
+                        <button type="button" class="btn sm" onclick="testGeminiKey('primary')" style="flex:1; padding:9px 6px; font-size:12px; font-weight:800; background:#f1f5f9; color:#1e293b; border:1px solid #cbd5e1; border-radius:10px; cursor:pointer;">⚡ ทดสอบคีย์หลัก</button>
+                        <button type="button" class="btn sm" onclick="testGeminiKey('backup')" style="flex:1; padding:9px 6px; font-size:12px; font-weight:800; background:#f1f5f9; color:#1e293b; border:1px solid #cbd5e1; border-radius:10px; cursor:pointer;">⚡ ทดสอบคีย์สำรอง</button>
+                    </div>
+
+                    <!-- Test Result Notification Box -->
+                    <div id="aiKeyStatusBox" class="ai-key-status-box" style="display:none;"></div>
+
+                    <!-- Quota & Daily Usage Counter Widget -->
+                    <div id="aiQuotaWidget"></div>
                 </div>
             </div>
 
@@ -478,34 +516,26 @@
         </div>
     </div>
 
-    <nav>
+    <nav aria-label="เมนูหลัก">
         <button class="on" data-p="home">
             <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
             หน้าหลัก
         </button>
         <button data-p="prog">
-            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="16" y2="16"></line><line x1="8" y1="8" x2="8.01" y2="8"></line><line x1="12" y1="8" x2="16" y2="8"></line></svg>
-            โปรแกรม
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 10v4"/><path d="M21 10v4"/><path d="M7 5v14"/><path d="M17 5v14"/></svg>
+            ฝึกซ้อม
         </button>
         <button data-p="supp">
             <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg>
-            อาหารเสริม
+            วิตามิน
         </button>
-        <div class="nav-fab-wrap">
-            <button type="button" class="nav-fab-plus" onclick="openQuickActionSheet()" title="ทางลัดบันทึกด่วน (Quick Action Hub)">＋</button>
-            <span class="nav-fab-label">ด่วน</span>
-        </div>
         <button data-p="if">
             <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            IF
+            IF 16:8
         </button>
         <button data-p="stat">
             <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
             สถิติ
-        </button>
-        <button data-p="sync">
-            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="M12 12v9"></path><path d="m8 17 4 4 4-4"></path></svg>
-            ซิงก์
         </button>
     </nav>
 
@@ -540,29 +570,30 @@
         </div>
     </div>
 
-    <!-- ================= QUICK ACTION HUB BOTTOM SHEET (v3.0) ================= -->
-    <div id="qaBackdrop" class="qa-backdrop" onclick="if(event.target===this)closeQuickActionSheet()">
-        <div class="qa-sheet" id="qaSheetBody"></div>
+    <!-- ================= ONBOARDING & GOAL CALIBRATION FULL-SCREEN PAGE (v3.4) ================= -->
+    <div id="p-onboard" class="onboard-page">
+        <div class="onboard-wrap" id="obWizardBody"></div>
     </div>
 
     <!-- App Auto-Update Toast -->
     <div id="appUpdateToast" class="update-toast"></div>
 
-    <!-- FitCoach v3.0 Modular JavaScript Architecture -->
-    <script src="src/core/modals.js?v=3.1.0"></script>
-    <script src="src/data/exercises-db.js?v=3.1.0"></script>
-    <script src="src/core/store.js?v=3.1.0"></script>
-    <script src="src/data/thai-foods-db.js?v=3.1.0"></script>
-    <script src="src/data/supplements-db.js?v=3.1.0"></script>
-    <script src="src/views/dashboard-view.js?v=3.1.0"></script>
-    <script src="src/views/workout-player-view.js?v=3.1.0"></script>
-    <script src="src/views/stats-inbody-view.js?v=3.1.0"></script>
-    <script src="src/core/cloud-sync.js?v=3.1.0"></script>
-    <script src="src/core/router.js?v=3.1.0"></script>
-    <script src="src/components/quick-action-sheet.js?v=3.1.0"></script>
-    <script src="src/components/muscle-heatmap.js?v=3.1.0"></script>
-    <script src="src/components/inbody-radar.js?v=3.1.0"></script>
-    <script src="src/components/fasting-stages.js?v=3.1.0"></script>
-    <script src="src/core/app.js?v=3.1.0"></script>
+    <!-- FitCoach v3.4 Modular JavaScript Architecture -->
+    <script src="src/core/modals.js?v=3.4.0"></script>
+    <script src="src/data/exercises-db.js?v=3.4.0"></script>
+    <script src="src/core/store.js?v=3.4.0"></script>
+    <script src="src/data/thai-foods-db.js?v=3.4.0"></script>
+    <script src="src/data/supplements-db.js?v=3.4.0"></script>
+    <script src="src/views/dashboard-view.js?v=3.4.0"></script>
+    <script src="src/views/workout-player-view.js?v=3.4.0"></script>
+    <script src="src/views/stats-inbody-view.js?v=3.4.0"></script>
+    <script src="src/core/cloud-sync.js?v=3.4.0"></script>
+    <script src="src/core/router.js?v=3.4.0"></script>
+    <script src="src/components/quick-action-sheet.js?v=3.4.0"></script>
+    <script src="src/components/muscle-heatmap.js?v=3.4.0"></script>
+    <script src="src/components/inbody-radar.js?v=3.4.0"></script>
+    <script src="src/components/fasting-stages.js?v=3.4.0"></script>
+    <script src="src/components/onboarding-wizard.js?v=3.4.0"></script>
+    <script src="src/core/app.js?v=3.4.0"></script>
 </body>
 </html>

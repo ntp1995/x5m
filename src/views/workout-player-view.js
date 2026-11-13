@@ -21,7 +21,9 @@ function buildSteps(k) {
 }
 function startW(k) {
     curK = k; ST = buildSteps(k); idx = 0; t0 = Date.now();
-    document.getElementById('pl').classList.add('on'); adjustPlayerLayout();
+    document.getElementById('pl').classList.add('on');
+    document.body.classList.add('workout-running');
+    adjustPlayerLayout();
     try { navigator.wakeLock && navigator.wakeLock.request('screen').then(l => lock = l) } catch (e) { }
     loadStep(); playing = true; run();
 }
@@ -497,9 +499,19 @@ let _sid = ''; function curSid() { return _sid || (_sid = (D.cfg.code || 'local'
 function nextStep(m) { if (m) beep(1046, 120); idx++; idx >= ST.length ? finishW() : (loadStep(), playing = true, document.getElementById('plMain').textContent = 'หยุดชั่วคราว') }
 function prevStep() { if (idx > 0) { idx--; loadStep(); playing = true } }
 function addTime() { left += 20; ST[idx].dur += 20; paint() }
-async function quitW() { if (await fcConfirm('ออกจากการฝึก? ความคืบหน้าจะไม่ถูกบันทึก')) { clearInterval(tick); _sid = ''; document.getElementById('pl').classList.remove('on') } }
+async function quitW() {
+    if (await fcConfirm('ออกจากการฝึก? ความคืบหน้าจะไม่ถูกบันทึก')) {
+        clearInterval(tick);
+        _sid = '';
+        document.getElementById('pl').classList.remove('on');
+        document.body.classList.remove('workout-running');
+    }
+}
 async function finishW() {
-    clearInterval(tick); document.getElementById('pl').classList.remove('on'); lock && lock.release && lock.release();
+    clearInterval(tick);
+    document.getElementById('pl').classList.remove('on');
+    document.body.classList.remove('workout-running');
+    lock && lock.release && lock.release();
     const dur = Math.round((Date.now() - t0) / 1000);
     const rpeRes = await fcPrompt('เหนื่อยระดับไหน? (RPE 1-10)', '7'); const rpe = rpeRes !== null ? parseInt(rpeRes) || null : null;
     const painRes = await fcPrompt('หลังเป็นยังไงหลังฝึก? (0=ไม่ปวดเลย, 10=ปวดมาก)', '2'); const pain = painRes !== null ? parseInt(painRes) : NaN;

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fitcoach-v3.1.0';
+const CACHE_NAME = 'fitcoach-v3.4.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -24,6 +24,7 @@ const ASSETS_TO_CACHE = [
   './src/components/muscle-heatmap.js',
   './src/components/inbody-radar.js',
   './src/components/fasting-stages.js',
+  './src/components/onboarding-wizard.js',
   './src/core/app.js'
 ];
 
