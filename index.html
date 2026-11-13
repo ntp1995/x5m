@@ -14,6 +14,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
     <!-- FitCoach v3.0 Modular Stylesheets -->
     <link rel="stylesheet" href="src/styles/tokens.css?v=3.4.0">
     <link rel="stylesheet" href="src/styles/layout.css?v=3.4.0">
@@ -57,14 +58,15 @@
             <!-- Top Brand Bar (Clean, uncluttered, no overlapping elements) -->
             <div class="v3-topbar">
                 <div class="v3-brand-wrap">
-                    <h1 style="margin:0; font-size:22px; font-weight:900; letter-spacing:-0.5px; color:#0f172a;">FitCoach</h1>
+                    <h1 style="margin:0; font-size:20px; font-weight:900; letter-spacing:-0.5px; color:#0f172a;">FitCoach</h1>
                     <span class="v3-pro-pill">👑 PRO</span>
                 </div>
                 <div class="v3-top-actions">
-                    <div id="cloudSyncPill" onclick="handleCloudSyncPillClick()" style="cursor:pointer; display:flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:5px 10px; border-radius:99px; background:#ffffff; border:1px solid var(--line); white-space:nowrap; box-shadow:0 2px 6px rgba(15,23,42,0.04);" title="สถานะ Cloud First Sync แตะเพื่อซิงก์">
-                        <span id="cloudSyncDot" style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#10b981;"></span>
+                    <div id="cloudSyncPill" onclick="handleCloudSyncPillClick()" style="cursor:pointer; display:flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:99px; background:#ffffff; border:1px solid var(--line); white-space:nowrap; box-shadow:0 1px 3px rgba(15,23,42,0.04);" title="สถานะ Cloud First Sync แตะเพื่อซิงก์">
+                        <span id="cloudSyncDot" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10b981;"></span>
                         <span id="cloudSyncTxt" style="color:var(--tx);">ซิงก์แล้ว</span>
                     </div>
+                    <button type="button" class="v3-sync-btn" onclick="go('sync')" title="ตั้งค่า & ซิงก์คลาวด์">⚙️ ซิงก์</button>
                     <div id="userHeaderBadge" onclick="go('sync')" style="cursor:pointer; display:none;"></div>
                 </div>
             </div>
@@ -245,71 +247,205 @@
     <!-- ================= STATS ================= -->
     <div class="page" id="p-stat">
         <div class="wrap">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                <h1 style="margin:0;">สถิติ</h1>
-                <button class="btn sm" onclick="openWeeklyReportModal()" style="font-size:12px; padding:6px 12px; background:linear-gradient(135deg, var(--acc) 0%, #d97706 100%); color:#fff; font-weight:700; border-radius:8px; cursor:pointer;">📊 สรุปผลรอบสัปดาห์ (AI Report)</button>
+            <!-- Top Header matching WiseMeal screenshot -->
+            <div class="wm-body-header">
+                <button type="button" class="wm-body-nav-btn" onclick="go('home')" title="ย้อนกลับ">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </button>
+                <h1 class="wm-body-title">ข้อมูลร่างกาย</h1>
+                <button type="button" class="wm-body-nav-btn" onclick="openBodySettingsModal()" title="การตั้งค่าน้ำหนัก">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </button>
             </div>
-            <details class="card" style="margin-top:12px">
-                <summary style="cursor:pointer; font-weight:700; font-size:13.5px; display:flex; justify-content:space-between; align-items:center; user-select:none;">
-                    <span style="display:flex; align-items:center; gap:6px;">✍️ บันทึกเช็กอินย้อนหลัง (ถ้ามี)</span>
-                    <span class="tag gr" style="font-size:11px; padding:2px 8px;">เปิด/ปิดฟอร์ม ▾</span>
-                </summary>
-                <div class="g2" style="margin-top:12px">
-                    <input id="inW" type="number" step="0.1" placeholder="น้ำหนัก (กก.)">
-                    <input id="inBF" type="number" step="0.1" placeholder="ไขมัน %">
-                    <input id="inMuscle" type="number" step="0.1" placeholder="กล้ามเนื้อ (กก.)">
-                    <input id="inSteps" type="number" step="100" placeholder="ก้าวเดิน (ก้าว)">
-                    <input id="inHRV" type="number" placeholder="HRV (ms)">
-                    <input id="inPain" type="number" min="0" max="10" placeholder="ปวดหลัง 0-10">
-                    <input id="inCal" type="number" placeholder="แคลอรี่ (kcal)">
-                    <input id="inProtein" type="number" placeholder="โปรตีน (กรัม)">
-                    <input id="inWater" type="number" step="50" min="0" max="10000" placeholder="น้ำ (มล. / ml)">
+
+            <!-- Segmented Top Tabs: น้ำหนัก | ร่างกาย -->
+            <div class="wm-body-segmented-tabs">
+                <button type="button" class="wm-body-seg-btn active" id="tabBodyWeight" onclick="switchBodySubTab('weight')">น้ำหนัก</button>
+                <button type="button" class="wm-body-seg-btn" id="tabBodyCircumference" onclick="switchBodySubTab('body')">ร่างกาย</button>
+            </div>
+
+            <!-- ================= SUB-TAB 1: น้ำหนัก (Morning Weight) ================= -->
+            <div id="bodyWeightSection">
+                <!-- Card 1: Current Weight Hero Card -->
+                <div class="wm-body-card">
+                    <div style="font-size:14px; font-weight:700; color:var(--tx); margin-bottom:6px;">ปัจจุบัน</div>
+                    <div style="display:flex; align-items:baseline; gap:6px; margin-bottom:16px;">
+                        <span id="wmCurrentWeight" style="font-size:38px; font-weight:900; color:var(--tx); letter-spacing:-0.5px;">78.0</span>
+                        <span style="font-size:18px; font-weight:800; color:var(--tx); opacity:0.85;">kg</span>
+                    </div>
+                    <button type="button" class="wm-primary-green-btn" onclick="openMorningWeighInModal()">
+                        บันทึกน้ำหนัก
+                    </button>
+                    <div class="wm-weight-trajectory-row">
+                        <div class="wm-weight-traj-item" onclick="promptEditStartWeight()">
+                            <span class="wm-weight-traj-label">เริ่ม</span>
+                            <span class="wm-weight-traj-val"><span id="wmStartWeightVal">78.0</span> kg</span>
+                            <span class="wm-pencil-icon">✏️</span>
+                        </div>
+                        <div class="wm-weight-traj-arrow">»</div>
+                        <div class="wm-weight-traj-item" onclick="promptEditTargetWeight()">
+                            <span class="wm-weight-traj-label">เป้าหมาย</span>
+                            <span class="wm-weight-traj-val"><span id="wmTargetWeightVal">70.0</span> kg</span>
+                            <span class="wm-pencil-icon">✏️</span>
+                        </div>
+                    </div>
                 </div>
-                <button class="btn" style="margin-top:10px" onclick="addCheck()">บันทึกข้อมูลย้อนหลัง</button>
-            </details>
-            <div class="card" id="v3StatsInBodyCard" style="margin-top:12px;"></div>
-            <div class="card">
-                <h3>น้ำหนัก</h3>
-                <div id="chart" style="margin-top:10px"></div>
-            </div>
-            <div class="card">
-                <h3>แนวโน้มอาการปวดหลัง</h3>
-                <div id="painChart" style="margin-top:10px"></div>
-            </div>
-            <div class="card">
-                <h3>แคลอรี่ต่อวัน</h3>
-                <div id="calChart" style="margin-top:10px"></div>
-            </div>
-            <div class="g2">
-                <div class="stat">
-                    <div class="v" id="stDone">0</div>
-                    <div class="l">เซสชันสำเร็จ</div>
+
+                <!-- Card 2: Educational Insight Card -->
+                <div class="wm-body-card wm-insight-card">
+                    <div class="wm-insight-content">
+                        <div class="wm-insight-title">ความจริงที่น่าตกใจเกี่ยวกับพฤติกรรมการชั่งน้ำหนักของคุณ</div>
+                        <button type="button" class="wm-insight-btn" onclick="openWeightInsightModal()">เรียนรู้เพิ่มเติม</button>
+                    </div>
+                    <div class="wm-insight-visual">
+                        <svg width="84" height="74" viewBox="0 0 100 85" fill="none">
+                            <rect x="10" y="25" width="80" height="55" rx="14" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="3"/>
+                            <rect x="25" y="32" width="50" height="18" rx="6" fill="#1e293b"/>
+                            <text x="50" y="45" fill="#34d399" font-size="11" font-weight="900" text-anchor="middle">78.0 kg</text>
+                            <ellipse cx="38" cy="62" rx="7" ry="12" fill="#f87171" opacity="0.85"/>
+                            <ellipse cx="62" cy="62" rx="7" ry="12" fill="#f87171" opacity="0.85"/>
+                        </svg>
+                    </div>
                 </div>
-                <div class="stat">
-                    <div class="v" id="stKcal">0</div>
-                    <div class="l">kcal รวม</div>
+
+                <!-- Card 3: Interactive Weight Trend Card -->
+                <div class="wm-body-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-size:17px; font-weight:800; color:var(--tx); display:flex; align-items:center; gap:6px;">
+                            น้ำหนัก <span style="font-size:14px; opacity:0.5;">›</span>
+                        </div>
+                        <button class="btn sm" onclick="openWeeklyReportModal()" style="font-size:11.5px; padding:4px 10px; background:linear-gradient(135deg, var(--acc) 0%, #d97706 100%); color:#fff; font-weight:700; border-radius:8px; cursor:pointer;">📊 AI สรุปสัปดาห์</button>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--dim); margin-top:6px; flex-wrap:wrap;">
+                        <span>เฉลี่ย: <b id="wmAvgWeightVal" style="color:var(--tx)">78.0 kg</b></span>
+                        <span style="opacity:0.3">•</span>
+                        <span>เป้าหมาย: <b id="wmChartTargetWeightVal" style="color:#10b981">70.0 kg</b></span>
+                    </div>
+
+                    <!-- Period Filter Tabs: สัปดาห์ | เดือน | ไตรมาส -->
+                    <div class="wm-period-filter-group">
+                        <button type="button" class="wm-period-btn active" id="btnFilterWeek" onclick="setWeightChartFilter('week')">สัปดาห์</button>
+                        <button type="button" class="wm-period-btn" id="btnFilterMonth" onclick="setWeightChartFilter('month')">เดือน</button>
+                        <button type="button" class="wm-period-btn" id="btnFilterQuarter" onclick="setWeightChartFilter('quarter')">ไตรมาส</button>
+                    </div>
+
+                    <!-- Chart Container (keeps id="chart" for backward-compatibility!) -->
+                    <div id="chart" style="margin-top:14px; min-height:160px;"></div>
+                </div>
+
+                <!-- Clinical InBody Radar Card -->
+                <div class="card" id="v3StatsInBodyCard" style="margin-top:12px;"></div>
+
+                <details class="card" style="margin-top:12px">
+                    <summary style="cursor:pointer; font-weight:700; font-size:13.5px; display:flex; justify-content:space-between; align-items:center; user-select:none;">
+                        <span style="display:flex; align-items:center; gap:6px;">✍️ บันทึกเช็กอินย้อนหลัง (ถ้ามี)</span>
+                        <span class="tag gr" style="font-size:11px; padding:2px 8px;">เปิด/ปิดฟอร์ม ▾</span>
+                    </summary>
+                    <div class="g2" style="margin-top:12px">
+                        <input id="inW" type="number" step="0.1" placeholder="น้ำหนัก (กก.)">
+                        <input id="inBF" type="number" step="0.1" placeholder="ไขมัน %">
+                        <input id="inMuscle" type="number" step="0.1" placeholder="กล้ามเนื้อ (กก.)">
+                        <input id="inSteps" type="number" step="100" placeholder="ก้าวเดิน (ก้าว)">
+                        <input id="inHRV" type="number" placeholder="HRV (ms)">
+                        <input id="inPain" type="number" min="0" max="10" placeholder="ปวดหลัง 0-10">
+                        <input id="inCal" type="number" placeholder="แคลอรี่ (kcal)">
+                        <input id="inProtein" type="number" placeholder="โปรตีน (กรัม)">
+                        <input id="inWater" type="number" step="50" min="0" max="10000" placeholder="น้ำ (มล. / ml)">
+                    </div>
+                    <button class="btn" style="margin-top:10px" onclick="addCheck()">บันทึกข้อมูลย้อนหลัง</button>
+                </details>
+
+                <div class="card" style="margin-top:12px;">
+                    <h3>แนวโน้มอาการปวดหลัง</h3>
+                    <div id="painChart" style="margin-top:10px"></div>
+                </div>
+                <div class="card">
+                    <h3>แคลอรี่ต่อวัน</h3>
+                    <div id="calChart" style="margin-top:10px"></div>
+                </div>
+                <div class="g2">
+                    <div class="stat">
+                        <div class="v" id="stDone">0</div>
+                        <div class="l">เซสชันสำเร็จ</div>
+                    </div>
+                    <div class="stat">
+                        <div class="v" id="stKcal">0</div>
+                        <div class="l">kcal รวม</div>
+                    </div>
+                </div>
+                <div class="g2" style="margin-top:10px">
+                    <div class="stat">
+                        <div class="v" id="stVol" style="color:var(--acc)">0</div>
+                        <div class="l">น้ำหนักยกสะสม (กก.)</div>
+                    </div>
+                    <div class="stat">
+                        <div class="v" id="stReps" style="color:#38bdf8">0</div>
+                        <div class="l">จำนวนครั้งที่ยก (Reps)</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="row" style="align-items:center;">
+                        <h3>ประวัติเช็คอินรายวัน</h3>
+                        <span class="sub" id="checkCount"></span>
+                    </div>
+                    <div id="checkHistory" style="margin-top:8px; max-height:260px; overflow-y:auto;"></div>
+                </div>
+                <div class="card">
+                    <h3>ประวัติการฝึก</h3>
+                    <div id="log" style="margin-top:8px"></div>
                 </div>
             </div>
-            <div class="g2" style="margin-top:10px">
-                <div class="stat">
-                    <div class="v" id="stVol" style="color:var(--acc)">0</div>
-                    <div class="l">น้ำหนักยกสะสม (กก.)</div>
+
+            <!-- ================= SUB-TAB 2: ร่างกาย (Weekly Body Circumference) ================= -->
+            <div id="bodyCircumferenceSection" style="display:none;">
+                <!-- Weekly Cadence Notice Banner -->
+                <div class="wm-body-cadence-banner">
+                    <div style="font-size:20px;">💡</div>
+                    <div style="flex:1;">
+                        <div style="font-weight:800; font-size:13.5px; color:var(--tx);">แนะนำวัดสัดส่วนสัปดาห์ละ 1 ครั้ง</div>
+                        <div style="font-size:12px; color:var(--dim); margin-top:2px;">
+                            วัดสัปดาห์ละครั้งในเช้าวันเดียวกัน หลังตื่นนอน เพื่อเห็นการเปลี่ยนแปลงของรูปร่างที่แท้จริง
+                        </div>
+                    </div>
+                    <div id="wmWeeklyMeasureBadge" class="wm-cadence-badge">รอวัดสัปดาห์นี้</div>
                 </div>
-                <div class="stat">
-                    <div class="v" id="stReps" style="color:#38bdf8">0</div>
-                    <div class="l">จำนวนครั้งที่ยก (Reps)</div>
+
+                <!-- Interactive Anatomical Body Model Silhouette Card -->
+                <div class="wm-body-card" style="padding:16px 12px; overflow:hidden;">
+                    <div class="wm-body-figure-wrap" id="wmBodyFigureContainer">
+                        <!-- Rendered dynamically by renderBodyFigureAndPins() -->
+                    </div>
                 </div>
-            </div>
-            <div class="card">
-                <div class="row" style="align-items:center;">
-                    <h3>ประวัติเช็คอินรายวัน</h3>
-                    <span class="sub" id="checkCount"></span>
+
+                <!-- Measurements Tab Bar & Trend Card -->
+                <div class="wm-body-card">
+                    <!-- Horizontal Tabs for measurements -->
+                    <div class="wm-measure-tabs-bar" id="wmMeasureTabsBar">
+                        <button type="button" class="wm-measure-tab-item active" id="tabPart_waist" onclick="selectMeasurePart('waist')">รอบเอว</button>
+                        <button type="button" class="wm-measure-tab-item" id="tabPart_chest" onclick="selectMeasurePart('chest')">รอบอก</button>
+                        <button type="button" class="wm-measure-tab-item" id="tabPart_thigh" onclick="selectMeasurePart('thigh')">รอบขา</button>
+                        <button type="button" class="wm-measure-tab-item" id="tabPart_hips" onclick="selectMeasurePart('hips')">รอบสะโพก</button>
+                        <button type="button" class="wm-measure-tab-item" id="tabPart_arm" onclick="selectMeasurePart('arm')">รอบแขน</button>
+                        <button type="button" class="wm-measure-tab-edit" onclick="openMeasureHistoryModal()" title="แก้ไขประวัติ">✏️</button>
+                    </div>
+
+                    <!-- Current Part Status & Weekly Chart -->
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:14px; margin-bottom:8px;">
+                        <div>
+                            <span id="wmPartTitle" style="font-size:15px; font-weight:800; color:var(--tx);">รอบเอว</span>
+                            <span style="font-size:12px; color:var(--dim); margin-left:6px;">(ล่าสุด: <b id="wmPartCurrentVal" style="color:#10b981;">82.0 ซม.</b>)</span>
+                        </div>
+                        <span id="wmPartChangeBadge" style="font-size:11.5px; font-weight:700; color:#10b981; background:rgba(16,185,129,0.1); padding:2px 8px; border-radius:6px;">-2.0 ซม.</span>
+                    </div>
+
+                    <!-- Circumference Trend Chart -->
+                    <div id="circumferenceTrendChart" style="min-height:140px; margin-top:10px;"></div>
+
+                    <!-- Primary Green Action Button -->
+                    <button type="button" class="wm-primary-green-btn" id="wmLogMeasureBtn" onclick="openMeasureTapeModal()" style="margin-top:16px;">
+                        บันทึกขนาดเอว
+                    </button>
                 </div>
-                <div id="checkHistory" style="margin-top:8px; max-height:260px; overflow-y:auto;"></div>
-            </div>
-            <div class="card">
-                <h3>ประวัติการฝึก</h3>
-                <div id="log" style="margin-top:8px"></div>
             </div>
         </div>
     </div>
@@ -323,6 +459,11 @@
             <!-- Google Account Card -->
             <div class="card" id="authCard">
                 <!-- Dynamically rendered by renderAuthUI() -->
+            </div>
+
+            <!-- ================= WEARABLES & SMART SCALE (Garmin & Zepp Life via Google Fit) ================= -->
+            <div class="card" id="wearablesSyncCard" style="border:1.5px solid #a7f3d0; background:linear-gradient(135deg, rgba(16,185,129,0.06) 0%, rgba(5,150,105,0.02) 100%); border-radius:16px;">
+                <!-- Dynamically rendered by renderWearablesSyncUI() -->
             </div>
 
             <!-- AI Settings -->
@@ -440,69 +581,195 @@
         </div>
     </div>
 
-    <!-- ================= IF ================= -->
+    <!-- ================= IF (WiseMeal Fasting Model) ================= -->
     <div class="page" id="p-if">
         <div class="wrap">
-            <h1>ระบบ IF</h1>
-            <div class="sub" style="margin-bottom:16px">จับเวลาช่วงอดอาหารและเวลากิน (Intermittent Fasting)</div>
+            <div class="wm-if-topbar">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <h1 style="margin:0; font-size:22px; font-weight:900; color:#0f172a; letter-spacing:-0.5px;">การอดอาหาร</h1>
+                    <span class="v3-pro-pill">👑 PRO</span>
+                </div>
+                <button type="button" class="wm-if-history-btn" onclick="openIfHistoryModal()" title="ประวัติการอดอาหาร">📋</button>
+            </div>
             
-            <div class="card" style="text-align:center; padding: 26px 18px; background:linear-gradient(180deg,#ffffff 0%,#f0fdf4 100%) !important;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="background:rgba(16,185,129,0.14); color:#059669; font-weight:800; font-size:12px; padding:4px 12px; border-radius:99px;">IF 16:8 • เซฟตับ & ลดไตรกลีเซอไรด์</span>
-                    <span id="ifStatusText" style="font-size:13px; color:#059669; font-weight:800;">กำลังอดอาหาร</span>
-                </div>
-
-                <!-- GoFasting Horseshoe Gauge Arc -->
-                <div style="position:relative; width:230px; height:195px; margin:6px auto 4px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                    <svg viewBox="0 0 220 190" width="230" height="195" style="position:absolute; inset:0;">
-                        <path d="M 30 165 A 85 85 0 1 1 190 165" fill="none" stroke="#d1fae5" stroke-width="16" stroke-linecap="round"/>
-                        <path id="v3IfArcPath" d="M 30 165 A 85 85 0 1 1 190 165" fill="none" stroke="#10b981" stroke-width="16" stroke-linecap="round" stroke-dasharray="395" stroke-dashoffset="120"/>
-                    </svg>
-                    <div style="position:relative; z-index:2; margin-top:16px;">
-                        <div style="width:42px; height:42px; border-radius:50%; background:#fef3c7; display:flex; align-items:center; justify-content:center; margin:0 auto 6px; font-size:20px;">🍽️</div>
-                        <div class="sub" style="font-size:11.5px; color:#64748b; font-weight:700;" id="ifTimerSub">ระยะเวลาที่อดอาหารไปแล้ว</div>
-                        <div id="ifTimerDisplay" class="tim" style="color:#0f172a; font-size:38px; font-weight:900; letter-spacing:-1px; margin:2px 0;">00:00:00</div>
-                    </div>
-                </div>
-
-                <div class="bar" style="margin:6px 0 12px; background:#d1fae5; height:8px; border-radius:99px; overflow:hidden;">
-                    <i id="ifProgressBar" style="width:0%; background:linear-gradient(90deg, #10b981, #059669); height:100%; display:block; transition:width .3s ease;"></i>
-                </div>
+            <!-- WiseMeal Main Fasting Hero Card -->
+            <div class="wm-if-hero-card">
+                <h2 id="ifCardTitle" style="font-size:18px; font-weight:800; color:#0f172a; margin:0 0 12px; letter-spacing:-0.3px;">พร้อมเริ่มอดอาหารหรือยัง?</h2>
                 
-                <!-- IF Time Details Card -->
-                <div style="background:var(--card2); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin:16px 0; text-align:left;">
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:10px;">
-                        <div>
-                            <div style="font-size:11.5px; color:var(--dim);">🕒 เริ่มอดอาหาร</div>
-                            <div style="font-size:15px; font-weight:800; color:var(--tx); margin-top:2px;">
-                                <span id="ifStartTime" onclick="editIFStart()" style="cursor:pointer; text-decoration:underline; color:var(--acc);" title="คลิกเพื่อแก้ไขเวลา">--:--</span>
-                            </div>
-                        </div>
-                        <div>
-                            <div style="font-size:11.5px; color:var(--dim);">🍽️ สิ้นสุด / เริ่มกินได้ตอน</div>
-                            <div style="font-size:15px; font-weight:800; color:#22c55e; margin-top:2px;" id="ifEndTime">--:--</div>
-                        </div>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; flex-wrap:wrap; gap:6px;">
-                        <div>เป้าหมาย: <strong id="ifGoalText" style="color:var(--tx);">16</strong> ชม. (<span id="ifEatWindowText" style="color:var(--dim);">กินได้ 8 ชม.</span>)</div>
-                        <div id="ifCountdownText" style="font-weight:700; color:var(--warn);">เหลืออีก --:--</div>
+                <!-- Circular Dial with 5 Milestone Beads -->
+                <div class="wm-if-dial-container">
+                    <svg viewBox="0 0 240 240" width="240" height="240" class="wm-if-dial-svg">
+                        <!-- Background Horseshoe Track -->
+                        <path d="M 45 195 A 95 95 0 1 1 195 195" fill="none" stroke="#e2e8f0" stroke-width="16" stroke-linecap="round"/>
+                        <!-- Active Progress Arc -->
+                        <path id="v3IfArcPath" d="M 45 195 A 95 95 0 1 1 195 195" fill="none" stroke="#0284c7" stroke-width="16" stroke-linecap="round" stroke-dasharray="450" stroke-dashoffset="440" style="transition:stroke-dashoffset 0.5s ease;"/>
+                    </svg>
+
+                    <!-- 5 Milestone Beads on the Track -->
+                    <!-- Bead 1: Drop Down (น้ำตาลลดลง) - 210 deg -->
+                    <div id="ifBead1" class="wm-if-bead" style="left:26px; top:170px;" title="ระยะที่ 1: น้ำตาลและอินซูลินเริ่มลด">💧↓</div>
+                    <!-- Bead 2: Drop Up (อินซูลินต่ำ) - 150 deg -->
+                    <div id="ifBead2" class="wm-if-bead" style="left:14px; top:90px;" title="ระยะที่ 2: ตับหยุดเก็บไขมันใหม่">💧↑</div>
+                    <!-- Bead 3: Flame (Ketosis สลายไขมัน) - 90 deg (Top) -->
+                    <div id="ifBead3" class="wm-if-bead" style="left:105px; top:10px;" title="ระยะที่ 3: สลายไขมันพอกตับ & ไขมันช่องท้อง">🔥</div>
+                    <!-- Bead 4: Rocket (Autophagy กลืนกินเซลล์เก่า) - 30 deg -->
+                    <div id="ifBead4" class="wm-if-bead" style="right:14px; top:90px;" title="ระยะที่ 4: Autophagy ฟื้นฟูเซลล์">🚀</div>
+                    <!-- Bead 5: DNA / Cell Renewal - 330 deg -->
+                    <div id="ifBead5" class="wm-if-bead" style="right:26px; top:170px;" title="ระยะที่ 5: ฟื้นฟูระดับเซลล์สมบูรณ์">🧬</div>
+
+                    <!-- Dial Center Info -->
+                    <div class="wm-if-dial-center">
+                        <div id="ifTimerSub" style="font-size:12px; font-weight:700; color:#64748b; margin-bottom:2px;">เริ่มอดอาหาร</div>
+                        <div id="ifDayLabel" style="font-size:20px; font-weight:800; color:#0f172a; line-height:1.2;">วันนี้</div>
+                        <div id="ifTimerDisplay" class="tim" style="font-size:38px; font-weight:900; color:#0f172a; letter-spacing:-1.5px; line-height:1.1; margin:2px 0 6px;">18:00</div>
+                        <button type="button" class="wm-if-plan-pill" onclick="openIfPlanModal()" title="แตะเพื่อเปลี่ยนแผนการอดอาหาร">
+                            <span id="ifGoalPillText">16:8</span> ⇄
+                        </button>
                     </div>
                 </div>
 
-                <button class="btn" id="ifToggleBtn" onclick="toggleIF()" style="width:100%;">เริ่มอดอาหาร (Start Fasting)</button>
-            </div>
-            
-            <div class="card" id="v3FastingStagesCard" style="margin-bottom:12px;"></div>
-            <div class="card">
-                <h3>ตั้งค่าเป้าหมาย IF</h3>
-                <div class="sec">รูปแบบที่นิยม</div>
-                <div class="g2">
-                    <button class="btn g sm" onclick="setIFGoal(16)">16/8 (ยอดฮิต)</button>
-                    <button class="btn g sm" onclick="setIFGoal(18)">18/6</button>
-                    <button class="btn g sm" onclick="setIFGoal(20)">20/4 (โหดหน่อย)</button>
-                    <button class="btn g sm" onclick="setIFGoal(23)">OMAD (มื้อเดียว)</button>
+                <!-- Primary Action Button -->
+                <button class="wm-if-main-btn" id="ifToggleBtn" onclick="toggleIF()">
+                    <span id="ifToggleBtnIcon" style="font-size:16px;">▶</span>
+                    <span id="ifToggleBtnText">เริ่มอดอาหาร</span>
+                </button>
+
+                <!-- 2-Column Info Grid: เริ่มอดอาหาร & สิ้นสุดการอดอาหาร -->
+                <div class="wm-if-info-grid">
+                    <div class="wm-if-info-box">
+                        <div style="font-size:11px; font-weight:700; color:#64748b;">เริ่มอดอาหาร</div>
+                        <div id="ifStartDayText" style="font-size:12.5px; font-weight:800; color:#0f172a; margin-top:2px;">วันนี้</div>
+                        <div style="display:flex; align-items:center; gap:6px; margin-top:2px;">
+                            <span id="ifStartTime" style="font-size:16px; font-weight:900; color:#0f172a;">18:00</span>
+                            <button type="button" onclick="openIfTimeModal()" style="background:none; border:none; cursor:pointer; font-size:14px; padding:2px;" title="แตะเพื่อแก้ไขเวลา">✏️</button>
+                        </div>
+                    </div>
+                    <div class="wm-if-info-box">
+                        <div style="font-size:11px; font-weight:700; color:#64748b;">สิ้นสุดการอดอาหาร</div>
+                        <div id="ifEndDayText" style="font-size:12.5px; font-weight:800; color:#0f172a; margin-top:2px;">พรุ่งนี้</div>
+                        <div id="ifEndTime" style="font-size:16px; font-weight:900; color:#0f172a; margin-top:2px;">10:00</div>
+                    </div>
+                </div>
+
+                <!-- Announcement Pill -->
+                <div class="wm-if-notice-pill" onclick="openIfNoticeModal()" title="ดูข้อควรระวังและประกาศสำคัญ">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:18px;">💡</span>
+                        <span style="font-size:13.5px; font-weight:800; color:#0f172a;">ประกาศสำคัญ</span>
+                    </div>
+                    <span style="font-size:18px; font-weight:700; color:#94a3b8;">›</span>
+                </div>
+
+                <!-- Hidden Compatibility Elements for Test Suite & Internal Trackers -->
+                <div style="display:none;">
+                    <span id="ifStatusText">พร้อมเริ่มอดอาหาร</span>
+                    <span id="ifGoalText">16</span>
+                    <span id="ifEatWindowText">8 ชม.</span>
+                    <span id="ifCountdownText">--:--</span>
+                    <div class="bar"><i id="ifProgressBar" style="width:0%;"></i></div>
                 </div>
             </div>
+            
+            <!-- 5 Metabolic Stages Breakdown Card (Integrated with Supplements & Liver Protection) -->
+            <div class="card" id="v3FastingStagesCard" style="margin-bottom:16px;"></div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: เลือกแผน (Plan Selector Bottom Sheet) ================= -->
+    <div id="ifPlanModalSheet" class="wm-if-sheet-backdrop" onclick="if(event.target===this) closeIfModal('ifPlanModalSheet')">
+        <div class="wm-if-sheet">
+            <div class="wm-if-sheet-header">
+                <button type="button" onclick="closeIfModal('ifPlanModalSheet')" style="background:none; border:none; font-size:20px; font-weight:700; cursor:pointer; color:#0f172a;">‹</button>
+                <div style="font-size:17px; font-weight:900; color:#0f172a;">เลือกแผน</div>
+                <div style="width:24px;"></div>
+            </div>
+            <div style="font-size:12px; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:12px; letter-spacing:0.3px;">แผนการอดอาหาร</div>
+            
+            <div id="ifPlanCardsContainer"></div>
+
+            <div style="margin-top:16px;">
+                <button type="button" class="wm-ob-continue-btn" onclick="confirmIfPlanSelection()">เลือกแผน</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: คุณเริ่มอดอาหารเมื่อไหร่? (Time Picker Bottom Sheet) ================= -->
+    <div id="ifTimeModalSheet" class="wm-if-sheet-backdrop" onclick="if(event.target===this) closeIfModal('ifTimeModalSheet')">
+        <div class="wm-if-sheet">
+            <div class="wm-if-sheet-header">
+                <div style="font-size:17px; font-weight:900; color:#0f172a;">คุณเริ่มอดอาหารเมื่อไหร่?</div>
+                <button type="button" onclick="closeIfModal('ifTimeModalSheet')" style="width:28px; height:28px; border-radius:50%; background:#f1f5f9; border:none; font-size:14px; font-weight:700; cursor:pointer; color:#64748b;">✕</button>
+            </div>
+
+            <!-- 3-Column Roller Picker (Day, Hour, Minute) -->
+            <div style="background:#f8fafd; border:1px solid #e2e8f0; border-radius:20px; padding:16px 12px; margin:16px 0; position:relative; overflow:hidden;">
+                <div style="position:absolute; left:10px; right:10px; top:50%; transform:translateY(-50%); height:46px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; pointer-events:none;"></div>
+                <div style="display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:6px; position:relative; z-index:2; text-align:center;">
+                    <!-- Col 1: วัน -->
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <span style="font-size:12px; color:#cbd5e1; cursor:pointer;" onclick="setIfTimeDay('yesterday')">เมื่อวานนี้</span>
+                        <span id="ifRollerDayText" style="font-size:16px; font-weight:900; color:#0f172a;">วันนี้</span>
+                        <span style="font-size:12px; color:#cbd5e1; cursor:pointer;" onclick="setIfTimeDay('tomorrow')">พรุ่งนี้</span>
+                    </div>
+                    <!-- Col 2: ชั่วโมง -->
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <span style="font-size:13px; color:#cbd5e1; cursor:pointer;" onclick="adjustIfTimeHour(-1)">17</span>
+                        <span id="ifRollerHourText" style="font-size:22px; font-weight:900; color:#0f172a;">18</span>
+                        <span style="font-size:13px; color:#cbd5e1; cursor:pointer;" onclick="adjustIfTimeHour(1)">19</span>
+                    </div>
+                    <!-- Col 3: นาที -->
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <span style="font-size:13px; color:#cbd5e1; cursor:pointer;" onclick="adjustIfTimeMinute(-5)">55</span>
+                        <span id="ifRollerMinText" style="font-size:22px; font-weight:900; color:#0f172a;">00</span>
+                        <span style="font-size:13px; color:#cbd5e1; cursor:pointer;" onclick="adjustIfTimeMinute(5)">05</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:center; gap:8px; margin-bottom:18px;">
+                <button type="button" class="ob-step-pill" onclick="adjustIfTimeHour(-1)">−1 ชม.</button>
+                <button type="button" class="ob-step-pill" onclick="adjustIfTimeMinute(-10)">−10 นาที</button>
+                <button type="button" class="ob-step-pill" onclick="adjustIfTimeMinute(10)">+10 นาที</button>
+                <button type="button" class="ob-step-pill" onclick="adjustIfTimeHour(1)">+1 ชม.</button>
+            </div>
+
+            <button type="button" class="wm-ob-continue-btn" onclick="saveIfRollerTime()">บันทึก</button>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: ประกาศสำคัญ (Safety Advisory Bottom Sheet) ================= -->
+    <div id="ifNoticeModalSheet" class="wm-if-sheet-backdrop" onclick="if(event.target===this) closeIfModal('ifNoticeModalSheet')">
+        <div class="wm-if-sheet">
+            <div class="wm-if-sheet-header">
+                <div style="font-size:17px; font-weight:900; color:#0f172a;">ประกาศสำคัญ</div>
+                <button type="button" onclick="closeIfModal('ifNoticeModalSheet')" style="width:28px; height:28px; border-radius:50%; background:#f1f5f9; border:none; font-size:14px; font-weight:700; cursor:pointer; color:#64748b;">✕</button>
+            </div>
+
+            <div style="text-align:center; padding:10px 0 16px;">
+                <!-- 3D Clock & Fork Illustration -->
+                <div style="width:72px; height:72px; border-radius:50%; background:#eff6ff; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:36px; box-shadow:0 6px 16px rgba(2,132,199,0.15);">
+                    ⏰🍽️
+                </div>
+                <h3 style="margin:0 0 14px; font-size:18px; font-weight:900; color:#0f172a;">การอดอาหารไม่เหมาะกับทุกคน</h3>
+
+                <!-- Cream Advisory Box with 7 Contraindications -->
+                <div style="background:#fffbeb; border:1px solid #fef08a; border-radius:18px; padding:16px 18px; text-align:left; font-size:13px; line-height:1.6; color:#78350f;">
+                    <div style="font-weight:900; font-size:14px; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                        <span>💡</span> หลีกเลี่ยงหากคุณ:
+                    </div>
+                    <ul style="margin:0; padding-left:18px; display:flex; flex-direction:column; gap:4px;">
+                        <li>กำลังตั้งครรภ์หรือให้นมบุตร</li>
+                        <li>มีหรือเคยมีภาวะผิดปกติในการกิน</li>
+                        <li>มีเบาหวานหรือกังวลเรื่องน้ำตาลในเลือด</li>
+                        <li>ใช้ยาที่ต้องรับประทานพร้อมอาหาร</li>
+                        <li>มีโรคประจำตัวและยังไม่ได้ปรึกษาผู้เชี่ยวชาญ</li>
+                        <li>มี BMI ต่ำกว่า 18.5</li>
+                        <li>อายุต่ำกว่า 18 ปี</li>
+                    </ul>
+                </div>
+            </div>
+
+            <button type="button" class="wm-ob-continue-btn" onclick="closeIfModal('ifNoticeModalSheet')">รับทราบ / เข้าใจแล้ว</button>
         </div>
     </div>
 
@@ -640,8 +907,285 @@
         <div class="onboard-wrap" id="obWizardBody"></div>
     </div>
 
+    
+    <!-- ================= MODAL: POST-WORKOUT CELEBRATION, SUMMARY & SHARE CARD (v3.5.0) ================= -->
+    <div id="fcWorkoutSummaryModal" class="fc-summary-modal-backdrop" style="display:none;" onclick="if(event.target===this)closeWorkoutSummaryModal()">
+        <div class="fc-summary-sheet">
+            <div class="fc-summary-sheet-bar"></div>
+            
+            <!-- Celebration Header -->
+            <div class="fc-summary-celebrate-header">
+                <div class="fc-summary-badge">🏆 WORKOUT COMPLETED!</div>
+                <h2 class="fc-summary-title" id="wsWorkoutTitle">Workout A — อก & หน้าแขน</h2>
+                <div class="fc-summary-sub" id="wsDateSub">วันเสาร์ที่ 14 พ.ย. • สำเร็จครบทุกเซ็ต</div>
+            </div>
+
+            <!-- Bento Grid Stats -->
+            <div class="fc-summary-bento">
+                <div class="fc-summary-bento-card">
+                    <div class="fc-summary-bento-label">⏱️ ระยะเวลาฝึก</div>
+                    <div><span class="fc-summary-bento-val" id="wsDurVal">48</span><span class="fc-summary-bento-unit">นาที</span></div>
+                </div>
+                <div class="fc-summary-bento-card">
+                    <div class="fc-summary-bento-label">🔥 เผาผลาญ</div>
+                    <div><span class="fc-summary-bento-val" id="wsKcalVal" style="color:#f59e0b;">385</span><span class="fc-summary-bento-unit">kcal</span></div>
+                </div>
+                <div class="fc-summary-bento-card">
+                    <div class="fc-summary-bento-label">🏋️ น้ำหนักสะสม (Volume)</div>
+                    <div><span class="fc-summary-bento-val" id="wsVolVal" style="color:#38bdf8;">4,820</span><span class="fc-summary-bento-unit">กก.</span></div>
+                </div>
+                <div class="fc-summary-bento-card">
+                    <div class="fc-summary-bento-label">🎯 เซ็ตที่ผ่าน</div>
+                    <div><span class="fc-summary-bento-val" id="wsSetsVal" style="color:#10b981;">16 / 16</span><span class="fc-summary-bento-unit">เซ็ต</span></div>
+                </div>
+            </div>
+
+            <!-- Muscle Heatmap Visual -->
+            <div class="fc-summary-heat-card">
+                <div class="fc-summary-heat-title">
+                    <span>🧬 แผนผังกล้ามเนื้อที่ถูกกระตุ้น (Muscle Activation)</span>
+                    <span style="font-size:11px; color:#34d399; font-weight:700;">GymWork Heatmap</span>
+                </div>
+                <div style="display:flex; justify-content:center; align-items:center; gap:16px;">
+                    <div id="wsFrontHeatmap" style="width:110px; height:165px;"></div>
+                    <div id="wsBackHeatmap" style="width:110px; height:165px;"></div>
+                </div>
+                <div class="fc-summary-pills-wrap" id="wsMuscleTags"></div>
+            </div>
+
+            <!-- 1-Tap Quick RPE & Back Pain Check -->
+            <div class="fc-summary-rpe-card">
+                <div style="font-size:13px; font-weight:800; color:#f1f5f9; margin-bottom:8px;">
+                    💪 ความเหนื่อยล้าหลังฝึก (RPE Rating)
+                </div>
+                <div class="fc-rpe-btn-group" id="wsRpeBtnGroup">
+                    <button type="button" class="fc-rpe-btn" onclick="setSummaryRpe(5)">5 สบาย</button>
+                    <button type="button" class="fc-rpe-btn" onclick="setSummaryRpe(6)">6 เบา</button>
+                    <button type="button" class="fc-rpe-btn active" onclick="setSummaryRpe(7)">7 ปานกลาง</button>
+                    <button type="button" class="fc-rpe-btn" onclick="setSummaryRpe(8)">8 หนัก</button>
+                    <button type="button" class="fc-rpe-btn" onclick="setSummaryRpe(9)">9 หนักมาก</button>
+                    <button type="button" class="fc-rpe-btn" onclick="setSummaryRpe(10)">10 หมดแรง</button>
+                </div>
+
+                <div style="font-size:13px; font-weight:800; color:#f1f5f9; margin-top:14px; margin-bottom:8px;">
+                    🛡️ อาการปวดหลัง (McGill Shield Check)
+                </div>
+                <div class="fc-rpe-btn-group" id="wsPainBtnGroup">
+                    <button type="button" class="fc-rpe-btn active" onclick="setSummaryPain(0)">0 ไม่ปวด</button>
+                    <button type="button" class="fc-rpe-btn" onclick="setSummaryPain(1)">1-2 เล็กน้อย</button>
+                    <button type="button" class="fc-rpe-btn" onclick="setSummaryPain(3)">3-4 ตึง</button>
+                    <button type="button" class="fc-rpe-btn" onclick="setSummaryPain(5)">5+ ปวดมาก</button>
+                </div>
+            </div>
+
+            <!-- Personalized AI Recovery Tip -->
+            <div class="fc-summary-recovery-tip">
+                <div style="font-size:12.5px; font-weight:800; color:#60a5fa; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                    <span>🤖 คำแนะนำฟื้นฟูร่างกายเฉพาะคุณ (AI Recovery Tip)</span>
+                </div>
+                <div id="wsRecoveryTipText" style="font-size:12px; color:#e2e8f0; line-height:1.5;">
+                    🥩 ดื่มเวย์โปรตีน 35-40g ภายใน 60-90 นาที และดื่มน้ำเพิ่มอีก 500ml เพื่อชดเชยเหงื่อที่เสียไป
+                </div>
+            </div>
+
+            <!-- Share Card Canvas Generator -->
+            <div class="fc-share-canvas-container">
+                <div style="font-size:13.5px; font-weight:800; color:#ffffff; margin-bottom:6px;">📸 การ์ดสรุปผลสไตล์นักกีฬา</div>
+                <div style="font-size:12px; color:#94a3b8; margin-bottom:10px;">สร้างรูปภาพบันทึกลงอัลบั้มหรือแชร์ตรงลง IG Story / LINE</div>
+                
+                <div class="fc-share-ratio-toggle">
+                    <button type="button" class="fc-share-ratio-btn active" id="btnShareRatioStory" onclick="setShareCardRatio('story')">9:16 Story</button>
+                    <button type="button" class="fc-share-ratio-btn" id="btnShareRatioSquare" onclick="setShareCardRatio('square')">1:1 Square</button>
+                </div>
+
+                <div style="margin:8px auto; max-width:280px; overflow:hidden;">
+                    <canvas id="fcShareCanvas" width="540" height="960" style="width:100%; border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,0.6); display:block; margin:0 auto;"></canvas>
+                </div>
+
+                <div style="display:flex; gap:8px; margin-top:14px;">
+                    <button type="button" class="btn" onclick="downloadShareCardPng()" style="flex:1; background:#1e293b; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:99px; font-weight:800; font-size:13px; padding:10px;">
+                        💾 บันทึกรูปภาพ (PNG)
+                    </button>
+                    <button type="button" class="btn" onclick="shareCardViaWebShare()" style="flex:1; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#fff; border:none; border-radius:99px; font-weight:800; font-size:13px; padding:10px;">
+                        🚀 แชร์ลงโซเชียล
+                    </button>
+                </div>
+            </div>
+
+            <button type="button" class="wm-primary-green-btn" onclick="closeWorkoutSummaryModal()" style="margin-top:8px;">
+                ✓ เสร็จสิ้นและกลับหน้าหลัก
+            </button>
+        </div>
+    </div>
+
     <!-- App Auto-Update Toast -->
     <div id="appUpdateToast" class="update-toast"></div>
+
+    
+    <!-- ================= BOTTOM SHEET 1: TAPE MEASURE RULER MODAL (v3.5) ================= -->
+    <div id="wmMeasureTapeSheet" class="wm-if-sheet-backdrop" style="display:none;" onclick="if(event.target===this)closeMeasureTapeModal()">
+        <div class="wm-if-sheet" style="max-height:85vh; overflow-y:auto;">
+            <div class="wm-if-sheet-bar"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <h3 style="margin:0; font-size:18px; font-weight:800; color:var(--tx);">ข้อมูลร่างกาย</h3>
+                <button type="button" class="wm-if-sheet-close" onclick="closeMeasureTapeModal()" title="ปิด">✕</button>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <span id="tapeMetricTitle" style="font-size:16px; font-weight:800; color:var(--tx);">รอบอก</span>
+                <div class="wm-unit-toggle" style="display:flex; background:var(--card2); border-radius:999px; padding:2px;">
+                    <button type="button" id="tapeUnitCm" class="btn sm" onclick="switchTapeUnit('cm')" style="border-radius:999px; font-size:11.5px; padding:3px 10px; background:#10b981; color:#fff; font-weight:700; border:none;">cm</button>
+                    <button type="button" id="tapeUnitIn" class="btn sm" onclick="switchTapeUnit('in')" style="border-radius:999px; font-size:11.5px; padding:3px 10px; background:transparent; color:var(--dim); font-weight:700; border:none;">ft / in</button>
+                </div>
+            </div>
+
+            <!-- Big Green Numeric Display -->
+            <div style="text-align:center; margin:16px 0 8px;">
+                <div style="display:inline-flex; align-items:baseline; gap:6px;">
+                    <span id="tapeValueDisplay" style="font-size:52px; font-weight:900; color:#00c070; line-height:1; letter-spacing:-1px;">100</span>
+                    <span id="tapeUnitDisplay" style="font-size:20px; font-weight:800; color:#00c070;">cm</span>
+                </div>
+                <div class="wm-tape-pointer">▼</div>
+            </div>
+
+            <!-- Interactive Horizontal Ruler Tape Measure -->
+            <div class="wm-ruler-track" id="wmRulerTrack">
+                <div class="wm-ruler-center-marker"></div>
+                <div id="wmRulerTicks" style="display:flex; align-items:flex-end; height:100%; transition:transform 0.1s ease;"></div>
+            </div>
+
+            <!-- Stepper Adjustment Buttons -->
+            <div style="display:flex; justify-content:center; gap:8px; margin-bottom:18px;">
+                <button type="button" class="btn sm g" onclick="adjustTapeValue(-5)" style="font-size:12px; font-weight:700; border-radius:8px;">-5</button>
+                <button type="button" class="btn sm g" onclick="adjustTapeValue(-1)" style="font-size:12px; font-weight:700; border-radius:8px;">-1</button>
+                <button type="button" class="btn sm g" onclick="adjustTapeValue(-0.5)" style="font-size:12px; font-weight:700; border-radius:8px;">-0.5</button>
+                <button type="button" class="btn sm g" onclick="adjustTapeValue(0.5)" style="font-size:12px; font-weight:700; border-radius:8px;">+0.5</button>
+                <button type="button" class="btn sm g" onclick="adjustTapeValue(1)" style="font-size:12px; font-weight:700; border-radius:8px;">+1</button>
+                <button type="button" class="btn sm g" onclick="adjustTapeValue(5)" style="font-size:12px; font-weight:700; border-radius:8px;">+5</button>
+            </div>
+
+            <button type="button" class="wm-primary-green-btn" onclick="saveBodyCircumference()">
+                บันทึก
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= BOTTOM SHEET 2: BODY SETTINGS MODAL (v3.5) ================= -->
+    <div id="wmBodySettingsSheet" class="wm-if-sheet-backdrop" style="display:none;" onclick="if(event.target===this)closeBodySettingsModal()">
+        <div class="wm-if-sheet" style="max-height:85vh; overflow-y:auto;">
+            <div class="wm-if-sheet-bar"></div>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:18px;">
+                <button type="button" class="wm-if-sheet-close" onclick="closeBodySettingsModal()" style="font-size:16px;">←</button>
+                <h3 style="margin:0; font-size:18px; font-weight:800; color:var(--tx);">การตั้งค่าน้ำหนัก & สัดส่วน</h3>
+            </div>
+
+            <!-- Push Notification Soft-Prompt & Status Card -->
+            <div id="wmPushPermissionCard" style="background:linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(5,150,105,0.06) 100%); border:1.5px solid rgba(16,185,129,0.25); border-radius:14px; padding:12px 14px; margin-bottom:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <div style="font-size:13.5px; font-weight:800; color:var(--tx); display:flex; align-items:center; gap:6px;">
+                        <span>🔔 สถานะการแจ้งเตือนบนมือถือ</span>
+                    </div>
+                    <span id="pushStatusBadge" style="font-size:11px; font-weight:800; padding:2px 8px; border-radius:99px; background:#e2e8f0; color:#475569;">รอตรวจสอบ...</span>
+                </div>
+                <div style="font-size:12px; color:var(--dim); line-height:1.4; margin-bottom:10px;">
+                    เปิดรับการแจ้งเตือนเตือนชั่งน้ำหนักยามเช้า (07:00) และเตือนวัดสัดส่วน (วันอาทิตย์) ตรงสู่หน้าจอมือถือของคุณ
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button type="button" id="btnRequestPushPerm" class="btn sm" onclick="requestPushNotificationPermission()" style="flex:1; font-size:12px; font-weight:700; padding:8px 10px; border-radius:8px; background:#10b981; color:#fff; border:none; display:flex; align-items:center; justify-content:center; gap:4px;">
+                        <span>🔔 เปิดรับการแจ้งเตือน</span>
+                    </button>
+                    <button type="button" class="btn sm g" onclick="sendTestNotificationNow()" style="font-size:12px; font-weight:700; padding:8px 10px; border-radius:8px;" title="ทดสอบยิงแจ้งเตือนทันที">
+                        <span>⚡ ทดสอบส่งทันที</span>
+                    </button>
+                </div>
+            </div>
+
+            <div style="display:grid; gap:14px; margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:var(--card2); border-radius:12px; border:1px solid var(--line);">
+                    <div>
+                        <div style="font-size:14px; font-weight:700; color:var(--tx);">เตือนความจำการบันทึกน้ำหนัก</div>
+                        <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">เตือนทุกเช้า 07:00 หลังตื่นนอน</div>
+                    </div>
+                    <label class="switch" style="position:relative; display:inline-block; width:44px; height:24px;">
+                        <input type="checkbox" id="cfgWeightReminder" onchange="toggleBodySetting('weightReminder', this.checked)">
+                        <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#cbd5e1; transition:.3s; border-radius:24px;" id="sliderWeightReminder"></span>
+                    </label>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:var(--card2); border-radius:12px; border:1px solid var(--line);">
+                    <div>
+                        <div style="font-size:14px; font-weight:700; color:var(--tx);">เตือนความจำวัดสัดส่วน</div>
+                        <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">เตือนสัปดาห์ละ 1 ครั้ง ทุกเช้าวันอาทิตย์</div>
+                    </div>
+                    <label class="switch" style="position:relative; display:inline-block; width:44px; height:24px;">
+                        <input type="checkbox" id="cfgMeasureReminder" onchange="toggleBodySetting('measureReminder', this.checked)">
+                        <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#cbd5e1; transition:.3s; border-radius:24px;" id="sliderMeasureReminder"></span>
+                    </label>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:var(--card2); border-radius:12px; border:1px solid var(--line);">
+                    <div style="font-size:14px; font-weight:700; color:var(--tx);">หน่วยน้ำหนัก</div>
+                    <div style="display:flex; gap:4px; background:var(--card); padding:2px; border-radius:8px; border:1px solid var(--line);">
+                        <button type="button" id="cfgUnitKg" class="btn sm" onclick="setBodyUnit('weight', 'kg')" style="font-size:12px; padding:4px 10px; border-radius:6px; font-weight:700; background:#10b981; color:#fff; border:none;">kg</button>
+                        <button type="button" id="cfgUnitLbs" class="btn sm" onclick="setBodyUnit('weight', 'lbs')" style="font-size:12px; padding:4px 10px; border-radius:6px; font-weight:700; background:transparent; color:var(--dim); border:none;">lbs</button>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:var(--card2); border-radius:12px; border:1px solid var(--line);">
+                    <div style="font-size:14px; font-weight:700; color:var(--tx);">หน่วยวัด</div>
+                    <div style="display:flex; gap:4px; background:var(--card); padding:2px; border-radius:8px; border:1px solid var(--line);">
+                        <button type="button" id="cfgUnitCm" class="btn sm" onclick="setBodyUnit('length', 'cm')" style="font-size:12px; padding:4px 10px; border-radius:6px; font-weight:700; background:#10b981; color:#fff; border:none;">cm</button>
+                        <button type="button" id="cfgUnitFt" class="btn sm" onclick="setBodyUnit('length', 'ft')" style="font-size:12px; padding:4px 10px; border-radius:6px; font-weight:700; background:transparent; color:var(--dim); border:none;">ft</button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="wm-primary-green-btn" onclick="closeBodySettingsModal()">
+                ตกลง
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= BOTTOM SHEET 3: WEIGHT INSIGHT EDUCATION MODAL ================= -->
+    <div id="wmWeightInsightModal" class="wm-if-sheet-backdrop" style="display:none;" onclick="if(event.target===this)closeWeightInsightModal()">
+        <div class="wm-if-sheet" style="max-height:85vh; overflow-y:auto;">
+            <div class="wm-if-sheet-bar"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <h3 style="margin:0; font-size:18px; font-weight:800; color:var(--tx);">ความจริงเกี่ยวกับการชั่งน้ำหนัก</h3>
+                <button type="button" class="wm-if-sheet-close" onclick="closeWeightInsightModal()" title="ปิด">✕</button>
+            </div>
+
+            <div style="background:var(--card2); border-radius:14px; padding:16px; margin-bottom:16px; border:1px solid var(--line);">
+                <div style="display:grid; gap:12px;">
+                    <div style="display:flex; gap:10px; align-items:flex-start;">
+                        <span style="font-size:20px;">⏰</span>
+                        <div>
+                            <div style="font-weight:800; font-size:13.5px; color:var(--tx);">1. ชั่งเวลาเดิมทุกเช้า</div>
+                            <div style="font-size:12px; color:var(--dim); margin-top:2px;">ชั่งทันทีหลังตื่นนอนและปัสสาวะแล้ว ก่อนดื่มน้ำหรือทานอาหาร เพื่อตัดความผันผวนจากน้ำและอาหารตกค้าง</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:flex-start;">
+                        <span style="font-size:20px;">📉</span>
+                        <div>
+                            <div style="font-weight:800; font-size:13.5px; color:var(--tx);">2. ดูแนวโน้ม 7 วัน แทนการดูวันเดียว</div>
+                            <div style="font-size:12px; color:var(--dim); margin-top:2px;">น้ำหนักตัวขึ้นลงได้ 1-2 กก. ต่อวันจากโซเดียมและไกลโคเจน ให้ดูค่าเฉลี่ยรายสัปดาห์เพื่อประเมินผลจริง</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:flex-start;">
+                        <span style="font-size:20px;">📏</span>
+                        <div>
+                            <div style="font-weight:800; font-size:13.5px; color:var(--tx);">3. เสริมด้วยการวัดสัดส่วนสัปดาห์ละ 1 ครั้ง</div>
+                            <div style="font-size:12px; color:var(--dim); margin-top:2px;">แม้บางช่วงน้ำหนักไม่ลดเพราะกล้ามเนื้อเพิ่มขึ้น แต่รอบเอวและรอบสะโพกจะลดลงอย่างเห็นได้ชัด</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="wm-primary-green-btn" onclick="closeWeightInsightModal()">
+                เข้าใจแล้ว
+            </button>
+        </div>
+    </div>
 
     <!-- FitCoach v3.4 Modular JavaScript Architecture -->
     <script src="src/core/modals.js?v=3.4.0"></script>

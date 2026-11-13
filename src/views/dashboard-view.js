@@ -394,17 +394,28 @@ function render() {
     const extraStepCal = Math.round(extraSteps * (curWeight * 0.00055));
     const effectiveCalTarget = CAL_TARGET + extraStepCal;
 
+    // Calorie Status: Over or Remaining / Under
+    const calDiff = cal - effectiveCalTarget; // > 0: Over, < 0: Under/Remaining, === 0: Exact
+    const isCalOver = calDiff > 0;
+    const isCalExact = (calDiff === 0 && cal > 0);
+    const overCal = Math.max(0, calDiff);
+    const remCal = Math.max(0, -calDiff);
+
     const calPct = Math.min(100, Math.round(cal / effectiveCalTarget * 100));
     const proPct = Math.min(100, Math.round(pro / PROTEIN_TARGET * 100));
     const carbsPct = Math.min(100, Math.round(carbs / CARBS_TARGET * 100));
     const fatPct = Math.min(100, Math.round(fat / FAT_TARGET * 100));
     const watPct = Math.min(100, Math.round(wat / WATER_TARGET * 100));
-    const calColor = cal > effectiveCalTarget ? 'var(--red)' : cal > effectiveCalTarget * 0.9 ? 'var(--warn)' : 'var(--acc)';
+    const calColor = isCalOver ? 'var(--red)' : cal > effectiveCalTarget * 0.9 ? 'var(--warn)' : 'var(--acc)';
 
-    const remCal = Math.max(0, effectiveCalTarget - cal);
-    const remPro = Math.max(0, PROTEIN_TARGET - pro);
-    const remCarbs = Math.max(0, CARBS_TARGET - carbs);
-    const remFat = Math.max(0, FAT_TARGET - fat);
+    // Macro Differences: Over vs Remaining
+    const proDiff = pro - PROTEIN_TARGET;
+    const carbsDiff = carbs - CARBS_TARGET;
+    const fatDiff = fat - FAT_TARGET;
+
+    const remPro = Math.max(0, -proDiff);
+    const remCarbs = Math.max(0, -carbsDiff);
+    const remFat = Math.max(0, -fatDiff);
 
     const totalMacroKcal = (pro * 4) + (carbs * 4) + (fat * 9);
     const proRatio = totalMacroKcal > 0 ? Math.round((pro * 4) / totalMacroKcal * 100) : 0;
@@ -512,12 +523,73 @@ function render() {
 
     const nutritionEl = document.getElementById('dailyNutritionCard');
     if (nutritionEl) {
+        // Calorie Sphere Dynamic Theme & Labels
+        let sphereCardClass = 'wm-sphere-card';
+        let sphereInnerClass = 'wm-sphere-inner';
+        let sphereLabel = 'ที่เหลืออยู่';
+        let sphereLabelColor = '#1e3a8a';
+        let sphereNumColor = '#0f172a';
+        let sphereUnitColor = '#1e3a8a';
+        let sphereNumText = remCal.toLocaleString();
+        let sphereRingStroke = '#2563eb';
+        let sphereRingOffset = Math.max(0, 389.5 - (389.5 * calPct) / 100);
+        let sphereSubtitle = `เป้าหมาย ${effectiveCalTarget.toLocaleString()} kcal <span style="display:block; font-size:11px; color:#2563eb; font-weight:700; margin-top:2px;">(เหลืออีก ${remCal.toLocaleString()} kcal)</span>`;
+        let headerStatusHtml = cal > 0 ? `<span style="color:#2563eb; font-weight:700;">(ขาดอีก ${remCal.toLocaleString()} kcal)</span>` : '';
+
+        if (isCalOver) {
+            sphereCardClass = 'wm-sphere-card is-over';
+            sphereInnerClass = 'wm-sphere-inner is-over';
+            sphereLabel = '⚠️ ทานเกินเป้า';
+            sphereLabelColor = '#991b1b';
+            sphereNumColor = '#7f1d1d';
+            sphereUnitColor = '#991b1b';
+            sphereNumText = `+${overCal.toLocaleString()}`;
+            sphereRingStroke = '#ef4444';
+            sphereRingOffset = 0;
+            sphereSubtitle = `เป้าหมาย ${effectiveCalTarget.toLocaleString()} kcal <span style="display:block; font-size:11px; color:#ef4444; font-weight:800; margin-top:2px;">(เกิน +${overCal.toLocaleString()} kcal)</span>`;
+            headerStatusHtml = `<span style="color:#ef4444; font-weight:800;">(เกิน +${overCal.toLocaleString()} kcal)</span>`;
+        } else if (isCalExact) {
+            sphereCardClass = 'wm-sphere-card is-exact';
+            sphereInnerClass = 'wm-sphere-inner is-exact';
+            sphereLabel = '✓ พอดีเป้าหมาย';
+            sphereLabelColor = '#065f46';
+            sphereNumColor = '#064e3b';
+            sphereUnitColor = '#065f46';
+            sphereNumText = '0';
+            sphereRingStroke = '#10b981';
+            sphereRingOffset = 0;
+            sphereSubtitle = `เป้าหมาย ${effectiveCalTarget.toLocaleString()} kcal <span style="display:block; font-size:11px; color:#10b981; font-weight:800; margin-top:2px;">(ครบตามเป้า 100%)</span>`;
+            headerStatusHtml = `<span style="color:#10b981; font-weight:800;">(พอดีเป้าหมาย)</span>`;
+        }
+
+        // Macro Badges & Ring Colors
+        const carbsBadge = carbsDiff > 0 
+            ? `<span style="color:#ef4444; font-size:10px; font-weight:800;">(เกิน +${carbsDiff}g)</span>` 
+            : carbsDiff < 0 
+                ? `<span style="color:#64748b; font-size:10px; font-weight:600;">(ขาด ${Math.abs(carbsDiff)}g)</span>` 
+                : `<span style="color:#10b981; font-size:10px; font-weight:700;">(ครบพอดี)</span>`;
+        const carbsRingColor = carbsDiff > 0 ? '#ef4444' : '#84cc16';
+
+        const proBadge = proDiff > 0 
+            ? `<span style="color:#10b981; font-size:10px; font-weight:800;">(+${proDiff}g เกินเป้า)</span>` 
+            : proDiff < 0 
+                ? `<span style="color:#f97316; font-size:10px; font-weight:700;">(ขาด ${Math.abs(proDiff)}g)</span>` 
+                : `<span style="color:#10b981; font-size:10px; font-weight:700;">(ครบพอดี)</span>`;
+        const proRingColor = proDiff > 0 ? '#10b981' : '#f97316';
+
+        const fatBadge = fatDiff > 0 
+            ? `<span style="color:#ef4444; font-size:10px; font-weight:800;">(เกิน +${fatDiff}g)</span>` 
+            : fatDiff < 0 
+                ? `<span style="color:#64748b; font-size:10px; font-weight:600;">(ขาด ${Math.abs(fatDiff)}g)</span>` 
+                : `<span style="color:#10b981; font-size:10px; font-weight:700;">(ครบพอดี)</span>`;
+        const fatRingColor = fatDiff > 0 ? '#ef4444' : '#eab308';
+
         nutritionEl.innerHTML = `
         <!-- WiseMeal Header: งบประมาณรายวัน -->
         <div class="row" style="align-items:center; margin-bottom:12px;">
             <div>
                 <h3 style="margin:0; font-size:18px; font-weight:900; color:#0f172a; letter-spacing:-0.3px;">งบประมาณรายวัน</h3>
-                <div style="font-size:11px; color:#64748b;">ทานแล้ว ${cal.toLocaleString()} kcal ${extraStepCal > 0 ? `<span style="color:#10b981;font-weight:700;">(+${extraStepCal} ก้าวเดิน)</span>` : ''}</div>
+                <div style="font-size:11px; color:#64748b;">ทานแล้ว ${cal.toLocaleString()} kcal ${extraStepCal > 0 ? `<span style="color:#10b981;font-weight:700;">(+${extraStepCal} ก้าวเดิน)</span> ` : ''}${headerStatusHtml}</div>
             </div>
             <div style="display:flex; gap:6px;">
                 <button class="btn sm" onclick="calcBMR()" style="width:auto; padding:5px 10px; font-size:11.5px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer;">🧮 ปรับเป้า</button>
@@ -528,21 +600,21 @@ function render() {
         <!-- WiseMeal 2-Column Hero: Liquid Calorie Sphere (Left) + 3 Macro Rings (Right) -->
         <div class="wm-budget-grid" style="margin-bottom:12px;">
             <!-- Left: Calorie Sphere -->
-            <div class="wm-sphere-card">
+            <div class="${sphereCardClass}">
                 <div class="wm-sphere-wrap">
                     <svg viewBox="0 0 140 140" width="142" height="142" style="transform:rotate(-90deg);">
                         <circle cx="70" cy="70" r="62" fill="none" stroke="#e2e8f0" stroke-width="8"/>
-                        <circle class="wm-sphere-ring-arc" cx="70" cy="70" r="62" fill="none" stroke="#2563eb" stroke-width="8" stroke-linecap="round" stroke-dasharray="389.5" stroke-dashoffset="${Math.max(0, 389.5 - (389.5 * calPct) / 100)}"/>
+                        <circle class="wm-sphere-ring-arc" cx="70" cy="70" r="62" fill="none" stroke="${sphereRingStroke}" stroke-width="8" stroke-linecap="round" stroke-dasharray="389.5" stroke-dashoffset="${sphereRingOffset}"/>
                     </svg>
-                    <div class="wm-sphere-inner">
+                    <div class="${sphereInnerClass}">
                         <div class="wm-sphere-wave"></div>
                         <div class="wm-sphere-wave wave2"></div>
-                        <div style="position:relative; z-index:2; font-size:11px; font-weight:700; color:#1e3a8a; opacity:0.85;">ที่เหลืออยู่</div>
-                        <div style="position:relative; z-index:2; font-size:30px; font-weight:900; letter-spacing:-1px; line-height:1.05; color:#0f172a;">${remCal.toLocaleString()}</div>
-                        <div style="position:relative; z-index:2; font-size:12px; font-weight:800; color:#1e3a8a;">kcal</div>
+                        <div style="position:relative; z-index:2; font-size:11px; font-weight:800; color:${sphereLabelColor}; letter-spacing:0.2px;">${sphereLabel}</div>
+                        <div style="position:relative; z-index:2; font-size:28px; font-weight:900; letter-spacing:-1px; line-height:1.05; color:${sphereNumColor};">${sphereNumText}</div>
+                        <div style="position:relative; z-index:2; font-size:12px; font-weight:800; color:${sphereUnitColor};">${isCalOver ? 'kcal เกิน' : 'kcal'}</div>
                     </div>
                 </div>
-                <div style="font-size:11.5px; font-weight:700; color:#475569; margin-top:8px;">เป้าหมาย ${effectiveCalTarget.toLocaleString()} kcal</div>
+                <div style="font-size:11.5px; font-weight:700; color:#475569; margin-top:8px; text-align:center;">${sphereSubtitle}</div>
             </div>
 
             <!-- Right: 3 Macro Circular Rings (Carbs, Protein, Fat) -->
@@ -551,12 +623,15 @@ function render() {
                 <div class="wm-macro-row">
                     <div>
                         <div style="font-size:14px; font-weight:900; color:#0f172a;">${carbs} <span style="font-size:11.5px; color:#64748b; font-weight:600;">/ ${CARBS_TARGET}g</span></div>
-                        <div style="font-size:11.5px; color:#64748b; font-weight:700;">คาร์บ</div>
+                        <div style="font-size:11px; font-weight:700; color:#64748b; display:flex; align-items:center; gap:4px; margin-top:2px;">
+                            <span>คาร์บ</span>
+                            ${carbsBadge}
+                        </div>
                     </div>
                     <div class="wm-macro-ring">
                         <svg viewBox="0 0 44 44" width="42" height="42" style="transform:rotate(-90deg);">
                             <circle cx="22" cy="22" r="18" fill="none" stroke="#e2e8f0" stroke-width="4"/>
-                            <circle cx="22" cy="22" r="18" fill="none" stroke="#84cc16" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="${Math.max(0, 113 - (113 * carbsPct) / 100)}"/>
+                            <circle cx="22" cy="22" r="18" fill="none" stroke="${carbsRingColor}" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="${Math.max(0, 113 - (113 * carbsPct) / 100)}"/>
                         </svg>
                         <span>🍞</span>
                     </div>
@@ -566,12 +641,15 @@ function render() {
                 <div class="wm-macro-row">
                     <div>
                         <div style="font-size:14px; font-weight:900; color:#0f172a;">${pro} <span style="font-size:11.5px; color:#64748b; font-weight:600;">/ ${PROTEIN_TARGET}g</span></div>
-                        <div style="font-size:11.5px; color:#64748b; font-weight:700;">โปรตีน</div>
+                        <div style="font-size:11px; font-weight:700; color:#64748b; display:flex; align-items:center; gap:4px; margin-top:2px;">
+                            <span>โปรตีน</span>
+                            ${proBadge}
+                        </div>
                     </div>
                     <div class="wm-macro-ring">
                         <svg viewBox="0 0 44 44" width="42" height="42" style="transform:rotate(-90deg);">
                             <circle cx="22" cy="22" r="18" fill="none" stroke="#e2e8f0" stroke-width="4"/>
-                            <circle cx="22" cy="22" r="18" fill="none" stroke="#f97316" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="${Math.max(0, 113 - (113 * proPct) / 100)}"/>
+                            <circle cx="22" cy="22" r="18" fill="none" stroke="${proRingColor}" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="${Math.max(0, 113 - (113 * proPct) / 100)}"/>
                         </svg>
                         <span>🍗</span>
                     </div>
@@ -581,12 +659,15 @@ function render() {
                 <div class="wm-macro-row">
                     <div>
                         <div style="font-size:14px; font-weight:900; color:#0f172a;">${fat} <span style="font-size:11.5px; color:#64748b; font-weight:600;">/ ${FAT_TARGET}g</span></div>
-                        <div style="font-size:11.5px; color:#64748b; font-weight:700;">ไขมัน</div>
+                        <div style="font-size:11px; font-weight:700; color:#64748b; display:flex; align-items:center; gap:4px; margin-top:2px;">
+                            <span>ไขมัน</span>
+                            ${fatBadge}
+                        </div>
                     </div>
                     <div class="wm-macro-ring">
                         <svg viewBox="0 0 44 44" width="42" height="42" style="transform:rotate(-90deg);">
                             <circle cx="22" cy="22" r="18" fill="none" stroke="#e2e8f0" stroke-width="4"/>
-                            <circle cx="22" cy="22" r="18" fill="none" stroke="#eab308" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="${Math.max(0, 113 - (113 * fatPct) / 100)}"/>
+                            <circle cx="22" cy="22" r="18" fill="none" stroke="${fatRingColor}" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="${Math.max(0, 113 - (113 * fatPct) / 100)}"/>
                         </svg>
                         <span>🧀</span>
                     </div>
@@ -863,9 +944,15 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
     const stRepsEl = document.getElementById('stReps');
     if (stRepsEl) stRepsEl.textContent = totalRepsAll.toLocaleString();
     document.getElementById('log').innerHTML = D.sessions.length ? D.sessions.slice(-14).reverse().map(s =>
-        `<div class="row" style="padding:7px 0;border-bottom:1px solid var(--line)">
-     <span style="font-size:13px">${W[s.workout_key] ? W[s.workout_key].ic : '•'} ${s.workout_name}</span>
-     <span class="sub">${s.date.slice(5)} • ${s.kcal} kcal${s.total_volume_kg ? ` • <span title="น้ำหนักยกสะสมรวมทั้งเซสชัน (Total Training Volume = น้ำหนัก × จำนวนครั้ง)">🏋️ ยกสะสม ${s.total_volume_kg.toLocaleString()} กก.</span>` : ''}</span></div>`).join('') : '<div class="sub">ยังไม่มีบันทึก</div>';
+        `<div class="row" style="padding:7px 0;border-bottom:1px solid var(--line);align-items:center;">
+     <div style="flex:1;">
+       <span style="font-size:13px">${W[s.workout_key] ? W[s.workout_key].ic : '•'} ${s.workout_name}</span>
+       <span class="sub" style="display:block;margin-top:2px;">${s.date.slice(5)} • ${s.kcal} kcal${s.total_volume_kg ? ` • 🏋️ ยกสะสม ${s.total_volume_kg.toLocaleString()} กก.` : ''}</span>
+     </div>
+     <button type="button" class="btn sm g" onclick="openWorkoutSummaryModal('${s.id}')" style="font-size:11px;padding:4px 8px;border-radius:6px;display:flex;align-items:center;gap:3px;" title="ดูสรุป & สร้างการ์ดแชร์">
+       <span>📸 การ์ดแชร์</span>
+     </button>
+   </div>`).join('') : '<div class="sub">ยังไม่มีบันทึก</div>';
     if (document.getElementById('aiKey')) document.getElementById('aiKey').value = D.cfg.aiKey || '';
     if (document.getElementById('aiKeyBackup')) document.getElementById('aiKeyBackup').value = D.cfg.aiKeyBackup || '';
     renderAuthUI();

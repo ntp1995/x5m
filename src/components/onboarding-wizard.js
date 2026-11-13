@@ -1,26 +1,40 @@
 /* ============================================================================
-   FitCoach v3.4.0 — Modern Full-Screen Body & Course Calibration Wizard
-   - Preserves full calcBMR() clinical & course analysis formulas (no fake TG analysis)
-   - Step 1: Interactive Weight Scale Ruler (น้ำหนักปัจจุบัน & น้ำหนักเป้าหมาย + BMI)
-   - Step 2: Vertical Height Stadiometer + Gender & Age
-   - Step 3: InBody & Cardio Biometrics (%BF, กล้ามเนื้อ, Visceral, BMR, RHR, VO2, HRV)
-   - Step 4: Course Plan, Goal Type, Occupational NEAT, Structured EAT & Steps + IF
-   - Step 5: Orbital Course Calculation Animation
-   - Step 6: Course Analysis Summary, Safety Badge & Weight Trajectory Curve
+   FitCoach v3.4.2 — WiseMeal-Inspired 8-Step Body & Plan Calibration Wizard
+   Matches Exact UI from User Mockups:
+   - Step 1: เลือกเพศของคุณ (Male/Female Avatar Cards + ไม่ต้องการระบุ)
+   - Step 2: คุณเกิดปีอะไร? (Vertical Year Roller Picker + Age Auto-Calc)
+   - Step 3: ส่วนสูงของคุณคือเท่าไหร่? (cm/ft Toggle + Vertical Height Stadiometer)
+   - Step 4: น้ำหนักปัจจุบันของคุณคือเท่าไหร่? (kg/lbs Toggle + Horizontal Scale + ตาชั่ง)
+   - Step 4.5: การวิเคราะห์ส่วนบุคคล (Personal Analysis with Clip 📎 + 4-Color BMI Gauge)
+   - Step 5: น้ำหนักที่ต้องการของคุณคือเท่าไหร่? (Target Weight Scale + Goal Difficulty %)
+   - Step 6: คุณต้องการบรรลุเป้าหมายเมื่อไหร่? (3-Column Date Roller + 0.4kg/wk Feasibility)
+   - Step 6.5: เราคาดการณ์ว่าคุณจะบรรลุเป้าหมาย (Trajectory Curve SVG ⛳ + คาดการณ์บรรลุเป้าหมาย)
+   - Step 7: ระดับกิจกรรมของคุณเป็นอย่างไร? (4-Dot Activity Slider + Illustration)
+   - Step 8: คุณรู้ความสัมพันธ์ระหว่างแคลอรี่และน้ำหนักตัวหรือไม่? (Knowledge Quiz Cards)
+   - Step 8.5: ลดพลังงาน 500 kcal ต่อวันอย่างง่ายดาย (Educational Motivation & Plan Summary)
    ============================================================================ */
 
 let obStep = 1;
+let obSubStep = ''; // '', 'analysis', 'trajectory', 'completion'
 let obMode = 'register'; // 'register' (first login) or 'recalibrate' (ปรับเป้า)
+let obHeightUnit = 'cm';
+let obWeightUnit = 'kg';
 
-const OB_WORK_FACTORS = { sedentary: 1.15, light: 1.28, active: 1.42 };
+const OB_WORK_FACTORS = { sedentary: 1.15, light: 1.28, active: 1.42, very_active: 1.55 };
 const OB_EXERCISE_FACTORS = { none: 0.0, light: 0.12, moderate: 0.25, heavy: 0.35 };
 
 let obState = {
     gender: 'M',
+    birthYear: 1995,
     age: 31,
-    height: 168,
-    weight: 77.3,
-    targetWeight: 68.0,
+    height: 168.0,
+    weight: 78.0,
+    targetWeight: 70.0,
+    targetYear: 2027,
+    targetMonth: 3,
+    targetDay: 31,
+    activityLevel: 1, // 1: sedentary, 2: light, 3: moderate, 4: very active
+    quizAnswer: 1,
     bf: 25.9,
     muscle: 54.3,
     visceral: 11,
@@ -42,10 +56,17 @@ function initOnboardingDraftFromStore() {
     const bio = (D && D.cfg && D.cfg.biometrics) ? D.cfg.biometrics : {};
     const saved = (D && D.cfg && D.cfg.bmrInfo) ? D.cfg.bmrInfo : {};
 
-    obState.weight = Number(lastCheck.w || 77.3);
-    obState.height = Number(bio.height || saved.height || 168);
+    obState.weight = Number(lastCheck.w || bio.weight || 78.0);
+    obState.height = Number(bio.height || saved.height || 168.0);
     obState.age = Number(bio.age || saved.age || 31);
+    obState.birthYear = new Date().getFullYear() - obState.age;
     obState.gender = bio.gender || saved.gender || 'M';
+    obState.targetWeight = Number((D && D.cfg && D.cfg.targetWeight) || 70.0);
+    obState.courseWeeks = Number((D && D.cfg && D.cfg.courseWeeks) || 20);
+
+    const actMap = { sedentary: 1, light: 2, moderate: 3, active: 4, very_active: 4 };
+    obState.activityLevel = actMap[D && D.cfg && D.cfg.workType] || 1;
+
     obState.bf = Number(bio.bf || lastCheck.bf || 25.9);
     obState.muscle = Number(bio.muscle || 54.3);
     obState.visceral = Number(bio.visceral || 11);
@@ -53,12 +74,6 @@ function initOnboardingDraftFromStore() {
     obState.vo2max = Number(bio.vo2max || 45);
     obState.hrv = Number(bio.hrv || 73);
     obState.bmrCustom = Number(bio.bmrCustom || 1630);
-
-    obState.targetWeight = Number((D && D.cfg && D.cfg.targetWeight) || 68.0);
-    obState.courseWeeks = Number((D && D.cfg && D.cfg.courseWeeks) || 20);
-    obState.goalType = saved.goalType || 'recomp';
-    obState.workType = (D && D.cfg && D.cfg.workType) || saved.workType || 'light';
-    obState.exerciseType = (D && D.cfg && D.cfg.exerciseType) || saved.exerciseType || 'moderate';
     obState.stepTarget = Number((D && D.cfg && D.cfg.stepTarget) || saved.stepTarget || 8000);
     obState.ifGoal = Number((D && D.if && D.if.goal) || 16);
     obState.outdoorMode = Boolean(D && D.outdoorMode);
@@ -67,6 +82,7 @@ function initOnboardingDraftFromStore() {
 function openOnboardingWizard(startStep = 1, mode) {
     initOnboardingDraftFromStore();
     obStep = startStep;
+    obSubStep = '';
     obMode = mode || ((D && D.cfg && D.cfg.onboardingDone) ? 'recalibrate' : 'register');
     const page = document.getElementById('p-onboard');
     if (page) {
@@ -86,186 +102,134 @@ function closeOnboardingWizard(markSkipped = false) {
     }
 }
 
+function goObStep(step, subStep = '') {
+    obStep = step;
+    obSubStep = subStep;
+    renderOnboardingStep();
+    const page = document.getElementById('p-onboard');
+    if (page) page.scrollTop = 0;
+}
+
 function setObField(key, val) {
     obState[key] = val;
     renderOnboardingStep();
 }
 
-function adjustObWeight(field, delta) {
-    const cur = Number(obState[field]) || 70;
-    const next = Math.max(40, Math.min(160, Math.round((cur + delta) * 10) / 10));
-    obState[field] = next;
+function setObHeightUnit(u) {
+    obHeightUnit = u;
     renderOnboardingStep();
 }
 
-function onObWeightSlider(field, val) {
+function setObWeightUnit(u) {
+    obWeightUnit = u;
+    renderOnboardingStep();
+}
+
+function onObYearSelect(yr) {
+    obState.birthYear = parseInt(yr, 10);
+    obState.age = Math.max(15, new Date().getFullYear() - obState.birthYear);
+    renderOnboardingStep();
+}
+
+function onObHeightDrag(val) {
+    obState.height = Math.round(parseFloat(val) * 10) / 10;
+    const disp = document.getElementById('obHeightReadout');
+    if (disp) {
+        disp.textContent = obHeightUnit === 'ft' 
+            ? `${(obState.height / 30.48).toFixed(1)} ft` 
+            : `${obState.height.toFixed(1)} cm`;
+    }
+    const line = document.getElementById('obHeightPointerLine');
+    if (line) {
+        const pct = Math.max(0, Math.min(100, ((200 - obState.height) / (200 - 140)) * 100));
+        line.style.top = `${pct}%`;
+    }
+}
+
+function onObWeightDrag(field, val) {
     obState[field] = Math.round(parseFloat(val) * 10) / 10;
-    const numEl = document.getElementById(field === 'weight' ? 'obWeightNum' : 'obTargetNum');
-    const ticksEl = document.getElementById(field === 'weight' ? 'obWeightTicks' : 'obTargetTicks');
+    const numEl = document.getElementById(field === 'weight' ? 'obWeightReadoutNum' : 'obTargetReadoutNum');
     if (numEl) numEl.textContent = obState[field].toFixed(1);
-    if (ticksEl) {
-        const offsetPx = ((obState[field] - 75) * -9);
-        ticksEl.style.transform = `translateX(${offsetPx}px)`;
-    }
-    const bmiEl = document.getElementById('obLiveBmiBadge');
-    if (bmiEl) {
-        const hM = (obState.height || 168) / 100;
-        const bmi = (obState.weight / (hM * hM)).toFixed(1);
-        const diff = (obState.weight - obState.targetWeight).toFixed(1);
-        bmiEl.textContent = `BMI ${bmi} • ${diff > 0 ? `เป้าหมายลด ${diff} กก.` : 'รักษาน้ำหนัก'}`;
+
+    const diffEl = document.getElementById('obTargetDiffPercent');
+    if (diffEl && field === 'targetWeight') {
+        const pctLoss = Math.max(0, ((obState.weight - obState.targetWeight) / obState.weight * 100)).toFixed(1);
+        diffEl.textContent = `คุณจะลดน้ำหนักลง ${pctLoss}% ของน้ำหนักตัว`;
     }
 }
 
-function onObHeightSlider(val) {
-    obState.height = parseInt(val, 10) || 168;
-    const hNum = document.getElementById('obHeightNum');
-    const laser = document.getElementById('obHeightLaser');
-    const tag = document.getElementById('obHeightLaserTag');
-    const sil = document.getElementById('obSilhouetteSvg');
-    if (hNum) hNum.textContent = obState.height;
-    if (tag) tag.textContent = `${obState.height} cm`;
-    const pctBottom = Math.max(22, Math.min(86, ((obState.height - 135) / 70) * 64 + 22));
-    if (laser) laser.style.bottom = `${pctBottom}%`;
-    if (sil) {
-        const scaleH = Math.max(0.68, Math.min(1.08, 0.68 + ((obState.height - 140) / 60) * 0.4));
-        sil.style.transform = `scaleY(${scaleH.toFixed(2)})`;
-    }
+function onObActivitySelect(lvl) {
+    obState.activityLevel = parseInt(lvl, 10);
+    const wMap = { 1: 'sedentary', 2: 'light', 3: 'moderate', 4: 'active' };
+    obState.workType = wMap[obState.activityLevel] || 'light';
+    renderOnboardingStep();
 }
 
-function adjustObInt(field, delta, minV, maxV) {
-    const cur = parseInt(obState[field], 10) || minV;
-    obState[field] = Math.max(minV, Math.min(maxV, cur + delta));
+function onObQuizSelect(ans) {
+    obState.quizAnswer = parseInt(ans, 10);
     renderOnboardingStep();
 }
 
 function computeOnboardingPlan() {
-    const w = Math.max(40, Number(obState.weight) || 77.3);
-    const h = Math.max(130, Number(obState.height) || 168);
+    const w = Math.max(40, Number(obState.weight) || 78.0);
+    const h = Math.max(130, Number(obState.height) || 168.0);
     const age = Math.max(15, Number(obState.age) || 31);
     const gender = obState.gender || 'M';
-    const targetW = Math.max(40, Number(obState.targetWeight) || 68.0);
+    const targetW = Math.max(40, Number(obState.targetWeight) || 70.0);
     const weeks = Math.max(4, Number(obState.courseWeeks) || 20);
-    const customBmr = Number(obState.bmrCustom) || 0;
-    const gType = obState.goalType || 'recomp';
 
-    const act = (OB_WORK_FACTORS[obState.workType] || 1.28) + (OB_EXERCISE_FACTORS[obState.exerciseType] || 0.25);
-    const bmr = customBmr > 1000 ? customBmr : (10 * w + 6.25 * h - 5 * age + (gender === 'M' ? 5 : -161));
-    const tdee = bmr * act;
-    const diff = Math.max(0, w - targetW);
-    const lossPerWk = weeks > 0 ? (diff / weeks) : 0;
+    const actMults = { 1: 1.20, 2: 1.35, 3: 1.50, 4: 1.65 };
+    const act = actMults[obState.activityLevel] || 1.35;
+
+    // Clinical Mifflin-St Jeor Formula
+    const bmr = (10 * w) + (6.25 * h) - (5 * age) + (gender === 'M' ? 5 : -161);
+    const tdee = Math.round(bmr * act);
+
+    const diffKg = Math.max(0, w - targetW);
+    const lossPerWk = weeks > 0 ? (diffKg / weeks) : 0.4;
     const lossPerMonth = lossPerWk * 4.33;
 
-    let deficitNeeded = Math.round((lossPerWk * 7700) / 7);
-    if (gType === 'maintain') deficitNeeded = 0;
-    else if (gType === 'bulk') deficitNeeded = -300;
-    else if (gType === 'slowcut') deficitNeeded = Math.min(deficitNeeded, 350);
+    // Standard 500 kcal deficit
+    let deficit = 500;
+    if (diffKg <= 1) deficit = 0;
+    else if (diffKg > 15) deficit = 600;
 
-    const calTarget = Math.max(1200, Math.round(tdee - deficitNeeded));
-    const proMultiplier = gType === 'maintain' ? 1.8 : 2.0;
-    const proTarget = Math.round(w * proMultiplier);
-    const fatTarget = Math.round((calTarget * 0.25) / 9);
-    const carbsTarget = Math.max(50, Math.round((calTarget - (proTarget * 4) - (fatTarget * 9)) / 4));
-    const waterTarget = Math.round((w * 35) / 50) * 50;
+    let calTarget = Math.max(1500, Math.round(tdee - deficit));
+    if (calTarget < 1500) calTarget = 1500;
 
-    const goalDate = new Date();
-    goalDate.setDate(goalDate.getDate() + weeks * 7);
-    const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-    const goalDateTxt = `${goalDate.getDate()} ${thaiMonths[goalDate.getMonth()] || 'มี.ค.'}`;
+    // Macro Target distribution
+    let proTarget = Math.round(w * 2.0); // 2.0g per kg for clinical muscle preservation
+    if (proTarget < 120) proTarget = 120;
+    const proKcal = proTarget * 4;
 
-    const safeLabel = lossPerWk <= 0.65
-        ? 'ปลอดภัยสูงสุด ลีนไขมันรักษากล้ามเนื้อ'
-        : (lossPerWk <= 0.9 ? 'อัตราเร่งปานกลาง ควรทานโปรตีนให้ครบ' : 'อัตราลดสูง เสี่ยงสูญเสียมวลกล้ามเนื้อ');
-    const safeColor = lossPerWk <= 0.65 ? '#059669' : (lossPerWk <= 0.9 ? '#d97706' : '#dc2626');
+    const fatKcal = Math.round(calTarget * 0.25);
+    const fatTarget = Math.max(40, Math.round(fatKcal / 9));
+
+    const remainingKcal = Math.max(0, calTarget - proKcal - (fatTarget * 9));
+    const carbsTarget = Math.max(120, Math.round(remainingKcal / 4));
+    const waterTarget = Math.max(2500, Math.round(w * 38));
 
     return {
         bmr: Math.round(bmr),
-        tdee: Math.round(tdee),
-        act,
-        diff,
-        lossPerWk,
-        lossPerMonth,
-        safeLabel,
-        safeColor,
+        tdee,
         calTarget,
         proTarget,
         carbsTarget,
         fatTarget,
         waterTarget,
-        stepTarget: Number(obState.stepTarget) || 8000,
-        goalDateTxt,
-        midWeight: ((w + targetW) / 2).toFixed(1)
+        diffKg,
+        lossPerWk: Math.round(lossPerWk * 10) / 10,
+        lossPerMonth: Math.round(lossPerMonth * 10) / 10,
+        deficit,
+        act
     };
-}
-
-function captureObStepInputs() {
-    if (obStep === 3) {
-        const readNum = (id, minV) => {
-            const v = parseFloat(document.getElementById(id)?.value);
-            return (!isNaN(v) && v >= minV) ? v : null;
-        };
-        const bf = readNum('obInBF', 3);
-        const muscle = readNum('obInMuscle', 15);
-        const visceral = readNum('obInVisceral', 1);
-        const bmrC = readNum('obInBmrCustom', 0);
-        const rhr = readNum('obInRHR', 30);
-        const vo2 = readNum('obInVO2', 15);
-        const hrv = readNum('obInHRV', 10);
-        if (bf !== null) obState.bf = bf;
-        if (muscle !== null) obState.muscle = muscle;
-        if (visceral !== null) obState.visceral = Math.round(visceral);
-        if (bmrC !== null) obState.bmrCustom = Math.round(bmrC);
-        if (rhr !== null) obState.rhr = Math.round(rhr);
-        if (vo2 !== null) obState.vo2max = Math.round(vo2);
-        if (hrv !== null) obState.hrv = Math.round(hrv);
-    } else if (obStep === 4) {
-        const st = parseInt(document.getElementById('obInStepTarget')?.value, 10);
-        if (!isNaN(st) && st >= 2000) obState.stepTarget = st;
-    }
-}
-
-function goObStep(nextStep) {
-    captureObStepInputs();
-    obStep = nextStep;
-    renderOnboardingStep();
-    const page = document.getElementById('p-onboard');
-    if (page) page.scrollTop = 0;
-
-    if (obStep === 5) {
-        runOnboardingAnalysisAnimation();
-    }
-}
-
-function runOnboardingAnalysisAnimation() {
-    let pct = 15;
-    const bar = document.getElementById('obAnalyzeBar');
-    const pctTxt = document.getElementById('obAnalyzePct');
-    const items = [1, 2, 3, 4];
-    const timer = setInterval(() => {
-        pct = Math.min(100, pct + 22);
-        if (bar) bar.style.width = pct + '%';
-        if (pctTxt) pctTxt.textContent = pct + '%';
-        const doneCount = Math.floor((pct / 100) * items.length);
-        items.forEach((n, idx) => {
-            const row = document.getElementById('obCheckRow' + n);
-            if (row && idx < doneCount) row.classList.add('done');
-        });
-        if (pct >= 100) {
-            clearInterval(timer);
-            setTimeout(() => {
-                if (obStep === 5) {
-                    obStep = 6;
-                    renderOnboardingStep();
-                }
-            }, 350);
-        }
-    }, 240);
 }
 
 function applyOnboardingPlanToApp() {
     const plan = computeOnboardingPlan();
     D.cfg = D.cfg || {};
-    D.cfg.courseWeeks = obState.courseWeeks;
     D.cfg.targetWeight = obState.targetWeight;
+    D.cfg.courseWeeks = obState.courseWeeks;
     D.cfg.calTarget = plan.calTarget;
     D.cfg.proteinTarget = plan.proTarget;
     D.cfg.carbsTarget = plan.carbsTarget;
@@ -276,378 +240,735 @@ function applyOnboardingPlanToApp() {
     D.cfg.workType = obState.workType;
     D.cfg.exerciseType = obState.exerciseType;
     D.cfg.stepTarget = obState.stepTarget;
+
     D.cfg.bmrInfo = {
         gender: obState.gender,
+        birthYear: obState.birthYear,
         age: obState.age,
         height: obState.height,
+        weight: obState.weight,
+        targetWeight: obState.targetWeight,
+        activityLevel: obState.activityLevel,
         workType: obState.workType,
-        exerciseType: obState.exerciseType,
         stepTarget: obState.stepTarget,
-        activity: plan.act,
-        goalType: obState.goalType
+        bmr: plan.bmr,
+        tdee: plan.tdee
     };
+
     D.cfg.biometrics = {
         gender: obState.gender,
         age: obState.age,
         height: obState.height,
+        weight: obState.weight,
         bf: obState.bf,
         muscle: obState.muscle,
         visceral: obState.visceral,
         rhr: obState.rhr,
         vo2max: obState.vo2max,
         hrv: obState.hrv,
-        bmrCustom: obState.bmrCustom
+        bmrCustom: plan.bmr
     };
+
     D.cfg.onboardingDone = true;
 
+    // Update Live App Globals
     CAL_TARGET = plan.calTarget;
     PROTEIN_TARGET = plan.proTarget;
     CARBS_TARGET = plan.carbsTarget;
     FAT_TARGET = plan.fatTarget;
     WATER_TARGET = plan.waterTarget;
 
-    D.outdoorMode = obState.outdoorMode;
-    D.if = D.if || { start: null, goal: 16 };
-    D.if.goal = obState.ifGoal;
-
-    if (!D.checks || D.checks.length === 0) {
-        D.checks = [{ d: iso(), w: obState.weight, bf: obState.bf, cal: 0, protein: 0, carbs: 0, fat: 0, water: 0, steps: 0, meals: [] }];
+    if (D.checks && D.checks.length) {
+        const lastCheck = D.checks[D.checks.length - 1];
+        lastCheck.w = obState.weight;
     }
 
-    save();
-    closeOnboardingWizard(true);
-    render();
-    if (typeof updateIFUI === 'function') updateIFUI();
+    if (typeof save === 'function') save();
+    if (typeof pushToCloud === 'function') pushToCloud();
+    closeOnboardingWizard();
+    if (typeof render === 'function') render();
+    if (typeof msg === 'function') msg('✓ บันทึกการประเมินแผนและอัปเดตเป้าหมายโภชนาการเรียบร้อย');
 }
 
-function buildScaleTicksHtml() {
-    let html = '';
-    for (let i = 0; i <= 40; i++) {
-        html += `<div class="ob-tick ${i % 5 === 0 ? 'major' : ''}"></div>`;
-    }
-    return html;
+function calcBMR() {
+    openOnboardingWizard(4, 'recalibrate');
 }
 
+/* ============================================================================
+   Main Render Function: 8-Step Exact WiseMeal UI
+   ============================================================================ */
 function renderOnboardingStep() {
     const body = document.getElementById('obWizardBody');
     if (!body) return;
-    const totalSteps = 6;
-    const progressPct = Math.round((obStep / totalSteps) * 100);
-    const plan = computeOnboardingPlan();
-    const isRecal = obMode === 'recalibrate';
 
+    const totalSteps = 8;
+    const progressPct = Math.round((Math.min(8, obStep) / totalSteps) * 100);
+    const isRecal = obMode === 'recalibrate';
+    const plan = computeOnboardingPlan();
+
+    // Top Header with Chevron, Progress Bar, Step Count, and Recalibrate Tag
     const headerHtml = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <button type="button" onclick="${obStep > 1 ? `goObStep(${obStep - 1})` : 'closeOnboardingWizard(true)'}" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:99px; padding:6px 12px; font-size:12px; font-weight:800; color:#475569; cursor:pointer; font-family:inherit;">
-                ${obStep > 1 ? '← ย้อนกลับ' : '← กลับหน้าหลัก'}
-            </button>
-            <span style="font-size:11.5px; font-weight:800; color:#2563eb; background:#eff6ff; padding:5px 12px; border-radius:99px;">
-                ${isRecal ? '🧮 ปรับเป้า & คอร์สส่วนตัว' : '✨ ประเมินเริ่มต้นโปรแกรม'} • ${obStep}/${totalSteps}
-            </span>
+        <div class="wm-ob-topbar">
+            <button type="button" class="wm-ob-back-btn" onclick="${getObBackAction()}">‹</button>
+            <div class="wm-ob-progress-track">
+                <div class="wm-ob-progress-fill" style="width:${progressPct}%;"></div>
+            </div>
+            <div class="wm-ob-step-num">${Math.min(8, obStep)} / ${totalSteps}</div>
         </div>
-        <div style="height:6px; background:#dbeafe; border-radius:99px; overflow:hidden; margin-bottom:16px;">
-            <div style="height:100%; width:${progressPct}%; background:linear-gradient(90deg,#2563eb,#10b981); transition:width 0.35s cubic-bezier(0.22,1,0.36,1);"></div>
-        </div>
+        ${isRecal ? '<div style="text-align:center; margin:-14px 0 14px 0;"><span style="font-size:11px; font-weight:800; background:#eff6ff; color:#0284c7; padding:2px 10px; border-radius:99px; border:1px solid #bfdbfe;">ปรับเป้า & วิเคราะห์โปรแกรมใหม่</span></div>' : ''}
     `;
 
+    // -------------------------------------------------------------
+    // STEP 1: เลือกเพศของคุณ (Select Gender)
+    // -------------------------------------------------------------
     if (obStep === 1) {
+        body.innerHTML = `
+        <div class="wm-ob-wrap">
+            ${headerHtml}
+            <div class="wm-ob-body">
+                <h1 class="wm-ob-title">เลือกเพศของคุณ</h1>
+                <p class="wm-ob-subtitle">โดยปกติผู้ชายจะมีอัตราการเผาผลาญพื้นฐานสูงกว่าผู้หญิง</p>
+
+                <div class="wm-gender-grid">
+                    <!-- Male Card -->
+                    <div class="wm-gender-card ${obState.gender === 'M' ? 'active' : ''}" onclick="setObField('gender', 'M')">
+                        <div class="wm-gender-avatar-wrap" style="background:#e0f2fe;">
+                            <svg width="68" height="68" viewBox="0 0 100 100" fill="none">
+                                <circle cx="50" cy="50" r="48" fill="#dbeafe"/>
+                                <circle cx="50" cy="38" r="18" fill="#fbcfe8"/>
+                                <path d="M50 20C40 20 36 28 36 34C36 40 40 44 40 44L44 48H56L60 44C60 44 64 40 64 34C64 28 60 20 50 20Z" fill="#92400e"/>
+                                <ellipse cx="50" cy="42" rx="13" ry="15" fill="#fde68a"/>
+                                <path d="M22 88C22 70 34 62 50 62C66 62 78 70 78 88" fill="#38bdf8"/>
+                            </svg>
+                        </div>
+                        <div class="wm-gender-name">ชาย</div>
+                    </div>
+
+                    <!-- Female Card -->
+                    <div class="wm-gender-card ${obState.gender === 'F' ? 'active' : ''}" onclick="setObField('gender', 'F')">
+                        <div class="wm-gender-avatar-wrap" style="background:#fce7f3;">
+                            <svg width="68" height="68" viewBox="0 0 100 100" fill="none">
+                                <circle cx="50" cy="50" r="48" fill="#fce7f3"/>
+                                <path d="M50 18C36 18 30 28 30 46C30 58 36 64 36 64C40 60 42 54 42 46C42 36 46 32 50 32C54 32 58 36 58 46C58 54 60 60 64 64C64 64 70 58 70 46C70 28 64 18 50 18Z" fill="#94a3b8"/>
+                                <ellipse cx="50" cy="42" rx="12" ry="14" fill="#fbcfe8"/>
+                                <path d="M26 88C26 72 36 64 50 64C64 64 74 72 74 88" fill="#cbd5e1"/>
+                            </svg>
+                        </div>
+                        <div class="wm-gender-name">หญิง</div>
+                    </div>
+                </div>
+
+                <button type="button" class="wm-ob-skip-btn" onclick="setObField('gender', 'M'); goObStep(2);">ไม่ต้องการระบุ</button>
+            </div>
+            <div class="wm-ob-footer">
+                <button type="button" class="wm-ob-continue-btn" onclick="goObStep(2)">ดำเนินการต่อ</button>
+            </div>
+        </div>`;
+    }
+
+    // -------------------------------------------------------------
+    // STEP 2: คุณเกิดปีอะไร? (Birth Year Roller Picker)
+    // -------------------------------------------------------------
+    else if (obStep === 2) {
+        const curYr = obState.birthYear || 1995;
+        const years = [curYr - 3, curYr - 2, curYr - 1, curYr, curYr + 1, curYr + 2, curYr + 3];
+
+        body.innerHTML = `
+        <div class="wm-ob-wrap">
+            ${headerHtml}
+            <div class="wm-ob-body">
+                <h1 class="wm-ob-title">คุณเกิดปีอะไร?</h1>
+                <p class="wm-ob-subtitle">เมื่ออายุมากขึ้น การเผาผลาญพื้นฐานของร่างกายจะค่อยๆ ลดลง</p>
+
+                <div class="wm-roller-picker">
+                    <div class="wm-roller-highlight"></div>
+                    <div class="wm-roller-list">
+                        ${years.map(y => {
+                            const isSel = y === curYr;
+                            const isNear = Math.abs(y - curYr) === 1;
+                            return `<div class="wm-roller-item ${isSel ? 'selected' : (isNear ? 'near' : '')}" onclick="onObYearSelect(${y})">${y}</div>`;
+                        }).join('')}
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:center; gap:12px; margin-top:8px;">
+                    <button type="button" class="ob-step-pill" onclick="onObYearSelect(${curYr - 1})">▲ ปีก่อนหน้า</button>
+                    <span style="font-size:14px; font-weight:800; color:#0284c7; display:flex; align-items:center;">อายุ ${obState.age} ปี</span>
+                    <button type="button" class="ob-step-pill" onclick="onObYearSelect(${curYr + 1})">▼ ปีถัดไป</button>
+                </div>
+            </div>
+            <div class="wm-ob-footer">
+                <button type="button" class="wm-ob-continue-btn" onclick="goObStep(3)">ดำเนินการต่อ</button>
+            </div>
+        </div>`;
+    }
+
+    // -------------------------------------------------------------
+    // STEP 3: ส่วนสูงของคุณคือเท่าไหร่? (Vertical Stadiometer)
+    // -------------------------------------------------------------
+    else if (obStep === 3) {
+        const displayVal = obHeightUnit === 'ft' 
+            ? `${(obState.height / 30.48).toFixed(1)} ft` 
+            : `${obState.height.toFixed(1)} cm`;
+        const pointerPct = Math.max(0, Math.min(100, ((200 - obState.height) / (200 - 140)) * 100));
+
+        body.innerHTML = `
+        <div class="wm-ob-wrap">
+            ${headerHtml}
+            <div class="wm-ob-body">
+                <h1 class="wm-ob-title">ส่วนสูงของคุณคือเท่าไหร่?</h1>
+                <p class="wm-ob-subtitle">ส่วนสูงและน้ำหนักเป็นตัวบ่งชี้สำคัญในการกำหนดอัตราการเผาผลาญพื้นฐาน</p>
+
+                <!-- Unit Toggle -->
+                <div style="text-align:center;">
+                    <div class="wm-unit-toggle">
+                        <button type="button" class="wm-unit-btn ${obHeightUnit === 'ft' ? 'active' : ''}" onclick="setObHeightUnit('ft')">ft</button>
+                        <button type="button" class="wm-unit-btn ${obHeightUnit === 'cm' ? 'active' : ''}" onclick="setObHeightUnit('cm')">cm</button>
+                    </div>
+                </div>
+
+                <div class="wm-height-stage">
+                    <!-- Left: Height Ruler Track -->
+                    <div class="wm-height-ruler-track">
+                        <div id="obHeightPointerLine" class="wm-height-pointer-line" style="top:${pointerPct}%;"></div>
+                        <div class="wm-height-tick-mark"><span>200</span><i style="display:inline-block; width:12px; height:2px; background:#94a3b8;"></i></div>
+                        <div class="wm-height-tick-mark"><span>190</span><i style="display:inline-block; width:8px; height:2px; background:#cbd5e1;"></i></div>
+                        <div class="wm-height-tick-mark"><span>180</span><i style="display:inline-block; width:12px; height:2px; background:#94a3b8;"></i></div>
+                        <div class="wm-height-tick-mark"><span>170</span><i style="display:inline-block; width:8px; height:2px; background:#cbd5e1;"></i></div>
+                        <div class="wm-height-tick-mark"><span>160</span><i style="display:inline-block; width:12px; height:2px; background:#94a3b8;"></i></div>
+                        <div class="wm-height-tick-mark"><span>150</span><i style="display:inline-block; width:8px; height:2px; background:#cbd5e1;"></i></div>
+                        <div class="wm-height-tick-mark"><span>140</span><i style="display:inline-block; width:12px; height:2px; background:#94a3b8;"></i></div>
+                    </div>
+
+                    <!-- Right: Big Readout Display & Draggable Slider -->
+                    <div style="text-align:center; padding-left:10px;">
+                        <div id="obHeightReadout" class="wm-height-display-val">${displayVal}</div>
+                        <div style="margin-top:20px;">
+                            <input type="range" class="ob-range-slider" min="140" max="200" step="0.5" value="${obState.height}" oninput="onObHeightDrag(this.value)" style="width:85%;">
+                        </div>
+                        <div class="ob-step-btns" style="margin-top:14px;">
+                            <button type="button" class="ob-step-pill" onclick="onObHeightDrag(${obState.height - 1})">−1 cm</button>
+                            <button type="button" class="ob-step-pill" onclick="onObHeightDrag(${obState.height - 0.5})">−0.5</button>
+                            <button type="button" class="ob-step-pill" onclick="onObHeightDrag(${obState.height + 0.5})">+0.5</button>
+                            <button type="button" class="ob-step-pill" onclick="onObHeightDrag(${obState.height + 1})">+1 cm</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="wm-ob-footer">
+                <button type="button" class="wm-ob-continue-btn" onclick="goObStep(4)">ดำเนินการต่อ</button>
+            </div>
+        </div>`;
+    }
+
+    // -------------------------------------------------------------
+    // STEP 4: น้ำหนักปัจจุบันของคุณคือเท่าไหร่? (Current Weight Scale)
+    // -------------------------------------------------------------
+    else if (obStep === 4 && obSubStep !== 'analysis') {
+        const displayVal = obWeightUnit === 'lbs' 
+            ? `${(obState.weight * 2.20462).toFixed(1)} lbs` 
+            : `${obState.weight.toFixed(1)} kg`;
+
+        body.innerHTML = `
+        <div class="wm-ob-wrap">
+            ${headerHtml}
+            <div class="wm-ob-body">
+                <h1 class="wm-ob-title">น้ำหนักปัจจุบันของคุณคือเท่าไหร่?</h1>
+                <p class="wm-ob-subtitle">ส่วนสูงและน้ำหนักเป็นตัวบ่งชี้สำคัญในการกำหนดอัตราการเผาผลาญพื้นฐาน</p>
+
+                <!-- Unit Toggle -->
+                <div style="text-align:center;">
+                    <div class="wm-unit-toggle">
+                        <button type="button" class="wm-unit-btn ${obWeightUnit === 'lbs' ? 'active' : ''}" onclick="setObWeightUnit('lbs')">lbs</button>
+                        <button type="button" class="wm-unit-btn ${obWeightUnit === 'kg' ? 'active' : ''}" onclick="setObWeightUnit('kg')">kg</button>
+                    </div>
+                </div>
+
+                <!-- Big Readout -->
+                <div class="wm-weight-readout">
+                    <span id="obWeightReadoutNum">${obState.weight.toFixed(1)}</span>
+                    <span style="font-size:22px; font-weight:700; color:#64748b;">${obWeightUnit}</span>
+                </div>
+
+                <!-- ตาชั่งน้ำหนักแบบ Interactive Scale -->
+                <div class="wm-weight-scale-stage" title="ตาชั่งน้ำหนัก">
+                    <div class="wm-weight-needle"></div>
+                    <div style="display:flex; align-items:flex-end; gap:6px; height:100%; padding-bottom:6px;">
+                        ${buildScaleTicksHtml(obState.weight)}
+                    </div>
+                </div>
+
+                <div style="text-align:center; margin-top:14px;">
+                    <input type="range" class="ob-range-slider" min="45" max="140" step="0.1" value="${obState.weight}" oninput="onObWeightDrag('weight', this.value)" style="width:85%;">
+                </div>
+
+                <div class="ob-step-btns" style="margin-top:14px;">
+                    <button type="button" class="ob-step-pill" onclick="onObWeightDrag('weight', ${obState.weight - 0.5})">−0.5 kg</button>
+                    <button type="button" class="ob-step-pill" onclick="onObWeightDrag('weight', ${obState.weight - 0.1})">−0.1</button>
+                    <button type="button" class="ob-step-pill" onclick="onObWeightDrag('weight', ${obState.weight + 0.1})">+0.1</button>
+                    <button type="button" class="ob-step-pill" onclick="onObWeightDrag('weight', ${obState.weight + 0.5})">+0.5 kg</button>
+                </div>
+            </div>
+            <div class="wm-ob-footer">
+                <button type="button" class="wm-ob-continue-btn" onclick="goObStep(4, 'analysis')">ดำเนินการต่อ</button>
+            </div>
+        </div>`;
+    }
+
+    // -------------------------------------------------------------
+    // STEP 4.5: การวิเคราะห์ส่วนบุคคล (Personal Analysis with Clip 📎)
+    // -------------------------------------------------------------
+    else if (obStep === 4 && obSubStep === 'analysis') {
         const hM = (obState.height || 168) / 100;
         const bmi = (obState.weight / (hM * hM)).toFixed(1);
-        const diff = (obState.weight - obState.targetWeight).toFixed(1);
-        const wOffset = (obState.weight - 75) * -9;
-        const tOffset = (obState.targetWeight - 75) * -9;
+        const normalWeightMax = (24.9 * (hM * hM)).toFixed(1);
+        const normalWeightMin = (18.5 * (hM * hM)).toFixed(1);
+        const excessWeight = Math.max(0, obState.weight - normalWeightMax).toFixed(1);
+        const isOver = bmi >= 25.0;
 
-        body.innerHTML = headerHtml + `
-            <div class="ob-hero-icon">⚖️</div>
-            <h2 style="margin:0 0 4px; font-size:21px; font-weight:900; color:#0f172a; text-align:center;">น้ำหนักปัจจุบัน & เป้าหมาย</h2>
-            <p style="margin:0 0 14px; font-size:12.5px; color:#64748b; text-align:center;">เลื่อนตาชั่งเพื่อตั้งค่าน้ำหนักปัจจุบันและเป้าหมายของคุณ</p>
+        // BMI Pointer percentage on 4-color track (15 to 35 range)
+        const bmiPct = Math.max(5, Math.min(95, ((bmi - 15) / (35 - 15)) * 100));
 
-            <div class="ob-scale-card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:12px; font-weight:800; color:#475569;">น้ำหนักปัจจุบัน</span>
-                    <span id="obLiveBmiBadge" style="font-size:11px; font-weight:800; color:#2563eb; background:#eff6ff; padding:3px 9px; border-radius:99px;">BMI ${bmi} • ${diff > 0 ? `เป้าหมายลด ${diff} กก.` : 'รักษาน้ำหนัก'}</span>
-                </div>
-                <div class="ob-scale-readout">
-                    <span id="obWeightNum" class="ob-scale-num">${obState.weight.toFixed(1)}</span>
-                    <span style="font-size:16px; font-weight:800; color:#64748b;">กก.</span>
-                </div>
-                <div class="ob-ruler-window">
-                    <div id="obWeightTicks" class="ob-ruler-ticks" style="transform:translateX(${wOffset}px);">${buildScaleTicksHtml()}</div>
-                    <div class="ob-ruler-needle"></div>
-                </div>
-                <input type="range" class="ob-range-slider" min="45" max="130" step="0.1" value="${obState.weight}" oninput="onObWeightSlider('weight', this.value)">
-                <div class="ob-step-btns">
-                    <button type="button" class="ob-step-pill" onclick="adjustObWeight('weight', -0.5)">−0.5</button>
-                    <button type="button" class="ob-step-pill" onclick="adjustObWeight('weight', -0.1)">−0.1</button>
-                    <button type="button" class="ob-step-pill" onclick="adjustObWeight('weight', 0.1)">+0.1</button>
-                    <button type="button" class="ob-step-pill" onclick="adjustObWeight('weight', 0.5)">+0.5</button>
-                </div>
-            </div>
-
-            <div class="ob-scale-card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:12px; font-weight:800; color:#059669;">🎯 น้ำหนักเป้าหมาย</span>
-                    <span style="font-size:11px; font-weight:700; color:#059669;">คำนวณอัตราเผาผลาญอัตโนมัติ</span>
-                </div>
-                <div class="ob-scale-readout">
-                    <span id="obTargetNum" class="ob-scale-num" style="color:#059669;">${obState.targetWeight.toFixed(1)}</span>
-                    <span style="font-size:16px; font-weight:800; color:#64748b;">กก.</span>
-                </div>
-                <div class="ob-ruler-window">
-                    <div id="obTargetTicks" class="ob-ruler-ticks" style="transform:translateX(${tOffset}px);">${buildScaleTicksHtml()}</div>
-                    <div class="ob-ruler-needle" style="background:#10b981;"></div>
-                </div>
-                <input type="range" class="ob-range-slider" style="accent-color:#10b981;" min="45" max="115" step="0.1" value="${obState.targetWeight}" oninput="onObWeightSlider('targetWeight', this.value)">
-                <div class="ob-step-btns">
-                    <button type="button" class="ob-step-pill" onclick="adjustObWeight('targetWeight', -0.5)">−0.5</button>
-                    <button type="button" class="ob-step-pill" onclick="adjustObWeight('targetWeight', -0.1)">−0.1</button>
-                    <button type="button" class="ob-step-pill" onclick="adjustObWeight('targetWeight', 0.1)">+0.1</button>
-                    <button type="button" class="ob-step-pill" onclick="adjustObWeight('targetWeight', 0.5)">+0.5</button>
-                </div>
-            </div>
-
-            <button type="button" class="btn" style="border-radius:99px; font-size:15px; padding:14px;" onclick="goObStep(2)">ถัดไป: ส่วนสูง เพศ & อายุ ➔</button>
-        `;
-    } else if (obStep === 2) {
-        const pctBottom = Math.max(22, Math.min(86, ((obState.height - 135) / 70) * 64 + 22));
-        const scaleH = Math.max(0.68, Math.min(1.08, 0.68 + ((obState.height - 140) / 60) * 0.4));
-
-        body.innerHTML = headerHtml + `
-            <div class="ob-hero-icon">📏</div>
-            <h2 style="margin:0 0 4px; font-size:21px; font-weight:900; color:#0f172a; text-align:center;">ส่วนสูง เพศ & อายุ</h2>
-            <p style="margin:0 0 14px; font-size:12.5px; color:#64748b; text-align:center;">ใช้คำนวณ BMR ตามสูตร Mifflin-St Jeor</p>
-
-            <div class="ob-stadiometer-card" style="margin-bottom:12px;">
-                <div>
-                    <div style="font-size:12px; font-weight:800; color:#64748b;">ส่วนสูงปัจจุบัน</div>
-                    <div style="display:flex; align-items:baseline; gap:5px; margin:4px 0 12px;">
-                        <span id="obHeightNum" style="font-size:42px; font-weight:900; color:#0f172a; letter-spacing:-1.5px;">${obState.height}</span>
-                        <span style="font-size:16px; font-weight:800; color:#64748b;">ซม.</span>
-                    </div>
-                    <input type="range" class="ob-range-slider" min="140" max="200" step="1" value="${obState.height}" oninput="onObHeightSlider(this.value)">
-                    <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#64748b; margin-top:4px;">
-                        <span>140 cm</span><span>170 cm</span><span>200 cm</span>
-                    </div>
-                </div>
-                <div class="ob-height-stage">
-                    <div id="obHeightLaser" class="ob-height-laser" style="bottom:${pctBottom}%;">
-                        <span id="obHeightLaserTag" class="ob-height-laser-tag">${obState.height} cm</span>
-                    </div>
-                    <div class="ob-height-ruler-vert">${Array.from({length: 13}).map(() => '<span></span>').join('')}</div>
-                    <svg id="obSilhouetteSvg" viewBox="0 0 60 140" width="54" height="145" style="transform-origin:bottom center; transform:scaleY(${scaleH.toFixed(2)}); transition:transform 0.18s ease-out;">
-                        <circle cx="30" cy="18" r="11" fill="#3b82f6"/>
-                        <path d="M16 36 C16 32 44 32 44 36 L47 80 L40 80 L39 135 L32 135 L30 92 L28 135 L21 135 L20 80 L13 80 Z" fill="#2563eb"/>
+        body.innerHTML = `
+        <div class="wm-ob-wrap">
+            ${headerHtml}
+            <div class="wm-ob-body">
+                <!-- Floating Clip Card -->
+                <div class="wm-clip-card">
+                    <!-- Blue Paperclip Icon -->
+                    <svg class="wm-clip-icon" viewBox="0 0 32 38" fill="none">
+                        <path d="M8 12V24C8 28.4 11.6 32 16 32C20.4 32 24 28.4 24 24V8C24 4.7 21.3 2 18 2C14.7 2 12 4.7 12 8V22C12 24.2 13.8 26 16 26C18.2 26 20 24.2 20 22V12" stroke="#0284c7" stroke-width="3" stroke-linecap="round"/>
                     </svg>
-                </div>
-            </div>
 
-            <div class="g2" style="gap:10px; margin-bottom:16px;">
-                <div class="ob-scale-card" style="margin:0; text-align:center;">
-                    <div style="font-size:11.5px; font-weight:800; color:#64748b; margin-bottom:8px;">👤 เพศ</div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-                        <button type="button" onclick="setObField('gender','M')" style="padding:10px 4px; border-radius:12px; border:1.5px solid ${obState.gender === 'M' ? '#2563eb' : '#e2e8f0'}; background:${obState.gender === 'M' ? '#eff6ff' : '#fff'}; font-weight:800; font-size:13px; color:#0f172a; cursor:pointer;">👨 ชาย</button>
-                        <button type="button" onclick="setObField('gender','F')" style="padding:10px 4px; border-radius:12px; border:1.5px solid ${obState.gender === 'F' ? '#ec4899' : '#e2e8f0'}; background:${obState.gender === 'F' ? '#fdf2f8' : '#fff'}; font-weight:800; font-size:13px; color:#0f172a; cursor:pointer;">👩 หญิง</button>
+                    <div class="wm-analysis-header">การวิเคราะห์ส่วนบุคคล</div>
+
+                    <!-- Profile Row -->
+                    <div class="wm-analysis-profile-row">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:24px;">👤</span>
+                            <div>
+                                <div style="font-size:11px; color:#64748b; font-weight:700;">อายุ</div>
+                                <div style="font-size:14px; font-weight:900; color:#0f172a;">${obState.age}</div>
+                            </div>
+                        </div>
+                        <div style="width:1px; height:24px; background:#e2e8f0;"></div>
+                        <div>
+                            <div style="font-size:11px; color:#64748b; font-weight:700;">เพศ</div>
+                            <div style="font-size:14px; font-weight:900; color:#0f172a;">${obState.gender === 'M' ? 'ชาย' : 'หญิง'}</div>
+                        </div>
+                        <div style="width:1px; height:24px; background:#e2e8f0;"></div>
+                        <div>
+                            <div style="font-size:11px; color:#64748b; font-weight:700;">ส่วนสูง</div>
+                            <div style="font-size:14px; font-weight:900; color:#0f172a;">${obState.height.toFixed(1)} cm</div>
+                        </div>
+                    </div>
+
+                    <!-- 2-Column Status Grid -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+                        <div class="wm-analysis-stat-box" style="justify-content:center;">
+                            <div style="font-size:11.5px; font-weight:700; color:#64748b;">สถานะ</div>
+                            <div style="font-size:18px; font-weight:900; color:${isOver ? '#f97316' : '#10b981'};">
+                                ${isOver ? 'น้ำหนักเกิน' : 'สุขภาพดี'}
+                            </div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <div class="wm-analysis-stat-box" style="padding:8px 12px;">
+                                <div style="font-size:10.5px; font-weight:700; color:#64748b;">น้ำหนัก</div>
+                                <div style="font-size:15px; font-weight:900; color:#0f172a;">${obState.weight.toFixed(1)} kg</div>
+                            </div>
+                            <div class="wm-analysis-stat-box" style="padding:8px 12px; background:#fff7ed; border-color:#fed7aa;">
+                                <div style="font-size:10.5px; font-weight:700; color:#ea580c;">ข้อเสนอแนะ</div>
+                                <div style="font-size:14px; font-weight:900; color:#c2410c;">${excessWeight > 0 ? `ลด ${excessWeight} kg` : 'รักษาน้ำหนัก'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4-Color BMI Gauge Bar -->
+                    <div style="position:relative; margin-top:20px;">
+                        <div class="wm-bmi-pointer" style="left:${bmiPct}%;">
+                            <span>${bmi}</span>
+                            <span style="font-size:9px; color:#0284c7;">▼</span>
+                        </div>
+                        <div class="wm-bmi-bar-track">
+                            <div class="wm-bmi-segment" style="background:#38bdf8;" title="น้ำหนักน้อยเกินไป"></div>
+                            <div class="wm-bmi-segment" style="background:#4ade80;" title="สุขภาพดี"></div>
+                            <div class="wm-bmi-segment" style="background:#fb923c;" title="น้ำหนักเกิน"></div>
+                            <div class="wm-bmi-segment" style="background:#f87171;" title="อ้วนมาก"></div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:10px; font-weight:700; color:#94a3b8; margin-top:4px;">
+                            <span>น้ำหนักน้อยเกินไป</span>
+                            <span>สุขภาพดี</span>
+                            <span>น้ำหนักเกิน</span>
+                            <span>อ้วนมาก</span>
+                        </div>
+                    </div>
+
+                    <!-- Details Row with Male Torso Graphic -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; background:#ffffff; border-radius:14px; padding:12px 14px; border:1px solid #e2e8f0;">
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:15px;">💡</span>
+                                <span style="font-size:12px; font-weight:700; color:#64748b;">BMI <b>${bmi}</b></span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:15px;">🍃</span>
+                                <span style="font-size:12px; font-weight:700; color:#64748b;">BMI ที่ดีต่อสุขภาพ <b>18.5 - 24.9</b></span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:15px;">🩱</span>
+                                <span style="font-size:12px; font-weight:700; color:#64748b;">น้ำหนักที่ดีต่อสุขภาพ <b>${normalWeightMin}kg - ${normalWeightMax}kg</b></span>
+                            </div>
+                        </div>
+                        <div style="width:72px; height:84px; display:flex; align-items:center; justify-content:center; background:#f8fafc; border-radius:10px;">
+                            <svg width="60" height="74" viewBox="0 0 60 74" fill="none">
+                                <path d="M12 12C12 4 48 4 48 12C48 24 54 36 50 56C46 58 40 58 36 54L30 58L24 54C20 58 14 58 10 56C6 36 12 24 12 12Z" fill="#334155"/>
+                                <path d="M16 54H44V70H16V54Z" fill="#1e293b"/>
+                            </svg>
+                        </div>
                     </div>
                 </div>
-                <div class="ob-scale-card" style="margin:0; text-align:center;">
-                    <div style="font-size:11.5px; font-weight:800; color:#64748b;">🎂 อายุ (ปี)</div>
-                    <div style="font-size:28px; font-weight:900; color:#0f172a; margin:2px 0;">${obState.age}</div>
-                    <div class="ob-step-btns">
-                        <button type="button" class="ob-step-pill" onclick="adjustObInt('age', -1, 15, 85)">−</button>
-                        <button type="button" class="ob-step-pill" onclick="adjustObInt('age', 1, 15, 85)">+</button>
+            </div>
+            <div class="wm-ob-footer">
+                <button type="button" class="wm-ob-continue-btn" onclick="goObStep(5)">ดำเนินการต่อ</button>
+            </div>
+        </div>`;
+    }
+
+    // -------------------------------------------------------------
+    // STEP 5: น้ำหนักที่ต้องการของคุณคือเท่าไหร่? (Target Weight)
+    // -------------------------------------------------------------
+    else if (obStep === 5) {
+        const pctLoss = Math.max(0, ((obState.weight - obState.targetWeight) / obState.weight * 100)).toFixed(1);
+        const difficulty = pctLoss > 10 ? 'เป้าหมายระดับยาก' : (pctLoss > 5 ? 'เป้าหมายระดับปานกลาง' : 'เป้าหมายแบบง่าย');
+        const diffColor = pctLoss > 10 ? '#f97316' : (pctLoss > 5 ? '#eab308' : '#10b981');
+
+        body.innerHTML = `
+        <div class="wm-ob-wrap">
+            ${headerHtml}
+            <div class="wm-ob-body">
+                <h1 class="wm-ob-title">น้ำหนักที่ต้องการของคุณคือเท่าไหร่?</h1>
+                <p class="wm-ob-subtitle">น้ำหนักเป้าหมายจะส่งผลต่อการคำนวณงบประมาณแคลอรี่ของคุณ</p>
+
+                <!-- Big Readout -->
+                <div class="wm-weight-readout">
+                    <span id="obTargetReadoutNum">${obState.targetWeight.toFixed(1)}</span>
+                    <span style="font-size:22px; font-weight:700; color:#64748b;">kg</span>
+                </div>
+
+                <!-- ตาชั่งน้ำหนักเป้าหมาย (Interactive Target Scale) -->
+                <div class="wm-weight-scale-stage" title="ตาชั่งน้ำหนักเป้าหมาย">
+                    <div class="wm-weight-needle"></div>
+                    <div style="display:flex; align-items:flex-end; gap:6px; height:100%; padding-bottom:6px;">
+                        ${buildScaleTicksHtml(obState.targetWeight)}
+                    </div>
+                </div>
+
+                <div style="text-align:center; margin-top:14px;">
+                    <input type="range" class="ob-range-slider" min="45" max="115" step="0.1" value="${obState.targetWeight}" oninput="onObWeightDrag('targetWeight', this.value)" style="width:85%;">
+                </div>
+
+                <div class="ob-step-btns" style="margin-top:14px;">
+                    <button type="button" class="ob-step-pill" onclick="onObWeightDrag('targetWeight', ${obState.targetWeight - 0.5})">−0.5 kg</button>
+                    <button type="button" class="ob-step-pill" onclick="onObWeightDrag('targetWeight', ${obState.targetWeight - 0.1})">−0.1</button>
+                    <button type="button" class="ob-step-pill" onclick="onObWeightDrag('targetWeight', ${obState.targetWeight + 0.1})">+0.1</button>
+                    <button type="button" class="ob-step-pill" onclick="onObWeightDrag('targetWeight', ${obState.targetWeight + 0.5})">+0.5 kg</button>
+                </div>
+
+                <!-- Dynamic Difficulty Card -->
+                <div style="margin-top:20px; background:#ffffff; border:1px solid #e2e8f0; border-radius:18px; padding:14px 16px; box-shadow:0 4px 14px rgba(15,23,42,0.03);">
+                    <div style="font-size:14px; font-weight:800; color:${diffColor}; margin-bottom:4px;">${difficulty}</div>
+                    <div id="obTargetDiffPercent" style="font-size:12.5px; color:#475569; font-weight:600;">คุณจะลดน้ำหนักลง ${pctLoss}% ของน้ำหนักตัว</div>
+                </div>
+            </div>
+            <div class="wm-ob-footer">
+                <button type="button" class="wm-ob-continue-btn" onclick="goObStep(6)">ดำเนินการต่อ</button>
+            </div>
+        </div>`;
+    }
+
+    // -------------------------------------------------------------
+    // STEP 6: คุณต้องการบรรลุเป้าหมายเมื่อไหร่? (Target Date)
+    // -------------------------------------------------------------
+    else if (obStep === 6 && obSubStep !== 'trajectory') {
+        const curYr = obState.targetYear || 2027;
+        const curMo = obState.targetMonth || 3;
+        const curDay = obState.targetDay || 31;
+
+        body.innerHTML = `
+        <div class="wm-ob-wrap">
+            ${headerHtml}
+            <div class="wm-ob-body">
+                <div style="display:inline-block; font-size:11px; font-weight:800; color:#0284c7; background:#eff6ff; padding:3px 10px; border-radius:99px; border:1px solid #bae6fd; margin-bottom:6px;">🎯 คาดการณ์บรรลุเป้าหมาย</div>
+                <h1 class="wm-ob-title">คุณต้องการบรรลุเป้าหมายเมื่อไหร่?</h1>
+                <p class="wm-ob-subtitle">เวลาที่คุณคาดหวังว่าจะบรรลุเป้าหมายจะส่งผลต่อการคำนวณงบประมาณแคลอรี่ของคุณ</p>
+
+                <!-- 3-Column Roller Picker: ปี, เดือน, วัน -->
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:16px 0; background:#ffffff; border-radius:18px; border:1px solid #e2e8f0; padding:14px 10px; position:relative;">
+                    <div style="position:absolute; left:8px; right:8px; top:50%; transform:translateY(-50%); height:44px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; pointer-events:none;"></div>
+                    <!-- Col 1: ปี -->
+                    <div style="text-align:center; z-index:2;">
+                        <div style="font-size:12px; font-weight:800; color:#64748b; margin-bottom:8px;">ปี</div>
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            <span style="font-size:13px; color:#cbd5e1;">${curYr - 1}</span>
+                            <span style="font-size:18px; font-weight:900; color:#0f172a;">${curYr}</span>
+                            <span style="font-size:13px; color:#cbd5e1;">${curYr + 1}</span>
+                        </div>
+                    </div>
+                    <!-- Col 2: เดือน -->
+                    <div style="text-align:center; z-index:2;">
+                        <div style="font-size:12px; font-weight:800; color:#64748b; margin-bottom:8px;">เดือน</div>
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            <span style="font-size:13px; color:#cbd5e1;">${curMo === 1 ? 12 : curMo - 1}</span>
+                            <span style="font-size:18px; font-weight:900; color:#0f172a;">${curMo}</span>
+                            <span style="font-size:13px; color:#cbd5e1;">${curMo === 12 ? 1 : curMo + 1}</span>
+                        </div>
+                    </div>
+                    <!-- Col 3: วัน -->
+                    <div style="text-align:center; z-index:2;">
+                        <div style="font-size:12px; font-weight:800; color:#64748b; margin-bottom:8px;">วัน</div>
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            <span style="font-size:13px; color:#cbd5e1;">30</span>
+                            <span style="font-size:18px; font-weight:900; color:#0f172a;">${curDay}</span>
+                            <span style="font-size:13px; color:#cbd5e1;">1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feasibility Card -->
+                <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:18px; padding:14px 16px; box-shadow:0 4px 14px rgba(15,23,42,0.03);">
+                    <div style="font-size:14px; font-weight:800; color:#10b981; margin-bottom:4px;">เป้าหมายแบบง่าย</div>
+                    <div style="font-size:12.5px; color:#475569; font-weight:600;">คุณจะลดน้ำหนัก <b>0.4kg</b> ต่อสัปดาห์ (อัตราส่วนปลอดภัยและยั่งยืน)</div>
+                </div>
+            </div>
+            <div class="wm-ob-footer">
+                <button type="button" class="wm-ob-continue-btn" onclick="goObStep(6, 'trajectory')">ดำเนินการต่อ</button>
+            </div>
+        </div>`;
+    }
+
+    // -------------------------------------------------------------
+    // STEP 6.5: เราคาดการณ์ว่าคุณจะบรรลุเป้าหมาย (Trajectory Curve SVG)
+    // -------------------------------------------------------------
+    else if (obStep === 6 && obSubStep === 'trajectory') {
+        body.innerHTML = `
+        <div class="wm-ob-wrap">
+            ${headerHtml}
+            <div class="wm-ob-body">
+                <div style="font-size:14px; font-weight:700; color:#64748b; text-align:center; margin-bottom:4px;">เราคาดการณ์ว่าคุณจะบรรลุเป้าหมาย</div>
+                <h1 style="font-size:26px; font-weight:900; color:#0284c7; text-align:center; margin:0 0 20px; letter-spacing:-0.5px;">
+                    ${obState.targetWeight.toFixed(1)} kg ภายในวันที่ มี.ค. 31
+                </h1>
+
+                <!-- Smooth SVG Trajectory Chart -->
+                <div style="background:#ffffff; border-radius:24px; border:1px solid #e2e8f0; padding:24px 16px 14px; box-shadow:0 8px 24px rgba(15,23,42,0.04); position:relative; overflow:hidden;">
+                    <svg viewBox="0 0 340 160" width="100%" height="160" style="display:block;">
+                        <!-- Baseline without plan (Grey Dotted Wave) -->
+                        <path d="M 30 50 Q 120 70 200 60 T 320 65" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-dasharray="5 5"/>
+                        <!-- Controlled Healthy Trajectory Curve (Vibrant Blue) -->
+                        <path d="M 30 50 C 90 50, 110 110, 260 110 L 320 110" fill="none" stroke="#0284c7" stroke-width="4.5" stroke-linecap="round"/>
+                        <!-- Start Point Dot -->
+                        <circle cx="30" cy="50" r="7" fill="#0284c7" stroke="#ffffff" stroke-width="3"/>
+                        <!-- Target Pin Flag Badge -->
+                        <g transform="translate(235, 78)">
+                            <rect x="0" y="0" width="50" height="58" rx="20" fill="#ffffff" stroke="#38bdf8" stroke-width="2" filter="drop-shadow(0 4px 8px rgba(2,132,199,0.15))"/>
+                            <text x="25" y="16" font-size="9" font-weight="700" fill="#64748b" text-anchor="middle">มี.ค.</text>
+                            <text x="25" y="32" font-size="14" font-weight="900" fill="#0f172a" text-anchor="middle">31</text>
+                            <circle cx="25" cy="46" r="8" fill="#f97316"/>
+                            <text x="25" y="50" font-size="9" fill="#ffffff" text-anchor="middle">⛳</text>
+                        </g>
+                    </svg>
+
+                    <!-- Chart Axis Labels -->
+                    <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:#64748b; margin-top:8px; padding:0 8px;">
+                        <span>วันนี้<br><b style="color:#0f172a;">${obState.weight.toFixed(1)} kg</b></span>
+                        <span style="text-align:right;">มี.ค. 31<br><b style="color:#0284c7;">${obState.targetWeight.toFixed(1)} kg</b></span>
+                    </div>
+                </div>
+
+                <!-- Motivation Card -->
+                <div style="margin-top:20px; background:#ffffff; border:1px solid #e2e8f0; border-radius:18px; padding:16px; box-shadow:0 4px 14px rgba(15,23,42,0.03);">
+                    <div style="display:flex; align-items:center; gap:8px; font-size:15px; font-weight:900; color:#0f172a; margin-bottom:4px;">
+                        <span>🎯</span> ยังคงอยู่ในเส้นทาง!
+                    </div>
+                    <div style="font-size:12.5px; color:#64748b; line-height:1.45;">เราจะนำเป้าหมายของคุณมาคำนวณในแผนส่วนบุคคล เพื่อให้คุณลดน้ำหนักได้ตรงตามเป้าหมายแบบไม่โทรม</div>
+                </div>
+            </div>
+            <div class="wm-ob-footer">
+                <button type="button" class="wm-ob-continue-btn" onclick="goObStep(7)">ดำเนินการต่อ</button>
+            </div>
+        </div>`;
+    }
+
+    // -------------------------------------------------------------
+    // STEP 7: ระดับกิจกรรมของคุณเป็นอย่างไร? (Activity 4-Dot Slider)
+    // -------------------------------------------------------------
+    else if (obStep === 7) {
+        const actLevels = {
+            1: { title: 'ไม่มีความเคลื่อนไหว', sub: 'ฉันรู้สึกหอบง่ายเมื่อเดินขึ้นบันได (นั่งทำงานเป็นหลัก)', icon: '🧘', color: '#64748b' },
+            2: { title: 'เคลื่อนไหวเบาๆ', sub: 'เดินทำงานบ้าน หรือเดินระหว่างวันบ้าง 3,000-5,000 ก้าว', icon: '🚶', color: '#0284c7' },
+            3: { title: 'เคลื่อนไหวปานกลาง', sub: 'ออกกำลังกายสม่ำเสมอ 3-4 วันต่อสัปดาห์ หรือเดิน 8,000 ก้าว', icon: '🏃', color: '#10b981' },
+            4: { title: 'เคลื่อนไหวมาก', sub: 'ทำงานใช้แรงหนัก หรือฝึกซ้อมกีฬาเข้มข้น 5-6 วันต่อสัปดาห์', icon: '⚡', color: '#f97316' }
+        };
+        const curAct = actLevels[obState.activityLevel] || actLevels[1];
+
+        body.innerHTML = `
+        <div class="wm-ob-wrap">
+            ${headerHtml}
+            <div class="wm-ob-body">
+                <h1 class="wm-ob-title">ระดับกิจกรรมของคุณเป็นอย่างไร?</h1>
+                <p class="wm-ob-subtitle">อัตราการขยับร่างกายจะช่วยกำหนดค่า TDEE และปริมาณอาหารที่เหมาะสม</p>
+
+                <div class="wm-activity-card">
+                    <div class="wm-activity-illustration">
+                        <div style="width:110px; height:110px; border-radius:50%; background:#eff6ff; display:flex; align-items:center; justify-content:center; font-size:54px; box-shadow:0 8px 24px rgba(2,132,199,0.12);">
+                            ${curAct.icon}
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:center; gap:6px; font-size:18px; font-weight:900; color:#0f172a; margin-bottom:6px;">
+                        <span>📶</span> ${curAct.title}
+                    </div>
+                    <div style="font-size:12.5px; color:#64748b; font-weight:600; line-height:1.45;">${curAct.sub}</div>
+
+                    <!-- 4-Dot Activity Slider -->
+                    <div style="margin-top:24px; padding:0 10px;">
+                        <input type="range" min="1" max="4" step="1" value="${obState.activityLevel}" oninput="onObActivitySelect(this.value)" style="width:100%; accent-color:#0284c7; cursor:pointer;">
+                        <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:800; color:#94a3b8; margin-top:6px;">
+                            <span>น้อย</span>
+                            <span>เบาๆ</span>
+                            <span>ปานกลาง</span>
+                            <span>สูงมาก</span>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="wm-ob-footer">
+                <button type="button" class="wm-ob-continue-btn" onclick="goObStep(8)">ดำเนินการต่อ</button>
+            </div>
+        </div>`;
+    }
 
-            <button type="button" class="btn" style="border-radius:99px; font-size:15px; padding:14px;" onclick="goObStep(3)">ถัดไป: ข้อมูล InBody & ชีพจร ➔</button>
-        `;
-    } else if (obStep === 3) {
-        body.innerHTML = headerHtml + `
-            <div class="ob-hero-icon">🧬</div>
-            <h2 style="margin:0 0 4px; font-size:21px; font-weight:900; color:#0f172a; text-align:center;">ข้อมูลองค์ประกอบร่างกาย</h2>
-            <p style="margin:0 0 12px; font-size:12.5px; color:#64748b; text-align:center;">ค่าจากเครื่องชั่ง InBody & นาฬิกา (ใช้คำนวณ BMR จริงของคุณ)</p>
+    // -------------------------------------------------------------
+    // STEP 8: คุณรู้ความสัมพันธ์ระหว่างแคลอรี่และน้ำหนักตัวหรือไม่? (Quiz)
+    // -------------------------------------------------------------
+    else if (obStep === 8 && obSubStep !== 'completion') {
+        body.innerHTML = `
+        <div class="wm-ob-wrap">
+            ${headerHtml}
+            <div class="wm-ob-body">
+                <h1 class="wm-ob-title">คุณรู้ความสัมพันธ์ระหว่างแคลอรี่และน้ำหนักตัวหรือไม่?</h1>
+                <p class="wm-ob-subtitle">ความเข้าใจเรื่องพลังงานเป็นหัวใจหลักในการลดน้ำหนักให้ประสบความสำเร็จ</p>
 
-            <div class="ob-scale-card" style="padding:14px;">
-                <div style="font-size:12px; font-weight:800; color:#2563eb; margin-bottom:10px;">📊 องค์ประกอบร่างกาย (InBody)</div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <div>
-                        <label style="font-size:11px; font-weight:700; color:#64748b;">ไขมันร่างกาย (%BF)</label>
-                        <input id="obInBF" type="number" step="0.1" value="${obState.bf}" style="margin-top:4px; padding:9px 10px; font-weight:800;">
+                <!-- 3 Choice Cards -->
+                <div class="wm-quiz-card ${obState.quizAnswer === 1 ? 'selected' : ''}" onclick="onObQuizSelect(1)">
+                    รู้ ปริมาณแคลอรีที่กินมีผลต่อน้ำหนักตัว
+                </div>
+                <div class="wm-quiz-card ${obState.quizAnswer === 2 ? 'selected' : ''}" onclick="onObQuizSelect(2)">
+                    รู้บ้าง แคลอรีมีผลต่อน้ำหนัก
+                </div>
+                <div class="wm-quiz-card ${obState.quizAnswer === 3 ? 'selected' : ''}" onclick="onObQuizSelect(3)">
+                    ไม่รู้ ฉันไม่แน่ใจว่าแคลอรีมีผลต่อน้ำหนักอย่างไร
+                </div>
+            </div>
+            <div class="wm-ob-footer">
+                <button type="button" class="wm-ob-continue-btn" onclick="goObStep(8, 'completion')">ดำเนินการต่อ</button>
+            </div>
+        </div>`;
+    }
+
+    // -------------------------------------------------------------
+    // STEP 8.5: ลดพลังงาน 500 kcal ต่อวันอย่างง่ายดาย (Motivation & Activation)
+    // -------------------------------------------------------------
+    else if (obStep === 8 && obSubStep === 'completion') {
+        body.innerHTML = `
+        <div class="wm-ob-wrap">
+            <div class="wm-ob-topbar">
+                <button type="button" class="wm-ob-back-btn" onclick="goObStep(8)">‹</button>
+                <div class="wm-ob-progress-track">
+                    <div class="wm-ob-progress-fill" style="width:100%;"></div>
+                </div>
+                <div class="wm-ob-step-num">8 / 8</div>
+            </div>
+            <div class="wm-ob-body">
+                <h1 class="wm-ob-title" style="text-align:center; font-size:23px;">ลดพลังงาน <b>500 kcal</b><br>ต่อวันอย่างง่ายดาย</h1>
+
+                <!-- 2-Column: 4 Equivalent Cards (Left) vs 500 kcal Blue Sphere (Right) -->
+                <div style="display:grid; grid-template-columns:1fr 120px; gap:12px; align-items:center; margin:16px 0 20px;">
+                    <!-- Left: 4 Items -->
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:8px 12px; display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:700; color:#0f172a;">
+                            <span style="font-size:16px;">🏊</span> ว่ายน้ำ <b style="color:#0284c7;">83 นาที</b>
+                        </div>
+                        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:8px 12px; display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:700; color:#0f172a;">
+                            <span style="font-size:16px;">🏃</span> วิ่ง <b style="color:#f97316;">69 นาที</b>
+                        </div>
+                        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:8px 12px; display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:700; color:#0f172a;">
+                            <span style="font-size:16px;">🍰</span> เค้ก <b style="color:#ec4899;">1 ชิ้น</b>
+                        </div>
+                        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:8px 12px; display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:700; color:#0f172a;">
+                            <span style="font-size:16px;">🍗</span> ไก่ทอด <b style="color:#eab308;">3 ชิ้น</b>
+                        </div>
                     </div>
-                    <div>
-                        <label style="font-size:11px; font-weight:700; color:#64748b;">มวลกล้ามเนื้อ (กก.)</label>
-                        <input id="obInMuscle" type="number" step="0.1" value="${obState.muscle}" style="margin-top:4px; padding:9px 10px; font-weight:800;">
-                    </div>
-                    <div>
-                        <label style="font-size:11px; font-weight:700; color:#64748b;">ไขมันช่องท้อง (Visceral)</label>
-                        <input id="obInVisceral" type="number" value="${obState.visceral}" style="margin-top:4px; padding:9px 10px; font-weight:800;">
-                    </div>
-                    <div>
-                        <label style="font-size:11px; font-weight:700; color:#64748b;">BMR เครื่องชั่ง (kcal)</label>
-                        <input id="obInBmrCustom" type="number" value="${obState.bmrCustom}" style="margin-top:4px; padding:9px 10px; font-weight:800;">
+
+                    <!-- Right: Large Blue Sphere -->
+                    <div style="width:120px; height:120px; border-radius:50%; background:linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; color:#ffffff; box-shadow:0 10px 24px rgba(2,132,199,0.3);">
+                        <div style="font-size:24px; font-weight:900; line-height:1;">500</div>
+                        <div style="font-size:12px; font-weight:800; opacity:0.9;">kcal</div>
+                        <div style="font-size:14px; font-weight:900; opacity:0.8; margin-top:2px;">≈</div>
                     </div>
                 </div>
-            </div>
 
-            <div class="ob-scale-card" style="padding:14px;">
-                <div style="font-size:12px; font-weight:800; color:#059669; margin-bottom:10px;">❤️ สมรรถภาพหัวใจ & การฟื้นตัว</div>
-                <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
-                    <div>
-                        <label style="font-size:10.5px; font-weight:700; color:#64748b;">RHR (bpm)</label>
-                        <input id="obInRHR" type="number" value="${obState.rhr}" style="margin-top:4px; padding:9px 8px; font-weight:800;">
+                <p style="text-align:center; font-size:12.5px; color:#64748b; line-height:1.45; margin:0 0 16px;">
+                    FitCoach ช่วยลดปริมาณแคลอรีที่กินต่อวันของผู้ใช้ลงเฉลี่ย 500 kcal อย่างปลอดภัย โดยไม่ต้องอดอาหาร
+                </p>
+
+                <!-- Plan Targets Summary Card -->
+                <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:18px; padding:14px; box-shadow:0 4px 14px rgba(15,23,42,0.03);">
+                    <div style="font-size:13px; font-weight:900; color:#0f172a; margin-bottom:8px;">🎯 แผนโภชนาการส่วนบุคคลของคุณ</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:12px;">
+                        <div style="background:#f0f9ff; padding:8px 10px; border-radius:10px; border:1px solid #bae6fd;">
+                            <span style="color:#0369a1; font-weight:700;">งบพลังงาน</span><br>
+                            <b style="font-size:15px; color:#0284c7;">${plan.calTarget.toLocaleString()} kcal</b>
+                        </div>
+                        <div style="background:#ecfdf5; padding:8px 10px; border-radius:10px; border:1px solid #a7f3d0;">
+                            <span style="color:#047857; font-weight:700;">โปรตีนเป้าหมาย</span><br>
+                            <b style="font-size:15px; color:#059669;">${plan.proTarget} กรัม</b>
+                        </div>
+                        <div style="background:#fefce8; padding:8px 10px; border-radius:10px; border:1px solid #fef08a;">
+                            <span style="color:#854d0e; font-weight:700;">คาร์โบไฮเดรต</span><br>
+                            <b style="font-size:15px; color:#ca8a04;">${plan.carbsTarget} กรัม</b>
+                        </div>
+                        <div style="background:#fff1f2; padding:8px 10px; border-radius:10px; border:1px solid #fecdd3;">
+                            <span style="color:#9f1239; font-weight:700;">ไขมันดี</span><br>
+                            <b style="font-size:15px; color:#e11d48;">${plan.fatTarget} กรัม</b>
+                        </div>
                     </div>
-                    <div>
-                        <label style="font-size:10.5px; font-weight:700; color:#64748b;">VO2 Max</label>
-                        <input id="obInVO2" type="number" value="${obState.vo2max}" style="margin-top:4px; padding:9px 8px; font-weight:800;">
-                    </div>
-                    <div>
-                        <label style="font-size:10.5px; font-weight:700; color:#64748b;">HRV (ms)</label>
-                        <input id="obInHRV" type="number" value="${obState.hrv}" style="margin-top:4px; padding:9px 8px; font-weight:800;">
-                    </div>
                 </div>
             </div>
-
-            <button type="button" class="btn" style="border-radius:99px; font-size:15px; padding:14px;" onclick="goObStep(4)">ถัดไป: เลือกคอร์ส & กิจวัตร ➔</button>
-        `;
-    } else if (obStep === 4) {
-        const weekOpts = [8, 12, 16, 20, 22];
-        const goalOpts = [
-            { id: 'recomp', t: 'ลดไขมันรักษากล้ามเนื้อ (Recomp) — แนะนำ' },
-            { id: 'fatloss', t: 'เน้นลดไขมัน/น้ำหนักเร็ว (Fat Loss Cut)' },
-            { id: 'slowcut', t: 'ลดไขมันช้าๆ สบายๆ ไม่เครียด (Slow Cut)' },
-            { id: 'maintain', t: 'รักษาน้ำหนักและกล้ามเนื้อเดิม (Maintain)' },
-            { id: 'bulk', t: 'เพิ่มกล้ามเนื้อ (Lean Bulk)' }
-        ];
-        const workOpts = [
-            { id: 'sedentary', t: '🪑 นั่งโต๊ะทำงานเป็นหลัก (1.15)' },
-            { id: 'light', t: '👮 เดินตรวจ / ยืนบ่อย / กึ่งลงพื้นที่ (1.28)' },
-            { id: 'active', t: '🏃 ใช้แรงงาน / ภาคสนามตลอดวัน (1.42)' }
-        ];
-        const exOpts = [
-            { id: 'moderate', t: '🏋️ เวท + เดินลู่ 3-5 วัน/สัปดาห์ (+0.25)' },
-            { id: 'light', t: '🧘 เวทเบาๆ 1-3 วัน/สัปดาห์ (+0.12)' },
-            { id: 'heavy', t: '🔥 ออกกำลังกายหนัก 6-7 วัน (+0.35)' },
-            { id: 'none', t: '🛋️ ไม่ออกกำลังกายเลย (+0.00)' }
-        ];
-
-        body.innerHTML = headerHtml + `
-            <div class="ob-hero-icon">🎯</div>
-            <h2 style="margin:0 0 4px; font-size:21px; font-weight:900; color:#0f172a; text-align:center;">วางแผนคอร์ส & กิจวัตร (NEAT/EAT)</h2>
-            <p style="margin:0 0 12px; font-size:12.5px; color:#64748b; text-align:center;">วิเคราะห์ความเข้มข้นและตัวคูณการเผาผลาญตามจริง</p>
-
-            <div class="ob-scale-card" style="padding:12px;">
-                <div style="font-size:12px; font-weight:800; color:#0f172a; margin-bottom:8px;">📅 ระยะเวลาคอร์ส (สัปดาห์)</div>
-                <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-bottom:10px;">
-                    ${weekOpts.map(wk => `
-                        <button type="button" onclick="setObField('courseWeeks', ${wk})" style="padding:8px 2px; border-radius:12px; border:1.5px solid ${obState.courseWeeks === wk ? '#2563eb' : '#e2e8f0'}; background:${obState.courseWeeks === wk ? '#eff6ff' : '#fff'}; font-weight:900; font-size:12.5px; color:${obState.courseWeeks === wk ? '#2563eb' : '#475569'}; cursor:pointer;">${wk}w</button>
-                    `).join('')}
-                </div>
-                <div style="font-size:12px; font-weight:800; color:#0f172a; margin-bottom:6px;">เป้าหมายหลักของคอร์ส</div>
-                <div style="display:flex; flex-direction:column; gap:6px;">
-                    ${goalOpts.map(g => `
-                        <div onclick="setObField('goalType', '${g.id}')" style="cursor:pointer; padding:9px 11px; border-radius:12px; border:1.5px solid ${obState.goalType === g.id ? '#2563eb' : '#e2e8f0'}; background:${obState.goalType === g.id ? '#eff6ff' : '#fff'}; font-size:12px; font-weight:800; color:#0f172a;">${g.t}</div>
-                    `).join('')}
-                </div>
+            <div class="wm-ob-footer">
+                <button type="button" class="wm-ob-continue-btn" onclick="applyOnboardingPlanToApp()">เริ่มต้นใช้งานแผนส่วนบุคคลของคุณ ➔</button>
             </div>
+        </div>`;
+    }
+}
 
-            <div class="ob-scale-card" style="padding:12px;">
-                <div style="font-size:12px; font-weight:800; color:#0f172a; margin-bottom:6px;">1. ลักษณะงาน (Occupational NEAT)</div>
-                <div style="display:flex; flex-direction:column; gap:5px; margin-bottom:10px;">
-                    ${workOpts.map(w => `
-                        <div onclick="setObField('workType', '${w.id}')" style="cursor:pointer; padding:8px 10px; border-radius:11px; border:1.5px solid ${obState.workType === w.id ? '#10b981' : '#e2e8f0'}; background:${obState.workType === w.id ? '#ecfdf5' : '#fff'}; font-size:11.5px; font-weight:700;">${w.t}</div>
-                    `).join('')}
-                </div>
-                <div style="font-size:12px; font-weight:800; color:#0f172a; margin-bottom:6px;">2. การออกกำลังกาย (EAT)</div>
-                <div style="display:flex; flex-direction:column; gap:5px; margin-bottom:10px;">
-                    ${exOpts.map(e => `
-                        <div onclick="setObField('exerciseType', '${e.id}')" style="cursor:pointer; padding:8px 10px; border-radius:11px; border:1.5px solid ${obState.exerciseType === e.id ? '#2563eb' : '#e2e8f0'}; background:${obState.exerciseType === e.id ? '#eff6ff' : '#fff'}; font-size:11.5px; font-weight:700;">${e.t}</div>
-                    `).join('')}
-                </div>
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                    <span style="font-size:11.5px; font-weight:800; color:#475569;">3. เป้าก้าวเดิน/วัน</span>
-                    <input id="obInStepTarget" type="number" step="500" min="2000" max="30000" value="${obState.stepTarget}" style="width:120px; padding:7px 10px; font-weight:800; text-align:right;">
-                </div>
-            </div>
+function getObBackAction() {
+    if (obSubStep === 'analysis') return "goObStep(4)";
+    if (obSubStep === 'trajectory') return "goObStep(6)";
+    if (obSubStep === 'completion') return "goObStep(8)";
+    if (obStep > 1) return `goObStep(${obStep - 1})`;
+    return "closeOnboardingWizard(true)";
+}
 
-            <button type="button" class="btn" style="border-radius:99px; font-size:15px; padding:14px; background:linear-gradient(135deg,#2563eb,#10b981);" onclick="goObStep(5)">✨ คำนวณแผนคอร์สของฉัน</button>
-        `;
-    } else if (obStep === 5) {
-        body.innerHTML = headerHtml + `
-            <div style="text-align:center; padding:16px 0;">
-                <div class="ob-orbital-wrap">
-                    <div class="ob-orbital-ring"></div>
-                    <div class="ob-orbital-ring inner"></div>
-                    <div style="font-size:30px;">🧬</div>
-                </div>
-                <h2 style="margin:0 0 6px; font-size:21px; font-weight:900; color:#0f172a;">กำลังคำนวณคอร์สของคุณ</h2>
-                <div style="font-size:38px; font-weight:900; color:#2563eb; margin:6px 0;" id="obAnalyzePct">15%</div>
-                <div style="height:10px; background:#dbeafe; border-radius:99px; overflow:hidden; margin:0 12px 20px;">
-                    <div id="obAnalyzeBar" style="height:100%; width:15%; background:linear-gradient(90deg,#2563eb,#10b981); transition:width 0.25s ease;"></div>
-                </div>
-                <div style="text-align:left; display:flex; flex-direction:column; gap:10px;">
-                    <div id="obCheckRow1" class="ob-check-row"><span>✓</span> คำนวณ BMR (${plan.bmr}) × ตัวคูณ ${plan.act.toFixed(2)} = TDEE ${plan.tdee} kcal</div>
-                    <div id="obCheckRow2" class="ob-check-row"><span>✓</span> วิเคราะห์อัตราลด ${plan.lossPerWk.toFixed(2)} กก./สัปดาห์ (${obState.courseWeeks} สัปดาห์)</div>
-                    <div id="obCheckRow3" class="ob-check-row"><span>✓</span> จัดสัดส่วนโปรตีน ${plan.proTarget}g • ไขมัน 25% • คาร์บ ${plan.carbsTarget}g</div>
-                    <div id="obCheckRow4" class="ob-check-row"><span>✓</span> กำหนดเป้าน้ำดื่ม ${plan.waterTarget.toLocaleString()} มล. & ${plan.stepTarget.toLocaleString()} ก้าว/วัน</div>
-                </div>
+function buildScaleTicksHtml(centerVal = 78.0) {
+    let html = '';
+    const start = Math.floor(centerVal) - 4;
+    for (let i = start; i <= start + 8; i++) {
+        html += `
+            <div style="display:flex; flex-direction:column; align-items:center; gap:2px; flex:0 0 36px;">
+                <div style="width:2px; height:18px; background:#64748b; border-radius:1px;"></div>
+                <span style="font-size:11px; font-weight:700; color:#64748b;">${i}</span>
             </div>
-        `;
-    } else if (obStep === 6) {
-        body.innerHTML = headerHtml + `
-            <div style="text-align:center;">
-                <span style="background:rgba(16,185,129,0.14); color:#059669; font-size:11.5px; font-weight:800; padding:5px 14px; border-radius:99px;">🎉 วิเคราะห์คอร์สเสร็จสมบูรณ์!</span>
-                <h2 style="margin:10px 0 4px; font-size:21px; font-weight:900; color:#0f172a;">คาดการณ์บรรลุเป้าหมาย ${obState.targetWeight.toFixed(1)} กก.</h2>
-                <div style="font-size:12.5px; color:#64748b;">คอร์ส <b>${obState.courseWeeks} สัปดาห์</b> • ลด <b>${plan.lossPerWk.toFixed(2)} กก./สัปดาห์</b> (~${plan.lossPerMonth.toFixed(1)} กก./เดือน)</div>
-            </div>
-
-            <div class="ob-scale-card" style="margin:12px 0;">
-                <svg viewBox="0 0 280 95" width="100%" height="95" style="display:block;">
-                    <defs>
-                        <linearGradient id="obGrad" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stop-color="#f97316"/>
-                            <stop offset="50%" stop-color="#eab308"/>
-                            <stop offset="100%" stop-color="#10b981"/>
-                        </linearGradient>
-                    </defs>
-                    <path d="M 28 22 C 95 24, 165 66, 250 72" fill="none" stroke="url(#obGrad)" stroke-width="4.5" stroke-linecap="round"/>
-                    <circle cx="28" cy="22" r="5.5" fill="#fff" stroke="#f97316" stroke-width="3"/>
-                    <circle cx="140" cy="48" r="5" fill="#fff" stroke="#eab308" stroke-width="3"/>
-                    <circle cx="250" cy="72" r="6" fill="#10b981" stroke="#fff" stroke-width="2.5"/>
-                    <text x="28" y="12" text-anchor="middle" font-size="10.5" font-weight="800" fill="#0f172a">${obState.weight.toFixed(1)} kg</text>
-                    <text x="140" y="37" text-anchor="middle" font-size="10" font-weight="700" fill="#64748b">${plan.midWeight} kg</text>
-                    <text x="245" y="58" text-anchor="middle" font-size="11" font-weight="900" fill="#059669">${obState.targetWeight.toFixed(1)} kg</text>
-                    <text x="28" y="89" text-anchor="middle" font-size="9.5" fill="#64748b">วันนี้</text>
-                    <text x="250" y="89" text-anchor="middle" font-size="9.5" font-weight="800" fill="#059669">${plan.goalDateTxt}</text>
-                </svg>
-                <div style="margin-top:8px; padding-top:8px; border-top:1px dashed #e2e8f0; display:flex; justify-content:space-between; font-size:12px;">
-                    <span style="color:#64748b;">BMR / TDEE:</span>
-                    <span><b>${plan.bmr}</b> / <b style="color:#2563eb;">${plan.tdee} kcal</b> (×${plan.act.toFixed(2)})</span>
-                </div>
-                <div style="margin-top:4px; font-size:12px; font-weight:800; color:${plan.safeColor}; text-align:center;">${plan.safeLabel}</div>
-            </div>
-
-            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:6px; text-align:center; margin-bottom:14px;">
-                <div style="background:#ffffff; border:1px solid #dbeafe; border-radius:14px; padding:10px 4px;">
-                    <div style="font-size:10px; color:#1d4ed8; font-weight:700;">แคลอรี/วัน</div>
-                    <div style="font-size:16px; font-weight:900; color:#0f172a;">${plan.calTarget}</div>
-                </div>
-                <div style="background:#ffffff; border:1px solid #fed7aa; border-radius:14px; padding:10px 4px;">
-                    <div style="font-size:10px; color:#c2410c; font-weight:700;">โปรตีน</div>
-                    <div style="font-size:16px; font-weight:900; color:#0f172a;">${plan.proTarget}g</div>
-                </div>
-                <div style="background:#ffffff; border:1px solid #bbf7d0; border-radius:14px; padding:10px 4px;">
-                    <div style="font-size:10px; color:#15803d; font-weight:700;">คาร์บ</div>
-                    <div style="font-size:16px; font-weight:900; color:#0f172a;">${plan.carbsTarget}g</div>
-                </div>
-                <div style="background:#ffffff; border:1px solid #fef08a; border-radius:14px; padding:10px 4px;">
-                    <div style="font-size:10px; color:#a16207; font-weight:700;">ไขมัน</div>
-                    <div style="font-size:16px; font-weight:900; color:#0f172a;">${plan.fatTarget}g</div>
-                </div>
-            </div>
-
-            <button type="button" class="btn" style="border-radius:99px; background:linear-gradient(135deg,#2563eb,#10b981); font-size:15px; padding:14px;" onclick="applyOnboardingPlanToApp()">
-                ${isRecal ? '💾 บันทึกเป้าหมาย & คอร์สใหม่' : '🚀 เริ่มใช้งาน FitCoach เลย!'}
-            </button>
         `;
     }
+    return html;
 }

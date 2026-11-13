@@ -121,4 +121,6 @@ function renderV3AllWidgets() {
     renderInBodyAndRadarWidgets();
     renderMuscleRecoveryWidget();
     renderFastingMetabolicStages();
+    if (typeof updateWiseMealStatsHeader === 'function') updateWiseMealStatsHeader();
+    if (typeof updateWeeklyCadenceStatus === 'function') updateWeeklyCadenceStatus();
 }

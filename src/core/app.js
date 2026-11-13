@@ -12,6 +12,13 @@ setTimeout(() => {
 updateIFUI();
 renderAuthUI();
 
+// Auto-sync Google Fit (Garmin & Zepp Life) in background on startup
+setTimeout(() => {
+    if (typeof isGoogleFitConnected === 'function' && isGoogleFitConnected()) {
+        syncGoogleFitData(true);
+    }
+}, 1200);
+
 /* ============ PWA AUTO-UPDATE LIFECYCLE ============ */
         let newWorkerWaiting = null;
 

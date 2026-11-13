@@ -746,3 +746,439 @@ function renderWeightProgressionUI() {
     container.innerHTML = html;
 }
 
+
+/* ============================================================================
+   POST-WORKOUT SUMMARY, HEATMAP & SHARE CARD CANVAS ENGINE (v3.5.0)
+   ============================================================================ */
+window._activeSummarySession = null;
+window._shareCardRatio = 'story'; // 'story' (9:16) or 'square' (1:1)
+
+const WORKOUT_MUSCLE_MAPPING = {
+    'A': {
+        name: 'อก ไหล่หน้า และหลังแขน (Push Day)',
+        muscles: ['chest', 'shoulders', 'triceps', 'core'],
+        labels: ['อก (Chest) 95%', 'ไหล่ (Delts) 85%', 'หลังแขน (Triceps) 80%', 'แกนกลาง (Core) 70%'],
+        tip: '🥩 เน้นโปรตีน 35-40g ภายใน 60 นาที และยืดเหยียดเปิดหน้าอกคลายความตึง'
+    },
+    'B': {
+        name: 'หลัง บ่า และหน้าแขน (Pull Day)',
+        muscles: ['upper_back', 'biceps', 'core'],
+        labels: ['หลังบน/ปีก (Lats) 95%', 'หน้าแขน (Biceps) 85%', 'บ่า (Traps) 80%', 'แกนกลาง (Core) 65%'],
+        tip: '🥩 ทานโปรตีนเสริม และทำท่ายืดแขวนบาร์ (Dead Hang) 30 วินาที คลายแรงกดกระดูกสันหลัง'
+    },
+    'C': {
+        name: 'ขา ก้น และแกนกลางลำตัว (Leg Day)',
+        muscles: ['quads', 'glutes_hams', 'core', 'lower_back'],
+        labels: ['ต้นขาหน้า (Quads) 95%', 'ก้น/ขาหลัง (Glutes/Hams) 90%', 'แกนกลาง (Core) 80%', 'หลังล่าง 65%'],
+        tip: '🦵 ยืด Hamstring และโฟมโรลเลอร์คลายกล้ามเนื้อขา พร้อมดื่มน้ำชดเชยเหงื่อ 600-800 ml'
+    },
+    'Z': {
+        name: 'Zone 2 คาร์ดิโอ & หน้าท้อง',
+        muscles: ['core', 'quads'],
+        labels: ['ระบบหัวใจ Zone 2 100%', 'แกนกลาง (Core) 85%', 'ขา/น่อง 75%'],
+        tip: '💧 ดื่มน้ำชดเชยการสูญเสียเหงื่อ และเดินยืดขาเบาๆ 3 นาทีเพื่อ Cooldown สมบูรณ์'
+    },
+    'R': {
+        name: 'Active Recovery & ฟื้นฟูหลัง (McGill Shield)',
+        muscles: ['lower_back', 'core', 'glutes_hams'],
+        labels: ['🛡️ เกราะหลังล่าง McGill 100%', 'แกนกลางลำตัว 85%', 'การยืดเหยียด 90%'],
+        tip: '🛡️ ทำท่า Cat-Camel และ Bird-Dog ต่อเนื่องสม่ำเสมอ ช่วยลดแรงกดทับหมอนรองกระดูกได้ดีที่สุด'
+    }
+};
+
+function openWorkoutSummaryModal(sessionId) {
+    let session = null;
+    if (sessionId) {
+        session = (D.sessions || []).find(s => s.id === sessionId);
+    }
+    if (!session) {
+        session = (D.sessions || [])[D.sessions.length - 1];
+    }
+    if (!session) {
+        if (typeof fcAlert === 'function') fcAlert('ยังไม่มีข้อมูลการฝึกซ้อม');
+        return;
+    }
+
+    window._activeSummarySession = session;
+    window._shareCardRatio = 'story';
+
+    // Populate Headers & Bento Stats
+    const wk = session.workout_key || 'A';
+    const mapping = WORKOUT_MUSCLE_MAPPING[wk] || WORKOUT_MUSCLE_MAPPING['A'];
+
+    const elTitle = document.getElementById('wsWorkoutTitle');
+    const elDate = document.getElementById('wsDateSub');
+    const elDur = document.getElementById('wsDurVal');
+    const elKcal = document.getElementById('wsKcalVal');
+    const elVol = document.getElementById('wsVolVal');
+    const elSets = document.getElementById('wsSetsVal');
+    const elTip = document.getElementById('wsRecoveryTipText');
+    const elTags = document.getElementById('wsMuscleTags');
+
+    if (elTitle) elTitle.textContent = session.workout_name || mapping.name;
+    if (elDate) {
+        const d = session.date || iso();
+        elDate.textContent = `วันที่ ${d} • สำเร็จสมบูรณ์แบบ`;
+    }
+    if (elDur) elDur.textContent = Math.round((session.duration_sec || 0) / 60);
+    if (elKcal) elKcal.textContent = (session.kcal || 350).toLocaleString();
+    if (elVol) elVol.textContent = (session.total_volume_kg || 0).toLocaleString();
+    if (elSets) elSets.textContent = session.total_reps ? `${session.total_reps} ครั้ง` : 'ผ่านครบเซ็ต';
+    if (elTip) elTip.textContent = mapping.tip;
+
+    // Render Muscle Tags
+    if (elTags) {
+        elTags.innerHTML = mapping.labels.map(l => `<span class="fc-summary-muscle-pill">${l}</span>`).join('');
+    }
+
+    // Render Heatmap Mini SVGs
+    renderSummaryHeatmapSvgs(mapping.muscles);
+
+    // Sync RPE & Pain buttons
+    updateSummaryRpeButtons(session.rpe || 7);
+    updateSummaryPainButtons(session.pain_after != null ? session.pain_after : 0);
+
+    // Render Share Card Canvas
+    renderShareCardCanvas();
+
+    // Show Modal
+    const modal = document.getElementById('fcWorkoutSummaryModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeWorkoutSummaryModal() {
+    const modal = document.getElementById('fcWorkoutSummaryModal');
+    if (modal) modal.style.display = 'none';
+    window._activeSummarySession = null;
+}
+
+function renderSummaryHeatmapSvgs(activeMuscles) {
+    const frontEl = document.getElementById('wsFrontHeatmap');
+    const backEl = document.getElementById('wsBackHeatmap');
+    if (!frontEl || !backEl) return;
+
+    const coral = '#f43f5e';
+    const dim = '#334155';
+
+    // Front SVG
+    const isShoulder = activeMuscles.includes('shoulders') ? coral : dim;
+    const isChest = activeMuscles.includes('chest') ? coral : dim;
+    const isBiceps = activeMuscles.includes('biceps') ? coral : dim;
+    const isCore = activeMuscles.includes('core') ? coral : dim;
+    const isQuads = activeMuscles.includes('quads') ? coral : dim;
+
+    frontEl.innerHTML = `
+        <svg viewBox="0 0 120 200" width="100%" height="100%">
+            <text x="60" y="12" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">ด้านหน้า</text>
+            <circle cx="60" cy="28" r="10" fill="#64748b" opacity="0.5"/>
+            <rect x="28" y="44" width="14" height="18" rx="5" fill="${isShoulder}"/>
+            <rect x="78" y="44" width="14" height="18" rx="5" fill="${isShoulder}"/>
+            <rect x="44" y="44" width="32" height="24" rx="5" fill="${isChest}"/>
+            <rect x="26" y="66" width="12" height="24" rx="5" fill="${isBiceps}"/>
+            <rect x="82" y="66" width="12" height="24" rx="5" fill="${isBiceps}"/>
+            <rect x="46" y="70" width="28" height="34" rx="5" fill="${isCore}"/>
+            <rect x="43" y="108" width="15" height="42" rx="6" fill="${isQuads}"/>
+            <rect x="62" y="108" width="15" height="42" rx="6" fill="${isQuads}"/>
+            <rect x="45" y="154" width="12" height="28" rx="4" fill="#64748b" opacity="0.4"/>
+            <rect x="63" y="154" width="12" height="28" rx="4" fill="#64748b" opacity="0.4"/>
+        </svg>
+    `;
+
+    // Back SVG
+    const isBack = activeMuscles.includes('upper_back') ? coral : dim;
+    const isTriceps = activeMuscles.includes('triceps') ? coral : dim;
+    const isLowerBack = activeMuscles.includes('lower_back') ? coral : dim;
+    const isGlutes = activeMuscles.includes('glutes_hams') ? coral : dim;
+
+    backEl.innerHTML = `
+        <svg viewBox="0 0 120 200" width="100%" height="100%">
+            <text x="60" y="12" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">ด้านหลัง</text>
+            <circle cx="60" cy="28" r="10" fill="#64748b" opacity="0.5"/>
+            <rect x="43" y="44" width="34" height="30" rx="6" fill="${isBack}"/>
+            <rect x="27" y="58" width="12" height="28" rx="5" fill="${isTriceps}"/>
+            <rect x="81" y="58" width="12" height="28" rx="5" fill="${isTriceps}"/>
+            <rect x="46" y="76" width="28" height="20" rx="4" fill="${isLowerBack}"/>
+            <rect x="42" y="98" width="36" height="26" rx="6" fill="${isGlutes}"/>
+            <rect x="43" y="126" width="15" height="36" rx="5" fill="${isGlutes}"/>
+            <rect x="62" y="126" width="15" height="36" rx="5" fill="${isGlutes}"/>
+            <rect x="45" y="166" width="12" height="22" rx="4" fill="#64748b" opacity="0.4"/>
+            <rect x="63" y="166" width="12" height="22" rx="4" fill="#64748b" opacity="0.4"/>
+        </svg>
+    `;
+}
+
+function setSummaryRpe(val) {
+    if (window._activeSummarySession) {
+        window._activeSummarySession.rpe = val;
+        save();
+        render();
+        updateSummaryRpeButtons(val);
+        renderShareCardCanvas();
+    }
+}
+
+function updateSummaryRpeButtons(activeVal) {
+    const group = document.getElementById('wsRpeBtnGroup');
+    if (!group) return;
+    const btns = group.querySelectorAll('.fc-rpe-btn');
+    btns.forEach(b => {
+        const num = parseInt(b.textContent);
+        if (num === activeVal) b.classList.add('active');
+        else b.classList.remove('active');
+    });
+}
+
+function setSummaryPain(val) {
+    if (window._activeSummarySession) {
+        window._activeSummarySession.pain_after = val;
+        // Also update today check pain
+        const tc = todayCheck();
+        if (tc) tc.pain = val;
+        save();
+        render();
+        updateSummaryPainButtons(val);
+        renderShareCardCanvas();
+    }
+}
+
+function updateSummaryPainButtons(activeVal) {
+    const group = document.getElementById('wsPainBtnGroup');
+    if (!group) return;
+    const btns = group.querySelectorAll('.fc-rpe-btn');
+    btns.forEach(b => {
+        const t = b.textContent;
+        if (activeVal === 0 && t.startsWith('0')) b.classList.add('active');
+        else if (activeVal >= 1 && activeVal <= 2 && t.startsWith('1-2')) b.classList.add('active');
+        else if (activeVal >= 3 && activeVal <= 4 && t.startsWith('3-4')) b.classList.add('active');
+        else if (activeVal >= 5 && t.startsWith('5+')) b.classList.add('active');
+        else b.classList.remove('active');
+    });
+}
+
+function setShareCardRatio(ratio) {
+    window._shareCardRatio = ratio;
+    const bStory = document.getElementById('btnShareRatioStory');
+    const bSquare = document.getElementById('btnShareRatioSquare');
+    if (ratio === 'square') {
+        if (bSquare) bSquare.classList.add('active');
+        if (bStory) bStory.classList.remove('active');
+    } else {
+        if (bStory) bStory.classList.add('active');
+        if (bSquare) bSquare.classList.remove('active');
+    }
+    renderShareCardCanvas();
+}
+
+/* Canvas Painter for Athletic Share Card */
+function renderShareCardCanvas() {
+    const canvas = document.getElementById('fcShareCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const s = window._activeSummarySession || (D.sessions && D.sessions[D.sessions.length - 1]);
+    if (!s) return;
+
+    const isSquare = (window._shareCardRatio === 'square');
+    const W = isSquare ? 720 : 540;
+    const H = isSquare ? 720 : 960;
+
+    canvas.width = W;
+    canvas.height = H;
+
+    // 1. Dark Athletic Gradient Background
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+    bgGrad.addColorStop(0, '#0f172a');
+    bgGrad.addColorStop(0.5, '#1e293b');
+    bgGrad.addColorStop(1, '#090d16');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Decorative Glow Accents
+    const glow = ctx.createRadialGradient(W * 0.8, H * 0.15, 10, W * 0.8, H * 0.15, 260);
+    glow.addColorStop(0, 'rgba(0, 192, 112, 0.22)');
+    glow.addColorStop(1, 'transparent');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+
+    // 2. FitCoach Brand Header
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.fillText('fitcoach.', 40, 60);
+
+    ctx.fillStyle = '#00c070';
+    ctx.beginPath();
+    ctx.arc(148, 58, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Date Pill
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    roundRect(ctx, W - 180, 36, 140, 32, 16);
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '700 13px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(s.date || iso(), W - 110, 57);
+    ctx.textAlign = 'left';
+
+    // 3. Workout Title & Badge
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.2)';
+    roundRect(ctx, 40, 100, 180, 30, 15);
+    ctx.fillStyle = '#34d399';
+    ctx.font = '800 12px -apple-system, sans-serif';
+    ctx.fillText('🏆 WORKOUT COMPLETED', 54, 120);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 32px -apple-system, sans-serif';
+    const titleText = (s.workout_name || 'Workout A').split(' — ')[0];
+    ctx.fillText(titleText, 40, 170);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '600 16px -apple-system, sans-serif';
+    const subTitle = (s.workout_name || '').split(' — ')[1] || 'Strength Training';
+    ctx.fillText(subTitle, 40, 198);
+
+    // 4. Bento Grid (4 Cards)
+    const durMins = Math.round((s.duration_sec || 0) / 60);
+    const kcalVal = (s.kcal || 350).toLocaleString();
+    const volVal = (s.total_volume_kg || 0).toLocaleString();
+    const repsVal = s.total_reps ? s.total_reps + ' ครั้ง' : 'ครบตามเป้า';
+
+    const bentoY = 230;
+    const cardW = (W - 100) / 2;
+    const cardH = 90;
+
+    // Card 1: Duration
+    drawBentoCard(ctx, 40, bentoY, cardW, cardH, '⏱️ ระยะเวลาฝึก', `${durMins}`, 'นาที', '#ffffff');
+    // Card 2: Kcal
+    drawBentoCard(ctx, 40 + cardW + 20, bentoY, cardW, cardH, '🔥 เผาผลาญ', kcalVal, 'kcal', '#f59e0b');
+    // Card 3: Volume
+    drawBentoCard(ctx, 40, bentoY + cardH + 16, cardW, cardH, '🏋️ น้ำหนักสะสม (Volume)', volVal, 'กก.', '#38bdf8');
+    // Card 4: Intensity / Reps
+    drawBentoCard(ctx, 40 + cardW + 20, bentoY + cardH + 16, cardW, cardH, '🎯 เซ็ต / RPE', `RPE ${s.rpe || 7}`, repsVal, '#10b981');
+
+    // 5. Active Muscle Heatmap Card (if Story format or space permits)
+    const heatY = bentoY + cardH * 2 + 40;
+    ctx.fillStyle = 'rgba(30, 41, 59, 0.6)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.lineWidth = 1;
+    const heatH = isSquare ? 180 : 280;
+    roundRect(ctx, 40, heatY, W - 80, heatH, 20, true, true);
+
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = '800 16px -apple-system, sans-serif';
+    ctx.fillText('🧬 แผนผังกล้ามเนื้อที่ถูกกระตุ้น', 64, heatY + 36);
+
+    const wk = s.workout_key || 'A';
+    const mapping = WORKOUT_MUSCLE_MAPPING[wk] || WORKOUT_MUSCLE_MAPPING['A'];
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '600 13px -apple-system, sans-serif';
+    ctx.fillText(mapping.name, 64, heatY + 62);
+
+    // Draw active muscle pills
+    let pillX = 64;
+    let pillY = heatY + 88;
+    mapping.labels.forEach((l) => {
+        ctx.fillStyle = 'rgba(244, 63, 94, 0.15)';
+        ctx.strokeStyle = 'rgba(244, 63, 94, 0.4)';
+        roundRect(ctx, pillX, pillY, 130, 28, 14, true, true);
+        ctx.fillStyle = '#fb7185';
+        ctx.font = '700 11px -apple-system, sans-serif';
+        ctx.fillText(l, pillX + 12, pillY + 18);
+        pillX += 138;
+        if (pillX > W - 180) {
+            pillX = 64;
+            pillY += 36;
+        }
+    });
+
+    // 6. Footer Branding & Verified Badge
+    const footerY = H - 50;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+    ctx.fillRect(40, footerY - 20, W - 80, 1);
+
+    ctx.fillStyle = '#64748b';
+    ctx.font = '700 12px -apple-system, sans-serif';
+    ctx.fillText('FitCoach Personal AI Assistant • Science-based Training', 40, footerY + 8);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#10b981';
+    ctx.fillText('✓ VERIFIED WORKOUT', W - 40, footerY + 8);
+    ctx.textAlign = 'left';
+}
+
+function drawBentoCard(ctx, x, y, w, h, label, val, unit, valColor) {
+    ctx.fillStyle = 'rgba(30, 41, 59, 0.7)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.lineWidth = 1;
+    roundRect(ctx, x, y, w, h, 16, true, true);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '700 12px -apple-system, sans-serif';
+    ctx.fillText(label, x + 16, y + 28);
+
+    ctx.fillStyle = valColor || '#ffffff';
+    ctx.font = '900 24px -apple-system, sans-serif';
+    ctx.fillText(val, x + 16, y + 64);
+
+    if (unit) {
+        const valW = ctx.measureText(val).width;
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '700 13px -apple-system, sans-serif';
+        ctx.fillText(' ' + unit, x + 16 + valW, y + 64);
+    }
+}
+
+function roundRect(ctx, x, y, w, h, r, fill = true, stroke = false) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+    if (fill) ctx.fill();
+    if (stroke) ctx.stroke();
+}
+
+function downloadShareCardPng() {
+    const canvas = document.getElementById('fcShareCanvas');
+    if (!canvas) return;
+    const s = window._activeSummarySession || {};
+    const d = s.date || iso();
+    const link = document.createElement('a');
+    link.download = `fitcoach-workout-${d}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    if (typeof msg === 'function') msg('✓ บันทึกรูปภาพการ์ดแชร์เรียบร้อยแล้ว');
+}
+
+async function shareCardViaWebShare() {
+    const canvas = document.getElementById('fcShareCanvas');
+    if (!canvas) return;
+    const s = window._activeSummarySession || {};
+    const d = s.date || iso();
+    const wkName = s.workout_name || 'Workout';
+
+    if (canvas.toBlob && navigator.canShare) {
+        canvas.toBlob(async blob => {
+            const file = new File([blob], `fitcoach-workout-${d}.png`, { type: 'image/png' });
+            if (navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        title: `จบการฝึก ${wkName} บน FitCoach!`,
+                        text: `สำเร็จการฝึก ${wkName} เรียบร้อยแล้ว! ⏱️ ${Math.round((s.duration_sec||0)/60)} นาที • 🔥 ${s.kcal||350} kcal`,
+                        files: [file]
+                    });
+                    return;
+                } catch (e) {
+                    console.log('Share dismissed or failed:', e);
+                }
+            }
+            downloadShareCardPng();
+        }, 'image/png');
+    } else {
+        downloadShareCardPng();
+    }
+}

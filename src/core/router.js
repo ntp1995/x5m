@@ -323,8 +323,58 @@ async function resetAllData() {
     }, 300);
 }
 
-/* ============ INTERMITTENT FASTING (IF) LOGIC ============ */
+/* ============ INTERMITTENT FASTING (IF) LOGIC — WISEMEAL MODEL ============ */
 D.if = D.if || { start: null, goal: 16, updatedAt: Date.now() };
+
+let ifDraftGoal = 16;
+let ifRollerState = {
+    day: 'today', // 'yesterday', 'today', 'tomorrow'
+    hour: 18,
+    min: 0
+};
+
+const IF_PLANS_CATALOG = [
+    {
+        goal: 12, eat: 12,
+        name: '12:12',
+        desc: 'จังหวะเริ่มต้นที่สมดุล',
+        icon: '🥗',
+        clockColor: '#67e8f9',
+        bowlColor: '#ccfbf1'
+    },
+    {
+        goal: 14, eat: 10,
+        name: '14:10',
+        desc: 'ช่วงอดอาหารแบบเบา',
+        icon: '🍲',
+        clockColor: '#fde047',
+        bowlColor: '#fef9c3'
+    },
+    {
+        goal: 16, eat: 8,
+        name: '16:8',
+        desc: 'แผนเริ่มต้นที่เหมาะกับมือใหม่',
+        icon: '🥣',
+        clockColor: '#38bdf8',
+        bowlColor: '#e0f2fe'
+    },
+    {
+        goal: 18, eat: 6,
+        name: '18:6',
+        desc: 'ช่วงอดอาหารที่นานขึ้น',
+        icon: '🥘',
+        clockColor: '#f472b6',
+        bowlColor: '#fce7f3'
+    },
+    {
+        goal: 20, eat: 4,
+        name: '20:4',
+        desc: 'แผนอดอาหารขั้นสูง',
+        icon: '🥑',
+        clockColor: '#c084fc',
+        bowlColor: '#f3e8ff'
+    }
+];
 
 function setIFGoal(hrs) {
     D.if.goal = hrs;
@@ -332,7 +382,7 @@ function setIFGoal(hrs) {
     save();
     updateIFUI();
     if (currentUser && fbDb) pushToCloud();
-    fcAlert('ตั้งค่าเป้าหมายการอดอาหารเป็น ' + hrs + ' ชั่วโมงเรียบร้อย');
+    if (typeof msg === 'function') msg('✓ ตั้งค่าเป้าหมาย IF เป็น ' + hrs + ':8 แล้ว');
 }
 
 async function toggleIF() {
@@ -342,6 +392,7 @@ async function toggleIF() {
             D.if.updatedAt = Date.now();
             save();
             if (currentUser && fbDb) pushToCloud();
+            if (typeof msg === 'function') msg('✓ สิ้นสุดการอดอาหาร เริ่มช่วงเวลารับประทานอาหาร');
         }
     } else {
         D.if.start = Date.now();
@@ -352,176 +403,191 @@ async function toggleIF() {
         }
         save();
         if (currentUser && fbDb) pushToCloud();
+        if (typeof msg === 'function') msg('✓ เริ่มต้นจับเวลาการอดอาหารแล้ว');
     }
     updateIFUI();
 }
 
-let editIFSelectedDay = 'yesterday';
-
-function setIFEditDay(dayChoice) {
-    editIFSelectedDay = dayChoice;
-    const btnY = document.getElementById('ifBtnYesterday');
-    const btnT = document.getElementById('ifBtnToday');
-    if (btnY && btnT) {
-        if (dayChoice === 'yesterday') {
-            btnY.style.background = 'var(--acc)';
-            btnY.style.color = '#fff';
-            btnY.style.borderColor = 'var(--acc)';
-            btnT.style.background = 'var(--card)';
-            btnT.style.color = 'var(--tx)';
-            btnT.style.borderColor = 'var(--line)';
-        } else {
-            btnT.style.background = 'var(--acc)';
-            btnT.style.color = '#fff';
-            btnT.style.borderColor = 'var(--acc)';
-            btnY.style.background = 'var(--card)';
-            btnY.style.color = 'var(--tx)';
-            btnY.style.borderColor = 'var(--line)';
-        }
-    }
-    updateIFEditPreview();
+/* ============ WISEMEAL IF MODAL HANDLERS ============ */
+function openIfPlanModal() {
+    ifDraftGoal = (D.if && D.if.goal) ? D.if.goal : 16;
+    renderIfPlanCards();
+    const sheet = document.getElementById('ifPlanModalSheet');
+    if (sheet) sheet.classList.add('on');
 }
 
-function updateIFEditPreview() {
-    const timeVal = document.getElementById('ifTimeInput')?.value || '19:45';
-    const prevEl = document.getElementById('ifEditPreviewText');
-    if (!prevEl) return;
-    const parts = timeVal.split(':');
-    if (parts.length !== 2) return;
-    const h = parseInt(parts[0]), m = parseInt(parts[1]);
-    if (isNaN(h) || isNaN(m)) return;
-
-    const now = new Date();
-    const todayIso = iso(now);
-    const p = todayIso.split('-');
-    const baseDate = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
-    if (editIFSelectedDay === 'yesterday') {
-        baseDate.setDate(baseDate.getDate() - 1);
-    }
-    baseDate.setHours(h, m, 0, 0);
-
-    const diffSec = Math.max(0, Math.floor((now.getTime() - baseDate.getTime()) / 1000));
-    const diffH = Math.floor(diffSec / 3600);
-    const diffM = Math.floor((diffSec % 3600) / 60);
-
-    const goalHrs = (D.if && D.if.goal) ? D.if.goal : 16;
-    const goalSec = goalHrs * 3600;
-    const endMs = baseDate.getTime() + (goalSec * 1000);
-    const endDate = new Date(endMs);
-
-    const endDayStr = iso(endDate);
-    const isEndToday = endDayStr === todayIso;
-    const endDayLabel = isEndToday ? 'วันนี้' : (endDate.getDate() + '/' + (endDate.getMonth() + 1));
-
-    if (diffSec >= goalSec) {
-        const overM = Math.floor((diffSec - goalSec) / 60);
-        prevEl.innerHTML = `
-            <div style="color:#22c55e; font-weight:700;">🎉 อดมาแล้ว: ${diffH} ชม. ${diffM} นาที (ครบ ${goalHrs} ชม. แล้ว)</div>
-            <div style="color:var(--dim); font-size:11.5px; margin-top:2px;">เริ่มกินได้ตั้งแต่: ${endDayLabel} ${formatThaiTime(endDate)} น.</div>
-        `;
-    } else {
-        const remSec = goalSec - diffSec;
-        const remH = Math.floor(remSec / 3600);
-        const remM = Math.floor((remSec % 3600) / 60);
-        prevEl.innerHTML = `
-            <div style="color:var(--acc); font-weight:700;">⏳ อดมาแล้ว: ${diffH} ชม. ${diffM} นาที (เหลืออีก ${remH} ชม. ${remM} นาที)</div>
-            <div style="color:var(--dim); font-size:11.5px; margin-top:2px;">🎯 จะเริ่มกินได้ตอน: <b>${endDayLabel} ${formatThaiTime(endDate)} น.</b></div>
-        `;
-    }
-}
-
-async function editIFStart() {
-    // Determine default day and time
-    let initDay = 'yesterday';
-    let initTime = '19:45';
-
-    if (D.if && D.if.start) {
-        const curStart = new Date(D.if.start);
-        const curIso = iso(curStart);
-        const todayIso = iso(new Date());
-        initDay = (curIso === todayIso) ? 'today' : 'yesterday';
-        initTime = formatThaiTime(curStart);
-    }
-    editIFSelectedDay = initDay;
-
-    const html = `
-        <div style="text-align:left; font-size:14px; line-height:1.5;">
-            <div style="font-weight:800; font-size:16px; color:var(--acc); margin-bottom:4px;">⏱️ ตั้งค่าเวลาเริ่มอดอาหาร</div>
-            <div style="font-size:12px; color:var(--dim); margin-bottom:12px;">ระบุวันที่และเวลาที่ทานมื้อสุดท้ายเสร็จ เพื่อเริ่มนับเวลาอดอาหาร</div>
-
-            <div style="background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px;">
-                <label style="display:block; font-weight:700; font-size:12.5px; margin-bottom:6px;">1. วันที่เริ่มอดอาหาร:</label>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
-                    <button type="button" id="ifBtnYesterday" class="btn sm" onclick="setIFEditDay('yesterday')" style="padding:8px; font-size:13px; font-weight:700; border-radius:8px; border:1.5px solid var(--acc); background:${initDay === 'yesterday' ? 'var(--acc)' : 'var(--card)'}; color:${initDay === 'yesterday' ? '#fff' : 'var(--tx)'};">เมื่อวานนี้</button>
-                    <button type="button" id="ifBtnToday" class="btn sm" onclick="setIFEditDay('today')" style="padding:8px; font-size:13px; font-weight:700; border-radius:8px; border:1.5px solid var(--line); background:${initDay === 'today' ? 'var(--acc)' : 'var(--card)'}; color:${initDay === 'today' ? '#fff' : 'var(--tx)'};">วันนี้</button>
+function renderIfPlanCards() {
+    const container = document.getElementById('ifPlanCardsContainer');
+    if (!container) return;
+    container.innerHTML = IF_PLANS_CATALOG.map(p => {
+        const isSel = p.goal === ifDraftGoal;
+        return `
+            <div class="wm-if-plan-card ${isSel ? 'selected' : ''}" onclick="selectIfPlan(${p.goal})">
+                <div style="display:flex; align-items:center;">
+                    <div class="wm-if-plan-radio"></div>
+                    <div>
+                        <div style="font-size:18px; font-weight:900; color:#0f172a; line-height:1.2;">${p.name}</div>
+                        <div style="font-size:12px; font-weight:600; color:#64748b; margin-top:2px;">${p.desc}</div>
+                    </div>
                 </div>
-
-                <label style="display:block; font-weight:700; font-size:12.5px; margin-bottom:6px;">2. เวลาที่เริ่มอด (มื้อสุดท้ายเสร็จ):</label>
-                <input type="time" id="ifTimeInput" value="${initTime}" oninput="updateIFEditPreview()" onchange="updateIFEditPreview()" style="width:100%; font-size:18px; font-weight:800; padding:10px 14px; border-radius:8px; border:1.5px solid var(--acc); background:var(--bg); color:var(--tx); text-align:center; box-sizing:border-box;">
-
-                <div id="ifEditPreviewText" style="margin-top:12px; padding:10px; background:var(--card); border:1px solid var(--line); border-radius:8px; font-size:12.5px; text-align:center;">
+                <div style="width:48px; height:48px; border-radius:14px; background:${p.bowlColor}; display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:0 2px 8px rgba(15,23,42,0.04);">
+                    ${p.icon}
                 </div>
             </div>
-        </div>
-    `;
-
-    setTimeout(() => {
-        updateIFEditPreview();
-    }, 60);
-
-    const ok = await fcConfirm(html, 'บันทึกเวลาเริ่มอดอาหาร');
-    if (!ok) return;
-
-    const timeVal = document.getElementById('ifTimeInput')?.value || '19:45';
-    const parts = timeVal.split(':');
-    if (parts.length !== 2) return fcAlert('รูปแบบเวลาไม่ถูกต้อง');
-    const h = parseInt(parts[0]), m = parseInt(parts[1]);
-    if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) return fcAlert('รูปแบบเวลาไม่ถูกต้อง');
-
-    const now = new Date();
-    const todayIso = iso(now);
-    const p = todayIso.split('-');
-    const baseDate = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
-    if (editIFSelectedDay === 'yesterday') {
-        baseDate.setDate(baseDate.getDate() - 1);
-    }
-    baseDate.setHours(h, m, 0, 0);
-
-    if (!D.if) D.if = { goal: 16 };
-    D.if.start = baseDate.getTime();
-    D.if.updatedAt = Date.now();
-    D.if.notifiedComplete = false;
-
-    save();
-    render();
-    updateIFUI();
-    if (currentUser && fbDb) pushToCloud();
-    msg('✓ อัปเดตเวลาเริ่มอดอาหารและซิงก์คลาวด์แล้ว');
+        `;
+    }).join('');
 }
 
+function selectIfPlan(hrs) {
+    ifDraftGoal = hrs;
+    renderIfPlanCards();
+}
+
+function confirmIfPlanSelection() {
+    setIFGoal(ifDraftGoal);
+    closeIfModal('ifPlanModalSheet');
+}
+
+function openIfTimeModal() {
+    const baseDate = (D.if && D.if.start) ? new Date(D.if.start) : new Date();
+    ifRollerState.hour = baseDate.getHours();
+    ifRollerState.min = baseDate.getMinutes();
+
+    const todayIso = iso(new Date());
+    const startIso = iso(baseDate);
+    ifRollerState.day = (startIso === todayIso) ? 'today' : 'yesterday';
+
+    updateIfRollerDisplay();
+    const sheet = document.getElementById('ifTimeModalSheet');
+    if (sheet) sheet.classList.add('on');
+}
+
+function updateIfRollerDisplay() {
+    const dayEl = document.getElementById('ifRollerDayText');
+    const hrEl = document.getElementById('ifRollerHourText');
+    const minEl = document.getElementById('ifRollerMinText');
+
+    if (dayEl) {
+        dayEl.textContent = ifRollerState.day === 'today' ? 'วันนี้' : (ifRollerState.day === 'yesterday' ? 'เมื่อวานนี้' : 'พรุ่งนี้');
+    }
+    if (hrEl) {
+        hrEl.textContent = String(ifRollerState.hour).padStart(2, '0');
+    }
+    if (minEl) {
+        minEl.textContent = String(ifRollerState.min).padStart(2, '0');
+    }
+}
+
+function setIfTimeDay(d) {
+    ifRollerState.day = d;
+    updateIfRollerDisplay();
+}
+
+function adjustIfTimeHour(delta) {
+    let h = ifRollerState.hour + delta;
+    if (h < 0) h = 23;
+    if (h > 23) h = 0;
+    ifRollerState.hour = h;
+    updateIfRollerDisplay();
+}
+
+function adjustIfTimeMinute(delta) {
+    let m = ifRollerState.min + delta;
+    if (m < 0) m = 55;
+    if (m > 59) m = 0;
+    ifRollerState.min = m;
+    updateIfRollerDisplay();
+}
+
+function saveIfRollerTime() {
+    const now = new Date();
+    const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (ifRollerState.day === 'yesterday') {
+        targetDate.setDate(targetDate.getDate() - 1);
+    } else if (ifRollerState.day === 'tomorrow') {
+        targetDate.setDate(targetDate.getDate() + 1);
+    }
+    targetDate.setHours(ifRollerState.hour, ifRollerState.min, 0, 0);
+
+    D.if.start = targetDate.getTime();
+    D.if.updatedAt = Date.now();
+    save();
+    updateIFUI();
+    if (currentUser && fbDb) pushToCloud();
+    closeIfModal('ifTimeModalSheet');
+    if (typeof msg === 'function') msg('✓ บันทึกเวลาเริ่มอดอาหารเป็น ' + formatThaiTime(targetDate) + ' น.');
+}
+
+function openIfNoticeModal() {
+    const sheet = document.getElementById('ifNoticeModalSheet');
+    if (sheet) sheet.classList.add('on');
+}
+
+function closeIfModal(id) {
+    const sheet = document.getElementById(id);
+    if (sheet) sheet.classList.remove('on');
+}
+
+function openIfHistoryModal() {
+    const lastCheck = (D && D.checks && D.checks.length) ? D.checks[D.checks.length - 1] : {};
+    const goalHrs = (D && D.if && D.if.goal) ? D.if.goal : 16;
+    fcAlert(`
+        <div style="text-align:left; font-size:13.5px; line-height:1.6;">
+            <div style="font-size:16px; font-weight:900; color:#0f172a; margin-bottom:8px;">📋 ประวัติและสถิติ IF</div>
+            <div style="background:#f8fafd; border-radius:12px; padding:12px; border:1px solid #e2e8f0; margin-bottom:10px;">
+                <div>🎯 <b>แผนปัจจุบัน:</b> IF ${goalHrs}:${24 - goalHrs}</div>
+                <div>⏱️ <b>สถานะล่าสุด:</b> ${D.if.start ? 'กำลังอดอาหาร' : 'ช่วงเวลารับประทาน (Feeding Window)'}</div>
+                <div>🔥 <b>การเผาผลาญไขมันตับ:</b> กำลังทำงานสมบูรณ์</div>
+            </div>
+            <div style="font-size:12px; color:#64748b;">ระบบบันทึกเวลา IF และซิงก์ตรงกับ Google Cloud อัตโนมัติทุกรอบ</div>
+        </div>
+    `);
+}
+
+function editIFStart() {
+    openIfTimeModal();
+}
+
+/* ============ MAIN UPDATE IF UI (WISEMEAL REPLICA) ============ */
 function updateIFUI() {
     const disp = document.getElementById('ifTimerDisplay');
     if (!disp) return;
+
+    const cardTitle = document.getElementById('ifCardTitle');
+    const timerSub = document.getElementById('ifTimerSub');
+    const dayLabel = document.getElementById('ifDayLabel');
+    const goalPill = document.getElementById('ifGoalPillText');
+    const toggleBtn = document.getElementById('ifToggleBtn');
+    const btnIcon = document.getElementById('ifToggleBtnIcon');
+    const btnText = document.getElementById('ifToggleBtnText');
+    const arcEl = document.getElementById('v3IfArcPath');
+
+    const stTime = document.getElementById('ifStartTime');
+    const startDayEl = document.getElementById('ifStartDayText');
+    const endTimeEl = document.getElementById('ifEndTime');
+    const endDayEl = document.getElementById('ifEndDayText');
+
+    // Compatibility Elements
     const bar = document.getElementById('ifProgressBar');
     const stText = document.getElementById('ifStatusText');
-    const stTime = document.getElementById('ifStartTime');
-    const endTimeEl = document.getElementById('ifEndTime');
     const goalTx = document.getElementById('ifGoalText');
     const eatWindowTx = document.getElementById('ifEatWindowText');
     const countdownTx = document.getElementById('ifCountdownText');
-    const btn = document.getElementById('ifToggleBtn');
-    const timerSub = document.getElementById('ifTimerSub');
-    
+
     const goalHrs = (D.if && D.if.goal) ? D.if.goal : 16;
+    const goalSec = goalHrs * 3600;
+
+    if (goalPill) goalPill.textContent = `${goalHrs}:${24 - goalHrs}`;
     if (goalTx) goalTx.textContent = goalHrs;
     if (eatWindowTx) eatWindowTx.textContent = `${24 - goalHrs} ชม.`;
 
-    if (D.if && D.if.start) {
-        const now = Date.now();
-        const diffSec = Math.max(0, Math.floor((now - D.if.start) / 1000));
-        const goalSec = goalHrs * 3600;
+    const now = Date.now();
 
-        // Check Fasting Completion notification
+    if (D.if && D.if.start) {
+        const diffSec = Math.max(0, Math.floor((now - D.if.start) / 1000));
+        const elapsedHours = diffSec / 3600;
+
+        // Completion voice & notification
         if (diffSec >= goalSec && !D.if.notifiedComplete) {
             D.if.notifiedComplete = true;
             save();
@@ -536,95 +602,110 @@ function updateIFUI() {
             }
         }
 
-        // Format Timer (HH:MM:SS)
+        // Live Timer Readout (HH:MM:SS)
         const h = Math.floor(diffSec / 3600);
         const m = Math.floor((diffSec % 3600) / 60);
         const s = diffSec % 60;
         disp.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-        if (timerSub) timerSub.textContent = 'ระยะเวลาที่อดอาหารไปแล้ว';
 
-        // Format Start Time with accurate Thai day difference
+        if (cardTitle) cardTitle.textContent = 'กำลังอดอาหาร';
+        if (timerSub) timerSub.textContent = 'อดอาหารไปแล้ว';
+
+        // Day label above time
         const startDate = new Date(D.if.start);
         const nowDate = new Date();
-        const todayIso = iso(nowDate);
-        const startDayIso = iso(startDate);
-
-        const todayMidnightMs = new Date(todayIso + 'T00:00:00+07:00').getTime();
-        const startMidnightMs = new Date(startDayIso + 'T00:00:00+07:00').getTime();
+        const todayMidnightMs = new Date(iso(nowDate) + 'T00:00:00+07:00').getTime();
+        const startMidnightMs = new Date(iso(startDate) + 'T00:00:00+07:00').getTime();
         const daysDiff = Math.round((todayMidnightMs - startMidnightMs) / 864e5);
 
-        let startDayText = '';
-        if (daysDiff === 0) startDayText = 'วันนี้ ';
-        else if (daysDiff === 1) startDayText = 'เมื่อวาน ';
-        else if (daysDiff > 1) startDayText = `${startDate.getDate()}/${startDate.getMonth() + 1} (${daysDiff} วันก่อน) `;
-        else startDayText = `${startDate.getDate()}/${startDate.getMonth() + 1} `;
+        let startDayStr = 'วันนี้';
+        if (daysDiff === 1) startDayStr = 'เมื่อวานนี้';
+        else if (daysDiff > 1) startDayStr = `${startDate.getDate()}/${startDate.getMonth() + 1}`;
+        if (dayLabel) dayLabel.textContent = startDayStr;
+        if (startDayEl) startDayEl.textContent = startDayStr;
+        if (stTime) stTime.textContent = formatThaiTime(startDate);
 
-        const startHM = formatThaiTime(startDate);
-        if (stTime) stTime.textContent = startDayText + startHM;
-
-        // Format End Time (When fasting ends and eating window begins)
+        // Calculated End Time
         const endDate = new Date(D.if.start + goalSec * 1000);
-        const endHM = formatThaiTime(endDate);
-        const endDayIso = iso(endDate);
-        const endMidnightMs = new Date(endDayIso + 'T00:00:00+07:00').getTime();
+        const endMidnightMs = new Date(iso(endDate) + 'T00:00:00+07:00').getTime();
         const endDaysDiff = Math.round((endMidnightMs - todayMidnightMs) / 864e5);
 
-        let endDay = 'วันนี้ ';
-        if (endDaysDiff === 1) endDay = 'พรุ่งนี้ ';
-        else if (endDaysDiff === -1) endDay = 'เมื่อวาน ';
-        else if (endDaysDiff !== 0) endDay = `${endDate.getDate()}/${endDate.getMonth() + 1} `;
-        if (endTimeEl) endTimeEl.textContent = endDay + endHM + ' น.';
+        let endDayStr = 'วันนี้';
+        if (endDaysDiff === 1) endDayStr = 'พรุ่งนี้';
+        else if (endDaysDiff > 1) endDayStr = `${endDate.getDate()}/${endDate.getMonth() + 1}`;
+        if (endDayEl) endDayEl.textContent = endDayStr;
+        if (endTimeEl) endTimeEl.textContent = formatThaiTime(endDate);
 
-        // Progress Bar
-        const pct = Math.min(100, Math.max(0, (diffSec / goalSec) * 100));
-        if (bar) bar.style.width = pct + '%';
-
-        if (diffSec >= goalSec) {
-            // Fast completed! Inside eating window
-            const overSec = diffSec - goalSec;
-            const overH = Math.floor(overSec / 3600);
-            const overM = Math.floor((overSec % 3600) / 60);
-            if (stText) {
-                stText.innerHTML = '🎉 <b>ครบเป้าหมาย ' + goalHrs + ' ชม. แล้ว! สิ้นสุดการอด</b>';
-                stText.style.color = '#22c55e';
-            }
-            if (countdownTx) {
-                countdownTx.innerHTML = '<span style="color:#22c55e;">🍽️ เริ่มกินได้แล้ว! (เลยมา ' + (overH > 0 ? overH + ' ชม. ' : '') + overM + ' นาที)</span>';
-            }
-            if (bar) bar.style.background = '#22c55e';
-        } else {
-            // Still fasting
-            const remSec = goalSec - diffSec;
-            const remH = Math.floor(remSec / 3600);
-            const remM = Math.floor((remSec % 3600) / 60);
-            if (stText) {
-                stText.textContent = '🔥 กำลังอดอาหาร (Fasting)';
-                stText.style.color = 'var(--warn)';
-            }
-            if (countdownTx) {
-                countdownTx.innerHTML = `เหลืออีก <strong>${remH} ชม. ${remM} นาที</strong>`;
-                countdownTx.style.color = 'var(--warn)';
-            }
-            if (bar) bar.style.background = 'linear-gradient(90deg, var(--warn), var(--acc))';
+        // Circular Dial Progress Arc (Total circumference 450)
+        const pct = Math.min(1, Math.max(0.04, diffSec / goalSec));
+        if (arcEl && typeof arcEl.setAttribute === 'function') {
+            arcEl.setAttribute('stroke-dashoffset', String(Math.round(450 * (1 - pct))));
+            arcEl.setAttribute('stroke', diffSec >= goalSec ? '#10b981' : '#0284c7');
         }
-        
-        if (btn) { btn.textContent = '🍽️ สิ้นสุดการอด (บันทึกเริ่มกิน)'; btn.className = 'btn g'; }
+        if (bar) bar.style.width = (pct * 100) + '%';
+
+        // Toggle Button State
+        if (toggleBtn) {
+            toggleBtn.classList.add('is-fasting');
+            if (btnIcon) btnIcon.textContent = '⏹';
+            if (btnText) btnText.textContent = 'สิ้นสุดการอดอาหาร';
+        }
+
+        // 5 Milestone Beads on Dial
+        updateIfBeads(elapsedHours);
+
+        if (stText) stText.textContent = diffSec >= goalSec ? 'ครบเป้าหมายแล้ว' : 'กำลังอดอาหาร';
     } else {
-        disp.textContent = '00:00:00';
-        if (timerSub) timerSub.textContent = 'ยังไม่ได้เริ่มจับเวลา';
-        if (stTime) stTime.textContent = '--:--';
-        if (endTimeEl) endTimeEl.textContent = 'รอเริ่ม IF';
+        // Fasting Not Started (WiseMeal default view as in image 2 & 3)
+        const defaultStart = new Date();
+        defaultStart.setHours(18, 0, 0, 0);
+
+        if (cardTitle) cardTitle.textContent = 'พร้อมเริ่มอดอาหารหรือยัง?';
+        if (timerSub) timerSub.textContent = 'เริ่มอดอาหาร';
+        if (dayLabel) dayLabel.textContent = 'วันนี้';
+        disp.textContent = '18:00';
+
+        if (startDayEl) startDayEl.textContent = 'วันนี้';
+        if (stTime) stTime.textContent = '18:00';
+
+        // Expected End time: 18:00 + goalHrs (e.g. 18:00 + 16h = 10:00 next day)
+        const endH = (18 + goalHrs) % 24;
+        const isNextDay = (18 + goalHrs) >= 24;
+        if (endDayEl) endDayEl.textContent = isNextDay ? 'พรุ่งนี้' : 'วันนี้';
+        if (endTimeEl) endTimeEl.textContent = `${String(endH).padStart(2, '0')}:00`;
+
+        if (arcEl && typeof arcEl.setAttribute === 'function') {
+            arcEl.setAttribute('stroke-dashoffset', '440');
+            arcEl.setAttribute('stroke', '#0284c7');
+        }
         if (bar) bar.style.width = '0%';
-        if (stText) {
-            stText.textContent = '🍽️ อยู่ในช่วงเวลากินอาหาร (ยังไม่เริ่ม IF)';
-            stText.style.color = 'var(--dim)';
+
+        if (toggleBtn) {
+            toggleBtn.classList.remove('is-fasting');
+            if (btnIcon) btnIcon.textContent = '▶';
+            if (btnText) btnText.textContent = 'เริ่มอดอาหาร';
         }
-        if (countdownTx) {
-            countdownTx.textContent = 'กดเริ่มเมื่อทานมื้อสุดท้ายเสร็จ';
-            countdownTx.style.color = 'var(--dim)';
-        }
-        if (btn) { btn.textContent = '⏳ เริ่มอดอาหาร (Start Fasting)'; btn.className = 'btn'; }
+
+        // Reset beads
+        updateIfBeads(0);
+
+        if (stText) stText.textContent = 'พร้อมเริ่มอดอาหาร';
     }
+}
+
+function updateIfBeads(elapsedHours) {
+    const b1 = document.getElementById('ifBead1');
+    const b2 = document.getElementById('ifBead2');
+    const b3 = document.getElementById('ifBead3');
+    const b4 = document.getElementById('ifBead4');
+    const b5 = document.getElementById('ifBead5');
+
+    const isFasting = elapsedHours > 0;
+    if (b1) b1.classList.toggle('active', isFasting && elapsedHours >= 0.1);
+    if (b2) b2.classList.toggle('active', isFasting && elapsedHours >= 4);
+    if (b3) b3.classList.toggle('active', isFasting && elapsedHours >= 8);
+    if (b4) b4.classList.toggle('active', isFasting && elapsedHours >= 12);
+    if (b5) b5.classList.toggle('active', isFasting && elapsedHours >= 16);
 }
 
 setInterval(() => {

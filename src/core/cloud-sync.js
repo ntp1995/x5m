@@ -343,42 +343,123 @@ async function quickAdd(type) {
     setTimeout(()=>fcAlert(`+${val} ${label} แล้ว!`), 200);
 }
 function charts() {
-    const d = D.checks.slice(-40);
+    let limit = 40;
+    if (window._weightChartFilter === 'week') limit = 7;
+    else if (window._weightChartFilter === 'month') limit = 30;
+    else if (window._weightChartFilter === 'quarter') limit = 90;
+
+    const validChecks = (D.checks || []).filter(x => x.w != null && x.w > 0);
+    const d = validChecks.slice(-limit);
     const box = document.getElementById('chart');
-    if (d.length < 2) box.innerHTML = '<div class="sub">บันทึกอย่างน้อย 2 วันเพื่อดูกราฟ</div>';
-    else {
-        const targetW = D.cfg.targetWeight || 72;
-        const Wd = 300, H = 110, mx = Math.max(...d.map(x => x.w), targetW) + .5, mn = Math.min(...d.map(x => x.w), targetW - .5) - .5;
-        const pt = d.map((x, i) => [i / (d.length - 1) * Wd, H - (x.w - mn) / (mx - mn) * H]), gy = H - (targetW - mn) / (mx - mn) * H;
-        box.innerHTML = `<svg viewBox="-4 -8 ${Wd + 8} ${H + 22}" style="width:100%">
-    <line x1="0" y1="${gy}" x2="${Wd}" y2="${gy}" stroke="var(--acc)" stroke-dasharray="4 4" stroke-width="1.5"/>
-    <text x="${Wd}" y="${gy - 4}" fill="var(--acc2)" font-size="9" text-anchor="end">เป้า ${targetW}</text>
-    <polyline points="${pt.map(p => p.join(',')).join(' ')}" fill="none" stroke="var(--acc)" stroke-width="2.5"/>
-    ${pt.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="var(--acc)"/>`).join('')}</svg>`
+
+    if (box) {
+        if (d.length < 1) {
+            box.innerHTML = '<div class="sub" style="text-align:center;padding:24px;">บันทึกน้ำหนักเพื่อเริ่มดูกราฟแนวโน้ม</div>';
+        } else if (d.length === 1) {
+            const singleW = (+d[0].w).toFixed(1);
+            box.innerHTML = `
+                <div style="background:var(--card2); border-radius:12px; padding:20px; text-align:center;">
+                    <div style="font-size:24px; font-weight:900; color:#00c070; margin-bottom:4px;">${singleW} kg</div>
+                    <div style="font-size:12.5px; color:var(--dim);">บันทึกน้ำหนักอีก 1 วันขึ้นไปเพื่อเริ่มแสดงเส้นแนวโน้ม</div>
+                </div>`;
+        } else {
+            const targetW = D.cfg.targetWeight || 70.0;
+            const Wd = 300, H = 130;
+            const allW = d.map(x => Number(x.w));
+            const maxVal = Math.max(...allW, targetW);
+            const minVal = Math.min(...allW, targetW);
+            const pad = Math.max(1, (maxVal - minVal) * 0.2);
+            const mx = Math.ceil(maxVal + pad);
+            const mn = Math.floor(minVal - pad);
+
+            const pt = d.map((x, i) => [
+                (i / (d.length - 1)) * Wd,
+                H - ((x.w - mn) / Math.max(0.5, (mx - mn))) * H
+            ]);
+            const gy = H - ((targetW - mn) / Math.max(0.5, (mx - mn))) * H;
+
+            // Generate Y-axis grid lines (every 2-4 kg)
+            const stepY = (mx - mn) <= 6 ? 2 : Math.round((mx - mn) / 4);
+            const gridLines = [];
+            for (let v = mn; v <= mx; v += stepY) {
+                const yPos = H - ((v - mn) / Math.max(0.5, (mx - mn))) * H;
+                if (yPos >= 0 && yPos <= H) {
+                    gridLines.push(`
+                        <line x1="0" y1="${yPos.toFixed(1)}" x2="${Wd}" y2="${yPos.toFixed(1)}" stroke="var(--line)" stroke-width="0.8" opacity="0.6"/>
+                        <text x="-4" y="${(yPos + 3).toFixed(1)}" fill="var(--dim)" font-size="8.5" text-anchor="end" font-weight="600">${v}</text>
+                    `);
+                }
+            }
+
+            // X-axis date labels
+            const dateLabels = d.map((x, i) => {
+                const parts = x.d.split('-');
+                const label = `${parts[2]}/${parts[1]}`;
+                const xPos = pt[i][0];
+                return `<text x="${xPos.toFixed(1)}" y="${H + 18}" fill="var(--dim)" font-size="9" text-anchor="middle" font-weight="600">${label}</text>`;
+            }).join('');
+
+            // Latest point indicator & tooltip badge
+            const lastIdx = pt.length - 1;
+            const lastPt = pt[lastIdx];
+            const latestW = (+d[lastIdx].w).toFixed(1);
+
+            box.innerHTML = `
+                <svg viewBox="-24 -16 ${Wd + 34} ${H + 42}" style="width:100%; overflow:visible;">
+                    ${gridLines.join('')}
+                    <!-- Target Line -->
+                    <line x1="0" y1="${gy.toFixed(1)}" x2="${Wd}" y2="${gy.toFixed(1)}" stroke="#10b981" stroke-dasharray="4 4" stroke-width="1.5" opacity="0.85"/>
+                    <text x="${Wd + 4}" y="${(gy + 3).toFixed(1)}" fill="#10b981" font-size="9" text-anchor="start" font-weight="700">เป้า ${targetW}</text>
+
+                    <!-- Trend Line -->
+                    <polyline points="${pt.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="#00c070" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    
+                    <!-- Vertical Crosshair Line for Latest -->
+                    <line x1="${lastPt[0].toFixed(1)}" y1="0" x2="${lastPt[0].toFixed(1)}" y2="${H}" stroke="#00c070" stroke-dasharray="3 3" stroke-width="1.2" opacity="0.6"/>
+
+                    <!-- Data Points -->
+                    ${pt.map((p, i) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i === lastIdx ? '4.5' : '3'}" fill="#00c070" stroke="#ffffff" stroke-width="1.5"/>`).join('')}
+
+                    <!-- Tooltip badge at latest point -->
+                    <g transform="translate(${(lastPt[0] - 18).toFixed(1)}, ${(lastPt[1] - 22).toFixed(1)})">
+                        <rect width="36" height="18" rx="5" fill="#00c070"/>
+                        <text x="18" y="12" fill="#ffffff" font-size="9.5" font-weight="900" text-anchor="middle">${latestW}</text>
+                    </g>
+
+                    ${dateLabels}
+                </svg>
+            `;
+        }
     }
+
     const pd = D.checks.filter(x => x.pain != null).slice(-40), pb = document.getElementById('painChart');
-    if (pd.length < 2) pb.innerHTML = '<div class="sub">กรอกระดับปวดหลังทุกเช้าเพื่อดูแนวโน้ม (0-10)</div>';
-    else {
-        const Wd = 300, H = 80; const pt = pd.map((x, i) => [i / (pd.length - 1) * Wd, H - x.pain / 10 * H]);
-        pb.innerHTML = `<svg viewBox="-4 -8 ${Wd + 8} ${H + 18}" style="width:100%">
-    <polyline points="${pt.map(p => p.join(',')).join(' ')}" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
-    ${pt.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#f59e0b"/>`).join('')}
-    <text x="0" y="${H + 14}" fill="#8b98ab" font-size="9">0 = ไม่ปวด • 10 = ปวดมาก</text></svg>`
+    if (pb) {
+        if (pd.length < 2) pb.innerHTML = '<div class="sub">กรอกระดับปวดหลังทุกเช้าเพื่อดูแนวโน้ม (0-10)</div>';
+        else {
+            const Wd = 300, H = 80; const pt = pd.map((x, i) => [i / (pd.length - 1) * Wd, H - x.pain / 10 * H]);
+            pb.innerHTML = `<svg viewBox="-4 -8 ${Wd + 8} ${H + 18}" style="width:100%">
+        <polyline points="${pt.map(p => p.join(',')).join(' ')}" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+        ${pt.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#f59e0b"/>`).join('')}
+        <text x="0" y="${H + 14}" fill="#8b98ab" font-size="9">0 = ไม่ปวด • 10 = ปวดมาก</text></svg>`;
+        }
     }
+
     /* --- Calorie Chart --- */
     const cd = D.checks.filter(x => x.cal > 0).slice(-40), cb = document.getElementById('calChart');
-    if (cd.length < 2) cb.innerHTML = '<div class="sub">บันทึกแคลอรี่อย่างน้อย 2 วันเพื่อดูกราฟ</div>';
-    else {
-        const Wd = 300, H = 90, mx = Math.max(...cd.map(x => x.cal), CAL_TARGET + 200), mn = 0;
-        const pt = cd.map((x, i) => [i / (cd.length - 1) * Wd, H - x.cal / mx * H]);
-        const tgtY = H - CAL_TARGET / mx * H;
-        const avg7 = cd.slice(-7).reduce((a, x) => a + x.cal, 0) / Math.min(7, cd.length);
-        cb.innerHTML = `<svg viewBox="-4 -8 ${Wd + 8} ${H + 28}" style="width:100%">
-    <line x1="0" y1="${tgtY}" x2="${Wd}" y2="${tgtY}" stroke="#a78bfa" stroke-dasharray="4 4" stroke-width="1.5"/>
-    <text x="${Wd}" y="${tgtY - 4}" fill="#a78bfa" font-size="9" text-anchor="end">เป้า ${CAL_TARGET}</text>
-    <polyline points="${pt.map(p => p.join(',')).join(' ')}" fill="none" stroke="#a78bfa" stroke-width="2.5"/>
-    ${pt.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#a78bfa"/>`).join('')}
-    <text x="0" y="${H + 18}" fill="#8b98ab" font-size="9">เฉลี่ย 7 วัน: ${Math.round(avg7).toLocaleString()} kcal</text></svg>`
+    if (cb) {
+        if (cd.length < 2) cb.innerHTML = '<div class="sub">บันทึกแคลอรี่อย่างน้อย 2 วันเพื่อดูกราฟ</div>';
+        else {
+            const Wd = 300, H = 90, mx = Math.max(...cd.map(x => x.cal), CAL_TARGET + 200);
+            const pt = cd.map((x, i) => [i / (cd.length - 1) * Wd, H - x.cal / mx * H]);
+            const tgtY = H - CAL_TARGET / mx * H;
+            const avg7 = cd.slice(-7).reduce((a, x) => a + x.cal, 0) / Math.min(7, cd.length);
+            cb.innerHTML = `<svg viewBox="-4 -8 ${Wd + 8} ${H + 28}" style="width:100%">
+        <line x1="0" y1="${tgtY}" x2="${Wd}" y2="${tgtY}" stroke="#a78bfa" stroke-dasharray="4 4" stroke-width="1.5"/>
+        <text x="${Wd}" y="${tgtY - 4}" fill="#a78bfa" font-size="9" text-anchor="end">เป้า ${CAL_TARGET}</text>
+        <polyline points="${pt.map(p => p.join(',')).join(' ')}" fill="none" stroke="#a78bfa" stroke-width="2.5"/>
+        ${pt.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#a78bfa"/>`).join('')}
+        <text x="0" y="${H + 18}" fill="#8b98ab" font-size="9">เฉลี่ย 7 วัน: ${Math.round(avg7).toLocaleString()} kcal</text></svg>`;
+        }
     }
 }
 
@@ -632,7 +713,7 @@ function renderAuthUI() {
             </div>
         `;
         if (userBadge) {
-            userBadge.innerHTML = `<img src="${photo}" style="width:32px; height:32px; border-radius:50%; border:2px solid var(--acc); object-fit:cover;" title="${name}">`;
+            userBadge.innerHTML = `<img src="${photo}" style="width:28px; height:28px; border-radius:50%; border:2px solid var(--acc); object-fit:cover; display:block;" title="${name}">`;
             userBadge.style.display = 'block';
         }
     } else {
@@ -646,7 +727,7 @@ function renderAuthUI() {
             <div class="sub" id="syncMsg" style="margin-top:12px; font-size:12.5px; text-align:center;">ยังไม่ได้เชื่อมต่อบัญชี</div>
         `;
         if (userBadge) {
-            userBadge.innerHTML = `<span style="font-size:12px; font-weight:700; padding:5px 10px; border-radius:99px; background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe; display:inline-flex; align-items:center; gap:4px;">🔑 เข้าสู่ระบบ</span>`;
+            userBadge.innerHTML = `<span style="font-size:11px; font-weight:700; padding:3px 8px; border-radius:99px; background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe; display:inline-flex; align-items:center; gap:3px;">🔑 ล็อกอิน</span>`;
             userBadge.style.display = 'inline-flex';
         }
     }
@@ -659,6 +740,7 @@ function renderAuthUI() {
         kbInp.value = D.cfg.aiKeyBackup;
     }
     renderAiQuotaWidget();
+    renderWearablesSyncUI();
     updateCloudSyncPill();
 }
 
@@ -1130,3 +1212,525 @@ function exportJSON() {
     const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'fitcoach-backup-' + iso() + '.json'; a.click()
 }
 
+
+/* ============================================================================
+   FITCOACH CLOUD PUSH & NOTIFICATIONS CLIENT ENGINE (v3.5.0)
+   ============================================================================ */
+let fbMessaging = null;
+
+function getNotificationPermissionStatus() {
+    if (!('Notification' in window)) return 'unsupported';
+    return Notification.permission; // 'default', 'granted', 'denied'
+}
+
+function updatePushStatusUI() {
+    const badge = document.getElementById('pushStatusBadge');
+    const btn = document.getElementById('btnRequestPushPerm');
+    if (!badge) return;
+
+    const status = getNotificationPermissionStatus();
+    if (status === 'granted') {
+        badge.textContent = 'เปิดใช้งานแล้ว ✓';
+        badge.style.background = '#d1fae5';
+        badge.style.color = '#047857';
+        if (btn) {
+            btn.innerHTML = '<span>✓ เปิดแจ้งเตือนแล้ว</span>';
+            btn.style.background = '#059669';
+            btn.disabled = true;
+            btn.style.opacity = '0.85';
+        }
+    } else if (status === 'denied') {
+        badge.textContent = 'ถูกบล็อกในเบราว์เซอร์ ✕';
+        badge.style.background = '#fee2e2';
+        badge.style.color = '#991b1b';
+        if (btn) {
+            btn.innerHTML = '<span>⚙️ ถูกปิดกั้นในสิทธิ์เบราว์เซอร์</span>';
+            btn.style.background = '#64748b';
+        }
+    } else {
+        badge.textContent = 'ยังไม่เปิดใช้งาน';
+        badge.style.background = '#fef3c7';
+        badge.style.color = '#b45309';
+        if (btn) {
+            btn.innerHTML = '<span>🔔 เปิดรับการแจ้งเตือน</span>';
+            btn.style.background = '#10b981';
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }
+    }
+}
+
+async function requestPushNotificationPermission() {
+    if (!('Notification' in window)) {
+        if (typeof fcAlert === 'function') fcAlert('อุปกรณ์หรือเบราว์เซอร์นี้ยังไม่รองรับ Web Push Notifications ครับ');
+        return;
+    }
+
+    try {
+        const perm = await Notification.requestPermission();
+        updatePushStatusUI();
+
+        if (perm === 'granted') {
+            await initFcmPushMessaging();
+            if (typeof fcAlert === 'function') {
+                fcAlert('✓ เปิดรับการแจ้งเตือนสำเร็จ! ระบบพร้อมเตือนชั่งน้ำหนักและสัดส่วนทุกเช้าครับ');
+            }
+        } else if (perm === 'denied') {
+            if (typeof fcAlert === 'function') {
+                fcAlert('สิทธิ์การแจ้งเตือนถูกปฏิเสธ หากต้องการเปิด กรุณากดรูปแม่กุญแจ 🔒 ที่แถบ URL ของเบราว์เซอร์เพื่ออนุญาตการแจ้งเตือนครับ');
+            }
+        }
+    } catch (e) {
+        console.warn('Notification permission error:', e);
+    }
+}
+
+async function initFcmPushMessaging() {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+    try {
+        if (typeof firebase !== 'undefined' && firebase.messaging && firebase.messaging.isSupported()) {
+            if (!fbMessaging) {
+                fbMessaging = firebase.messaging();
+            }
+
+            // Register service worker and get token
+            const reg = await navigator.serviceWorker.ready;
+            const token = await fbMessaging.getToken({
+                serviceWorkerRegistration: reg
+            }).catch(err => {
+                console.log('[FCM] Token retrieve info:', err.message);
+                return null;
+            });
+
+            if (token) {
+                D.cfg.fcmToken = token;
+                save();
+                await saveFcmTokenToCloud(token);
+            }
+
+            // Listen for foreground messages
+            fbMessaging.onMessage(payload => {
+                console.log('[FCM] Foreground message received:', payload);
+                const title = payload.notification?.title || 'FitCoach';
+                const body = payload.notification?.body || '';
+                const action = payload.data?.action || 'weigh';
+                if (typeof fcConfirm === 'function') {
+                    fcConfirm(`${body}\n\nต้องการเปิดหน้าบันทึกทันทีใช่หรือไม่?`, title).then(ok => {
+                        if (ok) handleNotificationDeepLink(action);
+                    });
+                }
+            });
+        }
+    } catch (err) {
+        console.warn('[FCM] Init error:', err);
+    }
+}
+
+async function saveFcmTokenToCloud(token) {
+    if (!token) return;
+    if (!currentUser || !fbDb) return;
+
+    try {
+        await fbDb.collection('users').doc(currentUser.uid).set({
+            fcmToken: token,
+            fcmUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            reminders: {
+                weight: D.cfg.weightReminder !== false,
+                measure: D.cfg.measureReminder !== false
+            }
+        }, { merge: true });
+        console.log('[FCM] Token synced to Firestore for user:', currentUser.uid);
+    } catch (e) {
+        console.warn('[FCM] Cloud token sync warning:', e);
+    }
+}
+
+async function sendTestNotificationNow() {
+    if (!('Notification' in window)) {
+        if (typeof fcAlert === 'function') fcAlert('อุปกรณ์นี้ไม่รองรับการแจ้งเตือน');
+        return;
+    }
+
+    if (Notification.permission !== 'granted') {
+        const ok = await fcConfirm('ต้องเปิดรับสิทธิ์การแจ้งเตือนก่อนส่งทดสอบ ต้องการเปิดสิทธิ์ทันทีใช่หรือไม่?', '🔔 ขอสิทธิ์การแจ้งเตือน');
+        if (ok) await requestPushNotificationPermission();
+        if (Notification.permission !== 'granted') return;
+    }
+
+    try {
+        const reg = await navigator.serviceWorker.ready;
+        const isSunday = (new Date().getDay() === 0);
+        const testTitle = isSunday ? '📏 รอบวัดสัดส่วนประจำสัปดาห์ (ทดสอบ)' : '🌅 ได้เวลาชั่งน้ำหนักยามเช้า (ทดสอบ)';
+        const testBody = isSunday 
+            ? 'เช้าวันอาทิตย์: แตะเพื่อเปิดสายวัดสัดส่วนรอบเอว รอบอก รอบสะโพกทันที'
+            : 'ชั่งน้ำหนักหลังตื่นนอนและปัสสาวะ เพื่อผลลัพธ์ที่แม่นยำที่สุด แตะเพื่อบันทึกทันที';
+        const testAction = isSunday ? 'measure' : 'weigh';
+
+        await reg.showNotification(testTitle, {
+            body: testBody,
+            icon: './icon.svg',
+            badge: './icon.svg',
+            vibrate: [100, 50, 100],
+            data: {
+                action: testAction,
+                url: `./index.html?action=${testAction}`
+            },
+            actions: [
+                { action: 'open', title: '✍️ บันทึกทันที' },
+                { action: 'snooze', title: '⏰ เลื่อน 15 นาที' }
+            ]
+        });
+
+        if (typeof msg === 'function') msg('✓ ส่งการแจ้งเตือนทดสอบเข้ามือถือเรียบร้อยแล้ว');
+    } catch (err) {
+        console.warn('Test notification error:', err);
+        // Fallback for environments without ServiceWorker showNotification
+        new Notification('🌅 ได้เวลาชั่งน้ำหนักยามเช้า (FitCoach)', {
+            body: 'ระบบแจ้งเตือนทำงานได้สมบูรณ์แบบบนอุปกรณ์ของคุณ!',
+            icon: './icon.svg'
+        });
+    }
+}
+
+/* Deep Linking Handler */
+function handleNotificationDeepLink(action) {
+    if (!action) return;
+    console.log('[DeepLink] Handling notification action:', action);
+
+    if (action === 'weigh') {
+        if (typeof go === 'function') go('stat');
+        if (typeof switchBodySubTab === 'function') switchBodySubTab('weight');
+        if (typeof openMorningWeighInModal === 'function') {
+            setTimeout(() => openMorningWeighInModal(), 300);
+        }
+    } else if (action === 'measure') {
+        if (typeof go === 'function') go('stat');
+        if (typeof switchBodySubTab === 'function') switchBodySubTab('body');
+        if (typeof openMeasureTapeModal === 'function') {
+            setTimeout(() => openMeasureTapeModal(), 300);
+        }
+    }
+}
+
+// Global Message Listener from Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.type === 'TRIGGER_DEEP_LINK') {
+            handleNotificationDeepLink(event.data.action);
+        }
+    });
+}
+
+// Initial Deep Link Check on Startup
+window.addEventListener('DOMContentLoaded', () => {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const actionParam = params.get('action');
+        if (actionParam) {
+            setTimeout(() => handleNotificationDeepLink(actionParam), 400);
+        }
+    } catch (e) {}
+});
+
+/* ============================================================================
+   GOOGLE FIT REST API — GARMIN & ZEPP LIFE AUTO-SYNC ENGINE (v3.5.0)
+   ============================================================================ */
+const GOOGLE_FIT_SCOPES = [
+    'https://www.googleapis.com/auth/fitness.activity.read',
+    'https://www.googleapis.com/auth/fitness.body.read',
+    'https://www.googleapis.com/auth/fitness.heart_rate.read'
+];
+
+function isGoogleFitConnected() {
+    return !!(D.cfg && D.cfg.googleFit && D.cfg.googleFit.connected);
+}
+
+function renderWearablesSyncUI() {
+    const card = document.getElementById('wearablesSyncCard');
+    if (!card) return;
+
+    if (!D.cfg) D.cfg = {};
+    if (!D.cfg.googleFit) {
+        D.cfg.googleFit = { connected: false, lastSync: null, steps: 0, weight: 0, bf: 0, rhr: 0, cardio: 0 };
+    }
+    const gf = D.cfg.googleFit;
+    const isConn = isGoogleFitConnected();
+
+    let lastSyncTxt = 'ยังไม่เคยซิงก์';
+    if (gf.lastSync) {
+        const d = new Date(gf.lastSync);
+        lastSyncTxt = `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')} น.`;
+    }
+
+    const tc = (typeof todayCheck === 'function') ? todayCheck() : null;
+    const curSteps = tc?.steps || gf.steps || 0;
+    const curWeight = tc?.w || gf.weight || (D.checks && D.checks.length > 0 ? D.checks[D.checks.length - 1].w : 78.0);
+    const curBf = tc?.bf || gf.bf || 25.0;
+    const curRhr = tc?.hrv || gf.rhr || 48;
+    const curCardio = gf.cardio || (typeof getMorningCardioMinutesToday === 'function' ? getMorningCardioMinutesToday() : 0);
+
+    card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:20px;">⌚</span>
+                <h3 style="margin:0; font-size:16px; font-weight:800; color:var(--tx);">อุปกรณ์สุขภาพ & เครื่องชั่ง</h3>
+            </div>
+            <span style="font-size:11px; font-weight:800; padding:3px 10px; border-radius:99px; ${isConn ? 'background:#d1fae5; color:#047857;' : 'background:#f1f5f9; color:#64748b;'}">
+                ${isConn ? '🟢 เชื่อมต่อแล้ว ✓' : '⚪ ยังไม่เชื่อมต่อ'}
+            </span>
+        </div>
+        <div style="font-size:12px; color:var(--dim); line-height:1.4; margin-bottom:12px;">
+            ดึงก้าวเดิน & คาร์ดิโอจาก <b>Garmin</b> และน้ำหนักตัว & %ไขมันจาก <b>Zepp Life</b> ผ่าน Google Fit REST API
+        </div>
+
+        <!-- Devices Status Bento Grid -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
+            <!-- Garmin Box -->
+            <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 12px;">
+                <div style="display:flex; align-items:center; gap:5px; margin-bottom:6px;">
+                    <span style="font-size:14px;">🏃</span>
+                    <span style="font-size:12px; font-weight:800; color:var(--tx);">Garmin Connect</span>
+                </div>
+                <div style="font-size:11px; color:var(--dim);">
+                    ก้าวเดิน: <b style="color:#00c070; font-size:13px;">${Number(curSteps).toLocaleString()}</b> ก้าว
+                </div>
+                <div style="font-size:11px; color:var(--dim); margin-top:2px;">
+                    คาร์ดิโอ: <b style="color:var(--tx);">${curCardio} นาที</b>
+                </div>
+                <div style="font-size:11px; color:var(--dim); margin-top:2px;">
+                    RHR: <b style="color:#38bdf8;">${curRhr} bpm</b>
+                </div>
+            </div>
+
+            <!-- Zepp Life Box -->
+            <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 12px;">
+                <div style="display:flex; align-items:center; gap:5px; margin-bottom:6px;">
+                    <span style="font-size:14px;">⚖️</span>
+                    <span style="font-size:12px; font-weight:800; color:var(--tx);">Zepp Life Scale</span>
+                </div>
+                <div style="font-size:11px; color:var(--dim);">
+                    น้ำหนัก: <b style="color:#00c070; font-size:13px;">${(+curWeight).toFixed(1)}</b> กก.
+                </div>
+                <div style="font-size:11px; color:var(--dim); margin-top:2px;">
+                    ไขมัน: <b style="color:var(--tx);">${curBf}%</b>
+                </div>
+                <div style="font-size:10px; color:#10b981; font-weight:700; margin-top:4px;">
+                    ✓ Xiaomi Scale Sync
+                </div>
+            </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--dim); margin-bottom:10px;">
+            <span>ซิงก์ล่าสุด: <b>${lastSyncTxt}</b></span>
+            <span>Google Fit REST API v1</span>
+        </div>
+
+        <div style="display:flex; gap:8px;">
+            ${isConn ? `
+                <button type="button" class="btn sm" onclick="syncGoogleFitData(false)" style="flex:1; background:#00c070; color:#fff; font-weight:800; border-radius:8px; padding:9px; border:none; display:flex; align-items:center; justify-content:center; gap:6px;">
+                    <span>🔄 ซิงก์ Garmin & Zepp เดี๋ยวนี้</span>
+                </button>
+                <button type="button" class="btn sm g" onclick="disconnectGoogleFit()" style="font-size:11px; padding:9px 12px; border-radius:8px;">
+                    ตัดการเชื่อมต่อ
+                </button>
+            ` : `
+                <button type="button" class="btn sm" onclick="connectGoogleFit()" style="flex:1; background:#00c070; color:#fff; font-weight:800; border-radius:8px; padding:10px; border:none; display:flex; align-items:center; justify-content:center; gap:6px;">
+                    <span>🔗 เชื่อมต่อ Google Fit (Garmin & Zepp)</span>
+                </button>
+            `}
+        </div>
+    `;
+}
+
+async function connectGoogleFit() {
+    if (!fbAuth) {
+        if (typeof fcAlert === 'function') fcAlert('Firebase Authentication ยังไม่พร้อมทำงาน');
+        return;
+    }
+
+    const provider = new firebase.auth.GoogleAuthProvider();
+    GOOGLE_FIT_SCOPES.forEach(s => provider.addScope(s));
+
+    try {
+        if (typeof msg === 'function') msg('กำลังขอสิทธิ์เข้าถึง Google Fit (Garmin & Zepp Life)...');
+        const result = await fbAuth.signInWithPopup(provider);
+        const credential = result.credential;
+        const accessToken = credential?.accessToken;
+
+        if (!D.cfg) D.cfg = {};
+        if (!D.cfg.googleFit) D.cfg.googleFit = {};
+
+        D.cfg.googleFit.connected = true;
+        if (accessToken) {
+            D.cfg.googleFit.token = accessToken;
+            sessionStorage.setItem('google_fit_token', accessToken);
+        }
+
+        save();
+        render();
+        renderWearablesSyncUI();
+
+        // Perform first sync immediately
+        await syncGoogleFitData(false);
+
+        if (typeof fcAlert === 'function') {
+            fcAlert('✓ เชื่อมต่อ Google Fit สำเร็จ! ระบบจะดึงก้าวเดินจาก Garmin และน้ำหนักจาก Zepp Life อัตโนมัติครับ');
+        }
+    } catch (err) {
+        console.error('Google Fit connect error:', err);
+        if (typeof fcAlert === 'function') {
+            fcAlert(`เชื่อมต่อไม่สำเร็จ: ${err.message || 'กรุณาลองใหม่อีกครั้ง'}`);
+        }
+    }
+}
+
+async function disconnectGoogleFit() {
+    const ok = await fcConfirm('ต้องการตัดการเชื่อมต่อกับ Google Fit ใช่หรือไม่?\n(ข้อมูลที่เคยบันทึกไว้ในแอปจะไม่ถูกลบ)', 'ตัดการเชื่อมต่อ');
+    if (!ok) return;
+
+    if (D.cfg && D.cfg.googleFit) {
+        D.cfg.googleFit.connected = false;
+        D.cfg.googleFit.token = null;
+    }
+    sessionStorage.removeItem('google_fit_token');
+    save();
+    render();
+    renderWearablesSyncUI();
+    if (typeof fcAlert === 'function') fcAlert('ตัดการเชื่อมต่อเรียบร้อยแล้ว');
+}
+
+async function syncGoogleFitData(silent = false) {
+    if (!isGoogleFitConnected()) return;
+
+    const token = D.cfg?.googleFit?.token || sessionStorage.getItem('google_fit_token');
+    if (!token && !silent) {
+        // Prompt re-auth if token expired
+        const ok = await fcConfirm('โทเคน Google Fit หมดอายุ ต้องการเข้าสู่ระบบเพื่อต่ออายุการซิงก์ใช่หรือไม่?', '🔄 ต่ออายุโทเคน Google Fit');
+        if (ok) await connectGoogleFit();
+        return;
+    }
+
+    if (!silent && typeof msg === 'function') msg('กำลังดึงข้อมูลสดจาก Garmin & Zepp Life ผ่าน Google Fit...');
+
+    // Calculate today's time range in milliseconds
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).getTime();
+    const endOfDay = now.getTime();
+
+    const requestBody = {
+        aggregateBy: [
+            { dataTypeName: 'com.google.step_count.delta' },
+            { dataTypeName: 'com.google.weight' },
+            { dataTypeName: 'com.google.body.fat.percentage' },
+            { dataTypeName: 'com.google.heart_rate.bpm' },
+            { dataTypeName: 'com.google.active_minutes' }
+        ],
+        bucketByTime: { durationMillis: 86400000 },
+        startTimeMillis: startOfDay,
+        endTimeMillis: endOfDay
+    };
+
+    try {
+        const resp = await fetch('https://fitness.googleapis.com/fitness/v1/users/me/dataset:aggregate', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!resp.ok) {
+            console.warn('[GoogleFit] API response not ok:', resp.status);
+            if (resp.status === 401 && !silent) {
+                sessionStorage.removeItem('google_fit_token');
+                const ok = await fcConfirm('เซสชัน Google Fit หมดอายุ ต้องการเชื่อมต่อใหม่ใช่หรือไม่?', '🔑 สิทธิ์หมดอายุ');
+                if (ok) await connectGoogleFit();
+            }
+            return;
+        }
+
+        const data = await resp.json();
+        const buckets = data.bucket || [];
+
+        let fetchedSteps = 0;
+        let fetchedWeight = null;
+        let fetchedBf = null;
+        let fetchedRhr = null;
+        let fetchedCardio = 0;
+
+        buckets.forEach(b => {
+            (b.dataset || []).forEach(ds => {
+                const streamId = ds.dataSourceId || '';
+                (ds.point || []).forEach(pt => {
+                    const vals = pt.value || [];
+                    if (streamId.includes('step_count')) {
+                        fetchedSteps += (vals[0]?.intVal || 0);
+                    } else if (streamId.includes('weight')) {
+                        fetchedWeight = vals[0]?.fpVal != null ? vals[0].fpVal : fetchedWeight;
+                    } else if (streamId.includes('body.fat')) {
+                        fetchedBf = vals[0]?.fpVal != null ? vals[0].fpVal : fetchedBf;
+                    } else if (streamId.includes('heart_rate')) {
+                        fetchedRhr = vals[0]?.fpVal != null ? Math.round(vals[0].fpVal) : fetchedRhr;
+                    } else if (streamId.includes('active_minutes')) {
+                        fetchedCardio += (vals[0]?.intVal || 0);
+                    }
+                });
+            });
+        });
+
+        // Apply to Today Check Record
+        const todayStr = iso();
+        let rec = D.checks.find(x => x.d === todayStr);
+        if (!rec) {
+            const prev = D.checks[D.checks.length - 1];
+            rec = {
+                d: todayStr,
+                w: fetchedWeight != null ? Math.round(fetchedWeight * 10) / 10 : (prev?.w || 78.0),
+                bf: fetchedBf != null ? Math.round(fetchedBf * 10) / 10 : (prev?.bf || null),
+                muscle: prev?.muscle || null,
+                steps: fetchedSteps > 0 ? fetchedSteps : (D.cfg?.stepTarget || 8000),
+                hrv: fetchedRhr || (prev?.hrv || 73),
+                pain: null, cal: 0, protein: 0, carbs: 0, fat: 0, water: 0, meals: []
+            };
+            D.checks.push(rec);
+        } else {
+            if (fetchedSteps > 0) rec.steps = fetchedSteps;
+            if (fetchedWeight != null) rec.w = Math.round(fetchedWeight * 10) / 10;
+            if (fetchedBf != null) rec.bf = Math.round(fetchedBf * 10) / 10;
+            if (fetchedRhr != null) rec.hrv = fetchedRhr;
+        }
+
+        // Update Google Fit Cache
+        D.cfg.googleFit.lastSync = Date.now();
+        if (fetchedSteps > 0) D.cfg.googleFit.steps = fetchedSteps;
+        if (fetchedWeight != null) D.cfg.googleFit.weight = Math.round(fetchedWeight * 10) / 10;
+        if (fetchedBf != null) D.cfg.googleFit.bf = Math.round(fetchedBf * 10) / 10;
+        if (fetchedRhr != null) D.cfg.googleFit.rhr = fetchedRhr;
+        if (fetchedCardio > 0) D.cfg.googleFit.cardio = fetchedCardio;
+
+        save();
+        render();
+        renderWearablesSyncUI();
+        if (typeof pushToCloud === 'function') pushToCloud();
+
+        if (!silent) {
+            const summaryParts = [];
+            if (fetchedSteps > 0) summaryParts.push(`🏃 ${fetchedSteps.toLocaleString()} ก้าว (Garmin)`);
+            if (fetchedWeight != null) summaryParts.push(`⚖️ ${rec.w} กก. (Zepp Life)`);
+            if (fetchedBf != null) summaryParts.push(`🧬 ไขมัน ${rec.bf}%`);
+            if (fetchedRhr != null) summaryParts.push(`💓 RHR ${rec.hrv} bpm`);
+
+            const msgText = summaryParts.length > 0 
+                ? `✓ ซิงก์สำเร็จ!\n\n${summaryParts.join('\n')}` 
+                : '✓ ตรวจสอบข้อมูลล่าสุดเรียบร้อยแล้ว';
+            if (typeof fcAlert === 'function') fcAlert(msgText);
+        }
+    } catch (err) {
+        console.warn('[GoogleFit] Sync error:', err);
+        if (!silent && typeof fcAlert === 'function') {
+            fcAlert('ไม่สามารถดึงข้อมูลได้ในขณะนี้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต');
+        }
+    }
+}

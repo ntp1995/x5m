@@ -116,3 +116,76 @@ self.addEventListener('message', event => {
     self.skipWaiting();
   }
 });
+
+/* ============================================================================
+   FITCOACH CLOUD PUSH & NOTIFICATION HANDLER (v3.5.0)
+   ============================================================================ */
+self.addEventListener('push', event => {
+  let data = {};
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {
+      data = { title: 'FitCoach', body: event.data.text() };
+    }
+  }
+
+  const title = data.title || data.notification?.title || '🌅 ได้เวลาชั่งน้ำหนักยามเช้า (FitCoach)';
+  const body = data.body || data.notification?.body || 'ชั่งน้ำหนักหลังตื่นนอนและปัสสาวะ เพื่อบันทึกสถิติที่แม่นยำที่สุด';
+  const actionType = data.action || data.data?.action || 'weigh';
+
+  const options = {
+    body: body,
+    icon: './icon.svg',
+    badge: './icon.svg',
+    vibrate: [100, 50, 100],
+    data: {
+      action: actionType,
+      url: `./index.html?action=${actionType}`
+    },
+    actions: [
+      { action: 'open', title: '✍️ บันทึกทันที' },
+      { action: 'snooze', title: '⏰ เลื่อน 15 นาที' }
+    ]
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+
+  const clickedAction = event.action;
+  const notifData = event.notification.data || {};
+  const targetAction = notifData.action || 'weigh';
+
+  if (clickedAction === 'snooze') {
+    // Snooze 15 minutes
+    setTimeout(() => {
+      self.registration.showNotification('⏰ เตือนซ้ำ: ' + event.notification.title, {
+        body: event.notification.body,
+        icon: './icon.svg',
+        badge: './icon.svg',
+        data: notifData,
+        actions: [{ action: 'open', title: '✍️ บันทึกทันที' }]
+      });
+    }, 15 * 60 * 1000);
+    return;
+  }
+
+  const targetUrl = new URL(`./index.html?action=${targetAction}`, self.location.origin).href;
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+      for (let client of clientList) {
+        if ('focus' in client) {
+          client.postMessage({ type: 'TRIGGER_DEEP_LINK', action: targetAction });
+          return client.focus();
+        }
+      }
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetUrl);
+      }
+    })
+  );
+});
