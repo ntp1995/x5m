@@ -390,13 +390,7 @@ function renderOnboardingStep() {
                     <!-- Male Card -->
                     <div class="wm-gender-card ${obState.gender === 'M' ? 'active' : ''}" onclick="setObField('gender', 'M')">
                         <div class="wm-gender-avatar-wrap" style="background:#e0f2fe;">
-                            <svg width="68" height="68" viewBox="0 0 100 100" fill="none">
-                                <circle cx="50" cy="50" r="48" fill="#dbeafe"/>
-                                <circle cx="50" cy="38" r="18" fill="#fbcfe8"/>
-                                <path d="M50 20C40 20 36 28 36 34C36 40 40 44 40 44L44 48H56L60 44C60 44 64 40 64 34C64 28 60 20 50 20Z" fill="#92400e"/>
-                                <ellipse cx="50" cy="42" rx="13" ry="15" fill="#fde68a"/>
-                                <path d="M22 88C22 70 34 62 50 62C66 62 78 70 78 88" fill="#38bdf8"/>
-                            </svg>
+                            <div style="width:76px; height:76px; border-radius:50%; background-image:url('gender_spritesheet.jpg'); background-size:200% 100%; background-position:0% 20%; background-repeat:no-repeat; border:2px solid #bae6fd;"></div>
                         </div>
                         <div class="wm-gender-name">ชาย</div>
                     </div>
@@ -404,12 +398,7 @@ function renderOnboardingStep() {
                     <!-- Female Card -->
                     <div class="wm-gender-card ${obState.gender === 'F' ? 'active' : ''}" onclick="setObField('gender', 'F')">
                         <div class="wm-gender-avatar-wrap" style="background:#fce7f3;">
-                            <svg width="68" height="68" viewBox="0 0 100 100" fill="none">
-                                <circle cx="50" cy="50" r="48" fill="#fce7f3"/>
-                                <path d="M50 18C36 18 30 28 30 46C30 58 36 64 36 64C40 60 42 54 42 46C42 36 46 32 50 32C54 32 58 36 58 46C58 54 60 60 64 64C64 64 70 58 70 46C70 28 64 18 50 18Z" fill="#94a3b8"/>
-                                <ellipse cx="50" cy="42" rx="12" ry="14" fill="#fbcfe8"/>
-                                <path d="M26 88C26 72 36 64 50 64C64 64 74 72 74 88" fill="#cbd5e1"/>
-                            </svg>
+                            <div style="width:76px; height:76px; border-radius:50%; background-image:url('gender_spritesheet.jpg'); background-size:200% 100%; background-position:100% 20%; background-repeat:no-repeat; border:2px solid #fbcfe8;"></div>
                         </div>
                         <div class="wm-gender-name">หญิง</div>
                     </div>
@@ -577,11 +566,18 @@ function renderOnboardingStep() {
     // -------------------------------------------------------------
     else if (obStep === 4 && obSubStep === 'analysis') {
         const hM = (obState.height || 168) / 100;
-        const bmi = (obState.weight / (hM * hM)).toFixed(1);
+        const bmiVal = obState.weight / (hM * hM);
+        const bmi = bmiVal.toFixed(1);
         const normalWeightMax = (24.9 * (hM * hM)).toFixed(1);
         const normalWeightMin = (18.5 * (hM * hM)).toFixed(1);
         const excessWeight = Math.max(0, obState.weight - normalWeightMax).toFixed(1);
-        const isOver = bmi >= 25.0;
+        const bmiTier = bmiVal < 18.5
+            ? { label: 'น้ำหนักน้อยเกินไป', color: '#0284c7', spritePos: '0%' }
+            : (bmiVal < 25.0
+                ? { label: 'สุขภาพดี', color: '#10b981', spritePos: '33.333%' }
+                : (bmiVal < 30.0
+                    ? { label: 'น้ำหนักเกิน', color: '#f97316', spritePos: '66.667%' }
+                    : { label: 'อ้วนมาก', color: '#ef4444', spritePos: '100%' }));
 
         // BMI Pointer percentage on 4-color track (15 to 35 range)
         const bmiPct = Math.max(5, Math.min(95, ((bmi - 15) / (35 - 15)) * 100));
@@ -624,8 +620,8 @@ function renderOnboardingStep() {
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
                         <div class="wm-analysis-stat-box" style="justify-content:center;">
                             <div style="font-size:11.5px; font-weight:700; color:#64748b;">สถานะ</div>
-                            <div style="font-size:18px; font-weight:900; color:${isOver ? '#f97316' : '#10b981'};">
-                                ${isOver ? 'น้ำหนักเกิน' : 'สุขภาพดี'}
+                            <div style="font-size:18px; font-weight:900; color:${bmiTier.color};">
+                                ${bmiTier.label}
                             </div>
                         </div>
                         <div style="display:flex; flex-direction:column; gap:8px;">
@@ -676,12 +672,7 @@ function renderOnboardingStep() {
                                 <span style="font-size:12px; font-weight:700; color:#64748b;">น้ำหนักที่ดีต่อสุขภาพ <b>${normalWeightMin}kg - ${normalWeightMax}kg</b></span>
                             </div>
                         </div>
-                        <div style="width:72px; height:84px; display:flex; align-items:center; justify-content:center; background:#f8fafc; border-radius:10px;">
-                            <svg width="60" height="74" viewBox="0 0 60 74" fill="none">
-                                <path d="M12 12C12 4 48 4 48 12C48 24 54 36 50 56C46 58 40 58 36 54L30 58L24 54C20 58 14 58 10 56C6 36 12 24 12 12Z" fill="#334155"/>
-                                <path d="M16 54H44V70H16V54Z" fill="#1e293b"/>
-                            </svg>
-                        </div>
+                        <div style="width:82px; height:106px; flex-shrink:0; background-color:#f4f7fb; background-image:url('bmi_spritesheet.jpg'); background-size:400% 100%; background-position:${bmiTier.spritePos} 50%; background-repeat:no-repeat; border-radius:12px; border:1px solid #e2e8f0;" title="${bmiTier.label} (BMI ${bmi})"></div>
                     </div>
                 </div>
             </div>

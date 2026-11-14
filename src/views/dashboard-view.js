@@ -1007,16 +1007,23 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
     if (stVolEl) stVolEl.textContent = totalVolAll.toLocaleString();
     const stRepsEl = document.getElementById('stReps');
     if (stRepsEl) stRepsEl.textContent = totalRepsAll.toLocaleString();
-    document.getElementById('log').innerHTML = D.sessions.length ? D.sessions.slice(-14).reverse().map(s =>
-        `<div class="row" style="padding:7px 0;border-bottom:1px solid var(--line);align-items:center;">
-     <div style="flex:1;">
-       <span style="font-size:13px">${W[s.workout_key] ? W[s.workout_key].ic : '•'} ${s.workout_name}</span>
-       <span class="sub" style="display:block;margin-top:2px;">${s.date.slice(5)} • ${s.kcal} kcal${s.total_volume_kg ? ` • 🏋️ ยกสะสม ${s.total_volume_kg.toLocaleString()} กก.` : ''}</span>
+    const recentSessions = D.sessions.slice(-14).reverse();
+    const renderLogRow = (s) => `<div class="row" style="padding:8px 0;border-bottom:1px solid var(--line);align-items:center;justify-content:space-between;gap:8px;">
+     <div style="flex:1;min-width:0;">
+       <div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${W[s.workout_key] ? W[s.workout_key].ic : '•'} ${s.workout_name}</div>
+       <div class="sub" style="margin-top:2px;font-size:11.5px;">${s.date.slice(5)} • ${s.kcal} kcal${s.total_volume_kg ? ` • 🏋️ ${s.total_volume_kg.toLocaleString()} กก.` : ''}</div>
      </div>
-     <button type="button" class="btn sm g" onclick="openWorkoutSummaryModal('${s.id}')" style="font-size:11px;padding:4px 8px;border-radius:6px;display:flex;align-items:center;gap:3px;" title="ดูสรุป & สร้างการ์ดแชร์">
+     <button type="button" class="btn sm g" onclick="openWorkoutSummaryModal('${s.id}')" style="width:auto;flex:0 0 auto;white-space:nowrap;font-size:11px;padding:5px 10px;border-radius:8px;display:inline-flex;align-items:center;gap:4px;" title="ดูสรุป & สร้างการ์ดแชร์">
        <span>📸 การ์ดแชร์</span>
      </button>
-   </div>`).join('') : '<div class="sub">ยังไม่มีบันทึก</div>';
+   </div>`;
+    const topLogs = recentSessions.slice(0, 5).map(renderLogRow).join('');
+    const olderLogs = recentSessions.slice(5);
+    const olderHtml = olderLogs.length ? `<details class="fc-home-collapse" style="margin-top:8px;margin-bottom:0;">
+        <summary class="fc-collapse-sum" style="padding:8px 12px;font-size:12px;"><span>📋 ดูประวัติเพิ่มเติมอีก ${olderLogs.length} รายการ</span></summary>
+        <div>${olderLogs.map(renderLogRow).join('')}</div>
+    </details>` : '';
+    document.getElementById('log').innerHTML = recentSessions.length ? (topLogs + olderHtml) : '<div class="sub">ยังไม่มีบันทึก</div>';
     if (document.getElementById('aiKey')) document.getElementById('aiKey').value = D.cfg.aiKey || '';
     if (document.getElementById('aiKeyBackup')) document.getElementById('aiKeyBackup').value = D.cfg.aiKeyBackup || '';
     renderAuthUI();
