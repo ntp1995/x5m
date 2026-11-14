@@ -393,7 +393,10 @@ function render() {
     const extraSteps = Math.max(0, steps - baselineSteps);
     const extraStepCal = Math.round(extraSteps * (curWeight * 0.00055));
 
-    // Dynamic TDEE Engine (skill.md)
+    // Dynamic TDEE Engine (skill.md & sports physiology -300 kcal deficit)
+    if (typeof syncDailyTargetsWithDayType === 'function') {
+        syncDailyTargetsWithDayType();
+    }
     const todayType = (typeof getTodayEffectiveDayType === 'function') ? getTodayEffectiveDayType() : 'rest';
     const dynData = (typeof computeDynamicTDEE === 'function') ? computeDynamicTDEE(curWeight) : null;
     const curDayPlan = (dynData && dynData.days && dynData.days[todayType]) ? dynData.days[todayType] : null;
@@ -594,6 +597,18 @@ function render() {
                 : `<span style="color:#10b981; font-size:10px; font-weight:700;">(ครบพอดี)</span>`;
         const fatRingColor = fatDiff > 0 ? '#ef4444' : '#eab308';
 
+        const isManualOverride = Boolean(tc?.dayTypeOverride && tc.dayTypeOverride !== 'auto');
+        const dayModeBadge = isManualOverride 
+            ? '<span style="font-size:10px; font-weight:800; background:rgba(234,88,12,0.18); color:#f97316; padding:2px 8px; border-radius:99px; border:1px solid rgba(234,88,12,0.35);">📌 ล็อกโหมดเอง</span>'
+            : '<span style="font-size:10px; font-weight:800; background:rgba(16,185,129,0.18); color:#10b981; padding:2px 8px; border-radius:99px; border:1px solid rgba(16,185,129,0.35);">⚡ ตรวจจับอัตโนมัติตามตาราง</span>';
+
+        const offs = (D && D.schOffs) || 0;
+        const actualD = getThaiDayOfWeek();
+        const dow = (actualD - offs + 7) % 7;
+        const tk = (typeof SCHED !== 'undefined' && SCHED[dow]) ? SCHED[dow] : 'A';
+        const curWkObj = (typeof W !== 'undefined' && W[tk]) ? W[tk] : null;
+        const curWkName = curWkObj ? curWkObj.n : 'วันพักผ่อน';
+
         nutritionEl.innerHTML = `
         <!-- WiseMeal Header: งบประมาณรายวัน & Dynamic TDEE Switcher -->
         <div class="row" style="align-items:center; margin-bottom:8px;">
@@ -608,18 +623,36 @@ function render() {
             </div>
         </div>
 
+        <!-- Dynamic Day Type Status Banner -->
+        <div style="margin-bottom:10px; background:linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color:#fff; border-radius:12px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 3px 10px rgba(15,23,42,0.14);">
+            <div style="flex:1; padding-right:8px;">
+                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                    <span style="font-size:13.5px; font-weight:900; color:#fff;">${curDayPlan ? curDayPlan.icon : '🏋️'} วันนี้: ${curDayPlan ? curDayPlan.name : 'วันฝึก'}</span>
+                    ${dayModeBadge}
+                </div>
+                <div style="font-size:11px; color:#94a3b8; margin-top:3px; display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                    <span>ตาราง: <b style="color:#e2e8f0;">${curWkName}</b></span>
+                    <span>•</span>
+                    <span>เป้า <b style="color:#f97316;">${effectiveCalTarget}</b> kcal <span style="color:#38bdf8; font-weight:700;">(Deficit -${dynData ? dynData.deficit : 300})</span></span>
+                    <span>•</span>
+                    <span>คาร์บ <b style="color:#60a5fa;">${effectiveCarbsTarget}g</b></span>
+                </div>
+            </div>
+            <button type="button" class="btn sm" onclick="openDayTypeSelectorModal()" style="font-size:11px; padding:6px 10px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25); color:#fff; border-radius:8px; white-space:nowrap; font-weight:700; cursor:pointer;" title="แตะเพื่อสลับรูปแบบวันหรือคืนค่าตรวจจับอัตโนมัติ">สลับโหมด ▾</button>
+        </div>
+
         <!-- 4 Dynamic Day Type Chips (skill.md) -->
         <div class="wm-day-type-chips">
-            <button type="button" class="wm-day-chip ${todayType === 'rest' ? 'active' : ''}" onclick="setTodayDayType('rest')" title="วันพัก: พลังงาน ${dynData ? dynData.days.rest.targetCal : 1600} kcal • คาร์บ ${dynData ? dynData.days.rest.carbs : 140}g">
+            <button type="button" class="wm-day-chip ${todayType === 'rest' ? 'active' : ''}" onclick="setTodayDayType('${todayType === 'rest' && isManualOverride ? 'auto' : 'rest'}')" title="วันพัก: พลังงาน ${dynData ? dynData.days.rest.targetCal : 1600} kcal • คาร์บ ${dynData ? dynData.days.rest.carbs : 140}g (คลิกซ้ำเพื่อกลับสู่ระบบตรวจจับอัตโนมัติ)">
                 <span>🪑</span> วันพัก (${dynData ? dynData.days.rest.targetCal : 1600})
             </button>
-            <button type="button" class="wm-day-chip ${todayType === 'weight' ? 'active' : ''}" onclick="setTodayDayType('weight')" title="วันเล่นเวท (A/Z): พลังงาน ${dynData ? dynData.days.weight.targetCal : 1850} kcal • คาร์บ ${dynData ? dynData.days.weight.carbs : 190}g">
+            <button type="button" class="wm-day-chip ${todayType === 'weight' ? 'active' : ''}" onclick="setTodayDayType('${todayType === 'weight' && isManualOverride ? 'auto' : 'weight'}')" title="วันเล่นเวท (A/B/C): พลังงาน ${dynData ? dynData.days.weight.targetCal : 1850} kcal • คาร์บ ${dynData ? dynData.days.weight.carbs : 190}g (คลิกซ้ำเพื่อกลับสู่ระบบตรวจจับอัตโนมัติ)">
                 <span>🏋️</span> วันเล่นเวท (${dynData ? dynData.days.weight.targetCal : 1850})
             </button>
-            <button type="button" class="wm-day-chip ${todayType === 'cardio' ? 'active' : ''}" onclick="setTodayDayType('cardio')" title="วันคาร์ดิโอ (Zone 2/R): พลังงาน ${dynData ? dynData.days.cardio.targetCal : 1900} kcal • คาร์บ ${dynData ? dynData.days.cardio.carbs : 200}g">
+            <button type="button" class="wm-day-chip ${todayType === 'cardio' ? 'active' : ''}" onclick="setTodayDayType('${todayType === 'cardio' && isManualOverride ? 'auto' : 'cardio'}')" title="วันคาร์ดิโอ (Z/R/H): พลังงาน ${dynData ? dynData.days.cardio.targetCal : 1900} kcal • คาร์บ ${dynData ? dynData.days.cardio.carbs : 200}g (คลิกซ้ำเพื่อกลับสู่ระบบตรวจจับอัตโนมัติ)">
                 <span>🏃</span> วันคาร์ดิโอ (${dynData ? dynData.days.cardio.targetCal : 1900})
             </button>
-            <button type="button" class="wm-day-chip ${todayType === 'both' ? 'active' : ''}" onclick="setTodayDayType('both')" title="เวท + คาร์ดิโอ: พลังงาน ${dynData ? dynData.days.both.targetCal : 2100} kcal • คาร์บ ${dynData ? dynData.days.both.carbs : 240}g">
+            <button type="button" class="wm-day-chip ${todayType === 'both' ? 'active' : ''}" onclick="setTodayDayType('${todayType === 'both' && isManualOverride ? 'auto' : 'both'}')" title="เวท + คาร์ดิโอ: พลังงาน ${dynData ? dynData.days.both.targetCal : 2100} kcal • คาร์บ ${dynData ? dynData.days.both.carbs : 240}g (คลิกซ้ำเพื่อกลับสู่ระบบตรวจจับอัตโนมัติ)">
                 <span>⚡</span> เวท+คาร์ดิโอ (${dynData ? dynData.days.both.targetCal : 2100})
             </button>
         </div>

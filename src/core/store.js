@@ -260,11 +260,14 @@ function computeDynamicTDEE(customWeight) {
     const extraCardioKcal = Math.round(w * 4.0);
     const extraBothKcal = extraWeightKcal + extraCardioKcal;
 
-    // 4. Goal & Deficit / Surplus
+    // 4. Goal & Deficit / Surplus (Sports Science Standard: -300 kcal/day)
+    // Preserves lean muscle mass & bone matrix (target 2.89kg), prevents metabolic adaptation / yoyo
     const goalType = (D && D.cfg && D.cfg.goalType) || (saved && saved.goalType) || 'recomp';
-    let deficit = 200; // Safe Anti-YoYo Deficit from skill.md (150-200 kcal)
+    let deficit = 300; 
     if (goalType === 'maintain') deficit = 0;
     else if (goalType === 'bulk') deficit = -200; // Surplus +200 kcal
+    else if (goalType === 'fastcut') deficit = 500;
+    else if (goalType === 'slowcut') deficit = 200;
 
     // 5. Fixed Protein & Fat per kg from skill.md
     const proGrams = Math.round(w * 2.0); // 2.0 g/kg
@@ -274,7 +277,7 @@ function computeDynamicTDEE(customWeight) {
     function makeDayPlan(typeKey, name, icon, tdeeVal, extraDesc) {
         let rawTarget = tdeeVal - deficit;
         let isClamped = false;
-        // Safety Guardrail from skill.md: Target_Calories ห้ามต่ำกว่า BMR เด็ดขาด
+        // Safety Guardrail from sports physiology: Target_Calories ห้ามต่ำกว่า BMR เด็ดขาด
         if (rawTarget < bmr) {
             rawTarget = Math.round(bmr);
             isClamped = true;
@@ -302,8 +305,8 @@ function computeDynamicTDEE(customWeight) {
 
     const days = {
         rest: makeDayPlan('rest', 'วันพัก (Rest Day)', '🪑', tdeeRest, 'พักฟื้น ฟื้นฟูกล้ามเนื้อและระบบประสาท'),
-        weight: makeDayPlan('weight', 'วันเล่นเวท (Weight Day)', '🏋️', tdeeRest + extraWeightKcal, 'โปรแกรม A / Z ยกเวท 45-60 นาที (+ ' + extraWeightKcal + ' kcal)'),
-        cardio: makeDayPlan('cardio', 'วันคาร์ดิโอ (Cardio Day)', '🏃', tdeeRest + extraCardioKcal, 'โปรแกรม R / เดินเร็ว Zone 2 35-45 นาที (+ ' + extraCardioKcal + ' kcal)'),
+        weight: makeDayPlan('weight', 'วันเล่นเวท (Weight Day)', '🏋️', tdeeRest + extraWeightKcal, 'โปรแกรม A / B / C เล่นเวท 45-60 นาที (+ ' + extraWeightKcal + ' kcal)'),
+        cardio: makeDayPlan('cardio', 'วันคาร์ดิโอ (Cardio Day)', '🏃', tdeeRest + extraCardioKcal, 'โปรแกรม Z / R / H โซน 2 หรือ HIIT (+ ' + extraCardioKcal + ' kcal)'),
         both: makeDayPlan('both', 'วันเวท + คาร์ดิโอ', '⚡', tdeeRest + extraBothKcal, 'เล่นเวทพร้อมคาร์ดิโอเบิร์นเข้มข้น (+ ' + extraBothKcal + ' kcal)')
     };
 
@@ -324,31 +327,57 @@ function computeDynamicTDEE(customWeight) {
 function getTodayEffectiveDayType() {
     const todayIso = iso();
     const tc = (D && D.checks) ? D.checks.find(x => x.d === todayIso) : null;
-    if (tc && tc.dayTypeOverride) {
-        return tc.dayTypeOverride;
-    }
 
-    // Auto-detect based on workout schedule
+    // Shift-Duty / Late-Duty protection mode takes highest precedence -> Rest Day
     if (typeof isShiftDutyToday === 'function' && isShiftDutyToday()) {
         return 'rest';
     }
 
-    const dow = getThaiDayOfWeek();
-    const actualIdx = (dow + (D.schOffs || 0)) % 7;
-    const tk = (typeof SCHED !== 'undefined' && SCHED[actualIdx]) ? SCHED[actualIdx] : 'A';
+    // Manual override if explicitly set by user (and not 'auto')
+    if (tc && tc.dayTypeOverride && tc.dayTypeOverride !== 'auto') {
+        return tc.dayTypeOverride;
+    }
+
+    // Auto-detect based on current training schedule
+    const offs = (D && D.schOffs) || 0;
+    const actualD = getThaiDayOfWeek();
+    const dow = (actualD - offs + 7) % 7;
+    const tk = (typeof SCHED !== 'undefined' && SCHED[dow]) ? SCHED[dow] : 'A';
 
     const morningDone = Boolean(tc && tc.morningCardioDone);
     const morningM = (tc && tc.morningCardioMin) || 0;
 
-    if (tk === 'A' || tk === 'Z') {
+    // A: Strength A (Legs/Push), B: Strength B (Back/Pull), C: Circuit -> Weight Day
+    if (tk === 'A' || tk === 'B' || tk === 'C') {
         if (morningDone || morningM >= 20) {
             return 'both';
         }
         return 'weight';
-    } else if (tk === 'R') {
+    }
+    // Z: Cardio Zone 2, R: Active Recovery, H: HIIT -> Cardio Day
+    if (tk === 'Z' || tk === 'R' || tk === 'H') {
         return 'cardio';
     }
     return 'rest';
+}
+
+function syncDailyTargetsWithDayType(typeOverride) {
+    const curType = typeOverride || getTodayEffectiveDayType();
+    const dyn = computeDynamicTDEE();
+    const selected = (dyn && dyn.days && dyn.days[curType]) ? dyn.days[curType] : (dyn ? dyn.days.rest : null);
+    if (!selected) return null;
+
+    CAL_TARGET = selected.targetCal;
+    PROTEIN_TARGET = selected.pro;
+    CARBS_TARGET = selected.carbs;
+    FAT_TARGET = selected.fat;
+    WATER_TARGET = selected.water;
+
+    if (D && D.cfg) {
+        D.cfg.todayDayType = curType;
+        D.cfg.calTarget = selected.targetCal;
+    }
+    return selected;
 }
 
 function setTodayDayType(typeKey) {
@@ -358,26 +387,99 @@ function setTodayDayType(typeKey) {
         tc = { d: todayIso, w: null, bf: null, hrv: null, pain: null };
         if (D && D.checks) D.checks.push(tc);
     }
-    tc.dayTypeOverride = typeKey;
-
-    const dyn = computeDynamicTDEE();
-    const selected = dyn.days[typeKey] || dyn.days.rest;
-
-    CAL_TARGET = selected.targetCal;
-    PROTEIN_TARGET = selected.pro;
-    CARBS_TARGET = selected.carbs;
-    FAT_TARGET = selected.fat;
-    WATER_TARGET = selected.water;
-
-    if (D && D.cfg) {
-        D.cfg.todayDayType = typeKey;
+    if (typeKey === 'auto') {
+        delete tc.dayTypeOverride;
+    } else {
+        tc.dayTypeOverride = typeKey;
     }
 
-    if (typeof save === 'function') save();
-    if (typeof render === 'function') render();
+    syncDailyTargetsWithDayType(typeKey === 'auto' ? null : typeKey);
+    save();
+    render();
+    if (currentUser && fbDb) {
+        pushToCloud();
+    }
+    const curPlan = (computeDynamicTDEE().days[getTodayEffectiveDayType()]);
     if (typeof msg === 'function') {
-        msg(`✓ ปรับงบเป็น ${selected.name} (${selected.targetCal} kcal • คาร์บ ${selected.carbs}g)`);
+        const typeLabel = typeKey === 'auto' ? '⚡ ตรวจจับอัตโนมัติตามตาราง' : curPlan.name;
+        msg(`✓ ปรับเป้าหมายเป็น: ${typeLabel} (${curPlan.targetCal} kcal)`);
     }
+}
+
+async function openDayTypeSelectorModal() {
+    const dyn = computeDynamicTDEE();
+    const curType = getTodayEffectiveDayType();
+    const todayIso = iso();
+    const tc = (D && D.checks) ? D.checks.find(x => x.d === todayIso) : null;
+    const isManual = Boolean(tc && tc.dayTypeOverride && tc.dayTypeOverride !== 'auto');
+
+    const html = `
+        <div style="text-align:left; font-size:13.5px; line-height:1.5;">
+            <div style="margin-bottom:12px; background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:10px 12px;">
+                <div style="font-size:12px; color:var(--dim); font-weight:600;">สถานะปัจจุบัน:</div>
+                <div style="font-size:15px; font-weight:800; color:var(--acc); margin-top:2px;">
+                    ${dyn.days[curType]?.icon || ''} ${dyn.days[curType]?.name || ''} 
+                    <span style="font-size:11px; font-weight:700; color:var(--tx); background:rgba(255,255,255,0.08); padding:2px 8px; border-radius:99px; margin-left:4px;">
+                        ${isManual ? '📌 เลือกเอง' : '⚡ ตรวจจับตามตาราง'}
+                    </span>
+                </div>
+                <div style="font-size:11.5px; color:var(--dim); margin-top:4px;">
+                    เป้าหมายพลังงาน: <b>${dyn.days[curType]?.targetCal} kcal</b> (Deficit -${dyn.deficit} kcal) • BMR: ${dyn.bmr} kcal
+                </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px;">
+                <!-- Auto option -->
+                <button type="button" class="btn sm" onclick="setTodayDayType('auto'); fcClose();" style="text-align:left; padding:10px 12px; border-radius:10px; border:${!isManual ? '2px solid var(--acc)' : '1px solid var(--line)'}; background:${!isManual ? 'rgba(234,88,12,0.1)' : 'var(--bg)'}; color:var(--tx); cursor:pointer;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:800; font-size:13px; color:var(--acc);">⚡ ตรวจจับตามตารางฝึกอัตโนมัติ (แนะนำ)</span>
+                        ${!isManual ? '<span style="font-size:11px; font-weight:800; color:var(--acc);">✓ ใช้งานอยู่</span>' : ''}
+                    </div>
+                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">ปรับเปลี่ยนแคลอรี่และคาร์บอัตโนมัติตามตารางฝึกของแต่ละวัน</div>
+                </button>
+
+                <!-- Rest Day -->
+                <button type="button" class="btn sm" onclick="setTodayDayType('rest'); fcClose();" style="text-align:left; padding:10px 12px; border-radius:10px; border:${isManual && curType === 'rest' ? '2px solid var(--acc)' : '1px solid var(--line)'}; background:${isManual && curType === 'rest' ? 'rgba(234,88,12,0.1)' : 'var(--bg)'}; color:var(--tx); cursor:pointer;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:800; font-size:13px;">🪑 วันพัก (Rest Day)</span>
+                        <span style="font-weight:800; font-size:13px; color:var(--acc);">${dyn.days.rest.targetCal} kcal</span>
+                    </div>
+                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">🍗 P ${dyn.days.rest.pro}g • 🍚 C ${dyn.days.rest.carbs}g • 🥑 F ${dyn.days.rest.fat}g</div>
+                </button>
+
+                <!-- Weight Day -->
+                <button type="button" class="btn sm" onclick="setTodayDayType('weight'); fcClose();" style="text-align:left; padding:10px 12px; border-radius:10px; border:${isManual && curType === 'weight' ? '2px solid var(--acc)' : '1px solid var(--line)'}; background:${isManual && curType === 'weight' ? 'rgba(234,88,12,0.1)' : 'var(--bg)'}; color:var(--tx); cursor:pointer;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:800; font-size:13px;">🏋️ วันเล่นเวท (Weight Day)</span>
+                        <span style="font-weight:800; font-size:13px; color:var(--acc);">${dyn.days.weight.targetCal} kcal</span>
+                    </div>
+                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">🍗 P ${dyn.days.weight.pro}g • 🍚 C ${dyn.days.weight.carbs}g • 🥑 F ${dyn.days.weight.fat}g</div>
+                </button>
+
+                <!-- Cardio Day -->
+                <button type="button" class="btn sm" onclick="setTodayDayType('cardio'); fcClose();" style="text-align:left; padding:10px 12px; border-radius:10px; border:${isManual && curType === 'cardio' ? '2px solid var(--acc)' : '1px solid var(--line)'}; background:${isManual && curType === 'cardio' ? 'rgba(234,88,12,0.1)' : 'var(--bg)'}; color:var(--tx); cursor:pointer;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:800; font-size:13px;">🏃 วันคาร์ดิโอ (Cardio Day)</span>
+                        <span style="font-weight:800; font-size:13px; color:var(--acc);">${dyn.days.cardio.targetCal} kcal</span>
+                    </div>
+                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">🍗 P ${dyn.days.cardio.pro}g • 🍚 C ${dyn.days.cardio.carbs}g • 🥑 F ${dyn.days.cardio.fat}g</div>
+                </button>
+
+                <!-- Both -->
+                <button type="button" class="btn sm" onclick="setTodayDayType('both'); fcClose();" style="text-align:left; padding:10px 12px; border-radius:10px; border:${isManual && curType === 'both' ? '2px solid var(--acc)' : '1px solid var(--line)'}; background:${isManual && curType === 'both' ? 'rgba(234,88,12,0.1)' : 'var(--bg)'}; color:var(--tx); cursor:pointer;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:800; font-size:13px;">⚡ วันเวท + คาร์ดิโอ (Both)</span>
+                        <span style="font-weight:800; font-size:13px; color:var(--acc);">${dyn.days.both.targetCal} kcal</span>
+                    </div>
+                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">🍗 P ${dyn.days.both.pro}g • 🍚 C ${dyn.days.both.carbs}g • 🥑 F ${dyn.days.both.fat}g</div>
+                </button>
+            </div>
+            <div style="text-align:right;">
+                <button type="button" class="btn sm g" onclick="fcClose()" style="padding:6px 16px;">ปิด</button>
+            </div>
+        </div>
+    `;
+    fcAlert(html, '⚡ สลับรูปแบบวัน & งบประมาณแคลอรี่');
 }
 
 function diagnoseWeightPlateau() {
@@ -568,6 +670,12 @@ function renderAntiPlateauModal() {
         </div>
     `;
 }
+
+window.openDayTypeSelectorModal = openDayTypeSelectorModal;
+window.syncDailyTargetsWithDayType = syncDailyTargetsWithDayType;
+window.getTodayEffectiveDayType = getTodayEffectiveDayType;
+window.setTodayDayType = setTodayDayType;
+
 
 
 
