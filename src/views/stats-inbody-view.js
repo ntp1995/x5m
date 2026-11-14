@@ -1036,6 +1036,15 @@ const MEASURE_PARTS = {
     arm: { name: 'รอบแขน', short: 'รอบแขน', defVal: 34, min: 18, max: 70 }
 };
 
+function cmToInches(cm) {
+    return (Number(cm) / 2.54).toFixed(1);
+}
+
+function formatCmWithInches(cm) {
+    const c = Number(cm);
+    return `${c.toFixed(1)} ซม. (${cmToInches(c)} นิ้ว)`;
+}
+
 function ensureMeasurementsStore() {
     if (!D.cfg) D.cfg = {};
     if (!D.cfg.measurements) {
@@ -1196,7 +1205,7 @@ function selectMeasurePart(partKey) {
     const badgeEl = document.getElementById('wmPartChangeBadge');
 
     if (titleEl) titleEl.textContent = info.name;
-    if (valEl) valEl.textContent = `${(+latest.val).toFixed(1)} ซม.`;
+    if (valEl) valEl.textContent = formatCmWithInches(latest.val);
     if (btnEl) btnEl.textContent = `บันทึกขนาด${info.short}`;
 
     // Calculate diff from first record
@@ -1209,16 +1218,17 @@ function selectMeasurePart(partKey) {
     }
     if (firstVal != null && badgeEl) {
         const diff = latest.val - firstVal;
+        const diffIn = (diff / 2.54).toFixed(1);
         if (diff < 0) {
-            badgeEl.textContent = `${diff.toFixed(1)} ซม.`;
+            badgeEl.textContent = `${diff.toFixed(1)} ซม. (${diffIn} นิ้ว)`;
             badgeEl.style.color = '#10b981';
             badgeEl.style.background = 'rgba(16, 185, 129, 0.1)';
         } else if (diff > 0) {
-            badgeEl.textContent = `+${diff.toFixed(1)} ซม.`;
+            badgeEl.textContent = `+${diff.toFixed(1)} ซม. (+${diffIn} นิ้ว)`;
             badgeEl.style.color = '#f59e0b';
             badgeEl.style.background = 'rgba(245, 158, 11, 0.1)';
         } else {
-            badgeEl.textContent = `คงที่ 0.0 ซม.`;
+            badgeEl.textContent = `คงที่ 0.0 ซม. (0.0 นิ้ว)`;
             badgeEl.style.color = 'var(--dim)';
             badgeEl.style.background = 'var(--card2)';
         }
@@ -1248,7 +1258,8 @@ function renderCircumferenceChart(partKey) {
         // Render 1 point or guide
         box.innerHTML = `
             <div style="background:var(--card2); border-radius:12px; padding:20px; text-align:center;">
-                <div style="font-size:24px; font-weight:900; color:#00c070; margin-bottom:4px;">${(+cur.val).toFixed(1)} ซม.</div>
+                <div style="font-size:24px; font-weight:900; color:#00c070; margin-bottom:2px;">${(+cur.val).toFixed(1)} ซม.</div>
+                <div style="font-size:14px; font-weight:800; color:#0284c7; margin-bottom:6px;">${cmToInches(cur.val)} นิ้ว</div>
                 <div style="font-size:12.5px; color:var(--dim);">
                     บันทึกสัดส่วนสัปดาห์ละ 1 ครั้ง เพื่อเริ่มแสดงกราฟเปรียบเทียบการเปลี่ยนแปลง
                 </div>
@@ -1276,7 +1287,7 @@ function renderCircumferenceChart(partKey) {
 
     const valBadges = pts.map((p, i) => {
         return `<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="#00c070" stroke="#ffffff" stroke-width="2"/>
-                <text x="${p[0]}" y="${p[1] - 8}" fill="#00c070" font-size="10" font-weight="800" text-anchor="middle">${data[i].val}</text>`;
+                <text x="${p[0]}" y="${p[1] - 8}" fill="#00c070" font-size="9.5" font-weight="800" text-anchor="middle">${data[i].val} (${cmToInches(data[i].val)}")</text>`;
     }).join('');
 
     box.innerHTML = `
@@ -1297,12 +1308,13 @@ function openMeasureTapeModal(partKey) {
     const latest = getLatestMeasurement(pk);
 
     window._tapeCurrentValue = Number(latest.val) || info.defVal;
-    window._tapeCurrentUnit = 'cm';
+    const savedUnit = (D && D.cfg && D.cfg.measureUnit === 'in') ? 'in' : 'cm';
+    window._tapeCurrentUnit = savedUnit;
 
     const titleEl = document.getElementById('tapeMetricTitle');
     if (titleEl) titleEl.textContent = info.name;
 
-    updateTapeDisplay();
+    switchTapeUnit(savedUnit);
     renderTapeRulerTicks();
 
     const sheet = document.getElementById('wmMeasureTapeSheet');
@@ -1317,20 +1329,30 @@ function closeMeasureTapeModal() {
 function updateTapeDisplay() {
     const valEl = document.getElementById('tapeValueDisplay');
     const unitEl = document.getElementById('tapeUnitDisplay');
+    const subEl = document.getElementById('tapeSubDisplay');
     if (!valEl) return;
 
+    const cmStr = window._tapeCurrentValue.toFixed(1);
+    const inStr = cmToInches(window._tapeCurrentValue);
+
     if (window._tapeCurrentUnit === 'in') {
-        const valInches = (window._tapeCurrentValue / 2.54).toFixed(1);
-        valEl.textContent = valInches;
-        if (unitEl) unitEl.textContent = 'in';
+        valEl.textContent = inStr;
+        if (unitEl) unitEl.textContent = 'นิ้ว';
+        if (subEl) subEl.textContent = `≈ ${cmStr} ซม.`;
     } else {
-        valEl.textContent = window._tapeCurrentValue.toFixed(1);
-        if (unitEl) unitEl.textContent = 'cm';
+        valEl.textContent = cmStr;
+        if (unitEl) unitEl.textContent = 'ซม.';
+        if (subEl) subEl.textContent = `≈ ${inStr} นิ้ว`;
     }
 }
 
 function switchTapeUnit(unit) {
     window._tapeCurrentUnit = unit;
+    if (typeof D !== 'undefined' && D) {
+        if (!D.cfg) D.cfg = {};
+        D.cfg.measureUnit = unit;
+        if (typeof save === 'function') save();
+    }
     const btnCm = document.getElementById('tapeUnitCm');
     const btnIn = document.getElementById('tapeUnitIn');
     if (unit === 'in') {
@@ -1415,7 +1437,7 @@ function saveBodyCircumference() {
 
     const info = MEASURE_PARTS[pk];
     if (typeof fcAlert === 'function') {
-        fcAlert(`✓ บันทึกขนาด${info.name} ${val.toFixed(1)} ซม. ประจำสัปดาห์เรียบร้อยแล้ว!`);
+        fcAlert(`✓ บันทึกขนาด${info.name} ${formatCmWithInches(val)} ประจำสัปดาห์เรียบร้อยแล้ว!`);
     }
 }
 
@@ -1576,7 +1598,7 @@ async function openMeasureHistoryModal() {
             <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line);">
                 <div>
                     <div style="font-weight:700; font-size:13.5px; color:var(--tx);">${h.d}</div>
-                    <div style="font-size:12px; color:var(--dim); margin-top:2px;">${info.name}: <b style="color:#10b981;">${(+h.val).toFixed(1)} ซม.</b></div>
+                    <div style="font-size:12px; color:var(--dim); margin-top:2px;">${info.name}: <b style="color:#10b981;">${formatCmWithInches(h.val)}</b></div>
                 </div>
                 <div style="display:flex; gap:6px;">
                     <button class="btn sm g" onclick="editSpecificMeasurement('${pk}', '${h.d}', ${h.val})" style="font-size:11px; padding:4px 8px; border-radius:6px;">✏️ แก้ไข</button>
@@ -1613,7 +1635,7 @@ async function editSpecificMeasurement(partKey, dateStr, currentVal) {
             render();
             if (typeof pushToCloud === 'function') pushToCloud();
             selectMeasurePart(partKey);
-            setTimeout(() => fcAlert(`✓ แก้ไขขนาด ${info.name} เป็น ${num.toFixed(1)} ซม. เรียบร้อยแล้ว`), 200);
+            setTimeout(() => fcAlert(`✓ แก้ไขขนาด ${info.name} เป็น ${formatCmWithInches(num)} เรียบร้อยแล้ว`), 200);
         }
     }
 }
