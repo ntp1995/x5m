@@ -1020,51 +1020,32 @@ function renderSummaryHeatmapSvgs(activeMuscles) {
     if (!frontEl || !backEl) return;
 
     const coral = '#f43f5e';
-    const dim = '#334155';
-
-    // Front SVG
-    const isShoulder = activeMuscles.includes('shoulders') ? coral : dim;
-    const isChest = activeMuscles.includes('chest') ? coral : dim;
-    const isBiceps = activeMuscles.includes('biceps') ? coral : dim;
-    const isCore = activeMuscles.includes('core') ? coral : dim;
-    const isQuads = activeMuscles.includes('quads') ? coral : dim;
+    const has = (k) => activeMuscles.includes(k);
 
     frontEl.innerHTML = `
         <svg viewBox="0 0 120 200" width="100%" height="100%">
-            <text x="60" y="12" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">ด้านหน้า</text>
-            <circle cx="60" cy="28" r="10" fill="#64748b" opacity="0.5"/>
-            <rect x="28" y="44" width="14" height="18" rx="5" fill="${isShoulder}"/>
-            <rect x="78" y="44" width="14" height="18" rx="5" fill="${isShoulder}"/>
-            <rect x="44" y="44" width="32" height="24" rx="5" fill="${isChest}"/>
-            <rect x="26" y="66" width="12" height="24" rx="5" fill="${isBiceps}"/>
-            <rect x="82" y="66" width="12" height="24" rx="5" fill="${isBiceps}"/>
-            <rect x="46" y="70" width="28" height="34" rx="5" fill="${isCore}"/>
-            <rect x="43" y="108" width="15" height="42" rx="6" fill="${isQuads}"/>
-            <rect x="62" y="108" width="15" height="42" rx="6" fill="${isQuads}"/>
-            <rect x="45" y="154" width="12" height="28" rx="4" fill="#64748b" opacity="0.4"/>
-            <rect x="63" y="154" width="12" height="28" rx="4" fill="#64748b" opacity="0.4"/>
+            <defs><clipPath id="wsFrontClip"><rect x="6" y="16" width="108" height="180" rx="10"/></clipPath></defs>
+            <text x="60" y="11" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">ด้านหน้า</text>
+            <rect x="6" y="16" width="108" height="180" rx="10" fill="#ffffff"/>
+            <image href="body_front.jpg" x="-10" y="18" width="140" height="176" preserveAspectRatio="xMidYMid meet" clip-path="url(#wsFrontClip)"/>
+            ${has('shoulders') ? `<rect x="35" y="54" width="12" height="16" rx="5" fill="${coral}" fill-opacity="0.48" stroke="${coral}" stroke-width="1"/><rect x="73" y="54" width="12" height="16" rx="5" fill="${coral}" fill-opacity="0.48" stroke="${coral}" stroke-width="1"/>` : ''}
+            ${has('chest') ? `<rect x="46" y="57" width="28" height="17" rx="5" fill="${coral}" fill-opacity="0.48" stroke="${coral}" stroke-width="1"/>` : ''}
+            ${has('biceps') ? `<rect x="32" y="71" width="10" height="20" rx="5" fill="${coral}" fill-opacity="0.48" stroke="${coral}" stroke-width="1"/><rect x="78" y="71" width="10" height="20" rx="5" fill="${coral}" fill-opacity="0.48" stroke="${coral}" stroke-width="1"/>` : ''}
+            ${has('core') ? `<rect x="48" y="76" width="24" height="26" rx="5" fill="${coral}" fill-opacity="0.48" stroke="${coral}" stroke-width="1"/>` : ''}
+            ${has('quads') ? `<rect x="45" y="112" width="13" height="34" rx="6" fill="${coral}" fill-opacity="0.48" stroke="${coral}" stroke-width="1"/><rect x="62" y="112" width="13" height="34" rx="6" fill="${coral}" fill-opacity="0.48" stroke="${coral}" stroke-width="1"/>` : ''}
         </svg>
     `;
 
-    // Back SVG
-    const isBack = activeMuscles.includes('upper_back') ? coral : dim;
-    const isTriceps = activeMuscles.includes('triceps') ? coral : dim;
-    const isLowerBack = activeMuscles.includes('lower_back') ? coral : dim;
-    const isGlutes = activeMuscles.includes('glutes_hams') ? coral : dim;
-
     backEl.innerHTML = `
         <svg viewBox="0 0 120 200" width="100%" height="100%">
-            <text x="60" y="12" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">ด้านหลัง</text>
-            <circle cx="60" cy="28" r="10" fill="#64748b" opacity="0.5"/>
-            <rect x="43" y="44" width="34" height="30" rx="6" fill="${isBack}"/>
-            <rect x="27" y="58" width="12" height="28" rx="5" fill="${isTriceps}"/>
-            <rect x="81" y="58" width="12" height="28" rx="5" fill="${isTriceps}"/>
-            <rect x="46" y="76" width="28" height="20" rx="4" fill="${isLowerBack}"/>
-            <rect x="42" y="98" width="36" height="26" rx="6" fill="${isGlutes}"/>
-            <rect x="43" y="126" width="15" height="36" rx="5" fill="${isGlutes}"/>
-            <rect x="62" y="126" width="15" height="36" rx="5" fill="${isGlutes}"/>
-            <rect x="45" y="166" width="12" height="22" rx="4" fill="#64748b" opacity="0.4"/>
-            <rect x="63" y="166" width="12" height="22" rx="4" fill="#64748b" opacity="0.4"/>
+            <defs><clipPath id="wsBackClip"><rect x="6" y="16" width="108" height="180" rx="10"/></clipPath></defs>
+            <text x="60" y="11" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">ด้านหลัง</text>
+            <rect x="6" y="16" width="108" height="180" rx="10" fill="#ffffff"/>
+            <image href="body_back.jpg" x="-10" y="18" width="140" height="176" preserveAspectRatio="xMidYMid meet" clip-path="url(#wsBackClip)"/>
+            ${has('upper_back') ? `<rect x="43" y="54" width="34" height="26" rx="6" fill="${coral}" fill-opacity="0.48" stroke="${coral}" stroke-width="1"/>` : ''}
+            ${has('triceps') ? `<rect x="32" y="67" width="10" height="23" rx="5" fill="${coral}" fill-opacity="0.48" stroke="${coral}" stroke-width="1"/><rect x="78" y="67" width="10" height="23" rx="5" fill="${coral}" fill-opacity="0.48" stroke="${coral}" stroke-width="1"/>` : ''}
+            ${has('lower_back') ? `<rect x="49" y="81" width="22" height="17" rx="5" fill="${coral}" fill-opacity="0.52" stroke="${coral}" stroke-width="1"/>` : ''}
+            ${has('glutes_hams') ? `<rect x="44" y="100" width="14" height="42" rx="6" fill="${coral}" fill-opacity="0.48" stroke="${coral}" stroke-width="1"/><rect x="62" y="100" width="14" height="42" rx="6" fill="${coral}" fill-opacity="0.48" stroke="${coral}" stroke-width="1"/>` : ''}
         </svg>
     `;
 }

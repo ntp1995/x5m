@@ -1127,69 +1127,27 @@ function renderBodyFigureAndPins() {
 
     container.innerHTML = `
         <svg class="wm-body-figure-svg" viewBox="0 0 320 380" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <linearGradient id="bodySkinGrad" x1="160" y1="20" x2="160" y2="360" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stop-color="#cbd5e1" stop-opacity="0.85"/>
-                    <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.95"/>
-                </linearGradient>
-                <linearGradient id="bodyMuscleShadow" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#64748b" stop-opacity="0.4"/>
-                    <stop offset="100%" stop-color="#475569" stop-opacity="0.6"/>
-                </linearGradient>
-            </defs>
-
-            <!-- Anatomical Athletic Male Silhouette -->
-            <g id="figureSilhouette">
-                <!-- Head & Neck -->
-                <ellipse cx="160" cy="46" rx="20" ry="24" fill="url(#bodySkinGrad)"/>
-                <path d="M152 68 L150 90 L170 90 L168 68 Z" fill="url(#bodySkinGrad)"/>
-
-                <!-- Traps & Shoulders -->
-                <path d="M150 84 Q125 90 98 104 Q92 110 94 130 L108 178 L122 176 L118 132 Q128 120 148 108 Z" fill="url(#bodySkinGrad)"/>
-                <path d="M170 84 Q195 90 222 104 Q228 110 226 130 L212 178 L198 176 L202 132 Q192 120 172 108 Z" fill="url(#bodySkinGrad)"/>
-
-                <!-- Torso / Chest / Core -->
-                <path d="M102 112 Q130 96 160 96 Q190 96 218 112 Q208 140 204 168 Q182 174 160 174 Q138 174 116 168 Q112 140 102 112 Z" fill="url(#bodySkinGrad)"/>
-                
-                <!-- Chest Definition Lines -->
-                <path d="M125 124 Q142 136 160 134 Q178 136 195 124" stroke="url(#bodyMuscleShadow)" stroke-width="2.5" stroke-linecap="round"/>
-                <path d="M160 110 L160 148" stroke="url(#bodyMuscleShadow)" stroke-width="2" stroke-linecap="round"/>
-
-                <!-- Abdomen / Waist Taper -->
-                <path d="M116 168 Q124 192 126 214 L194 214 Q196 192 204 168 Z" fill="url(#bodySkinGrad)"/>
-                <!-- Abs Lines -->
-                <line x1="160" y1="152" x2="160" y2="208" stroke="url(#bodyMuscleShadow)" stroke-width="1.8" stroke-linecap="round"/>
-                <line x1="144" y1="172" x2="176" y2="172" stroke="url(#bodyMuscleShadow)" stroke-width="1.5" stroke-linecap="round"/>
-                <line x1="145" y1="192" x2="175" y2="192" stroke="url(#bodyMuscleShadow)" stroke-width="1.5" stroke-linecap="round"/>
-
-                <!-- Pelvis & Hips -->
-                <path d="M126 214 Q124 232 116 250 L204 250 Q196 232 194 214 Z" fill="url(#bodySkinGrad)"/>
-
-                <!-- Athletic Thighs -->
-                <!-- Left Thigh -->
-                <path d="M118 248 Q114 280 120 326 Q128 358 136 364 L154 362 Q150 326 156 260 Z" fill="url(#bodySkinGrad)"/>
-                <!-- Right Thigh -->
-                <path d="M202 248 Q206 280 200 326 Q192 358 184 364 L166 362 Q170 326 164 260 Z" fill="url(#bodySkinGrad)"/>
-            </g>
+            <!-- Real Studio Body Photo -->
+            <image href="body_measure.jpg" x="20" y="6" width="280" height="368" preserveAspectRatio="xMidYMid meet" style="mix-blend-mode:multiply;" />
 
             <!-- Guide Dotted Lines -->
             <!-- 1. Chest Line -->
-            <path d="M84 94 H122 L142 122" stroke="#00c070" stroke-width="1.5" stroke-dasharray="3 3"/>
+            <path d="M84 94 H114 L138 126" stroke="#00c070" stroke-width="1.6" stroke-dasharray="3 3"/>
             <!-- 2. Arm Line -->
-            <path d="M232 94 H212 L206 126" stroke="#00c070" stroke-width="1.5" stroke-dasharray="3 3"/>
+            <path d="M234 94 H222 L218 146" stroke="#00c070" stroke-width="1.6" stroke-dasharray="3 3"/>
             <!-- 3. Waist Line -->
-            <path d="M84 176 H118 L138 180" stroke="#00c070" stroke-width="1.5" stroke-dasharray="3 3"/>
+            <path d="M84 176 H112 L140 194" stroke="#00c070" stroke-width="1.6" stroke-dasharray="3 3"/>
             <!-- 4. Hips Line -->
-            <path d="M232 208 H198 L188 222" stroke="#00c070" stroke-width="1.5" stroke-dasharray="3 3"/>
+            <path d="M234 208 H208 L192 234" stroke="#00c070" stroke-width="1.6" stroke-dasharray="3 3"/>
             <!-- 5. Thigh Line -->
-            <path d="M232 292 H196 L184 300" stroke="#00c070" stroke-width="1.5" stroke-dasharray="3 3"/>
+            <path d="M234 292 H204 L184 298" stroke="#00c070" stroke-width="1.6" stroke-dasharray="3 3"/>
 
             <!-- Anatomical Center Dots -->
-            <circle cx="142" cy="122" r="4" fill="#ffffff" stroke="#00c070" stroke-width="2.5"/>
-            <circle cx="206" cy="126" r="4" fill="#ffffff" stroke="#00c070" stroke-width="2.5"/>
-            <circle cx="138" cy="180" r="4" fill="#ffffff" stroke="#00c070" stroke-width="2.5"/>
-            <circle cx="188" cy="222" r="4" fill="#ffffff" stroke="#00c070" stroke-width="2.5"/>
-            <circle cx="184" cy="300" r="4" fill="#ffffff" stroke="#00c070" stroke-width="2.5"/>
+            <circle cx="138" cy="126" r="4.5" fill="#ffffff" stroke="#00c070" stroke-width="2.5"/>
+            <circle cx="218" cy="146" r="4.5" fill="#ffffff" stroke="#00c070" stroke-width="2.5"/>
+            <circle cx="140" cy="194" r="4.5" fill="#ffffff" stroke="#00c070" stroke-width="2.5"/>
+            <circle cx="192" cy="234" r="4.5" fill="#ffffff" stroke="#00c070" stroke-width="2.5"/>
+            <circle cx="184" cy="298" r="4.5" fill="#ffffff" stroke="#00c070" stroke-width="2.5"/>
         </svg>
 
         <!-- HTML Interactive Callout Pin Pills -->

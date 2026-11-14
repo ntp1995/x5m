@@ -99,52 +99,42 @@ function renderMuscleRecoveryWidget() {
         </div>
 
         <div class="muscle-map-grid">
-            <!-- Front Anatomical SVG -->
+            <!-- Front Anatomical Photo + Interactive Heatmap Overlay -->
             <div class="muscle-body-box">
                 <div style="font-size:11.5px; font-weight:800; color:var(--dim); margin-bottom:6px;">ด้านหน้า (Front)</div>
-                <svg viewBox="0 0 120 200" width="105" height="165" style="margin:0 auto; display:block;">
-                    <!-- Head & Neck -->
-                    <circle cx="60" cy="20" r="12" fill="#94a3b8" opacity="0.45"/>
-                    <rect x="55" y="32" width="10" height="8" rx="3" fill="#94a3b8" opacity="0.45"/>
+                <svg viewBox="0 0 120 200" width="115" height="182" style="margin:0 auto; display:block;">
+                    <image href="body_front.jpg" x="-15" y="0" width="150" height="200" preserveAspectRatio="xMidYMid meet" style="mix-blend-mode:multiply;" />
                     <!-- Shoulders -->
-                    <rect x="26" y="40" width="16" height="22" rx="7" fill="${map.shoulders.color}" onclick="selectMuscleHeatmapGroup('shoulders')" style="cursor:pointer;"/>
-                    <rect x="78" y="40" width="16" height="22" rx="7" fill="${map.shoulders.color}" onclick="selectMuscleHeatmapGroup('shoulders')" style="cursor:pointer;"/>
+                    <rect x="33" y="42" width="13" height="18" rx="6" fill="${map.shoulders.color}" fill-opacity="0.48" stroke="${map.shoulders.color}" stroke-width="1" onclick="selectMuscleHeatmapGroup('shoulders')" style="cursor:pointer;"/>
+                    <rect x="74" y="42" width="13" height="18" rx="6" fill="${map.shoulders.color}" fill-opacity="0.48" stroke="${map.shoulders.color}" stroke-width="1" onclick="selectMuscleHeatmapGroup('shoulders')" style="cursor:pointer;"/>
                     <!-- Chest -->
-                    <rect x="43" y="40" width="34" height="26" rx="6" fill="${map.chest.color}" onclick="selectMuscleHeatmapGroup('chest')" style="cursor:pointer;"/>
+                    <rect x="45" y="45" width="30" height="19" rx="6" fill="${map.chest.color}" fill-opacity="0.48" stroke="${map.chest.color}" stroke-width="1" onclick="selectMuscleHeatmapGroup('chest')" style="cursor:pointer;"/>
                     <!-- Biceps -->
-                    <rect x="24" y="64" width="14" height="28" rx="6" fill="${map.biceps.color}" onclick="selectMuscleHeatmapGroup('biceps')" style="cursor:pointer;"/>
-                    <rect x="82" y="64" width="14" height="28" rx="6" fill="${map.biceps.color}" onclick="selectMuscleHeatmapGroup('biceps')" style="cursor:pointer;"/>
+                    <rect x="30" y="61" width="11" height="23" rx="5" fill="${map.biceps.color}" fill-opacity="0.48" stroke="${map.biceps.color}" stroke-width="1" onclick="selectMuscleHeatmapGroup('biceps')" style="cursor:pointer;"/>
+                    <rect x="79" y="61" width="11" height="23" rx="5" fill="${map.biceps.color}" fill-opacity="0.48" stroke="${map.biceps.color}" stroke-width="1" onclick="selectMuscleHeatmapGroup('biceps')" style="cursor:pointer;"/>
                     <!-- Core / Abs -->
-                    <rect x="45" y="68" width="30" height="38" rx="6" fill="${map.core.color}" onclick="selectMuscleHeatmapGroup('core')" style="cursor:pointer;"/>
+                    <rect x="47" y="66" width="26" height="30" rx="6" fill="${map.core.color}" fill-opacity="0.48" stroke="${map.core.color}" stroke-width="1" onclick="selectMuscleHeatmapGroup('core')" style="cursor:pointer;"/>
                     <!-- Quads -->
-                    <rect x="42" y="110" width="16" height="48" rx="7" fill="${map.quads.color}" onclick="selectMuscleHeatmapGroup('quads')" style="cursor:pointer;"/>
-                    <rect x="62" y="110" width="16" height="48" rx="7" fill="${map.quads.color}" onclick="selectMuscleHeatmapGroup('quads')" style="cursor:pointer;"/>
-                    <!-- Calves -->
-                    <rect x="44" y="162" width="13" height="30" rx="5" fill="#94a3b8" opacity="0.4"/>
-                    <rect x="63" y="162" width="13" height="30" rx="5" fill="#94a3b8" opacity="0.4"/>
+                    <rect x="44" y="108" width="14" height="38" rx="7" fill="${map.quads.color}" fill-opacity="0.48" stroke="${map.quads.color}" stroke-width="1" onclick="selectMuscleHeatmapGroup('quads')" style="cursor:pointer;"/>
+                    <rect x="62" y="108" width="14" height="38" rx="7" fill="${map.quads.color}" fill-opacity="0.48" stroke="${map.quads.color}" stroke-width="1" onclick="selectMuscleHeatmapGroup('quads')" style="cursor:pointer;"/>
                 </svg>
             </div>
 
-            <!-- Back Anatomical SVG -->
+            <!-- Back Anatomical Photo + Interactive Heatmap Overlay -->
             <div class="muscle-body-box">
                 <div style="font-size:11.5px; font-weight:800; color:var(--dim); margin-bottom:6px;">ด้านหลัง (Back)</div>
-                <svg viewBox="0 0 120 200" width="105" height="165" style="margin:0 auto; display:block;">
-                    <!-- Head & Neck -->
-                    <circle cx="60" cy="20" r="12" fill="#94a3b8" opacity="0.45"/>
-                    <rect x="55" y="32" width="10" height="8" rx="3" fill="#94a3b8" opacity="0.45"/>
+                <svg viewBox="0 0 120 200" width="115" height="182" style="margin:0 auto; display:block;">
+                    <image href="body_back.jpg" x="-15" y="0" width="150" height="200" preserveAspectRatio="xMidYMid meet" style="mix-blend-mode:multiply;" />
                     <!-- Upper Back / Lats -->
-                    <rect x="42" y="40" width="36" height="34" rx="7" fill="${map.upper_back.color}" onclick="selectMuscleHeatmapGroup('upper_back')" style="cursor:pointer;"/>
+                    <rect x="42" y="42" width="36" height="29" rx="7" fill="${map.upper_back.color}" fill-opacity="0.48" stroke="${map.upper_back.color}" stroke-width="1" onclick="selectMuscleHeatmapGroup('upper_back')" style="cursor:pointer;"/>
                     <!-- Triceps -->
-                    <rect x="25" y="56" width="14" height="32" rx="6" fill="${map.triceps.color}" onclick="selectMuscleHeatmapGroup('triceps')" style="cursor:pointer;"/>
-                    <rect x="81" y="56" width="14" height="32" rx="6" fill="${map.triceps.color}" onclick="selectMuscleHeatmapGroup('triceps')" style="cursor:pointer;"/>
+                    <rect x="30" y="56" width="11" height="26" rx="5" fill="${map.triceps.color}" fill-opacity="0.48" stroke="${map.triceps.color}" stroke-width="1" onclick="selectMuscleHeatmapGroup('triceps')" style="cursor:pointer;"/>
+                    <rect x="79" y="56" width="11" height="26" rx="5" fill="${map.triceps.color}" fill-opacity="0.48" stroke="${map.triceps.color}" stroke-width="1" onclick="selectMuscleHeatmapGroup('triceps')" style="cursor:pointer;"/>
                     <!-- Lower Back (McGill Shield) -->
-                    <rect x="45" y="76" width="30" height="24" rx="6" fill="${map.lower_back.color}" stroke="#0f172a" stroke-width="1.5" onclick="selectMuscleHeatmapGroup('lower_back')" style="cursor:pointer;"/>
+                    <rect x="48" y="73" width="24" height="19" rx="5" fill="${map.lower_back.color}" fill-opacity="0.52" stroke="#0f172a" stroke-width="1.3" onclick="selectMuscleHeatmapGroup('lower_back')" style="cursor:pointer;"/>
                     <!-- Glutes & Hamstrings -->
-                    <rect x="42" y="103" width="16" height="54" rx="7" fill="${map.glutes_hams.color}" onclick="selectMuscleHeatmapGroup('glutes_hams')" style="cursor:pointer;"/>
-                    <rect x="62" y="103" width="16" height="54" rx="7" fill="${map.glutes_hams.color}" onclick="selectMuscleHeatmapGroup('glutes_hams')" style="cursor:pointer;"/>
-                    <!-- Calves -->
-                    <rect x="44" y="162" width="13" height="30" rx="5" fill="#94a3b8" opacity="0.4"/>
-                    <rect x="63" y="162" width="13" height="30" rx="5" fill="#94a3b8" opacity="0.4"/>
+                    <rect x="43" y="95" width="15" height="46" rx="7" fill="${map.glutes_hams.color}" fill-opacity="0.48" stroke="${map.glutes_hams.color}" stroke-width="1" onclick="selectMuscleHeatmapGroup('glutes_hams')" style="cursor:pointer;"/>
+                    <rect x="62" y="95" width="15" height="46" rx="7" fill="${map.glutes_hams.color}" fill-opacity="0.48" stroke="${map.glutes_hams.color}" stroke-width="1" onclick="selectMuscleHeatmapGroup('glutes_hams')" style="cursor:pointer;"/>
                 </svg>
             </div>
         </div>
