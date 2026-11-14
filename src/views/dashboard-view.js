@@ -932,7 +932,7 @@ function render() {
         </div>
     ` : '';
 
-    const bgImgMap = { A: 'goblet.jpg', B: 'row.jpg', C: 'hipthrust.jpg', Z: 'walk.jpg', H: 'farmer.jpg', R: 'catcow.jpg' };
+    const bgImgMap = { A: 'hero_A.jpg', B: 'hero_B.jpg', C: 'hero_C.jpg', Z: 'hero_Z.jpg', H: 'hero_H.jpg', R: 'hero_R.jpg' };
     const heroBgImg = bgImgMap[tk] || 'landing_bg.jpg';
     document.getElementById('todayBox').innerHTML = `
     <div class="hw-hero-card" style="background-image:url('${heroBgImg}');">
@@ -980,12 +980,22 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
     const verEl = document.getElementById('appVersionTxt');
     if (verEl) verEl.textContent = 'เวอร์ชัน ' + APP_VERSION + ' (PWA พร้อมใช้งาน)';
 
-    document.getElementById('phaseList').innerHTML = getPhases().map((p, i) => `
-    <div class="card" style="${i === phIdx() ? 'border-color:var(--acc)' : ''}">
-      <div class="row"><h3>${p.n}</h3><span class="tag ${i === phIdx() ? '' : 'gr'}">สัปดาห์ ${p.w}</span></div>
+    const phases = getPhases();
+    const curPh = phIdx();
+    const renderPhaseCard = (p, i) => `
+    <div class="card" style="${i === curPh ? 'border-color:var(--acc);margin-bottom:10px;' : 'margin-bottom:8px;'}">
+      <div class="row"><h3>${p.n}</h3><span class="tag ${i === curPh ? '' : 'gr'}">${i === curPh ? 'กำลังฝึก • ' : ''}สัปดาห์ ${p.w}</span></div>
       <div class="sub" style="margin-top:6px">${p.d}</div>
       <div class="sub" style="margin-top:8px;color:var(--acc)">⚙ ${p.v}</div>
-      <div class="sub"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> เป้าลด ${p.tgt}</div></div>`).join('');
+      <div class="sub"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> เป้าลด ${p.tgt}</div></div>`;
+    const activePhaseHtml = phases[curPh] ? renderPhaseCard(phases[curPh], curPh) : '';
+    const otherPhasesHtml = phases.map((p, i) => i === curPh ? '' : renderPhaseCard(p, i)).join('');
+    document.getElementById('phaseList').innerHTML = `
+        ${activePhaseHtml}
+        <details class="fc-home-collapse">
+            <summary class="fc-collapse-sum"><span>📋 ดูภาพรวมโปรแกรมครบทั้ง 5 เฟส (Phase 1–5)</span><span class="sub" style="margin-left:auto;font-size:11px;font-weight:600;">แตะเพื่อกาง</span></summary>
+            ${otherPhasesHtml}
+        </details>`;
     document.getElementById('wSel').innerHTML = Object.keys(W).filter(k => !W[k].isExtra).map(k =>
         `<button data-w="${k}" onclick="showW('${k}')">${W[k].ic} ${W[k].n.split(' — ')[0]}</button>`).join('');
 
@@ -1015,6 +1025,16 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
 }
 
 let _activeBodyFocusId = 'abs';
+function switchProgSubTab(tab) {
+    const map = { plan: 'progTabPlan', extra: 'progTabExtra', recovery: 'progTabRecovery' };
+    const btnMap = { plan: 'tabProgPlan', extra: 'tabProgExtra', recovery: 'tabProgRecovery' };
+    Object.keys(map).forEach(k => {
+        const panel = document.getElementById(map[k]);
+        const btn = document.getElementById(btnMap[k]);
+        if (panel) panel.style.display = (k === tab) ? 'block' : 'none';
+        if (btn) btn.classList.toggle('active', k === tab);
+    });
+}
 function selectBodyFocus(id) {
     _activeBodyFocusId = id;
     renderChallengesAndBodyFocus();
@@ -1123,8 +1143,13 @@ function renderChallengesAndBodyFocus() {
         return `<button type="button" onclick="selectBodyFocus('${b.id}')" style="flex:0 0 auto;border:1px solid ${isOn ? b.color : 'var(--line)'};background:${isOn ? b.color : 'var(--card)'};color:${isOn ? '#fff' : 'var(--txt)'};border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:700;cursor:pointer;transition:all 0.15s;">${b.label}</button>`;
     }).join('');
 
+    const weeklyEl = document.getElementById('v3WeeklyGoalCard');
+    if (weeklyEl) {
+        weeklyEl.innerHTML = weeklyCardHtml;
+    }
+
     el.innerHTML = `
-    ${weeklyCardHtml}
+    ${weeklyEl ? '' : weeklyCardHtml}
     <div class="card">
         <div class="row" style="align-items:center;margin-bottom:8px;">
             <h2 style="margin:0;">🏆 โปรแกรมเสริม & ชาเลนจ์เฉพาะจุด</h2>

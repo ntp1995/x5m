@@ -690,12 +690,33 @@ function updateIFUI() {
         if (endDayEl) endDayEl.textContent = endDayStr;
         if (endTimeEl) endTimeEl.textContent = formatThaiTime(endDate);
 
+        // Active Metabolic Stage Color & Live Status Badge
+        const stageBadge = document.getElementById('ifStageStatusBadge');
+        const stages = (typeof IF_METABOLIC_STAGES !== 'undefined') ? IF_METABOLIC_STAGES : null;
+        let activeStage = stages ? stages[0] : { num: 1, icon: '💧↓', badge: 'น้ำตาลและอินซูลินเริ่มลด', color: '#0284c7', bg: '#eff6ff', border: '#bfdbfe' };
+        if (stages) {
+            for (const st of stages) {
+                if (elapsedHours >= st.minH && elapsedHours < st.maxH) { activeStage = st; break; }
+                if (elapsedHours >= st.minH) activeStage = st;
+            }
+        }
+
         // Circular Dial Progress Arc (Total circumference 462)
         const pct = Math.min(1, Math.max(0.04, diffSec / goalSec));
         if (arcEl && typeof arcEl.setAttribute === 'function') {
             arcEl.setAttribute('stroke-dashoffset', String(Math.round(462 * (1 - pct))));
             arcEl.setAttribute('stroke-opacity', '1');
-            arcEl.setAttribute('stroke', diffSec >= goalSec ? '#10b981' : '#0284c7');
+            arcEl.setAttribute('stroke', activeStage.color);
+        }
+        if (disp) disp.style.color = activeStage.color;
+        if (stageBadge) {
+            stageBadge.style.display = 'inline-flex';
+            stageBadge.style.alignItems = 'center';
+            stageBadge.style.gap = '5px';
+            stageBadge.style.background = activeStage.bg;
+            stageBadge.style.color = activeStage.color;
+            stageBadge.style.border = `1px solid ${activeStage.border}`;
+            stageBadge.textContent = `${activeStage.icon} ระยะที่ ${activeStage.num}: ${activeStage.badge}`;
         }
         if (bar) bar.style.width = (pct * 100) + '%';
 
@@ -800,6 +821,9 @@ function updateIFUI() {
             if (endTimeEl) endTimeEl.textContent = formatThaiTime(eatEndDate);
 
             const eatPct = Math.min(1, Math.max(0.04, elapsedEatSec / eatGoalSec));
+            const stageBadge = document.getElementById('ifStageStatusBadge');
+            if (stageBadge) stageBadge.style.display = 'none';
+            if (disp) disp.style.color = '#0f172a';
             if (arcEl && typeof arcEl.setAttribute === 'function') {
                 // Keep IF fasting arc hidden while in Eating Window (fasting hasn't started)
                 arcEl.setAttribute('stroke-dashoffset', '462');
@@ -833,6 +857,9 @@ function updateIFUI() {
             if (endDayEl) endDayEl.textContent = isNextDay ? 'พรุ่งนี้' : 'วันนี้';
             if (endTimeEl) endTimeEl.textContent = `${String(endH).padStart(2, '0')}:00`;
 
+            const stageBadge = document.getElementById('ifStageStatusBadge');
+            if (stageBadge) stageBadge.style.display = 'none';
+            if (disp) disp.style.color = '#0f172a';
             if (arcEl && typeof arcEl.setAttribute === 'function') {
                 arcEl.setAttribute('stroke-dashoffset', '462');
                 arcEl.setAttribute('stroke-opacity', '0');
@@ -854,18 +881,24 @@ function updateIFUI() {
 }
 
 function updateIfBeads(elapsedHours) {
-    const b1 = document.getElementById('ifBead1');
-    const b2 = document.getElementById('ifBead2');
-    const b3 = document.getElementById('ifBead3');
-    const b4 = document.getElementById('ifBead4');
-    const b5 = document.getElementById('ifBead5');
-
+    const thresholds = [0.001, 4, 8, 12, 16];
+    const stages = (typeof IF_METABOLIC_STAGES !== 'undefined') ? IF_METABOLIC_STAGES : null;
     const isFasting = elapsedHours > 0;
-    if (b1) b1.classList.toggle('active', isFasting && elapsedHours >= 0.1);
-    if (b2) b2.classList.toggle('active', isFasting && elapsedHours >= 4);
-    if (b3) b3.classList.toggle('active', isFasting && elapsedHours >= 8);
-    if (b4) b4.classList.toggle('active', isFasting && elapsedHours >= 12);
-    if (b5) b5.classList.toggle('active', isFasting && elapsedHours >= 16);
+    for (let i = 0; i < 5; i++) {
+        const el = document.getElementById(`ifBead${i + 1}`);
+        if (!el) continue;
+        const isActive = isFasting && elapsedHours >= thresholds[i];
+        el.classList.toggle('active', isActive);
+        if (isActive && stages && stages[i]) {
+            el.style.borderColor = stages[i].color;
+            el.style.background = stages[i].bg;
+            el.style.boxShadow = `0 0 10px ${stages[i].color}55`;
+        } else {
+            el.style.borderColor = '';
+            el.style.background = '';
+            el.style.boxShadow = '';
+        }
+    }
 }
 
 setInterval(() => {

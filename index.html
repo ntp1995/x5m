@@ -91,8 +91,17 @@
             <!-- HERO 3: 🏆 FULL-BLEED VISUAL WORKOUT CHALLENGE BANNER (Home Workout Style) -->
             <div id="todayBox" style="margin-bottom:14px;"></div>
 
-            <!-- CARD 2: ⚖️ BODY COMPOSITION BENTO CARD -->
-            <div class="card" id="bodyCompCard" style="margin-bottom:12px;">
+            <!-- CARD 4.5: 💊 DAILY SUPPLEMENT MASTER TIME TABLE SUMMARY CARD -->
+            <div class="card" id="homeSuppCard" style="margin-bottom:12px;"></div>
+
+            <!-- Backward compatibility dummy for dailyTracker -->
+            <div id="dailyTracker" style="display:none;"></div>
+
+            <!-- COLLAPSIBLE SECONDARY HOME CARDS -->
+            <details class="fc-home-collapse">
+                <summary class="fc-collapse-sum"><span>⚖️ ชั่งน้ำหนัก & องค์ประกอบร่างกาย</span><span class="sub" style="margin-left:auto;font-size:11px;font-weight:600;">แตะเพื่อกาง</span></summary>
+                <!-- CARD 2: ⚖️ BODY COMPOSITION BENTO CARD -->
+                <div class="card" id="bodyCompCard" style="margin-bottom:12px;">
                 <div class="row" style="align-items:center; margin-bottom:10px;">
                     <div style="display:flex; align-items:center; gap:6px;">
                         <span class="section-icon" style="background:rgba(14,165,233,0.15); color:#0284c7; padding:6px; border-radius:8px; margin-right:0;">
@@ -149,20 +158,18 @@
                 <!-- Hidden sync icon for script compatibility -->
                 <span id="sSync" style="display:none;"></span>
             </div>
+            </details>
 
-            <!-- Vitals & Nutrition moved to top Hero section -->
+            <details class="fc-home-collapse">
+                <summary class="fc-collapse-sum"><span>🧭 เรดาร์สุขภาพ 5 แกน & ปกป้องตับ</span><span class="sub" style="margin-left:auto;font-size:11px;font-weight:600;">แตะเพื่อกาง</span></summary>
+                <!-- CARD 4.8 (v3.0): 🧭 5-AXIS NUTRITION & LIVER GUARD RADAR CARD -->
+                <div class="card" id="v3HomeRadarCard" style="margin-bottom:12px;"></div>
+            </details>
 
-            <!-- CARD 4.5: 💊 DAILY SUPPLEMENT MASTER TIME TABLE SUMMARY CARD -->
-            <div class="card" id="homeSuppCard" style="margin-bottom:12px;"></div>
-
-            <!-- CARD 4.8 (v3.0): 🧭 5-AXIS NUTRITION & LIVER GUARD RADAR CARD -->
-            <div class="card" id="v3HomeRadarCard" style="margin-bottom:12px;"></div>
-
-            <!-- Backward compatibility dummy for dailyTracker -->
-            <div id="dailyTracker" style="display:none;"></div>
-
-            <!-- CARD 5: 📅 WEEKLY SCHEDULE & TRAINING CYCLE -->
-            <div class="card" style="margin-bottom:12px;">
+            <details class="fc-home-collapse">
+                <summary class="fc-collapse-sum"><span>📅 ตารางฝึกสัปดาห์นี้ & Back-Safe</span><span class="sub" style="margin-left:auto;font-size:11px;font-weight:600;">แตะเพื่อกาง</span></summary>
+                <!-- CARD 5: 📅 WEEKLY SCHEDULE & TRAINING CYCLE -->
+                <div class="card" style="margin-bottom:12px;">
                 <div class="row" style="align-items:center; margin-bottom:10px;">
                     <h3 style="display:flex;align-items:center;gap:6px;margin:0;">
                         <span class="section-icon si-week" style="margin-right:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/></svg></span>
@@ -179,12 +186,15 @@
 
                 <div id="weekBox"></div>
                 <div id="schCtrls" style="display:flex;gap:8px;margin-top:12px;justify-content:center;flex-wrap:wrap;"></div>
-            </div>
+                </div>
+            </details>
 
-            <!-- CARD 6: 📈 7-DAY PERFORMANCE & RECOVERY SUMMARY -->
-            <div class="card" id="weeklySummaryCard" style="margin-bottom:12px; background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px;"></div>
+            <details class="fc-home-collapse">
+                <summary class="fc-collapse-sum"><span>📈 สรุป 7 วัน & โซนหัวใจ</span><span class="sub" style="margin-left:auto;font-size:11px;font-weight:600;">แตะเพื่อกาง</span></summary>
+                <!-- CARD 6: 📈 7-DAY PERFORMANCE & RECOVERY SUMMARY -->
+                <div class="card" id="weeklySummaryCard" style="margin-bottom:12px; background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px;"></div>
 
-            <div class="card">
+                <div class="card">
                 <h3 style="display:flex;align-items:center;gap:6px;"><span class="section-icon si-hr"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span> โซนหัวใจ</h3>
                 <table style="margin-top:8px">
                     <tr>
@@ -211,38 +221,55 @@
                 <div class="sub" style="margin-top:9px">RHR 47 • HRV 78 ms — เช้าไหน HRV &lt; 62 ms หรือปวดหลัง ≥ 5
                     ให้สลับเป็นวัน Recovery</div>
             </div>
+            </details>
         </div>
     </div>
 
     <!-- ================= PROGRAM ================= -->
     <div class="page" id="p-prog">
         <div class="wrap">
-            <h1>โปรแกรม 22 สัปดาห์</h1>
-            <div class="sub" style="margin-bottom:14px">ทุกเซสชันมี Warm-up 9 นาที + Cool-down 8 นาที อัตโนมัติ</div>
-            <div id="phaseList"></div>
-            <h2><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M14.4 14.4l-4.8-4.8"/><path d="M6.5 10.8l-4.3 4.3a2 2 0 0 0 2.8 2.8l4.3-4.3"/><path d="M17.5 13.2l4.3-4.3a2 2 0 0 0-2.8-2.8l-4.3 4.3"/><path d="M2.2 16.2l3 3"/><path d="M18.8 4.8l-3 3"/><path d="M7 9l8 8"/><path d="M9 7l8 8"/></svg>️ รายละเอียดแต่ละวัน</h2>
-            <div class="chips" id="wSel"></div>
-            <div id="wDetail"></div>
+            <h1>โปรแกรมฝึกซ้อม</h1>
+            <div class="sub" style="margin-bottom:10px">ปรับตารางตามเป้าหมายสรีรวิทยาและจำนวนวัน/สัปดาห์อัตโนมัติ</div>
 
-            <!-- ================= CHALLENGES & BODY FOCUS (v3.1) ================= -->
-            <div id="v3ChallengesAndFocus" style="margin-top:16px;"></div>
+            <!-- Segmented Sub-Tabs for Program Page -->
+            <div class="wm-body-segmented-tabs" style="margin-bottom:14px;">
+                <button type="button" class="wm-body-seg-btn active" id="tabProgPlan" onclick="switchProgSubTab('plan')">📅 ตารางหลัก</button>
+                <button type="button" class="wm-body-seg-btn" id="tabProgExtra" onclick="switchProgSubTab('extra')">🏆 ชาเลนจ์ & เฉพาะจุด</button>
+                <button type="button" class="wm-body-seg-btn" id="tabProgRecovery" onclick="switchProgSubTab('recovery')">🧬 ฟื้นฟู & น้ำหนัก</button>
+            </div>
 
-            <!-- ================= 2D MUSCLE RECOVERY HEATMAP (v3.0) ================= -->
-            <div class="card" id="v3MuscleRecoveryCard" style="margin-top:16px;"></div>
+            <!-- SUB-TAB 1: ตารางหลัก -->
+            <div id="progTabPlan">
+                <div id="v3WeeklyGoalCard"></div>
+                <h2 style="margin-top:8px;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M14.4 14.4l-4.8-4.8"/><path d="M6.5 10.8l-4.3 4.3a2 2 0 0 0 2.8 2.8l4.3-4.3"/><path d="M17.5 13.2l4.3-4.3a2 2 0 0 0-2.8-2.8l-4.3 4.3"/><path d="M2.2 16.2l3 3"/><path d="M18.8 4.8l-3 3"/><path d="M7 9l8 8"/><path d="M9 7l8 8"/></svg>️ รายละเอียดแต่ละวัน</h2>
+                <div class="chips" id="wSel"></div>
+                <div id="wDetail"></div>
+                <div id="phaseList" style="margin-top:14px;"></div>
+            </div>
 
-            <!-- ================= PERIODIZED WEIGHT PROGRESSION ================= -->
-            <div class="card" style="margin-top:16px;">
-                <div class="row" style="align-items:center;">
-                    <div>
-                        <h3 style="font-size:16px;">🏋️ น้ำหนักอุปกรณ์ตามโปรแกรม 5 เฟส</h3>
-                        <div class="sub" style="margin-top:2px;" id="weightProgPhaseLabel">จัดน้ำหนักตามสัปดาห์ & ปรับแต่งยืดหยุ่น</div>
+            <!-- SUB-TAB 2: ชาเลนจ์ & เฉพาะจุด -->
+            <div id="progTabExtra" style="display:none;">
+                <div id="v3ChallengesAndFocus"></div>
+            </div>
+
+            <!-- SUB-TAB 3: ฟื้นฟู & น้ำหนัก -->
+            <div id="progTabRecovery" style="display:none;">
+                <div class="card" id="v3MuscleRecoveryCard"></div>
+
+                <!-- ================= PERIODIZED WEIGHT PROGRESSION ================= -->
+                <div class="card" style="margin-top:16px;">
+                    <div class="row" style="align-items:center;">
+                        <div>
+                            <h3 style="font-size:16px;">🏋️ น้ำหนักอุปกรณ์ตามโปรแกรม 5 เฟส</h3>
+                            <div class="sub" style="margin-top:2px;" id="weightProgPhaseLabel">จัดน้ำหนักตามสัปดาห์ & ปรับแต่งยืดหยุ่น</div>
+                        </div>
+                        <div style="display:flex;gap:6px;">
+                            <button class="btn sm g" onclick="showWeightTableModal()" style="font-size:12px;padding:6px 10px;">📊 ตาราง 5 เฟส</button>
+                            <button class="btn sm g" onclick="resetAllWeightsToProgram()" style="font-size:12px;padding:6px 8px;" title="รีเซ็ตทุกท่ากลับเป็นค่ามาตรฐาน">🔄 รีเซ็ต</button>
+                        </div>
                     </div>
-                    <div style="display:flex;gap:6px;">
-                        <button class="btn sm g" onclick="showWeightTableModal()" style="font-size:12px;padding:6px 10px;">📊 ตาราง 5 เฟส</button>
-                        <button class="btn sm g" onclick="resetAllWeightsToProgram()" style="font-size:12px;padding:6px 8px;" title="รีเซ็ตทุกท่ากลับเป็นค่ามาตรฐาน">🔄 รีเซ็ต</button>
-                    </div>
+                    <div id="weightProgressionList" style="margin-top:12px;display:grid;gap:8px;"></div>
                 </div>
-                <div id="weightProgressionList" style="margin-top:12px;display:grid;gap:8px;"></div>
             </div>
         </div>
     </div>
@@ -636,12 +663,15 @@
                     <div class="wm-if-dial-center">
                         <div id="ifTimerSub" style="font-size:12px; font-weight:700; color:#64748b; margin-bottom:2px;">เริ่มอดอาหาร</div>
                         <div id="ifDayLabel" style="font-size:20px; font-weight:800; color:#0f172a; line-height:1.2;">วันนี้</div>
-                        <div id="ifTimerDisplay" class="tim" style="font-size:38px; font-weight:900; color:#0f172a; letter-spacing:-1.5px; line-height:1.1; margin:2px 0 6px;">18:00</div>
+                        <div id="ifTimerDisplay" class="tim" style="font-size:38px; font-weight:900; color:#0f172a; letter-spacing:-1.5px; line-height:1.1; margin:2px 0 6px; transition:color 0.3s ease;">18:00</div>
                         <button type="button" class="wm-if-plan-pill" onclick="openIfPlanModal()" title="แตะเพื่อเปลี่ยนแผนการอดอาหาร">
                             <span id="ifGoalPillText">16:8</span> ⇄
                         </button>
                     </div>
                 </div>
+
+                <!-- Live Metabolic Stage Badge (visible while fasting) -->
+                <div id="ifStageStatusBadge" style="display:none; margin:-6px auto 12px; padding:5px 12px; border-radius:999px; font-size:12px; font-weight:800; width:fit-content; transition:all 0.3s ease;"></div>
 
                 <!-- Primary Action Button -->
                 <button class="wm-if-main-btn" id="ifToggleBtn" onclick="toggleIF()">
