@@ -507,7 +507,7 @@ function render() {
                 <div style="display:flex; align-items:center; justify-content:space-between; background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:12.5px;">
                     <div style="flex:1; padding-right:8px;">
                         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                            <span style="font-weight:700; color:var(--acc); font-size:11.5px;">${typeLabel}</span>
+                            <button type="button" onclick="editMealItem('${tc.d}', ${idx})" style="background:transparent; border:none; padding:0; cursor:pointer; font-weight:700; color:var(--acc); font-size:11.5px; display:inline-flex; align-items:center; gap:2px;" title="แตะเพื่อเปลี่ยนมื้อหรือแก้ไข">${typeLabel} ▾</button>
                             <span style="color:var(--dim); font-size:11px;">${m.time || ''}</span>
                             <span style="background:${mHealth.gradeColor}20; color:${mHealth.gradeColor}; border:1px solid ${mHealth.gradeColor}55; font-weight:800; font-size:9.5px; padding:1px 6px; border-radius:6px;">เกรด ${mHealth.nutriGrade} • สุขภาพ ${mHealth.healthScore}/10 • อิ่ม ${mHealth.satietyScore}/10</span>
                         </div>

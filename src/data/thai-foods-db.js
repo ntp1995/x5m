@@ -326,11 +326,12 @@ async function editMealItem(dateKey, mealIndex) {
     const basePro = m.basePro || m.pro;
     const baseCarbs = m.baseCarbs || m.carbs;
     const baseFat = m.baseFat || m.fat;
+    const baseFiber = m.baseFiber != null ? m.baseFiber : (m.fiber || 0);
     const baseSugar = m.baseSugar != null ? m.baseSugar : (m.sugar || 0);
     const baseSodium = m.baseSodium != null ? m.baseSodium : (m.sodium || 0);
     const basePortion = m.basePortion || m.portion || '1 จาน';
 
-    window._mealBaseValues = { cal: baseCal, pro: basePro, carbs: baseCarbs, fat: baseFat, sugar: baseSugar, sodium: baseSodium, portion: basePortion };
+    window._mealBaseValues = { cal: baseCal, pro: basePro, carbs: baseCarbs, fat: baseFat, fiber: baseFiber, sugar: baseSugar, sodium: baseSodium, portion: basePortion };
     window.applyMealPortionPct = function(pct, label) {
         const b = window._mealBaseValues;
         if (!b) return;
@@ -338,6 +339,7 @@ async function editMealItem(dateKey, mealIndex) {
         const proInp = document.getElementById('edMealPro');
         const carbsInp = document.getElementById('edMealCarbs');
         const fatInp = document.getElementById('edMealFat');
+        const fiberInp = document.getElementById('edMealFiber');
         const sugarInp = document.getElementById('edMealSugar');
         const sodiumInp = document.getElementById('edMealSodium');
         const portionInp = document.getElementById('edMealPortion');
@@ -347,6 +349,7 @@ async function editMealItem(dateKey, mealIndex) {
         if (proInp) proInp.value = Math.round(b.pro * pct);
         if (carbsInp) carbsInp.value = Math.round(b.carbs * pct);
         if (fatInp) fatInp.value = Math.round(b.fat * pct);
+        if (fiberInp) fiberInp.value = Math.round((b.fiber * pct) * 10) / 10;
         if (sugarInp) sugarInp.value = Math.round(b.sugar * pct);
         if (sodiumInp) sodiumInp.value = Math.round(b.sodium * pct);
         if (lbl) lbl.textContent = label;
@@ -358,8 +361,29 @@ async function editMealItem(dateKey, mealIndex) {
     const mealMetrics = computeFoodHealthMetrics(m.cal, m.pro, m.carbs, m.fat, m.sugar, m.sodium, m.fiber, m);
     const html = `
         <div style="text-align:left; font-size:13.5px; line-height:1.5;">
-            <div style="font-weight:800; font-size:15px; color:var(--acc); margin-bottom:2px;">🍽️ ${m.name}</div>
-            <div style="font-size:12px; color:var(--dim); margin-bottom:10px;">มื้อ: <b>${MEAL_LABELS[m.type] || m.type}</b> • เวลา: ${m.time || ''}</div>
+            <!-- Food Name & Meal Type / Time Selector Card -->
+            <div style="background:var(--card2); border:1.5px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px;">
+                <div style="margin-bottom:8px;">
+                    <label style="font-size:11px; font-weight:700; color:var(--dim); display:block; margin-bottom:3px;">ชื่ออาหาร:</label>
+                    <input type="text" id="edMealName" value="${m.name || ''}" style="width:100%; padding:8px 10px; font-size:14px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                </div>
+                <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:8px;">
+                    <div>
+                        <label style="font-size:11px; font-weight:700; color:var(--acc); display:block; margin-bottom:3px;">📍 มื้ออาหาร (แตะเพื่อเปลี่ยน):</label>
+                        <select id="edMealType" style="width:100%; padding:8px; font-size:13px; font-weight:700; border-radius:8px; border:1.5px solid var(--acc); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                            <option value="breakfast" ${m.type === 'breakfast' ? 'selected' : ''}>🌅 มื้อเช้า</option>
+                            <option value="lunch" ${m.type === 'lunch' ? 'selected' : ''}>☀️ มื้อเที่ยง</option>
+                            <option value="dinner" ${m.type === 'dinner' ? 'selected' : ''}>🌙 มื้อเย็น</option>
+                            <option value="snack" ${m.type === 'snack' ? 'selected' : ''}>🍎 ของว่าง</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:11px; font-weight:700; color:var(--dim); display:block; margin-bottom:3px;">⏰ เวลาบันทึก:</label>
+                        <input type="text" id="edMealTime" value="${m.time || ''}" placeholder="12:00" style="width:100%; padding:8px; font-size:13px; font-weight:600; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                    </div>
+                </div>
+            </div>
+
             ${renderNutriScoreWidgetHtml(mealMetrics)}
 
             <div style="background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px;">
@@ -393,14 +417,18 @@ async function editMealItem(dateKey, mealIndex) {
                     </div>
                 </div>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:8px;">
                     <div>
-                        <label style="font-size:11.5px; font-weight:700; color:#ec4899; display:block; margin-bottom:2px;">🍭 น้ำตาล (g)</label>
-                        <input type="number" id="edMealSugar" value="${m.sugar || 0}" style="width:100%; padding:8px; font-size:14px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                        <label style="font-size:11px; font-weight:700; color:#059669; display:block; margin-bottom:2px;">🥦 ไฟเบอร์ (g)</label>
+                        <input type="number" step="0.5" id="edMealFiber" value="${m.fiber || 0}" style="width:100%; padding:8px 6px; font-size:13.5px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                     </div>
                     <div>
-                        <label style="font-size:11.5px; font-weight:700; color:#8b5cf6; display:block; margin-bottom:2px;">🧂 โซเดียม (mg)</label>
-                        <input type="number" id="edMealSodium" value="${m.sodium || 0}" style="width:100%; padding:8px; font-size:14px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                        <label style="font-size:11px; font-weight:700; color:#ec4899; display:block; margin-bottom:2px;">🍭 น้ำตาล (g)</label>
+                        <input type="number" id="edMealSugar" value="${m.sugar || 0}" style="width:100%; padding:8px 6px; font-size:13.5px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size:11px; font-weight:700; color:#8b5cf6; display:block; margin-bottom:2px;">🧂 โซเดียม (mg)</label>
+                        <input type="number" id="edMealSodium" value="${m.sodium || 0}" style="width:100%; padding:8px 6px; font-size:13.5px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                     </div>
                 </div>
 
@@ -412,31 +440,48 @@ async function editMealItem(dateKey, mealIndex) {
         </div>
     `;
 
-    const confirmed = await fcConfirm(html, '✏️ ปรับสัดส่วน / หักลบอาหารที่ทาน');
+    const confirmed = typeof fcConfirm === 'function' ? await fcConfirm(html, '✏️ แก้ไขข้อมูลมื้ออาหาร & สัดส่วน') : (window.fcConfirm ? await window.fcConfirm(html, '✏️ แก้ไขข้อมูลมื้ออาหาร & สัดส่วน') : false);
     if (!confirmed) return;
 
-    const finalCal = parseInt(document.getElementById('edMealCal')?.value) || 0;
-    const finalPro = parseInt(document.getElementById('edMealPro')?.value) || 0;
-    const finalCarbs = parseInt(document.getElementById('edMealCarbs')?.value) || 0;
-    const finalFat = parseInt(document.getElementById('edMealFat')?.value) || 0;
-    const finalSugar = parseInt(document.getElementById('edMealSugar')?.value) || 0;
-    const finalSodium = parseInt(document.getElementById('edMealSodium')?.value) || 0;
+    const finalName = (document.getElementById('edMealName')?.value || m.name || '').trim();
+    const finalType = document.getElementById('edMealType')?.value || m.type || 'lunch';
+    const finalTime = (document.getElementById('edMealTime')?.value || m.time || '').trim();
+
+    const finalCal = Math.round(Number(document.getElementById('edMealCal')?.value) || 0);
+    const finalPro = Math.round(Number(document.getElementById('edMealPro')?.value) || 0);
+    const finalCarbs = Math.round(Number(document.getElementById('edMealCarbs')?.value) || 0);
+    const finalFat = Math.round(Number(document.getElementById('edMealFat')?.value) || 0);
+    const finalFiber = Math.round((Number(document.getElementById('edMealFiber')?.value) || 0) * 10) / 10;
+    const finalSugar = Math.round(Number(document.getElementById('edMealSugar')?.value) || 0);
+    const finalSodium = Math.round(Number(document.getElementById('edMealSodium')?.value) || 0);
     const finalPortion = (document.getElementById('edMealPortion')?.value || m.portion || '').trim();
+
+    m.name = finalName || m.name;
+    m.type = finalType;
+    m.time = finalTime || m.time;
 
     m.baseCal = baseCal;
     m.basePro = basePro;
     m.baseCarbs = baseCarbs;
     m.baseFat = baseFat;
+    m.baseFiber = baseFiber;
     m.baseSugar = baseSugar;
     m.baseSodium = baseSodium;
     m.basePortion = basePortion;
+
     m.cal = finalCal;
     m.pro = finalPro;
     m.carbs = finalCarbs;
     m.fat = finalFat;
+    m.fiber = finalFiber;
     m.sugar = finalSugar;
     m.sodium = finalSodium;
     m.portion = finalPortion;
+
+    const newMetrics = computeFoodHealthMetrics(finalCal, finalPro, finalCarbs, finalFat, finalSugar, finalSodium, finalFiber, m);
+    m.nutriGrade = newMetrics.nutriGrade;
+    m.healthScore = newMetrics.healthScore;
+    m.satietyScore = newMetrics.satietyScore;
 
     recalculateDailyNutrition(dStr);
     save();
@@ -444,7 +489,8 @@ async function editMealItem(dateKey, mealIndex) {
     if (currentUser && fbDb) {
         pushToCloud();
     }
-    msg('✓ ปรับสัดส่วนอาหารเรียบร้อย (คำนวณแคลอรี่ใหม่แล้ว)');
+    const typeTxt = MEAL_LABELS[finalType] || finalType;
+    msg(`✓ แก้ไขเป็น "${m.name}" (${typeTxt}) เรียบร้อย`);
 }
 
 async function deleteMealItem(dateKey, mealIndex) {
