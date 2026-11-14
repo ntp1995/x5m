@@ -326,6 +326,74 @@ body {
     background: radial-gradient(circle at 30% 25%, #dcfce7 0%, #86efac 60%, #4ade80 100%);
     box-shadow: inset 0 -8px 16px rgba(5, 150, 105, 0.25), 0 6px 16px rgba(16, 185, 129, 0.2);
 }
+
+/* ============================================================================
+   Dynamic Day Type Chips & Anti-YoYo Modal Styles (FitCoach v3.4.4)
+   ============================================================================ */
+.wm-day-type-chips {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+.wm-day-type-chips::-webkit-scrollbar {
+    display: none;
+}
+.wm-day-chip {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 99px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.wm-day-chip:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+.wm-day-chip.active {
+    background: #0284c7;
+    border-color: #0284c7;
+    color: #ffffff;
+    font-weight: 800;
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.28);
+}
+.wm-dyn-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+    margin: 8px 0;
+}
+.wm-dyn-table th {
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 800;
+    padding: 8px 6px;
+    text-align: center;
+    border-bottom: 1px solid #e2e8f0;
+}
+.wm-dyn-table td {
+    padding: 9px 6px;
+    text-align: center;
+    border-bottom: 1px solid #f1f5f9;
+    color: #1e293b;
+    font-weight: 700;
+}
+.wm-dyn-table tr.active td {
+    background: #eff6ff;
+    color: #0284c7;
+    font-weight: 900;
+}
 .wm-macro-col {
     background: #f8fafd;
     border: 1px solid var(--line);
@@ -1665,6 +1733,90 @@ body.onboard-active nav {
     box-shadow: 0 4px 14px rgba(2, 132, 199, 0.15);
 }
 
+/* ============================================================================
+   Step 6, 7, 8 Sports Science Wizard Styles (FitCoach v3.4.3)
+   ============================================================================ */
+.wm-week-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 14px 0 16px;
+}
+.wm-week-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 12px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+.wm-week-card:hover {
+    border-color: #0284c7;
+    background: #f0f9ff;
+}
+.wm-week-card.active {
+    border-color: #0284c7;
+    background: #eff6ff;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.18);
+    border-width: 2px;
+}
+
+/* Step 7: Activity Touch Cards */
+.wm-act-touch-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 14px 0 18px;
+}
+.wm-act-touch-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+    text-align: left;
+}
+.wm-act-touch-card:hover {
+    border-color: #0284c7;
+    background: #f8fafc;
+}
+.wm-act-touch-card.active {
+    border-color: #0284c7;
+    background: #eff6ff;
+    border-width: 2px;
+    box-shadow: 0 6px 18px rgba(2, 132, 199, 0.14);
+}
+
+/* Step 8: Sports Science Goal Cards */
+.wm-goal-touch-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 13px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+    text-align: left;
+}
+.wm-goal-touch-card:hover {
+    border-color: #0284c7;
+    background: #f8fafc;
+}
+.wm-goal-touch-card.active {
+    border-color: #0284c7;
+    background: #eff6ff;
+    border-width: 2px;
+    box-shadow: 0 4px 16px rgba(2, 132, 199, 0.14);
+}
+
 
 /* ============================================================================
    WiseMeal IF Fasting Dashboard & Modals (FitCoach v3.4.2)
@@ -2473,4 +2625,217 @@ body.dark .wm-ruler-track {
 .fc-share-ratio-btn.active {
     background: #00c070;
     color: #ffffff;
+}
+
+/* ============================================================================
+   FitCoach High-Performance Motion & Animation Design System (v3.5.0)
+   ============================================================================ */
+
+/* 1. Tactile Press Feedback for all buttons */
+button, .btn, .wm-primary-green-btn, .wm-body-seg-btn, .hw-cta-pill {
+    transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), filter 0.15s ease, box-shadow 0.15s ease !important;
+}
+button:active, .btn:active, .wm-primary-green-btn:active, .hw-cta-pill:active {
+    transform: scale(0.96) !important;
+    filter: brightness(0.96) !important;
+}
+
+/* 2. Notification Bell Wiggle & Spring Toast */
+@keyframes bellWiggle {
+    0%, 100% { transform: rotate(0); }
+    15% { transform: rotate(14deg); }
+    30% { transform: rotate(-14deg); }
+    45% { transform: rotate(10deg); }
+    60% { transform: rotate(-10deg); }
+    75% { transform: rotate(4deg); }
+}
+.bell-wiggle, .v3-sync-btn:hover {
+    animation: bellWiggle 1.2s ease infinite;
+}
+
+@keyframes springSlideDown {
+    0% { transform: translateY(-50px) scale(0.95); opacity: 0; }
+    60% { transform: translateY(8px) scale(1.02); opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.update-toast.on, .fc-toast-spring {
+    animation: springSlideDown 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+}
+
+/* 3. Pulsing Live Status Dot */
+@keyframes pulseGlowGreen {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    50% {
+        transform: scale(1.15);
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+    }
+}
+@keyframes pulseGlowAmber {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+    }
+    50% {
+        transform: scale(1.15);
+        box-shadow: 0 0 0 6px rgba(245, 158, 11, 0);
+    }
+}
+.live-pulse-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    animation: pulseGlowGreen 1.8s infinite;
+}
+.live-pulse-dot.amber {
+    background: #f59e0b;
+    animation: pulseGlowAmber 1.8s infinite;
+}
+
+/* 4. 3D Calorie Sphere Breathing Glow */
+@keyframes sphereBreathe {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 10px 28px -5px rgba(37, 99, 235, 0.22);
+    }
+    50% {
+        transform: scale(1.025);
+        box-shadow: 0 16px 36px -4px rgba(37, 99, 235, 0.38);
+    }
+}
+@keyframes sphereBreatheOver {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 10px 28px -5px rgba(239, 68, 68, 0.25);
+    }
+    50% {
+        transform: scale(1.025);
+        box-shadow: 0 16px 36px -4px rgba(239, 68, 68, 0.42);
+    }
+}
+.wm-sphere-inner {
+    animation: sphereBreathe 4s ease-in-out infinite !important;
+}
+.wm-sphere-inner.is-over {
+    animation: sphereBreatheOver 3s ease-in-out infinite !important;
+}
+
+/* 5. Smooth SVG Stroke Dashoffset transitions for Nutrition & IF Rings */
+.wm-macro-ring circle, .wm-if-dial-container circle {
+    transition: stroke-dashoffset 0.85s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.3s ease !important;
+}
+
+/* 6. iOS Spring Bottom Sheet Modal Animations */
+@keyframes springSheetUp {
+    0% { transform: translateY(100%); opacity: 0.6; }
+    70% { transform: translateY(-4px); opacity: 1; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+.wm-if-sheet, .fc-summary-sheet {
+    animation: springSheetUp 0.38s cubic-bezier(0.32, 0.72, 0, 1) forwards !important;
+}
+
+@keyframes backdropFadeIn {
+    from { opacity: 0; backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); }
+    to { opacity: 1; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+}
+.wm-if-sheet-backdrop, .fc-summary-modal-backdrop {
+    animation: backdropFadeIn 0.25s ease-out forwards;
+}
+
+/* 7. AI Holographic Laser Scanner Overlay */
+.fc-ai-scan-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.fc-ai-scan-card {
+    background: #0f172a;
+    border: 1.5px solid rgba(0, 192, 112, 0.35);
+    border-radius: 24px;
+    padding: 24px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 192, 112, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+.fc-ai-scan-thumb-wrap {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 18px auto;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 2px solid #00c070;
+    box-shadow: 0 0 20px rgba(0, 192, 112, 0.3);
+    background: #1e293b;
+}
+.fc-ai-scan-thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+@keyframes laserScanAnim {
+    0% { top: 0%; opacity: 0.85; }
+    50% { top: 96%; opacity: 1; filter: drop-shadow(0 0 8px #00c070); }
+    100% { top: 0%; opacity: 0.85; }
+}
+.fc-ai-laser-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, #00c070 50%, transparent 100%);
+    box-shadow: 0 0 12px #00c070, 0 0 24px #34d399;
+    animation: laserScanAnim 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    pointer-events: none;
+    z-index: 5;
+}
+.fc-ai-progress-track {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 99px;
+    overflow: hidden;
+    margin: 16px 0 10px 0;
+    position: relative;
+}
+.fc-ai-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00c070 0%, #34d399 50%, #10b981 100%);
+    box-shadow: 0 0 12px rgba(0, 192, 112, 0.6);
+    border-radius: 99px;
+    width: 0%;
+    transition: width 0.25s ease-out;
+}
+@keyframes shimmerPass {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+.fc-ai-progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+    animation: shimmerPass 1.5s infinite;
 }

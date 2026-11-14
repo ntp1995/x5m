@@ -392,7 +392,17 @@ function render() {
     const baselineSteps = (D.cfg?.workType === 'active') ? 9000 : (D.cfg?.workType === 'sedentary' ? 3000 : 6000);
     const extraSteps = Math.max(0, steps - baselineSteps);
     const extraStepCal = Math.round(extraSteps * (curWeight * 0.00055));
-    const effectiveCalTarget = CAL_TARGET + extraStepCal;
+
+    // Dynamic TDEE Engine (skill.md)
+    const todayType = (typeof getTodayEffectiveDayType === 'function') ? getTodayEffectiveDayType() : 'rest';
+    const dynData = (typeof computeDynamicTDEE === 'function') ? computeDynamicTDEE(curWeight) : null;
+    const curDayPlan = (dynData && dynData.days && dynData.days[todayType]) ? dynData.days[todayType] : null;
+
+    const baseCalTarget = curDayPlan ? curDayPlan.targetCal : CAL_TARGET;
+    const effectiveCalTarget = baseCalTarget + extraStepCal;
+    const effectiveProTarget = curDayPlan ? curDayPlan.pro : PROTEIN_TARGET;
+    const effectiveCarbsTarget = curDayPlan ? curDayPlan.carbs : CARBS_TARGET;
+    const effectiveFatTarget = curDayPlan ? curDayPlan.fat : FAT_TARGET;
 
     // Calorie Status: Over or Remaining / Under
     const calDiff = cal - effectiveCalTarget; // > 0: Over, < 0: Under/Remaining, === 0: Exact
@@ -402,16 +412,16 @@ function render() {
     const remCal = Math.max(0, -calDiff);
 
     const calPct = Math.min(100, Math.round(cal / effectiveCalTarget * 100));
-    const proPct = Math.min(100, Math.round(pro / PROTEIN_TARGET * 100));
-    const carbsPct = Math.min(100, Math.round(carbs / CARBS_TARGET * 100));
-    const fatPct = Math.min(100, Math.round(fat / FAT_TARGET * 100));
+    const proPct = Math.min(100, Math.round(pro / effectiveProTarget * 100));
+    const carbsPct = Math.min(100, Math.round(carbs / effectiveCarbsTarget * 100));
+    const fatPct = Math.min(100, Math.round(fat / effectiveFatTarget * 100));
     const watPct = Math.min(100, Math.round(wat / WATER_TARGET * 100));
     const calColor = isCalOver ? 'var(--red)' : cal > effectiveCalTarget * 0.9 ? 'var(--warn)' : 'var(--acc)';
 
     // Macro Differences: Over vs Remaining
-    const proDiff = pro - PROTEIN_TARGET;
-    const carbsDiff = carbs - CARBS_TARGET;
-    const fatDiff = fat - FAT_TARGET;
+    const proDiff = pro - effectiveProTarget;
+    const carbsDiff = carbs - effectiveCarbsTarget;
+    const fatDiff = fat - effectiveFatTarget;
 
     const remPro = Math.max(0, -proDiff);
     const remCarbs = Math.max(0, -carbsDiff);
@@ -585,16 +595,33 @@ function render() {
         const fatRingColor = fatDiff > 0 ? '#ef4444' : '#eab308';
 
         nutritionEl.innerHTML = `
-        <!-- WiseMeal Header: งบประมาณรายวัน -->
-        <div class="row" style="align-items:center; margin-bottom:12px;">
+        <!-- WiseMeal Header: งบประมาณรายวัน & Dynamic TDEE Switcher -->
+        <div class="row" style="align-items:center; margin-bottom:8px;">
             <div>
                 <h3 style="margin:0; font-size:18px; font-weight:900; color:#0f172a; letter-spacing:-0.3px;">งบประมาณรายวัน</h3>
                 <div style="font-size:11px; color:#64748b;">ทานแล้ว ${cal.toLocaleString()} kcal ${extraStepCal > 0 ? `<span style="color:#10b981;font-weight:700;">(+${extraStepCal} ก้าวเดิน)</span> ` : ''}${headerStatusHtml}</div>
             </div>
             <div style="display:flex; gap:6px;">
-                <button class="btn sm" onclick="calcBMR()" style="width:auto; padding:5px 10px; font-size:11.5px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer;">🧮 ปรับเป้า</button>
-                <button class="btn sm" onclick="editDailyTracker()" style="width:auto; padding:5px 10px; font-size:11.5px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer;">✏️ แก้ไข</button>
+                <button class="btn sm" onclick="openAntiPlateauModal()" style="width:auto; padding:5px 9px; font-size:11px; border-radius:99px; border:1px solid #bae6fd; background:#eff6ff; color:#0284c7; font-weight:800; cursor:pointer;" title="ดูตารางวิเคราะห์ 4 รูปแบบวัน & แผนแก้น้ำหนักค้าง">🛡️ Anti-YoYo</button>
+                <button class="btn sm" onclick="calcBMR()" style="width:auto; padding:5px 9px; font-size:11px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer;">🧮 ปรับเป้า</button>
+                <button class="btn sm" onclick="editDailyTracker()" style="width:auto; padding:5px 9px; font-size:11px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer;">✏️ แก้ไข</button>
             </div>
+        </div>
+
+        <!-- 4 Dynamic Day Type Chips (skill.md) -->
+        <div class="wm-day-type-chips">
+            <button type="button" class="wm-day-chip ${todayType === 'rest' ? 'active' : ''}" onclick="setTodayDayType('rest')" title="วันพัก: พลังงาน ${dynData ? dynData.days.rest.targetCal : 1600} kcal • คาร์บ ${dynData ? dynData.days.rest.carbs : 140}g">
+                <span>🪑</span> วันพัก (${dynData ? dynData.days.rest.targetCal : 1600})
+            </button>
+            <button type="button" class="wm-day-chip ${todayType === 'weight' ? 'active' : ''}" onclick="setTodayDayType('weight')" title="วันเล่นเวท (A/Z): พลังงาน ${dynData ? dynData.days.weight.targetCal : 1850} kcal • คาร์บ ${dynData ? dynData.days.weight.carbs : 190}g">
+                <span>🏋️</span> วันเล่นเวท (${dynData ? dynData.days.weight.targetCal : 1850})
+            </button>
+            <button type="button" class="wm-day-chip ${todayType === 'cardio' ? 'active' : ''}" onclick="setTodayDayType('cardio')" title="วันคาร์ดิโอ (Zone 2/R): พลังงาน ${dynData ? dynData.days.cardio.targetCal : 1900} kcal • คาร์บ ${dynData ? dynData.days.cardio.carbs : 200}g">
+                <span>🏃</span> วันคาร์ดิโอ (${dynData ? dynData.days.cardio.targetCal : 1900})
+            </button>
+            <button type="button" class="wm-day-chip ${todayType === 'both' ? 'active' : ''}" onclick="setTodayDayType('both')" title="เวท + คาร์ดิโอ: พลังงาน ${dynData ? dynData.days.both.targetCal : 2100} kcal • คาร์บ ${dynData ? dynData.days.both.carbs : 240}g">
+                <span>⚡</span> เวท+คาร์ดิโอ (${dynData ? dynData.days.both.targetCal : 2100})
+            </button>
         </div>
 
         <!-- WiseMeal 2-Column Hero: Liquid Calorie Sphere (Left) + 3 Macro Rings (Right) -->
@@ -622,7 +649,7 @@ function render() {
                 <!-- Carbs -->
                 <div class="wm-macro-row">
                     <div>
-                        <div style="font-size:14px; font-weight:900; color:#0f172a;">${carbs} <span style="font-size:11.5px; color:#64748b; font-weight:600;">/ ${CARBS_TARGET}g</span></div>
+                        <div style="font-size:14px; font-weight:900; color:#0f172a;">${carbs} <span style="font-size:11.5px; color:#64748b; font-weight:600;">/ ${effectiveCarbsTarget}g</span></div>
                         <div style="font-size:11px; font-weight:700; color:#64748b; display:flex; align-items:center; gap:4px; margin-top:2px;">
                             <span>คาร์บ</span>
                             ${carbsBadge}
@@ -640,7 +667,7 @@ function render() {
                 <!-- Protein -->
                 <div class="wm-macro-row">
                     <div>
-                        <div style="font-size:14px; font-weight:900; color:#0f172a;">${pro} <span style="font-size:11.5px; color:#64748b; font-weight:600;">/ ${PROTEIN_TARGET}g</span></div>
+                        <div style="font-size:14px; font-weight:900; color:#0f172a;">${pro} <span style="font-size:11.5px; color:#64748b; font-weight:600;">/ ${effectiveProTarget}g</span></div>
                         <div style="font-size:11px; font-weight:700; color:#64748b; display:flex; align-items:center; gap:4px; margin-top:2px;">
                             <span>โปรตีน</span>
                             ${proBadge}
@@ -658,7 +685,7 @@ function render() {
                 <!-- Fat -->
                 <div class="wm-macro-row">
                     <div>
-                        <div style="font-size:14px; font-weight:900; color:#0f172a;">${fat} <span style="font-size:11.5px; color:#64748b; font-weight:600;">/ ${FAT_TARGET}g</span></div>
+                        <div style="font-size:14px; font-weight:900; color:#0f172a;">${fat} <span style="font-size:11.5px; color:#64748b; font-weight:600;">/ ${effectiveFatTarget}g</span></div>
                         <div style="font-size:11px; font-weight:700; color:#64748b; display:flex; align-items:center; gap:4px; margin-top:2px;">
                             <span>ไขมัน</span>
                             ${fatBadge}
@@ -669,6 +696,11 @@ function render() {
                             <circle cx="22" cy="22" r="18" fill="none" stroke="#e2e8f0" stroke-width="4"/>
                             <circle cx="22" cy="22" r="18" fill="none" stroke="${fatRingColor}" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="${Math.max(0, 113 - (113 * fatPct) / 100)}"/>
                         </svg>
+                        <span>🧀</span>
+                    </div>
+                </div>
+            </div>
+        </div>
                         <span>🧀</span>
                     </div>
                 </div>

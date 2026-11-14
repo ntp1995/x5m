@@ -841,9 +841,19 @@ function openWorkoutSummaryModal(sessionId) {
     // Render Share Card Canvas
     renderShareCardCanvas();
 
-    // Show Modal
+    // Show Modal & Trigger Celebration Confetti + Count-up Numbers
     const modal = document.getElementById('fcWorkoutSummaryModal');
-    if (modal) modal.style.display = 'flex';
+    if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => {
+            if (typeof fireConfetti === 'function') fireConfetti(2800, 70);
+            if (typeof animateCountUp === 'function') {
+                animateCountUp('wsDurVal', Math.round((session.duration_sec || 0) / 60), 900);
+                animateCountUp('wsKcalVal', session.kcal || 350, 1100, true);
+                animateCountUp('wsVolVal', session.total_volume_kg || 0, 1300, true);
+            }
+        }, 150);
+    }
 }
 
 function closeWorkoutSummaryModal() {
@@ -1181,4 +1191,107 @@ async function shareCardViaWebShare() {
     } else {
         downloadShareCardPng();
     }
+}
+
+
+/* ============================================================================
+   CANVAS CONFETTI PARTICLE SYSTEM & COUNT-UP ROLLER ENGINE (v3.5.0)
+   ============================================================================ */
+let _confettiAnimId = null;
+
+function fireConfetti(durationMs = 2800, particleCount = 70) {
+    const canvas = document.getElementById('fcConfettiCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.display = 'block';
+
+    const colors = ['#10b981', '#f59e0b', '#38bdf8', '#f43f5e', '#a855f7', '#34d399', '#fde047'];
+    const particles = [];
+
+    for (let i = 0; i < particleCount; i++) {
+        particles.push({
+            x: canvas.width / 2 + (Math.random() - 0.5) * 80,
+            y: canvas.height * 0.4 + (Math.random() - 0.5) * 40,
+            vx: (Math.random() - 0.5) * 16,
+            vy: -(Math.random() * 12 + 6),
+            size: Math.random() * 8 + 5,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: Math.random() * 360,
+            rotSpeed: (Math.random() - 0.5) * 12,
+            gravity: 0.35 + Math.random() * 0.15,
+            drag: 0.98,
+            alpha: 1,
+            shape: Math.random() > 0.5 ? 'rect' : 'circle'
+        });
+    }
+
+    const startTime = Date.now();
+    if (_confettiAnimId) cancelAnimationFrame(_confettiAnimId);
+
+    function loop() {
+        const elapsed = Date.now() - startTime;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += p.gravity;
+            p.vx *= p.drag;
+            p.rotation += p.rotSpeed;
+            if (elapsed > durationMs * 0.6) {
+                p.alpha = Math.max(0, 1 - (elapsed - durationMs * 0.6) / (durationMs * 0.4));
+            }
+
+            ctx.save();
+            ctx.globalAlpha = p.alpha;
+            ctx.fillStyle = p.color;
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rotation * Math.PI) / 180);
+
+            if (p.shape === 'rect') {
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+            } else {
+                ctx.beginPath();
+                ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        });
+
+        if (elapsed < durationMs) {
+            _confettiAnimId = requestAnimationFrame(loop);
+        } else {
+            canvas.style.display = 'none';
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    _confettiAnimId = requestAnimationFrame(loop);
+}
+
+function animateCountUp(elementOrId, targetNum, durationMs = 1200, isFormatted = false) {
+    const el = typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId;
+    if (!el || isNaN(targetNum)) return;
+
+    const startNum = 0;
+    const startTime = performance.now();
+
+    function step(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(1, elapsed / durationMs);
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+        const currentVal = Math.round(startNum + (targetNum - startNum) * easeProgress);
+
+        el.textContent = isFormatted ? currentVal.toLocaleString() : currentVal;
+
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        } else {
+            el.textContent = isFormatted ? targetNum.toLocaleString() : targetNum;
+        }
+    }
+
+    requestAnimationFrame(step);
 }

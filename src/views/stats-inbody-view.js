@@ -673,18 +673,9 @@ window.applyAiPortion = function(pct, label) {
 
 async function processMultiImageAIFood(imagesArray = [], textNote = '') {
     fcClose();
-    // Show loading modal with animated spinner
-    fcAlert(`
-        <div style="text-align:center; padding:10px 0;">
-            <div style="font-weight:800; font-size:16px; color:var(--acc); margin-bottom:6px;">🤖 Gemini AI กำลังวิเคราะห์โภชนาการ...</div>
-            <div style="font-size:28px; animation: fcSpin 1s linear infinite; margin:14px 0;">⏳</div>
-            <div style="font-size:12px; color:var(--dim); line-height:1.4;">
-                ${imagesArray.length > 0 ? `ประมวลผลข้อมูลจากรูปภาพ ${imagesArray.length} ภาพ` : 'ประมวลผลข้อมูลเมนู'}<br>
-                ${textNote ? `ร่วมกับ: "${textNote}"` : 'กำลังคำนวณแคลอรี่และสารอาหารละเอียด'}
-            </div>
-            <style>.fc-modal-actions { display:none !important; }</style>
-        </div>
-    `);
+    // Launch Holographic Laser Scanner Animation Overlay
+    const previewImg = (imagesArray && imagesArray.length > 0) ? imagesArray[0] : 'icon.svg';
+    startAiScanAnimation(previewImg);
 
     try {
         const keysToTry = [
@@ -972,6 +963,35 @@ async function processMultiImageAIFood(imagesArray = [], textNote = '') {
         setTimeout(() => fcAlert('เกิดข้อผิดพลาด: ' + err.message), 300);
     }
 }
+
+function saveAiFoodMeal(portion) {
+    const name = (document.getElementById('aiFoodName')?.value || 'อาหาร').trim();
+    const mealType = document.getElementById('aiMealType')?.value || 'lunch';
+    const cal = Math.round(Number(document.getElementById('aiCal')?.value) || 0);
+    const pro = Math.round(Number(document.getElementById('aiPro')?.value) || 0);
+    const carbs = Math.round(Number(document.getElementById('aiCarbs')?.value) || 0);
+    const fat = Math.round(Number(document.getElementById('aiFat')?.value) || 0);
+    const sugar = Math.round(Number(document.getElementById('aiSugar')?.value) || 0);
+    const sodium = Math.round(Number(document.getElementById('aiSodium')?.value) || 0);
+    const fiber = Math.round((Number(document.getElementById('aiFiber')?.value) || 0) * 10) / 10;
+
+    const pLabel = document.getElementById('aiPortionLabel')?.textContent || '';
+    const finalPortion = (pLabel && !pLabel.includes('100%')) ? `${portion || '1 จาน'} (${pLabel})` : (portion || '1 จาน');
+
+    const base = window._aiScanBase || {};
+    const extraMeta = {
+        fiber: fiber || base.fiber || 0,
+        nutriGrade: base.nutriGrade || 'B',
+        healthScore: base.healthScore || 7,
+        satietyScore: base.satietyScore || 7,
+        coachTip: base.coachTip || '',
+        ingredients: base.ingredients || []
+    };
+
+    addMealToToday(mealType, name, finalPortion, cal, pro, carbs, fat, sugar, sodium, extraMeta);
+    fcClose();
+}
+window.saveAiFoodMeal = saveAiFoodMeal;
 
 // Backwards-compatible alias for existing callers
 function processAIFood(file, text) {
@@ -1652,4 +1672,71 @@ async function deleteSpecificMeasurement(partKey, dateStr) {
         selectMeasurePart(partKey);
         setTimeout(() => fcAlert(`✓ ลบข้อมูลเรียบร้อยแล้ว`), 200);
     }
+}
+
+
+/* ============================================================================
+   HOLOGRAPHIC AI LASER SCANNER ANIMATION CONTROLLER (v3.5.0)
+   ============================================================================ */
+let _aiScanTimer = null;
+
+function startAiScanAnimation(sampleImage) {
+    const overlay = document.getElementById('fcAiScanLoadingOverlay');
+    if (!overlay) return;
+    const imgEl = document.getElementById('fcAiScanThumbImg');
+    const pctEl = document.getElementById('fcAiScanPct');
+    const barEl = document.getElementById('fcAiScanProgressBar');
+    const txtEl = document.getElementById('fcAiScanStatusText');
+
+    if (imgEl && sampleImage) imgEl.src = sampleImage;
+    if (pctEl) pctEl.textContent = '0';
+    if (barEl) barEl.style.width = '0%';
+    if (txtEl) txtEl.textContent = '📸 กำลังจัดเตรียมภาพถ่ายและรายละเอียด...';
+
+    overlay.style.display = 'flex';
+
+    if (_aiScanTimer) clearInterval(_aiScanTimer);
+    let curPct = 0;
+    _aiScanTimer = setInterval(() => {
+        if (curPct < 92) {
+            const increment = curPct < 40 ? 5 : (curPct < 75 ? 3 : 1);
+            curPct += increment;
+            if (curPct > 92) curPct = 92;
+
+            if (pctEl) pctEl.textContent = curPct;
+            if (barEl) barEl.style.width = curPct + '%';
+
+            if (txtEl) {
+                if (curPct < 25) txtEl.textContent = '📸 กำลังจัดเตรียมภาพถ่ายและรายละเอียด...';
+                else if (curPct < 60) txtEl.textContent = '🔍 ตรวจจับเมนูอาหารและวิเคราะห์วัตถุดิบ...';
+                else if (curPct < 85) txtEl.textContent = '⚖️ คำนวณแคลอรี่และสัดส่วนสารอาหาร...';
+                else txtEl.textContent = '🛡️ ประเมินสมดุลตับ และ Nutri-Grade A-E...';
+            }
+        }
+    }, 90);
+}
+
+function completeAiScanAnimation() {
+    return new Promise(resolve => {
+        if (_aiScanTimer) clearInterval(_aiScanTimer);
+        const pctEl = document.getElementById('fcAiScanPct');
+        const barEl = document.getElementById('fcAiScanProgressBar');
+        const txtEl = document.getElementById('fcAiScanStatusText');
+        const overlay = document.getElementById('fcAiScanLoadingOverlay');
+
+        if (pctEl) pctEl.textContent = '100';
+        if (barEl) barEl.style.width = '100%';
+        if (txtEl) txtEl.textContent = '✨ วิเคราะห์เสร็จสมบูรณ์!';
+
+        setTimeout(() => {
+            if (overlay) overlay.style.display = 'none';
+            resolve();
+        }, 320);
+    });
+}
+
+function hideAiScanAnimation() {
+    if (_aiScanTimer) clearInterval(_aiScanTimer);
+    const overlay = document.getElementById('fcAiScanLoadingOverlay');
+    if (overlay) overlay.style.display = 'none';
 }

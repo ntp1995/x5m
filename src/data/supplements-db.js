@@ -41,6 +41,10 @@ const SUPP_MASTER_SLOTS = [
                 id: 'supp_morn_medita',
                 slotId: 'slot_morning',
                 timing: 'ตอนเช้า (Fasted State — ห้ามมีแคลอรี)',
+                timingTag: '⚡ ท้องว่าง (ช่วงฟาสต์)',
+                timingBg: '#eff6ff',
+                timingColor: '#0284c7',
+                timingBorder: '#bfdbfe',
                 name: 'Medita A1C',
                 activeIngredients: 'Cactus, Bitter Orange, Black Pepper',
                 dose: '1 แคปซูล',
@@ -55,6 +59,10 @@ const SUPP_MASTER_SLOTS = [
                 id: 'supp_morn_water',
                 slotId: 'slot_morning',
                 timing: 'หลังตื่นนอนทันที',
+                timingTag: '💧 หลังตื่นนอนทันที',
+                timingBg: '#f0fdfa',
+                timingColor: '#0d9488',
+                timingBorder: '#99f6e4',
                 name: 'ดื่มน้ำเปล่า 1–2 แก้ว (~500 ml)',
                 activeIngredients: 'Pure Water (0 kcal)',
                 dose: '1–2 แก้ว',
@@ -79,6 +87,10 @@ const SUPP_MASTER_SLOTS = [
                 id: 'supp_lunch_acv',
                 slotId: 'slot_lunch',
                 timing: 'ทานพร้อมข้าวคำแรก (ลดการดูดซึมน้ำตาล)',
+                timingTag: '🥣 พร้อมข้าวคำแรก',
+                timingBg: '#fef3c7',
+                timingColor: '#d97706',
+                timingBorder: '#fde68a',
                 name: 'Dr.PONG ACV Capsule 750mg',
                 activeIngredients: 'Apple Cider Vinegar 750mg',
                 dose: '1 แคปซูล',
@@ -92,6 +104,10 @@ const SUPP_MASTER_SLOTS = [
                 id: 'supp_lunch_bcomplex',
                 slotId: 'slot_lunch',
                 timing: 'หลังอาหาร (บำรุงระบบประสาท ลดอาการชา)',
+                timingTag: '🍽️ หลังอาหารทันที',
+                timingBg: '#ecfdf5',
+                timingColor: '#059669',
+                timingBorder: '#a7f3d0',
                 name: 'Dr.PONG B Complex',
                 activeIngredients: 'Vit B1 (100mg), B6, B12',
                 dose: '1 แคปซูล',
@@ -105,6 +121,10 @@ const SUPP_MASTER_SLOTS = [
                 id: 'supp_lunch_vitc',
                 slotId: 'slot_lunch',
                 timing: 'หลังอาหาร (เสริมภูมิคุ้มกันและต้านอนุมูลอิสระ)',
+                timingTag: '🍽️ หลังอาหารทันที',
+                timingBg: '#ecfdf5',
+                timingColor: '#059669',
+                timingBorder: '#a7f3d0',
                 name: 'Watsons Triple C',
                 activeIngredients: 'Vitamin C, CoQ10',
                 dose: '1 เม็ด',
@@ -118,6 +138,10 @@ const SUPP_MASTER_SLOTS = [
                 id: 'supp_lunch_asta',
                 slotId: 'slot_lunch',
                 timing: 'หลังอาหาร (ชะลอวัย ปกป้องผิวจากแสงแดด)',
+                timingTag: '🍽️ หลังอาหารทันที',
+                timingBg: '#ecfdf5',
+                timingColor: '#059669',
+                timingBorder: '#a7f3d0',
                 name: 'Whitelab Astaxanthin Plus Vit E',
                 activeIngredients: 'Astaxanthin, Vit E',
                 dose: '1 ซอฟต์เจล',
@@ -131,6 +155,10 @@ const SUPP_MASTER_SLOTS = [
                 id: 'supp_lunch_fishoil',
                 slotId: 'slot_lunch',
                 timing: 'หลังอาหาร (ลดไตรกลีเซอไรด์)',
+                timingTag: '🍽️ หลังอาหารทันที',
+                timingBg: '#ecfdf5',
+                timingColor: '#059669',
+                timingBorder: '#a7f3d0',
                 name: 'Mega We Care Fish Oil',
                 activeIngredients: 'Omega-3',
                 dose: '1 แคปซูล',
@@ -149,12 +177,17 @@ const SUPP_MASTER_SLOTS = [
         timeHint: 'Pre-Workout (ก่อนซ้อม 30 นาที) & Post-Workout (หลังซ้อมทันที)',
         badge: 'เพิ่มพละกำลัง • เผาผลาญไขมันช่องท้อง • ซ่อมกล้ามเนื้อ ผิว & ข้อต่อ',
         color: '#10b981',
-        note: 'วันที่เลิกงานดึก ห้ามทานข้าวเย็นก่อนออกกำลัง ให้ทานเซ็ต Pre-Workout รองท้องแล้วไปลุยเลย',
+        note: 'วันที่เลิกงานดึก ห้ามทานข้าวเย็นก่อนออกกำลัง ให้ทานเซ็ต Pre-Workout ชงดื่มแล้วไปลุยได้เลย',
         items: [
             {
                 id: 'supp_eve_creatine',
                 slotId: 'slot_evening',
+                phase: 'pre',
                 timing: 'Pre-Workout (ก่อนออกกำลังกาย 30 นาที — ชงน้ำเย็น)',
+                timingTag: '⚡ ก่อนซ้อม 30 น. (ท้องว่าง)',
+                timingBg: '#f5f3ff',
+                timingColor: '#7c3aed',
+                timingBorder: '#ddd6fe',
                 name: 'BAAM!! Creatine Cola Flavour',
                 activeIngredients: 'Micronized Creatine 5g',
                 dose: '1 สกู๊ป / 5g',
@@ -166,9 +199,33 @@ const SUPP_MASTER_SLOTS = [
                 active: true
             },
             {
+                id: 'supp_eve_collagen',
+                slotId: 'slot_evening',
+                phase: 'pre',
+                timing: 'Pre-Workout (ชงรวมในแก้วเดียวกับ Creatine โคล่า)',
+                timingTag: '⚡ ชงรวมกับ Creatine โคล่า',
+                timingBg: '#fdf2f8',
+                timingColor: '#db2777',
+                timingBorder: '#fbcfe8',
+                name: 'Whitelab Hydrolyzed Collagen',
+                activeIngredients: 'Hydrolyzed Collagen',
+                dose: '1 หน่วยบริโภค',
+                expDate: '-',
+                benefit: 'เติมคอลลาเจนให้ผิวและข้อต่อ (ชงคู่ Creatine โคล่าได้เลย)',
+                tag: '✨ ผิว & ข้อต่อ',
+                goalCat: 'skin',
+                skipOnShift: true,
+                active: true
+            },
+            {
                 id: 'supp_morn_carnitine',
                 slotId: 'slot_evening',
+                phase: 'pre',
                 timing: 'Pre-Workout (ก่อนออกกำลังกาย 30 นาที — คู่คาร์ดิโอ)',
+                timingTag: '⚡ ก่อนซ้อม 30 น. (ท้องว่าง)',
+                timingBg: '#fff7ed',
+                timingColor: '#ea580c',
+                timingBorder: '#fed7aa',
                 name: 'L-Carnitine',
                 activeIngredients: 'L-Carnitine',
                 dose: '1 แคปซูล',
@@ -182,12 +239,17 @@ const SUPP_MASTER_SLOTS = [
             {
                 id: 'supp_eve_soy',
                 slotId: 'slot_evening',
+                phase: 'post',
                 timing: 'Post-Workout (หลังออกกำลังกายทันที)',
+                timingTag: '🥤 หลังซ้อมทันที',
+                timingBg: '#eef2ff',
+                timingColor: '#4f46e5',
+                timingBorder: '#c7d2fe',
                 name: 'BAAM Soy Isolate Dark Choc',
                 activeIngredients: 'Soy Protein',
                 dose: '1 สกู๊ป',
                 expDate: '-',
-                benefit: 'ซ่อมแซมกล้ามเนื้อหลังใช้งานหนัก',
+                benefit: 'ซ่อมแซมกล้ามเนื้อหลังใช้งานหนัก (Anabolic Window)',
                 tag: '🥤 Post-Workout',
                 goalCat: 'workout',
                 active: true
@@ -195,7 +257,12 @@ const SUPP_MASTER_SLOTS = [
             {
                 id: 'supp_eve_vida',
                 slotId: 'slot_evening',
+                phase: 'post',
                 timing: 'Post-Workout (ทานคู่กับเวย์ซอย)',
+                timingTag: '🥤 ทานคู่กับเวย์ซอย',
+                timingBg: '#fdf2f8',
+                timingColor: '#db2777',
+                timingBorder: '#fbcfe8',
                 name: 'Vida Collagen Dipeptide C',
                 activeIngredients: 'Collagen Dipeptide, Vit C',
                 dose: '2 แคปซูล',
@@ -212,19 +279,42 @@ const SUPP_MASTER_SLOTS = [
         icon: '🌙',
         title: 'มื้อที่ 2 (Dinner - Last Meal)',
         timeHint: '18:30 – 20:00 น. (จบมื้อนี้เริ่มนับ IF ทันที)',
-        badge: 'เป้าหมาย: ดรอปไขมัน, ระงับกลิ่นกาย, เติมแร่ธาตุ',
+        badge: 'เป้าหมาย: ดรอปไขมัน, ระงับกลิ่นกาย, กู้มวลกระดูก, เติมแร่ธาตุ',
         color: '#3b82f6',
         note: 'จบมื้อนี้ให้เริ่มนับเวลา IF ทันที',
         items: [
             {
+                id: 'supp_din_calcium',
+                slotId: 'slot_dinner',
+                timing: 'หลังอาหาร (กู้มวลกระดูก K2 นำแคลเซียมเข้ากระดูก)',
+                timingTag: '🍽️ หลังอาหารทันที',
+                timingBg: '#ecfdf5',
+                timingColor: '#059669',
+                timingBorder: '#a7f3d0',
+                name: 'Dr.PONG Calcium 500 PLUS D3 & K2',
+                activeIngredients: 'Calcium 500mg, D3, K2',
+                dose: '1 เม็ด',
+                expDate: '14-09-2028',
+                benefit: 'เพิ่มมวลกระดูก K2 นำแคลเซียมเข้ากระดูก (Fish Oil ช่วยดูดซึม D3/K2)',
+                tag: '🦴 กู้มวลกระดูก 2.89kg',
+                goalCat: 'workout',
+                optional: false,
+                incoming: false,
+                active: true
+            },
+            {
                 id: 'supp_din_fishoil',
                 slotId: 'slot_dinner',
-                timing: 'หลังอาหาร',
+                timing: 'หลังอาหาร (ช่วยดูดซึม D3/K2 + ลดไตรกลีเซอไรด์)',
+                timingTag: '🍽️ หลังอาหารทันที',
+                timingBg: '#ecfdf5',
+                timingColor: '#059669',
+                timingBorder: '#a7f3d0',
                 name: 'Mega We Care Fish Oil',
                 activeIngredients: 'Omega-3',
                 dose: '1 แคปซูล',
                 expDate: '-',
-                benefit: 'ลดไตรกลีเซอไรด์และไขมันเลว (เม็ดที่ 2/2 ของวัน)',
+                benefit: 'ลดไตรกลีเซอไรด์และไขมันเลว ช่วยละลายวิตามิน D3/K2 ให้ดูดซึมได้ดีที่สุด',
                 tag: '🐟 ลดไตรกลีเซอไรด์',
                 goalCat: 'liver_lipid',
                 active: true
@@ -233,6 +323,10 @@ const SUPP_MASTER_SLOTS = [
                 id: 'supp_din_innerdeo',
                 slotId: 'slot_dinner',
                 timing: 'หลังอาหาร (ดับกลิ่นกาย)',
+                timingTag: '🍽️ หลังอาหารทันที',
+                timingBg: '#ecfdf5',
+                timingColor: '#059669',
+                timingBorder: '#a7f3d0',
                 name: 'Dr.PONG InnerDeo',
                 activeIngredients: 'Persimmon Powder 200mg',
                 dose: '1 แคปซูล',
@@ -246,28 +340,17 @@ const SUPP_MASTER_SLOTS = [
                 id: 'supp_din_banana',
                 slotId: 'slot_dinner',
                 timing: 'ทานตบท้ายมื้ออาหาร',
+                timingTag: '🍌 ตบท้ายมื้ออาหาร',
+                timingBg: '#fefce8',
+                timingColor: '#ca8a04',
+                timingBorder: '#fef08a',
                 name: 'กล้วยหอม',
                 activeIngredients: 'Natural Potassium',
                 dose: '1 ลูก',
                 expDate: '-',
                 benefit: 'เติม Potassium คลายกล้ามเนื้อและเส้นประสาท',
-                tag: '🍌 เติมแร่ธาตุโพแทสเซียม',
+                tag: '🍌 เติมโพแทสเซียม',
                 goalCat: 'nerve_gut',
-                active: true
-            },
-            {
-                id: 'supp_din_calcium',
-                slotId: 'slot_dinner',
-                timing: 'รอนำเข้าตาราง (ของยังไม่มาส่ง)',
-                name: '(Incoming) Dr.PONG Calcium 500 PLUS',
-                activeIngredients: 'Calcium 500mg PLUS',
-                dose: '1 แคปซูล',
-                expDate: 'รอจัดส่ง',
-                benefit: 'รอนำเข้าตารางเมื่อของมาส่ง (กู้มวลกระดูก 2.89kg)',
-                tag: '⏳ รอมาส่ง (กู้มวลกระดูก)',
-                goalCat: 'workout',
-                optional: true,
-                incoming: true,
                 active: true
             }
         ]
@@ -285,12 +368,16 @@ const SUPP_MASTER_SLOTS = [
                 id: 'supp_night_gluta',
                 slotId: 'slot_bedtime',
                 timing: 'ก่อนนอน (ตอนท้องว่าง)',
+                timingTag: '🌙 ก่อนนอน (ท้องว่าง)',
+                timingBg: '#faf5ff',
+                timingColor: '#9333ea',
+                timingBorder: '#e9d5ff',
                 name: 'Whitelab Liposomal Gluta+',
                 activeIngredients: 'Gluta, Zinc 30mg',
                 dose: '1 แคปซูล',
                 expDate: '-',
-                benefit: 'ดีท็อกซ์สารพิษในตับและบำรุงผิวใส (Zinc 30mg ควบคุมความมัน/ลดสิว)',
-                tag: '🛡️ ดีท็อกซ์ตับ + Zinc ลดสิว',
+                benefit: 'ดีท็อกซ์สารพิษในตับและบำรุงผิว (Zinc 30mg ลดสิว/คุมความมัน)',
+                tag: '🛡️ ดีท็อกซ์ตับ + Zinc 30mg',
                 goalCat: 'skin',
                 active: true
             },
@@ -298,6 +385,10 @@ const SUPP_MASTER_SLOTS = [
                 id: 'supp_night_probio',
                 slotId: 'slot_bedtime',
                 timing: 'ก่อนนอน (ตอนท้องว่าง)',
+                timingTag: '🌙 ก่อนนอน (ท้องว่าง)',
+                timingBg: '#faf5ff',
+                timingColor: '#9333ea',
+                timingBorder: '#e9d5ff',
                 name: 'Probiotic',
                 activeIngredients: 'Multi-Strain Probiotics',
                 dose: '1 เม็ด',
@@ -315,15 +406,14 @@ const SUPP_MASTER_SLOTS = [
 function ensureSuppInventory() {
     if (!D.cfg) D.cfg = {};
     if (D.cfg.probioticStock == null) D.cfg.probioticStock = 8;
-    if (!Array.isArray(D.cfg.suppStandby) || D.cfg.suppSchemaVer !== 216) {
+    if (!Array.isArray(D.cfg.suppStandby) || D.cfg.suppSchemaVer !== 217) {
         D.cfg.suppStandby = SUPP_STANDBY_HOLD.map(h => ({ ...h }));
     }
-    // Auto-migrate to v2.15.1 (schema 216) while preserving custom items & probioticStock
-    if (!Array.isArray(D.cfg.suppInventory) || D.cfg.suppInventory.length === 0 || D.cfg.suppSchemaVer !== 216) {
+    // Auto-migrate to v2.17 (schema 217) while preserving custom items & probioticStock
+    if (!Array.isArray(D.cfg.suppInventory) || D.cfg.suppInventory.length === 0 || D.cfg.suppSchemaVer !== 217) {
         const prevInv = Array.isArray(D.cfg.suppInventory) ? D.cfg.suppInventory : [];
         const customItems = prevInv.filter(x => String(x.id || '').startsWith('supp_custom_'));
         const pausedMap = {};
-        const calciumWasActivated = prevInv.some(x => x && x.id === 'supp_din_calcium' && x.optional === false);
         prevInv.forEach(x => {
             if (x && x.id && x.active === false) pausedMap[x.id] = false;
         });
@@ -337,19 +427,12 @@ function ensureSuppInventory() {
                     active: pausedMap[it.id] === false ? false : (it.active !== false),
                     stock: it.hasStockCounter ? D.cfg.probioticStock : (it.stock != null ? it.stock : null)
                 };
-                if (clone.id === 'supp_din_calcium' && calciumWasActivated) {
-                    clone.optional = false;
-                    clone.incoming = false;
-                    clone.name = 'Dr.PONG Calcium 500 PLUS';
-                    clone.timing = 'หลังอาหาร';
-                    clone.tag = '🦴 กู้มวลกระดูก 2.89kg';
-                }
                 seeded.push(clone);
             });
         });
         customItems.forEach(c => seeded.push(c));
         D.cfg.suppInventory = seeded;
-        D.cfg.suppSchemaVer = 216;
+        D.cfg.suppSchemaVer = 217;
     } else {
         const probio = D.cfg.suppInventory.find(x => x.id === 'supp_night_probio');
         if (probio && D.cfg.probioticStock != null) {
@@ -759,16 +842,20 @@ function activateIncomingCalcium(ev) {
     if (!calItem) return;
     calItem.optional = !calItem.optional;
     calItem.incoming = calItem.optional;
-    calItem.name = calItem.optional ? '(Incoming) Dr.PONG Calcium 500 PLUS' : 'Dr.PONG Calcium 500 PLUS';
-    calItem.timing = calItem.optional ? 'รอนำเข้าตาราง (ของยังไม่มาส่ง)' : 'หลังอาหาร (กู้มวลกระดูก 2.89kg)';
+    calItem.name = calItem.optional ? '(Incoming) Dr.PONG Calcium 500 PLUS D3 & K2' : 'Dr.PONG Calcium 500 PLUS D3 & K2';
+    calItem.timing = calItem.optional ? 'รอนำเข้าตาราง (ของยังไม่มาส่ง)' : 'หลังอาหาร (กู้มวลกระดูก K2 นำแคลเซียมเข้ากระดูก)';
+    calItem.timingTag = '🍽️ หลังอาหารทันที';
+    calItem.timingBg = '#ecfdf5';
+    calItem.timingColor = '#059669';
+    calItem.timingBorder = '#a7f3d0';
     calItem.tag = calItem.optional ? '⏳ รอมาส่ง (กู้มวลกระดูก)' : '🦴 กู้มวลกระดูก 2.89kg';
-    calItem.expDate = calItem.optional ? 'รอจัดส่ง' : (calItem.expDate === 'รอจัดส่ง' ? '-' : calItem.expDate);
+    calItem.expDate = '14-09-2028';
     save();
     render();
     if (typeof pushToCloud === 'function') pushToCloud();
     msg(calItem.optional
-        ? '⏳ ตั้งค่า Dr.PONG Calcium 500 PLUS เป็นสถานะ Incoming (รอของมาส่ง)'
-        : '🎉 นำเข้า Dr.PONG Calcium 500 PLUS เข้าตารางมื้อที่ 2 (Dinner) เต็มรูปแบบแล้ว!');
+        ? '⏳ ปรับ Dr.PONG Calcium 500 PLUS D3 & K2 เป็นสถานะ Incoming ชั่วคราว'
+        : '🎉 นำเข้า Dr.PONG Calcium 500 PLUS D3 & K2 เข้าตารางมื้อที่ 2 (Dinner) เต็มรูปแบบแล้ว!');
 }
 
 function promoteStandbyToActive(holdId) {
@@ -1328,17 +1415,25 @@ function renderSupplementsUI() {
         const expChip = (it.expDate && it.expDate !== '-') ? `<span style="font-size:10px; color:var(--dim); font-weight:600;">⏳ Exp: ${it.expDate}</span>` : '';
         const ingChip = (it.activeIngredients && it.activeIngredients !== '-' && !it.waterMl) ? `<span style="font-size:10.5px; color:var(--acc); font-weight:700;">🔬 ${it.activeIngredients}</span>` : '';
 
+        const timingTagHtml = it.timingTag ? `
+            <span class="supp-timing-badge" style="display:inline-flex; align-items:center; font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px; background:${it.timingBg || 'rgba(2,132,199,0.1)'}; color:${it.timingColor || '#0284c7'}; border:1px solid ${it.timingBorder || 'rgba(2,132,199,0.25)'}; letter-spacing:0.2px;">
+                ${it.timingTag}
+            </span>
+        ` : `<span style="font-size:11px; font-weight:800; color:var(--acc);">${it.timing}</span>`;
+
         return `
             <div onclick="toggleSuppItem('${it.id}')" style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border-radius:11px; background:${isDone ? 'rgba(16,185,129,0.08)' : (it.optional ? 'rgba(59,130,246,0.04)' : 'var(--card2)')}; border:1.5px ${it.optional && !isDone ? 'dashed rgba(59,130,246,0.4)' : 'solid ' + (isDone ? '#10b981' : 'var(--line)')}; margin-bottom:8px; cursor:pointer; transition:all 0.15s ease;">
                 <div style="width:22px; height:22px; border-radius:6px; border:2px solid ${isDone ? '#10b981' : 'var(--dim)'}; background:${isDone ? '#10b981' : 'var(--bg)'}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:900; flex-shrink:0; margin-top:2px;">
                     ${isDone ? '✓' : ''}
                 </div>
                 <div style="flex:1; min-width:0;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; gap:4px; flex-wrap:wrap;">
-                        <span style="font-size:11px; font-weight:800; color:var(--acc);">${it.timing}</span>
-                        <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
+                        <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
+                            ${timingTagHtml}
                             ${extraBadgeHtml}
                             ${incomingBtn}
+                        </div>
+                        <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
                             ${stockBadge}
                             ${waterQuickBtn}
                             <span style="font-size:10px; font-weight:700; padding:1px 6px; border-radius:6px; background:var(--card); border:1px solid var(--line); color:var(--dim);">${it.tag}</span>
@@ -1359,18 +1454,46 @@ function renderSupplementsUI() {
 
     const slotsHtml = activeSlots.map((slot, sIdx) => {
         let slotItemsHtml = '';
-        slot.items.forEach(it => {
-            slotItemsHtml += renderItemRow(it);
-            if (slot.id === 'slot_lunch' && it.id === 'supp_lunch_acv' && isShift) {
-                const movedList = activeSlots[0].items.filter(x => x.shiftMoveToLunch);
-                movedList.forEach(meditaItem => {
-                    slotItemsHtml += renderItemRow(
-                        { ...meditaItem, timing: 'ก่อนอาหารมื้อแรก (ย้ายมาจากช่วงเช้า)' },
-                        '<span style="background:rgba(245,158,11,0.2); color:#d97706; font-size:10px; font-weight:800; padding:1px 6px; border-radius:6px;">↪️ โหมดวันเข้าเวร</span>'
-                    );
-                });
-            }
-        });
+        if (slot.id === 'slot_evening') {
+            const preItems = slot.items.filter(x => x.phase === 'pre');
+            const postItems = slot.items.filter(x => x.phase !== 'pre');
+            
+            let preHtml = '';
+            preItems.forEach(it => { preHtml += renderItemRow(it); });
+            
+            let postHtml = '';
+            postItems.forEach(it => { postHtml += renderItemRow(it); });
+            
+            slotItemsHtml = `
+                <div style="margin-bottom:12px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; padding:6px 10px; background:linear-gradient(90deg, rgba(124,58,237,0.08), rgba(124,58,237,0.02)); border-left:3px solid #7c3aed; border-radius:0 8px 8px 0;">
+                        <span style="font-size:11.5px; font-weight:800; color:#7c3aed;">⚡ ก่อนออกกำลังกาย (Pre-Workout - ท้องว่าง 30 นาที)</span>
+                        <span style="font-size:10.5px; color:var(--dim); font-weight:600;">ชงน้ำเย็น ท้องว่าง (ไม่ต้องทานเวย์รองท้อง)</span>
+                    </div>
+                    ${preHtml}
+                </div>
+                <div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; padding:6px 10px; background:linear-gradient(90deg, rgba(79,70,229,0.08), rgba(79,70,229,0.02)); border-left:3px solid #4f46e5; border-radius:0 8px 8px 0;">
+                        <span style="font-size:11.5px; font-weight:800; color:#4f46e5;">🥤 หลังออกกำลังกายทันที (Post-Workout - นาทีทอง Anabolic Window)</span>
+                        <span style="font-size:10.5px; color:var(--dim); font-weight:600;">ซ่อมแซมกล้ามเนื้อ & ผิวพรรณ</span>
+                    </div>
+                    ${postHtml}
+                </div>
+            `;
+        } else {
+            slot.items.forEach(it => {
+                slotItemsHtml += renderItemRow(it);
+                if (slot.id === 'slot_lunch' && it.id === 'supp_lunch_acv' && isShift) {
+                    const movedList = activeSlots[0].items.filter(x => x.shiftMoveToLunch);
+                    movedList.forEach(meditaItem => {
+                        slotItemsHtml += renderItemRow(
+                            { ...meditaItem, timing: 'ก่อนอาหารมื้อแรก (ย้ายมาจากช่วงเช้า)', timingTag: '🥣 ก่อนอาหารมื้อแรก' },
+                            '<span style="background:rgba(245,158,11,0.2); color:#d97706; font-size:10px; font-weight:800; padding:1px 6px; border-radius:6px;">↪️ โหมดวันเข้าเวร</span>'
+                        );
+                    });
+                }
+            });
+        }
 
         if (!slotItemsHtml) {
             slotItemsHtml = `<div style="text-align:center; padding:10px; font-size:12px; color:var(--dim); background:var(--card2); border-radius:8px;">ไม่มีรายการที่เปิดทานในช่วงเวลานี้</div>`;

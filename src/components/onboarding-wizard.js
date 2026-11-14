@@ -63,9 +63,10 @@ function initOnboardingDraftFromStore() {
     obState.gender = bio.gender || saved.gender || 'M';
     obState.targetWeight = Number((D && D.cfg && D.cfg.targetWeight) || 70.0);
     obState.courseWeeks = Number((D && D.cfg && D.cfg.courseWeeks) || 20);
+    obState.goalType = (saved && saved.goalType) || (D && D.cfg && D.cfg.goalType) || 'recomp';
 
     const actMap = { sedentary: 1, light: 2, moderate: 3, active: 4, very_active: 4 };
-    obState.activityLevel = actMap[D && D.cfg && D.cfg.workType] || 1;
+    obState.activityLevel = actMap[D && D.cfg && D.cfg.workType] || 3;
 
     obState.bf = Number(bio.bf || lastCheck.bf || 25.9);
     obState.muscle = Number(bio.muscle || 54.3);
@@ -158,11 +159,30 @@ function onObWeightDrag(field, val) {
     }
 }
 
-function onObActivitySelect(lvl) {
+function setObWeeks(weeks) {
+    obState.courseWeeks = Math.max(4, Math.min(52, parseInt(weeks, 10)));
+    renderOnboardingStep();
+}
+
+function adjustObWeeks(delta) {
+    obState.courseWeeks = Math.max(4, Math.min(52, obState.courseWeeks + delta));
+    renderOnboardingStep();
+}
+
+function selectObActivity(lvl) {
     obState.activityLevel = parseInt(lvl, 10);
     const wMap = { 1: 'sedentary', 2: 'light', 3: 'moderate', 4: 'active' };
-    obState.workType = wMap[obState.activityLevel] || 'light';
+    obState.workType = wMap[obState.activityLevel] || 'moderate';
     renderOnboardingStep();
+}
+
+function selectObGoalType(gType) {
+    obState.goalType = gType;
+    renderOnboardingStep();
+}
+
+function onObActivitySelect(lvl) {
+    selectObActivity(lvl);
 }
 
 function onObQuizSelect(ans) {
@@ -177,7 +197,9 @@ function computeOnboardingPlan() {
     const gender = obState.gender || 'M';
     const targetW = Math.max(40, Number(obState.targetWeight) || 70.0);
     const weeks = Math.max(4, Number(obState.courseWeeks) || 20);
+    const goalType = obState.goalType || 'recomp';
 
+    // Activity Multiplier based on Step 7
     const actMults = { 1: 1.20, 2: 1.35, 3: 1.50, 4: 1.65 };
     const act = actMults[obState.activityLevel] || 1.35;
 
@@ -189,24 +211,39 @@ function computeOnboardingPlan() {
     const lossPerWk = weeks > 0 ? (diffKg / weeks) : 0.4;
     const lossPerMonth = lossPerWk * 4.33;
 
-    // Standard 500 kcal deficit
-    let deficit = 500;
-    if (diffKg <= 1) deficit = 0;
-    else if (diffKg > 15) deficit = 600;
+    // Calorie Deficit / Surplus based on Sports Science Strategy
+    let deficit = 300;
+    let proMultiplier = 2.0;
 
-    let calTarget = Math.max(1500, Math.round(tdee - deficit));
-    if (calTarget < 1500) calTarget = 1500;
+    if (goalType === 'recomp') {
+        deficit = 300; // Moderate deficit, high protein to spare muscle & burn visceral fat
+        proMultiplier = 2.0;
+    } else if (goalType === 'fatloss') {
+        deficit = 500; // Fast fat loss cut
+        proMultiplier = 2.0;
+    } else if (goalType === 'slowcut') {
+        deficit = 200; // Gentle, sustainable cut without fatigue
+        proMultiplier = 1.9;
+    } else if (goalType === 'bulk') {
+        deficit = -250; // Lean bulk surplus
+        proMultiplier = 1.8;
+    } else if (goalType === 'maintain') {
+        deficit = 0; // Maintenance
+        proMultiplier = 1.8;
+    }
+
+    let calTarget = Math.max(1400, Math.round(tdee - deficit));
 
     // Macro Target distribution
-    let proTarget = Math.round(w * 2.0); // 2.0g per kg for clinical muscle preservation
-    if (proTarget < 120) proTarget = 120;
+    let proTarget = Math.round(w * proMultiplier);
+    if (proTarget < 110) proTarget = 110;
     const proKcal = proTarget * 4;
 
     const fatKcal = Math.round(calTarget * 0.25);
-    const fatTarget = Math.max(40, Math.round(fatKcal / 9));
+    const fatTarget = Math.max(35, Math.round(fatKcal / 9));
 
     const remainingKcal = Math.max(0, calTarget - proKcal - (fatTarget * 9));
-    const carbsTarget = Math.max(120, Math.round(remainingKcal / 4));
+    const carbsTarget = Math.max(100, Math.round(remainingKcal / 4));
     const waterTarget = Math.max(2500, Math.round(w * 38));
 
     return {
@@ -214,14 +251,16 @@ function computeOnboardingPlan() {
         tdee,
         calTarget,
         proTarget,
+        proMultiplier,
         carbsTarget,
         fatTarget,
         waterTarget,
         diffKg,
-        lossPerWk: Math.round(lossPerWk * 10) / 10,
+        lossPerWk: Math.round(lossPerWk * 100) / 100,
         lossPerMonth: Math.round(lossPerMonth * 10) / 10,
         deficit,
-        act
+        act,
+        goalType
     };
 }
 
@@ -230,6 +269,7 @@ function applyOnboardingPlanToApp() {
     D.cfg = D.cfg || {};
     D.cfg.targetWeight = obState.targetWeight;
     D.cfg.courseWeeks = obState.courseWeeks;
+    D.cfg.goalType = obState.goalType;
     D.cfg.calTarget = plan.calTarget;
     D.cfg.proteinTarget = plan.proTarget;
     D.cfg.carbsTarget = plan.carbsTarget;
@@ -251,8 +291,10 @@ function applyOnboardingPlanToApp() {
         activityLevel: obState.activityLevel,
         workType: obState.workType,
         stepTarget: obState.stepTarget,
+        goalType: obState.goalType,
         bmr: plan.bmr,
-        tdee: plan.tdee
+        tdee: plan.tdee,
+        courseWeeks: obState.courseWeeks
     };
 
     D.cfg.biometrics = {
@@ -284,10 +326,14 @@ function applyOnboardingPlanToApp() {
     }
 
     if (typeof save === 'function') save();
-    if (typeof pushToCloud === 'function') pushToCloud();
-    closeOnboardingWizard();
     if (typeof render === 'function') render();
-    if (typeof msg === 'function') msg('✓ บันทึกการประเมินแผนและอัปเดตเป้าหมายโภชนาการเรียบร้อย');
+    if (typeof updateIFUI === 'function') updateIFUI();
+    if (typeof pushToCloud === 'function' && currentUser && fbDb) pushToCloud();
+
+    closeOnboardingWizard();
+    if (typeof msg === 'function') {
+        msg('✓ บันทึกโปรแกรมส่วนบุคคลเรียบร้อย! งบพลังงาน ' + plan.calTarget.toLocaleString() + ' kcal/วัน');
+    }
 }
 
 function calcBMR() {
@@ -687,57 +733,99 @@ function renderOnboardingStep() {
     }
 
     // -------------------------------------------------------------
-    // STEP 6: คุณต้องการบรรลุเป้าหมายเมื่อไหร่? (Target Date)
+    // STEP 6: คุณต้องการฝึกโปรแกรมนี้กี่สัปดาห์? (Course Weeks Selection)
     // -------------------------------------------------------------
     else if (obStep === 6 && obSubStep !== 'trajectory') {
-        const curYr = obState.targetYear || 2027;
-        const curMo = obState.targetMonth || 3;
-        const curDay = obState.targetDay || 31;
+        const weeks = Math.max(4, Number(obState.courseWeeks) || 20);
+        const diffKg = Math.max(0, obState.weight - obState.targetWeight);
+        const lossRate = weeks > 0 ? (diffKg / weeks) : 0.4;
+        const estMonths = Math.round((weeks / 4.33) * 10) / 10;
+
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() + (weeks * 7));
+        const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+        const estDateTh = `${targetDate.getDate()} ${thaiMonths[targetDate.getMonth()]} ${targetDate.getFullYear() + 543}`;
+
+        let safetyBadge = {
+            label: 'เป้าหมายระดับปลอดภัยสูง (ยั่งยืน)',
+            desc: `ลดประมาณ ${lossRate.toFixed(2)} kg ต่อสัปดาห์ (อัตราส่วนที่ดีที่สุดในการรักษามวลกล้ามเนื้อและระดับฮอร์โมน)`,
+            color: '#10b981',
+            bg: '#ecfdf5',
+            border: '#a7f3d0'
+        };
+        if (lossRate > 0.8) {
+            safetyBadge = {
+                label: 'เป้าหมายระดับเข้มข้นสูง (ท้าทาย)',
+                desc: `ลดประมาณ ${lossRate.toFixed(2)} kg ต่อสัปดาห์ (ต้องมีวินัยโภชนาการเข้มงวด ควรปรึกษาผู้เชี่ยวชาญ)`,
+                color: '#f97316',
+                bg: '#fff7ed',
+                border: '#fed7aa'
+            };
+        } else if (lossRate > 0.5) {
+            safetyBadge = {
+                label: 'เป้าหมายระดับมาตรฐาน (เห็นผลชัดเจน)',
+                desc: `ลดประมาณ ${lossRate.toFixed(2)} kg ต่อสัปดาห์ (อัตราการลดไขมันที่ปลอดภัยและเห็นการเปลี่ยนแปลงไว)`,
+                color: '#0284c7',
+                bg: '#eff6ff',
+                border: '#bfdbfe'
+            };
+        }
 
         body.innerHTML = `
         <div class="wm-ob-wrap">
             ${headerHtml}
             <div class="wm-ob-body">
-                <div style="display:inline-block; font-size:11px; font-weight:800; color:#0284c7; background:#eff6ff; padding:3px 10px; border-radius:99px; border:1px solid #bae6fd; margin-bottom:6px;">🎯 คาดการณ์บรรลุเป้าหมาย</div>
-                <h1 class="wm-ob-title">คุณต้องการบรรลุเป้าหมายเมื่อไหร่?</h1>
-                <p class="wm-ob-subtitle">เวลาที่คุณคาดหวังว่าจะบรรลุเป้าหมายจะส่งผลต่อการคำนวณงบประมาณแคลอรี่ของคุณ</p>
+                <div style="display:inline-block; font-size:11px; font-weight:800; color:#0284c7; background:#eff6ff; padding:3px 10px; border-radius:99px; border:1px solid #bae6fd; margin-bottom:6px;">🎯 ระยะเวลาโปรแกรม & คาดการณ์บรรลุเป้าหมาย</div>
+                <h1 class="wm-ob-title">คุณต้องการฝึกโปรแกรมนี้กี่สัปดาห์?</h1>
+                <p class="wm-ob-subtitle">เลือกระยะเวลาการฝึกตามจำนวนสัปดาห์เพื่อคำนวณอัตราการเปลี่ยนแปลงรูปร่างอย่างปลอดภัยและยั่งยืน</p>
 
-                <!-- 3-Column Roller Picker: ปี, เดือน, วัน -->
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:16px 0; background:#ffffff; border-radius:18px; border:1px solid #e2e8f0; padding:14px 10px; position:relative;">
-                    <div style="position:absolute; left:8px; right:8px; top:50%; transform:translateY(-50%); height:44px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; pointer-events:none;"></div>
-                    <!-- Col 1: ปี -->
-                    <div style="text-align:center; z-index:2;">
-                        <div style="font-size:12px; font-weight:800; color:#64748b; margin-bottom:8px;">ปี</div>
-                        <div style="display:flex; flex-direction:column; gap:6px;">
-                            <span style="font-size:13px; color:#cbd5e1;">${curYr - 1}</span>
-                            <span style="font-size:18px; font-weight:900; color:#0f172a;">${curYr}</span>
-                            <span style="font-size:13px; color:#cbd5e1;">${curYr + 1}</span>
-                        </div>
+                <!-- Hero Week Display & Stepper -->
+                <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:24px; padding:20px 16px; text-align:center; box-shadow:0 4px 16px rgba(15,23,42,0.04); margin-bottom:14px;">
+                    <div style="font-size:11.5px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">ระยะเวลาการฝึกซ้อม</div>
+                    <div style="font-size:44px; font-weight:900; color:#0284c7; line-height:1.1; margin:6px 0 2px;">
+                        ${weeks} <span style="font-size:18px; font-weight:800; color:#64748b;">สัปดาห์</span>
                     </div>
-                    <!-- Col 2: เดือน -->
-                    <div style="text-align:center; z-index:2;">
-                        <div style="font-size:12px; font-weight:800; color:#64748b; margin-bottom:8px;">เดือน</div>
-                        <div style="display:flex; flex-direction:column; gap:6px;">
-                            <span style="font-size:13px; color:#cbd5e1;">${curMo === 1 ? 12 : curMo - 1}</span>
-                            <span style="font-size:18px; font-weight:900; color:#0f172a;">${curMo}</span>
-                            <span style="font-size:13px; color:#cbd5e1;">${curMo === 12 ? 1 : curMo + 1}</span>
-                        </div>
-                    </div>
-                    <!-- Col 3: วัน -->
-                    <div style="text-align:center; z-index:2;">
-                        <div style="font-size:12px; font-weight:800; color:#64748b; margin-bottom:8px;">วัน</div>
-                        <div style="display:flex; flex-direction:column; gap:6px;">
-                            <span style="font-size:13px; color:#cbd5e1;">30</span>
-                            <span style="font-size:18px; font-weight:900; color:#0f172a;">${curDay}</span>
-                            <span style="font-size:13px; color:#cbd5e1;">1</span>
-                        </div>
+                    <div style="font-size:12.5px; font-weight:700; color:#0369a1;">(ประมาณ ${estMonths} เดือน)</div>
+                    
+                    <!-- Stepper Buttons for Fine Tuning -->
+                    <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-top:14px;">
+                        <button type="button" class="ob-step-pill" onclick="adjustObWeeks(-1)" style="min-width:96px; padding:8px 16px; border-radius:99px; background:#f1f5f9; border:1px solid #cbd5e1; font-size:13.5px; font-weight:800; color:#334155; cursor:pointer;">− 1 สัปดาห์</button>
+                        <button type="button" class="ob-step-pill" onclick="adjustObWeeks(1)" style="min-width:96px; padding:8px 16px; border-radius:99px; background:#eff6ff; border:1px solid #bfdbfe; color:#0284c7; font-size:13.5px; font-weight:800; cursor:pointer;">+ 1 สัปดาห์</button>
                     </div>
                 </div>
 
-                <!-- Feasibility Card -->
-                <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:18px; padding:14px 16px; box-shadow:0 4px 14px rgba(15,23,42,0.03);">
-                    <div style="font-size:14px; font-weight:800; color:#10b981; margin-bottom:4px;">เป้าหมายแบบง่าย</div>
-                    <div style="font-size:12.5px; color:#475569; font-weight:600;">คุณจะลดน้ำหนัก <b>0.4kg</b> ต่อสัปดาห์ (อัตราส่วนปลอดภัยและยั่งยืน)</div>
+                <!-- Popular Week Selection Cards -->
+                <div style="font-size:12.5px; font-weight:800; color:#475569; margin-bottom:4px;">เลือกระยะเวลายอดนิยม:</div>
+                <div class="wm-week-grid">
+                    <div class="wm-week-card ${weeks === 8 ? 'active' : ''}" onclick="setObWeeks(8)">
+                        <div style="font-size:15px; font-weight:900; color:#0f172a;">8 สัปดาห์</div>
+                        <div style="font-size:11px; font-weight:700; color:#64748b; margin-top:2px;">~ 2 เดือน</div>
+                    </div>
+                    <div class="wm-week-card ${weeks === 12 ? 'active' : ''}" onclick="setObWeeks(12)">
+                        <div style="font-size:15px; font-weight:900; color:#0f172a;">12 สัปดาห์</div>
+                        <div style="font-size:11px; font-weight:700; color:#64748b; margin-top:2px;">~ 3 เดือน</div>
+                    </div>
+                    <div class="wm-week-card ${weeks === 16 ? 'active' : ''}" onclick="setObWeeks(16)">
+                        <div style="font-size:15px; font-weight:900; color:#0f172a;">16 สัปดาห์</div>
+                        <div style="font-size:11px; font-weight:700; color:#64748b; margin-top:2px;">~ 4 เดือน</div>
+                    </div>
+                    <div class="wm-week-card ${weeks === 20 ? 'active' : ''}" onclick="setObWeeks(20)">
+                        <div style="font-size:15px; font-weight:900; color:#0f172a;">20 สัปดาห์</div>
+                        <div style="font-size:11px; font-weight:800; color:#0284c7; margin-top:2px;">⭐ แนะนำ</div>
+                    </div>
+                    <div class="wm-week-card ${weeks === 24 ? 'active' : ''}" onclick="setObWeeks(24)">
+                        <div style="font-size:15px; font-weight:900; color:#0f172a;">24 สัปดาห์</div>
+                        <div style="font-size:11px; font-weight:700; color:#64748b; margin-top:2px;">~ 6 เดือน</div>
+                    </div>
+                </div>
+
+                <!-- Feasibility & Sports Science Rate Card -->
+                <div style="background:${safetyBadge.bg}; border:1px solid ${safetyBadge.border}; border-radius:18px; padding:13px 16px; margin-top:6px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <span style="font-size:13px; font-weight:800; color:${safetyBadge.color};">${safetyBadge.label}</span>
+                        <span style="font-size:11px; font-weight:700; color:#64748b;">เป้าหมาย: ${estDateTh}</span>
+                    </div>
+                    <div style="font-size:12px; color:#475569; font-weight:600; line-height:1.45;">${safetyBadge.desc}</div>
                 </div>
             </div>
             <div class="wm-ob-footer">
@@ -750,13 +838,21 @@ function renderOnboardingStep() {
     // STEP 6.5: เราคาดการณ์ว่าคุณจะบรรลุเป้าหมาย (Trajectory Curve SVG)
     // -------------------------------------------------------------
     else if (obStep === 6 && obSubStep === 'trajectory') {
+        const weeks = Math.max(4, Number(obState.courseWeeks) || 20);
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() + (weeks * 7));
+        const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+        const estDateTh = `${targetDate.getDate()} ${thaiMonths[targetDate.getMonth()]} ${targetDate.getFullYear() + 543}`;
+        const monthShort = thaiMonths[targetDate.getMonth()];
+        const dayNum = targetDate.getDate();
+
         body.innerHTML = `
         <div class="wm-ob-wrap">
             ${headerHtml}
             <div class="wm-ob-body">
                 <div style="font-size:14px; font-weight:700; color:#64748b; text-align:center; margin-bottom:4px;">เราคาดการณ์ว่าคุณจะบรรลุเป้าหมาย</div>
-                <h1 style="font-size:26px; font-weight:900; color:#0284c7; text-align:center; margin:0 0 20px; letter-spacing:-0.5px;">
-                    ${obState.targetWeight.toFixed(1)} kg ภายในวันที่ มี.ค. 31
+                <h1 style="font-size:25px; font-weight:900; color:#0284c7; text-align:center; margin:0 0 20px; letter-spacing:-0.5px;">
+                    ${obState.targetWeight.toFixed(1)} kg ภายใน ${weeks} สัปดาห์
                 </h1>
 
                 <!-- Smooth SVG Trajectory Chart -->
@@ -770,27 +866,27 @@ function renderOnboardingStep() {
                         <circle cx="30" cy="50" r="7" fill="#0284c7" stroke="#ffffff" stroke-width="3"/>
                         <!-- Target Pin Flag Badge -->
                         <g transform="translate(235, 78)">
-                            <rect x="0" y="0" width="50" height="58" rx="20" fill="#ffffff" stroke="#38bdf8" stroke-width="2" filter="drop-shadow(0 4px 8px rgba(2,132,199,0.15))"/>
-                            <text x="25" y="16" font-size="9" font-weight="700" fill="#64748b" text-anchor="middle">มี.ค.</text>
-                            <text x="25" y="32" font-size="14" font-weight="900" fill="#0f172a" text-anchor="middle">31</text>
-                            <circle cx="25" cy="46" r="8" fill="#f97316"/>
-                            <text x="25" y="50" font-size="9" fill="#ffffff" text-anchor="middle">⛳</text>
+                            <rect x="0" y="0" width="54" height="58" rx="18" fill="#ffffff" stroke="#38bdf8" stroke-width="2" filter="drop-shadow(0 4px 8px rgba(2,132,199,0.15))"/>
+                            <text x="27" y="16" font-size="9" font-weight="700" fill="#64748b" text-anchor="middle">${monthShort}</text>
+                            <text x="27" y="32" font-size="14" font-weight="900" fill="#0f172a" text-anchor="middle">${dayNum}</text>
+                            <circle cx="27" cy="46" r="8" fill="#f97316"/>
+                            <text x="27" y="50" font-size="9" fill="#ffffff" text-anchor="middle">⛳</text>
                         </g>
                     </svg>
 
                     <!-- Chart Axis Labels -->
                     <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:#64748b; margin-top:8px; padding:0 8px;">
                         <span>วันนี้<br><b style="color:#0f172a;">${obState.weight.toFixed(1)} kg</b></span>
-                        <span style="text-align:right;">มี.ค. 31<br><b style="color:#0284c7;">${obState.targetWeight.toFixed(1)} kg</b></span>
+                        <span style="text-align:right;">${estDateTh}<br><b style="color:#0284c7;">${obState.targetWeight.toFixed(1)} kg</b></span>
                     </div>
                 </div>
 
                 <!-- Motivation Card -->
-                <div style="margin-top:20px; background:#ffffff; border:1px solid #e2e8f0; border-radius:18px; padding:16px; box-shadow:0 4px 14px rgba(15,23,42,0.03);">
-                    <div style="display:flex; align-items:center; gap:8px; font-size:15px; font-weight:900; color:#0f172a; margin-bottom:4px;">
-                        <span>🎯</span> ยังคงอยู่ในเส้นทาง!
+                <div style="margin-top:18px; background:#ffffff; border:1px solid #e2e8f0; border-radius:18px; padding:15px; box-shadow:0 4px 14px rgba(15,23,42,0.03);">
+                    <div style="display:flex; align-items:center; gap:8px; font-size:14.5px; font-weight:900; color:#0f172a; margin-bottom:4px;">
+                        <span>🎯</span> เส้นทางวิทยาศาสตร์การกีฬา
                     </div>
-                    <div style="font-size:12.5px; color:#64748b; line-height:1.45;">เราจะนำเป้าหมายของคุณมาคำนวณในแผนส่วนบุคคล เพื่อให้คุณลดน้ำหนักได้ตรงตามเป้าหมายแบบไม่โทรม</div>
+                    <div style="font-size:12.5px; color:#64748b; line-height:1.45;">เรานำจำนวนสัปดาห์ (${weeks} สัปดาห์) ไปคำนวณอัตรา Deficit และสัดส่วนโปรตีนเพื่อคุ้มกันมวลกล้ามเนื้อให้คุณโดยเฉพาะ</div>
                 </div>
             </div>
             <div class="wm-ob-footer">
@@ -800,45 +896,69 @@ function renderOnboardingStep() {
     }
 
     // -------------------------------------------------------------
-    // STEP 7: ระดับกิจกรรมของคุณเป็นอย่างไร? (Activity 4-Dot Slider)
+    // STEP 7: ระดับกิจกรรมของคุณเป็นอย่างไร? (4 Large Touch Cards)
     // -------------------------------------------------------------
     else if (obStep === 7) {
-        const actLevels = {
-            1: { title: 'ไม่มีความเคลื่อนไหว', sub: 'ฉันรู้สึกหอบง่ายเมื่อเดินขึ้นบันได (นั่งทำงานเป็นหลัก)', icon: '🧘', color: '#64748b' },
-            2: { title: 'เคลื่อนไหวเบาๆ', sub: 'เดินทำงานบ้าน หรือเดินระหว่างวันบ้าง 3,000-5,000 ก้าว', icon: '🚶', color: '#0284c7' },
-            3: { title: 'เคลื่อนไหวปานกลาง', sub: 'ออกกำลังกายสม่ำเสมอ 3-4 วันต่อสัปดาห์ หรือเดิน 8,000 ก้าว', icon: '🏃', color: '#10b981' },
-            4: { title: 'เคลื่อนไหวมาก', sub: 'ทำงานใช้แรงหนัก หรือฝึกซ้อมกีฬาเข้มข้น 5-6 วันต่อสัปดาห์', icon: '⚡', color: '#f97316' }
-        };
-        const curAct = actLevels[obState.activityLevel] || actLevels[1];
+        const actOptions = [
+            {
+                lvl: 1,
+                title: 'นั่งโต๊ะทำงานเป็นหลัก',
+                subTitle: 'Sedentary (ตัวคูณ 1.20)',
+                desc: 'นั่งทำงาน นั่งหน้าคอมฯ ขับรถ เคลื่อนไหวน้อย เดินต่ำกว่า 3,000 ก้าวต่อวัน',
+                icon: '🪑',
+                color: '#64748b'
+            },
+            {
+                lvl: 2,
+                title: 'ขยับร่างกายเบาๆ',
+                subTitle: 'Lightly Active (ตัวคูณ 1.35)',
+                desc: 'เดินตรวจเวร ยืนบ่อย ทำงานบ้าน ก้าวเดินระหว่างวัน 4,000 - 6,000 ก้าว',
+                icon: '🚶',
+                color: '#0284c7'
+            },
+            {
+                lvl: 3,
+                title: 'เคลื่อนไหวปานกลาง',
+                subTitle: 'Moderately Active (ตัวคูณ 1.50) ⭐ แนะนำ',
+                desc: 'ออกกำลังกายสม่ำเสมอ 3-4 วันต่อสัปดาห์ หรือเดินมากกว่า 8,000 ก้าวต่อวัน',
+                icon: '🏃',
+                color: '#10b981'
+            },
+            {
+                lvl: 4,
+                title: 'เคลื่อนไหวมาก / ลุยเวร',
+                subTitle: 'Very Active (ตัวคูณ 1.65)',
+                desc: 'ทำงานใช้แรงหนัก ซ้อมกีฬาเข้มข้น 5-6 วันต่อสัปดาห์ หรือเข้าเวรลุยภาคสนามต่อเนื่อง',
+                icon: '⚡',
+                color: '#f97316'
+            }
+        ];
 
         body.innerHTML = `
         <div class="wm-ob-wrap">
             ${headerHtml}
             <div class="wm-ob-body">
                 <h1 class="wm-ob-title">ระดับกิจกรรมของคุณเป็นอย่างไร?</h1>
-                <p class="wm-ob-subtitle">อัตราการขยับร่างกายจะช่วยกำหนดค่า TDEE และปริมาณอาหารที่เหมาะสม</p>
+                <p class="wm-ob-subtitle">อัตราการขยับร่างกายจะช่วยกำหนดค่า TDEE และปริมาณพลังงานที่เหมาะสมอย่างแม่นยำ</p>
 
-                <div class="wm-activity-card">
-                    <div class="wm-activity-illustration">
-                        <div style="width:110px; height:110px; border-radius:50%; background:#eff6ff; display:flex; align-items:center; justify-content:center; font-size:54px; box-shadow:0 8px 24px rgba(2,132,199,0.12);">
-                            ${curAct.icon}
-                        </div>
-                    </div>
-                    <div style="display:flex; align-items:center; justify-content:center; gap:6px; font-size:18px; font-weight:900; color:#0f172a; margin-bottom:6px;">
-                        <span>📶</span> ${curAct.title}
-                    </div>
-                    <div style="font-size:12.5px; color:#64748b; font-weight:600; line-height:1.45;">${curAct.sub}</div>
-
-                    <!-- 4-Dot Activity Slider -->
-                    <div style="margin-top:24px; padding:0 10px;">
-                        <input type="range" min="1" max="4" step="1" value="${obState.activityLevel}" oninput="onObActivitySelect(this.value)" style="width:100%; accent-color:#0284c7; cursor:pointer;">
-                        <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:800; color:#94a3b8; margin-top:6px;">
-                            <span>น้อย</span>
-                            <span>เบาๆ</span>
-                            <span>ปานกลาง</span>
-                            <span>สูงมาก</span>
-                        </div>
-                    </div>
+                <div class="wm-act-touch-list">
+                    ${actOptions.map(opt => {
+                        const isAct = obState.activityLevel === opt.lvl;
+                        return `
+                        <div class="wm-act-touch-card ${isAct ? 'active' : ''}" onclick="selectObActivity(${opt.lvl})">
+                            <div style="width:48px; height:48px; border-radius:14px; background:${isAct ? '#eff6ff' : '#f8fafc'}; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; border:1px solid ${isAct ? '#bfdbfe' : '#e2e8f0'};">
+                                ${opt.icon}
+                            </div>
+                            <div style="flex:1;">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <div style="font-size:15px; font-weight:900; color:#0f172a;">${opt.title}</div>
+                                    ${isAct ? '<span style="font-size:16px; color:#0284c7; font-weight:900;">✓</span>' : ''}
+                                </div>
+                                <div style="font-size:11.5px; font-weight:800; color:${opt.color}; margin-top:1px;">${opt.subTitle}</div>
+                                <div style="font-size:11.5px; color:#64748b; font-weight:600; margin-top:3px; line-height:1.4;">${opt.desc}</div>
+                            </div>
+                        </div>`;
+                    }).join('')}
                 </div>
             </div>
             <div class="wm-ob-footer">
@@ -848,25 +968,99 @@ function renderOnboardingStep() {
     }
 
     // -------------------------------------------------------------
-    // STEP 8: คุณรู้ความสัมพันธ์ระหว่างแคลอรี่และน้ำหนักตัวหรือไม่? (Quiz)
+    // STEP 8: ยุทธศาสตร์สรีรวิทยา & สรุป Macro สารอาหารเป้าหมาย
     // -------------------------------------------------------------
     else if (obStep === 8 && obSubStep !== 'completion') {
+        const plan = computeOnboardingPlan();
+        const goals = [
+            {
+                id: 'recomp',
+                title: '⚡ ลดไขมันรักษากล้ามเนื้อ (Body Recomp)',
+                badge: '⭐ แนะนำทางสรีรวิทยา',
+                badgeColor: '#0284c7',
+                badgeBg: '#eff6ff',
+                desc: 'ตัดแคลอรี่ปานกลาง (-300 kcal), โปรตีนสูง 2.0g/kg สลายไขมันสะสมโดยคงมวลกล้ามเนื้อเดิมและคุ้มกันระบบเผาผลาญ'
+            },
+            {
+                id: 'fatloss',
+                title: '🔥 เน้นลดไขมัน/น้ำหนักเร็ว (Fat Loss Cut)',
+                badge: 'Deficit -500 kcal',
+                badgeColor: '#ea580c',
+                badgeBg: '#fff7ed',
+                desc: 'เร่งดึงไขมันช่องท้องและไขมันสะสมมาใช้เป็นพลังงานหลัก เหมาะกับผู้ที่ต้องการลดสัดส่วนอย่างรวดเร็ว'
+            },
+            {
+                id: 'slowcut',
+                title: '🍃 ลดไขมันช้าๆ สบายๆ ยั่งยืน (Slow Cut)',
+                badge: 'Deficit -200 kcal',
+                badgeColor: '#16a34a',
+                badgeBg: '#f0fdf4',
+                desc: 'ตัดแคลอรี่เพียงเล็กน้อย ไม่เพลีย ไม่กระทบกับสมาธิการทำงานหรือการเข้าเวร เหมาะกับการควบคุมระยะยาว'
+            },
+            {
+                id: 'bulk',
+                title: '💪 เพิ่มกล้ามเนื้อลีน (Lean Bulk)',
+                badge: 'Surplus +250 kcal',
+                badgeColor: '#9333ea',
+                badgeBg: '#faf5ff',
+                desc: 'เพิ่มพลังงานเกินเล็กน้อยเพื่อเสริมสร้างมวลกล้ามเนื้อและความแข็งแรง โดยสะสมไขมันส่วนเกินให้น้อยที่สุด'
+            }
+        ];
+
         body.innerHTML = `
         <div class="wm-ob-wrap">
             ${headerHtml}
             <div class="wm-ob-body">
-                <h1 class="wm-ob-title">คุณรู้ความสัมพันธ์ระหว่างแคลอรี่และน้ำหนักตัวหรือไม่?</h1>
-                <p class="wm-ob-subtitle">ความเข้าใจเรื่องพลังงานเป็นหัวใจหลักในการลดน้ำหนักให้ประสบความสำเร็จ</p>
+                <h1 class="wm-ob-title">เป้าหมายเชิงสรีรวิทยาของคุณคืออะไร?</h1>
+                <p class="wm-ob-subtitle">ระบบวิทยาศาสตร์การกีฬาจะปรับสัดส่วน Macro และ Calorie Deficit ให้สอดคล้องกับเป้าหมายคุณ</p>
 
-                <!-- 3 Choice Cards -->
-                <div class="wm-quiz-card ${obState.quizAnswer === 1 ? 'selected' : ''}" onclick="onObQuizSelect(1)">
-                    รู้ ปริมาณแคลอรีที่กินมีผลต่อน้ำหนักตัว
+                <!-- Goal Selection Cards -->
+                <div>
+                    ${goals.map(g => {
+                        const isSel = (obState.goalType || 'recomp') === g.id;
+                        return `
+                        <div class="wm-goal-touch-card ${isSel ? 'active' : ''}" onclick="selectObGoalType('${g.id}')">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                <div style="font-size:14.5px; font-weight:900; color:#0f172a;">${g.title}</div>
+                                <span style="font-size:10.5px; font-weight:800; color:${g.badgeColor}; background:${g.badgeBg}; padding:2px 8px; border-radius:99px;">${g.badge}</span>
+                            </div>
+                            <div style="font-size:11.5px; color:#64748b; font-weight:600; line-height:1.45;">${g.desc}</div>
+                        </div>`;
+                    }).join('')}
                 </div>
-                <div class="wm-quiz-card ${obState.quizAnswer === 2 ? 'selected' : ''}" onclick="onObQuizSelect(2)">
-                    รู้บ้าง แคลอรีมีผลต่อน้ำหนัก
-                </div>
-                <div class="wm-quiz-card ${obState.quizAnswer === 3 ? 'selected' : ''}" onclick="onObQuizSelect(3)">
-                    ไม่รู้ ฉันไม่แน่ใจว่าแคลอรีมีผลต่อน้ำหนักอย่างไร
+
+                <!-- Interactive Live Macro Breakdown Card on the same page -->
+                <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:20px; padding:15px; margin-top:14px; box-shadow:0 4px 14px rgba(15,23,42,0.03);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <div style="font-size:13px; font-weight:900; color:#0f172a;">📊 สัดส่วนสารอาหารเป้าหมาย (Macros Target)</div>
+                        <span style="font-size:11px; font-weight:800; color:#0284c7; background:#eff6ff; padding:2px 8px; border-radius:99px; border:1px solid #bfdbfe;">TDEE: ${plan.tdee.toLocaleString()} kcal</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <!-- Box 1: Calorie Budget -->
+                        <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px; padding:10px 12px;">
+                            <div style="font-size:11px; font-weight:800; color:#0369a1;">งบพลังงานต่อวัน</div>
+                            <div style="font-size:18px; font-weight:900; color:#0284c7; margin-top:2px;">${plan.calTarget.toLocaleString()} <span style="font-size:11px; font-weight:700;">kcal</span></div>
+                            <div style="font-size:10.5px; color:#64748b; font-weight:600; margin-top:2px;">${plan.deficit > 0 ? 'Deficit -' + plan.deficit : (plan.deficit < 0 ? 'Surplus +' + Math.abs(plan.deficit) : 'สมดุล')} kcal/วัน</div>
+                        </div>
+                        <!-- Box 2: Protein -->
+                        <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:10px 12px;">
+                            <div style="font-size:11px; font-weight:800; color:#047857;">โปรตีนเป้าหมาย</div>
+                            <div style="font-size:18px; font-weight:900; color:#059669; margin-top:2px;">${plan.proTarget} <span style="font-size:11px; font-weight:700;">กรัม</span></div>
+                            <div style="font-size:10.5px; color:#64748b; font-weight:600; margin-top:2px;">(${plan.proMultiplier}g ต่อน้ำหนักตัว 1 kg)</div>
+                        </div>
+                        <!-- Box 3: Carbs -->
+                        <div style="background:#fefce8; border:1px solid #fef08a; border-radius:12px; padding:10px 12px;">
+                            <div style="font-size:11px; font-weight:800; color:#854d0e;">คาร์โบไฮเดรต</div>
+                            <div style="font-size:18px; font-weight:900; color:#ca8a04; margin-top:2px;">${plan.carbsTarget} <span style="font-size:11px; font-weight:700;">กรัม</span></div>
+                            <div style="font-size:10.5px; color:#64748b; font-weight:600; margin-top:2px;">(พลังงานสำหรับการฝึกซ้อม)</div>
+                        </div>
+                        <!-- Box 4: Fat & Water -->
+                        <div style="background:#fff1f2; border:1px solid #fecdd3; border-radius:12px; padding:10px 12px;">
+                            <div style="font-size:11px; font-weight:800; color:#9f1239;">ไขมันดี & น้ำดื่ม</div>
+                            <div style="font-size:18px; font-weight:900; color:#e11d48; margin-top:2px;">${plan.fatTarget}g <span style="font-size:11px; font-weight:700; color:#0284c7;">/ ${(plan.waterTarget / 1000).toFixed(1)}L</span></div>
+                            <div style="font-size:10.5px; color:#64748b; font-weight:600; margin-top:2px;">(ฮอร์โมน & ระบบไหลเวียน)</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="wm-ob-footer">
@@ -876,9 +1070,12 @@ function renderOnboardingStep() {
     }
 
     // -------------------------------------------------------------
-    // STEP 8.5: ลดพลังงาน 500 kcal ต่อวันอย่างง่ายดาย (Motivation & Activation)
+    // STEP 8.5: สรุปภาพรวมโปรแกรมส่วนบุคคล (Final Summary & Launch)
     // -------------------------------------------------------------
     else if (obStep === 8 && obSubStep === 'completion') {
+        const plan = computeOnboardingPlan();
+        const weeks = Math.max(4, Number(obState.courseWeeks) || 20);
+
         body.innerHTML = `
         <div class="wm-ob-wrap">
             <div class="wm-ob-topbar">
@@ -889,63 +1086,64 @@ function renderOnboardingStep() {
                 <div class="wm-ob-step-num">8 / 8</div>
             </div>
             <div class="wm-ob-body">
-                <h1 class="wm-ob-title" style="text-align:center; font-size:23px;">ลดพลังงาน <b>500 kcal</b><br>ต่อวันอย่างง่ายดาย</h1>
+                <div style="text-align:center; margin-bottom:12px;">
+                    <div style="display:inline-block; font-size:11px; font-weight:800; color:#0284c7; background:#eff6ff; padding:3px 12px; border-radius:99px; border:1px solid #bae6fd; margin-bottom:6px;">🚀 แผนฝึกพร้อมใช้งาน</div>
+                    <h1 class="wm-ob-title" style="margin:0 0 6px; font-size:23px;">สรุปโปรแกรมส่วนบุคคล FitCoach</h1>
+                    <p style="font-size:12.5px; color:#64748b; margin:0;">แผนโภชนาการและการฝึกซ้อมได้รับการปรับแต่งตามหลักวิทยาศาสตร์การกีฬาเรียบร้อยแล้ว</p>
+                </div>
 
-                <!-- 2-Column: 4 Equivalent Cards (Left) vs 500 kcal Blue Sphere (Right) -->
-                <div style="display:grid; grid-template-columns:1fr 120px; gap:12px; align-items:center; margin:16px 0 20px;">
-                    <!-- Left: 4 Items -->
-                    <div style="display:flex; flex-direction:column; gap:8px;">
-                        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:8px 12px; display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:700; color:#0f172a;">
-                            <span style="font-size:16px;">🏊</span> ว่ายน้ำ <b style="color:#0284c7;">83 นาที</b>
+                <!-- Hero Plan Card -->
+                <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:24px; padding:18px 16px; box-shadow:0 6px 20px rgba(15,23,42,0.04); margin-bottom:14px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:12px; margin-bottom:12px;">
+                        <div>
+                            <div style="font-size:11.5px; font-weight:800; color:#64748b;">เป้าหมายน้ำหนักตัว</div>
+                            <div style="font-size:19px; font-weight:900; color:#0f172a; margin-top:2px;">
+                                ${obState.weight.toFixed(1)} ➔ <span style="color:#0284c7;">${obState.targetWeight.toFixed(1)} kg</span>
+                            </div>
                         </div>
-                        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:8px 12px; display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:700; color:#0f172a;">
-                            <span style="font-size:16px;">🏃</span> วิ่ง <b style="color:#f97316;">69 นาที</b>
-                        </div>
-                        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:8px 12px; display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:700; color:#0f172a;">
-                            <span style="font-size:16px;">🍰</span> เค้ก <b style="color:#ec4899;">1 ชิ้น</b>
-                        </div>
-                        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:8px 12px; display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:700; color:#0f172a;">
-                            <span style="font-size:16px;">🍗</span> ไก่ทอด <b style="color:#eab308;">3 ชิ้น</b>
+                        <div style="text-align:right;">
+                            <div style="font-size:11.5px; font-weight:800; color:#64748b;">ระยะเวลาโปรแกรม</div>
+                            <div style="font-size:19px; font-weight:900; color:#0f172a; margin-top:2px;">
+                                ${weeks} <span style="font-size:13px; font-weight:700; color:#64748b;">สัปดาห์</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Right: Large Blue Sphere -->
-                    <div style="width:120px; height:120px; border-radius:50%; background:linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; color:#ffffff; box-shadow:0 10px 24px rgba(2,132,199,0.3);">
-                        <div style="font-size:24px; font-weight:900; line-height:1;">500</div>
-                        <div style="font-size:12px; font-weight:800; opacity:0.9;">kcal</div>
-                        <div style="font-size:14px; font-weight:900; opacity:0.8; margin-top:2px;">≈</div>
+                    <!-- Macro Target Grid -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <div style="background:#f0f9ff; padding:8px 10px; border-radius:12px; border:1px solid #bae6fd;">
+                            <span style="color:#0369a1; font-weight:800; font-size:11px;">งบพลังงาน</span><br>
+                            <b style="font-size:16px; color:#0284c7;">${plan.calTarget.toLocaleString()} kcal</b>
+                        </div>
+                        <div style="background:#ecfdf5; padding:8px 10px; border-radius:12px; border:1px solid #a7f3d0;">
+                            <span style="color:#047857; font-weight:800; font-size:11px;">โปรตีนเป้าหมาย</span><br>
+                            <b style="font-size:16px; color:#059669;">${plan.proTarget} กรัม</b>
+                        </div>
+                        <div style="background:#fefce8; padding:8px 10px; border-radius:12px; border:1px solid #fef08a;">
+                            <span style="color:#854d0e; font-weight:800; font-size:11px;">คาร์โบไฮเดรต</span><br>
+                            <b style="font-size:16px; color:#ca8a04;">${plan.carbsTarget} กรัม</b>
+                        </div>
+                        <div style="background:#fff1f2; padding:8px 10px; border-radius:12px; border:1px solid #fecdd3;">
+                            <span style="color:#9f1239; font-weight:800; font-size:11px;">ไขมันดี & น้ำ</span><br>
+                            <b style="font-size:16px; color:#e11d48;">${plan.fatTarget}g / ${(plan.waterTarget / 1000).toFixed(1)}L</b>
+                        </div>
                     </div>
                 </div>
 
-                <p style="text-align:center; font-size:12.5px; color:#64748b; line-height:1.45; margin:0 0 16px;">
-                    FitCoach ช่วยลดปริมาณแคลอรีที่กินต่อวันของผู้ใช้ลงเฉลี่ย 500 kcal อย่างปลอดภัย โดยไม่ต้องอดอาหาร
-                </p>
-
-                <!-- Plan Targets Summary Card -->
-                <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:18px; padding:14px; box-shadow:0 4px 14px rgba(15,23,42,0.03);">
-                    <div style="font-size:13px; font-weight:900; color:#0f172a; margin-bottom:8px;">🎯 แผนโภชนาการส่วนบุคคลของคุณ</div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:12px;">
-                        <div style="background:#f0f9ff; padding:8px 10px; border-radius:10px; border:1px solid #bae6fd;">
-                            <span style="color:#0369a1; font-weight:700;">งบพลังงาน</span><br>
-                            <b style="font-size:15px; color:#0284c7;">${plan.calTarget.toLocaleString()} kcal</b>
-                        </div>
-                        <div style="background:#ecfdf5; padding:8px 10px; border-radius:10px; border:1px solid #a7f3d0;">
-                            <span style="color:#047857; font-weight:700;">โปรตีนเป้าหมาย</span><br>
-                            <b style="font-size:15px; color:#059669;">${plan.proTarget} กรัม</b>
-                        </div>
-                        <div style="background:#fefce8; padding:8px 10px; border-radius:10px; border:1px solid #fef08a;">
-                            <span style="color:#854d0e; font-weight:700;">คาร์โบไฮเดรต</span><br>
-                            <b style="font-size:15px; color:#ca8a04;">${plan.carbsTarget} กรัม</b>
-                        </div>
-                        <div style="background:#fff1f2; padding:8px 10px; border-radius:10px; border:1px solid #fecdd3;">
-                            <span style="color:#9f1239; font-weight:700;">ไขมันดี</span><br>
-                            <b style="font-size:15px; color:#e11d48;">${plan.fatTarget} กรัม</b>
-                        </div>
+                <!-- Medical Shields & Clinical Protection -->
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:18px; padding:14px 16px;">
+                    <div style="font-size:12.5px; font-weight:900; color:#0f172a; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                        <span>🩺</span> ระบบคุ้มกันทางการแพทย์เฉพาะบุคคล
                     </div>
+                    <ul style="margin:0; padding-left:16px; font-size:11.5px; color:#475569; line-height:1.6; display:flex; flex-direction:column; gap:4px;">
+                        <li><b>McGill Lower Back Shield:</b> ปรับท่าเวทเทรนนิ่งเพื่อปกป้องกระดูกสันหลังและข้อต่อ</li>
+                        <li><b>Metabolic Protection:</b> อัตรา Deficit ค่อยเป็นค่อยไปเพื่อลดไขมันเกาะตับโดยไม่โทรม</li>
+                        <li><b>Shift-Duty Aware:</b> รองรับโหมดเข้าเวรและวันที่พักฟื้นน้อยเพื่อป้องกันการสูญเสียกล้ามเนื้อ</li>
+                    </ul>
                 </div>
             </div>
             <div class="wm-ob-footer">
-                <button type="button" class="wm-ob-continue-btn" onclick="applyOnboardingPlanToApp()">เริ่มต้นใช้งานแผนส่วนบุคคลของคุณ ➔</button>
+                <button type="button" class="wm-ob-continue-btn" onclick="applyOnboardingPlanToApp()">บันทึกและเริ่มโปรแกรมส่วนบุคคล 🚀</button>
             </div>
         </div>`;
     }

@@ -8,7 +8,9 @@ function saveScannedToFavorites(portion) {
     const fat = Math.round(Number(document.getElementById('aiFat')?.value) || 0);
     const sugar = Math.round(Number(document.getElementById('aiSugar')?.value) || 0);
     const sodium = Math.round(Number(document.getElementById('aiSodium')?.value) || 0);
+    const fiber = Math.round((Number(document.getElementById('aiFiber')?.value) || 0) * 10) / 10;
     const pStr = portion || '1 หน่วยบริโภค';
+    const base = window._aiScanBase || {};
 
     if (!D.cfg.savedFoods) D.cfg.savedFoods = [];
     const existingIdx = D.cfg.savedFoods.findIndex(f => f.name.toLowerCase() === name.toLowerCase());
@@ -22,6 +24,12 @@ function saveScannedToFavorites(portion) {
         fat: fat,
         sugar: sugar,
         sodium: sodium,
+        fiber: fiber || base.fiber || 0,
+        nutriGrade: base.nutriGrade || 'B',
+        healthScore: base.healthScore || 7,
+        satietyScore: base.satietyScore || 7,
+        coachTip: base.coachTip || '',
+        ingredients: base.ingredients || [],
         cat: (pro >= 20 || name.includes('โปรตีน') || name.includes('เวย์')) ? 'protein' : 'fav',
         updatedAt: Date.now()
     };
@@ -41,7 +49,7 @@ function saveScannedToFavorites(portion) {
         btn.style.color = '#10b981';
         btn.onclick = null;
     }
-    msg('✓ บันทึก "' + name + '" ลงคลังเมนูโปรด & ซิงก์คลาวด์แล้ว');
+    msg('⭐ บันทึก "' + name + '" (เกรด ' + (newFav.nutriGrade || 'A') + ') ลงคลังเมนูโปรด & ซิงก์คลาวด์แล้ว');
 }
 
 async function addNewCustomFavoriteFood() {
@@ -90,7 +98,15 @@ function quickLogSavedFood(id) {
     const food = (D.cfg.savedFoods || []).find(f => f.id === id);
     if (!food) return;
     const mType = document.getElementById('modalMealTypeSelect')?.value || 'lunch';
-    addMealToToday(mType, food.name, food.portion, food.cal, food.pro, food.carbs, food.fat, food.sugar || 0, food.sodium || 0);
+    const extraMeta = {
+        fiber: food.fiber || 0,
+        nutriGrade: food.nutriGrade,
+        healthScore: food.healthScore,
+        satietyScore: food.satietyScore,
+        coachTip: food.coachTip,
+        ingredients: food.ingredients
+    };
+    addMealToToday(mType, food.name, food.portion, food.cal, food.pro, food.carbs, food.fat, food.sugar || 0, food.sodium || 0, extraMeta);
     fcClose();
     msg('✓ บันทึก "' + food.name + '" ลงในมื้อแล้ว');
 }

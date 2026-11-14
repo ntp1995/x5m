@@ -513,7 +513,15 @@ function quickLogFavoriteMeal(favId) {
     else if (nowH < 17.5) mType = 'snack';
     else mType = 'dinner';
 
-    addMealToToday(mType, fav.name, fav.portion, fav.cal, fav.pro, fav.carbs, fav.fat, fav.sugar || 0, fav.sodium || 0);
+    const extraMeta = {
+        fiber: fav.fiber || 0,
+        nutriGrade: fav.nutriGrade,
+        healthScore: fav.healthScore,
+        satietyScore: fav.satietyScore,
+        coachTip: fav.coachTip,
+        ingredients: fav.ingredients
+    };
+    addMealToToday(mType, fav.name, fav.portion, fav.cal, fav.pro, fav.carbs, fav.fat, fav.sugar || 0, fav.sodium || 0, extraMeta);
     msg('⭐ บันทึก "' + fav.name + '" ลงในมื้อ' + (MEAL_LABELS[mType] || '') + ' เรียบร้อย (+ ' + fav.cal + ' kcal)');
 }
 

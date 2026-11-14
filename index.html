@@ -308,6 +308,18 @@
                     </div>
                 </div>
 
+                <!-- Card 2.5: Anti-Plateau & Dynamic TDEE Protocol Card (skill.md) -->
+                <div class="wm-body-card wm-insight-card" style="background:#eff6ff; border-color:#bfdbfe; cursor:pointer;" onclick="openAntiPlateauModal()">
+                    <div class="wm-insight-content">
+                        <div class="wm-insight-title" style="color:#0369a1;">🛡️ แผนป้องกันโยโย่ & Dynamic TDEE 4 รูปแบบวัน</div>
+                        <div style="font-size:11px; color:#475569; margin-top:2px; margin-bottom:8px;">คำนวณพลังงานผันแปรตามวันพัก/เวท/คาร์ดิโอ พร้อมตรวจจับน้ำหนักค้าง</div>
+                        <button type="button" class="wm-insight-btn" style="background:#0284c7; color:#fff;" onclick="openAntiPlateauModal()">ดูตาราง & วินิจฉัย</button>
+                    </div>
+                    <div class="wm-insight-visual" style="font-size:36px; display:flex; align-items:center; justify-content:center;">
+                        📊
+                    </div>
+                </div>
+
                 <!-- Card 3: Interactive Weight Trend Card -->
                 <div class="wm-body-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1186,6 +1198,71 @@
             </button>
         </div>
     </div>
+
+    <!-- ================= BOTTOM SHEET: ANTI-PLATEAU & DYNAMIC TDEE MODAL (skill.md) ================= -->
+    <div id="antiPlateauModal" class="wm-if-sheet-backdrop" style="display:none;" onclick="if(event.target===this)closeAntiPlateauModal()">
+        <div class="wm-if-sheet" style="max-height:88vh; overflow-y:auto;">
+            <div class="wm-if-sheet-bar"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <div>
+                    <h3 style="margin:0; font-size:17.5px; font-weight:900; color:var(--tx); display:flex; align-items:center; gap:6px;">
+                        <span>🛡️</span> Anti-Plateau & Dynamic TDEE
+                    </h3>
+                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">พลังงานผันแปรตามกิจกรรม 4 รูปแบบ & ป้องกันน้ำหนักค้าง</div>
+                </div>
+                <button type="button" class="wm-if-sheet-close" onclick="closeAntiPlateauModal()" title="ปิด">✕</button>
+            </div>
+
+            <div id="antiPlateauContentBox"></div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px;">
+                <button type="button" class="btn sm" onclick="calcBMR(); closeAntiPlateauModal();" style="border-radius:99px; padding:10px; font-weight:800; border:1px solid #cbd5e1; background:#f8fafc; color:#334155; cursor:pointer;">
+                    🧮 ปรับสัดส่วน BMR
+                </button>
+                <button type="button" class="wm-primary-green-btn" onclick="closeAntiPlateauModal()" style="margin:0; padding:10px;">
+                    ✓ รับทราบ / เข้าใจแล้ว
+                </button>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- ================= FULL-SCREEN AI SCANNING & LASER ANIMATION OVERLAY (v3.5.0) ================= -->
+    <div id="fcAiScanLoadingOverlay" class="fc-ai-scan-overlay" style="display:none;">
+        <div class="fc-ai-scan-card">
+            <div style="font-size:12px; font-weight:800; color:#34d399; letter-spacing:1px; margin-bottom:8px;">
+                ⚡ GEMINI AI VISION SCANNER
+            </div>
+            
+            <!-- Scanning Thumbnail with Holographic Laser Line -->
+            <div class="fc-ai-scan-thumb-wrap">
+                <img id="fcAiScanThumbImg" class="fc-ai-scan-thumb-img" src="icon.svg" alt="Food Scan">
+                <div class="fc-ai-laser-line"></div>
+            </div>
+
+            <!-- Percentage Display -->
+            <div style="display:flex; justify-content:center; align-items:baseline; gap:4px;">
+                <span id="fcAiScanPct" style="font-size:44px; font-weight:900; color:#00c070; font-family:monospace; line-height:1;">0</span>
+                <span style="font-size:20px; font-weight:800; color:#00c070;">%</span>
+            </div>
+
+            <!-- Progress Track -->
+            <div class="fc-ai-progress-track">
+                <div id="fcAiScanProgressBar" class="fc-ai-progress-fill" style="width:0%;"></div>
+            </div>
+
+            <!-- Dynamic Status Step Text -->
+            <div id="fcAiScanStatusText" style="font-size:13.5px; font-weight:700; color:#f1f5f9; min-height:22px; margin-top:8px;">
+                📸 กำลังจัดเตรียมภาพถ่ายและรายละเอียด...
+            </div>
+            <div style="font-size:11.5px; color:#94a3b8; margin-top:6px;">
+                คำนวณสารอาหารลึกถึงกรัม + ประเมินสมดุลตับอัตโนมัติ
+            </div>
+        </div>
+    </div>
+
+    <!-- Celebration Full-Screen Confetti Canvas -->
+    <canvas id="fcConfettiCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:99999; display:none;"></canvas>
 
     <!-- FitCoach v3.4 Modular JavaScript Architecture -->
     <script src="src/core/modals.js?v=3.4.0"></script>
