@@ -605,7 +605,8 @@ function render() {
         const offs = (D && D.schOffs) || 0;
         const actualD = getThaiDayOfWeek();
         const dow = (actualD - offs + 7) % 7;
-        const tk = (typeof SCHED !== 'undefined' && SCHED[dow]) ? SCHED[dow] : 'A';
+        const activeSched = (typeof getActiveSchedule === 'function') ? getActiveSchedule() : (typeof SCHED !== 'undefined' ? SCHED : null);
+        const tk = (activeSched && activeSched[dow]) ? activeSched[dow] : 'A';
         const curWkObj = (typeof W !== 'undefined' && W[tk]) ? W[tk] : null;
         const curWkName = curWkObj ? curWkObj.n : 'วันพักผ่อน';
 
@@ -852,7 +853,8 @@ function render() {
     const dtDummy = document.getElementById('dailyTracker');
     if (dtDummy) dtDummy.innerHTML = '';
 
-    let offs = D.schOffs || 0; const actualD = getThaiDayOfWeek(); const dow = (actualD - offs + 7) % 7, tk = SCHED[dow], t = W[tk];
+    const activeSched = (typeof getActiveSchedule === 'function') ? getActiveSchedule() : SCHED;
+    let offs = D.schOffs || 0; const actualD = getThaiDayOfWeek(); const dow = (actualD - offs + 7) % 7, tk = activeSched[dow], t = W[tk];
     const morningM = getMorningCardioMinutesToday();
     const morningDone = morningM > 0;
     const done = D.sessions.some(s => s.date === iso() && (s.workout_key !== 'M' || (['Z', 'R'].includes(tk) && (s.duration_sec >= 1800 || morningM >= 30))));
@@ -960,7 +962,7 @@ function render() {
         </div>
     </div>`;
 
-    document.getElementById('weekBox').innerHTML = SCHED.map((k, i) => {
+    document.getElementById('weekBox').innerHTML = activeSched.map((k, i) => {
     let actualDay = (i + (D.schOffs || 0)) % 7;
     return `
     <div class="day ${i === dow ? 'today' : ''}" onclick="showW('${k}');go('prog')">
@@ -984,7 +986,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
       <div class="sub" style="margin-top:6px">${p.d}</div>
       <div class="sub" style="margin-top:8px;color:var(--acc)">⚙ ${p.v}</div>
       <div class="sub"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> เป้าลด ${p.tgt}</div></div>`).join('');
-    document.getElementById('wSel').innerHTML = Object.keys(W).map(k =>
+    document.getElementById('wSel').innerHTML = Object.keys(W).filter(k => !W[k].isExtra).map(k =>
         `<button data-w="${k}" onclick="showW('${k}')">${W[k].ic} ${W[k].n.split(' — ')[0]}</button>`).join('');
 
     document.getElementById('stDone').textContent = D.sessions.length;
@@ -1009,7 +1011,146 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
     if (document.getElementById('aiKeyBackup')) document.getElementById('aiKeyBackup').value = D.cfg.aiKeyBackup || '';
     renderAuthUI();
     document.getElementById('localInfo').textContent = `เช็กอิน ${D.checks.length} วัน • เซสชัน ${D.sessions.length} • เซ็ตที่บันทึก ${D.sets.length}`;
-    charts(); renderCheckHistory(); renderWeightProgressionUI(); renderSupplementsUI(); showW(document.querySelector('#wSel button.on')?.dataset.w || 'A');
+    charts(); renderCheckHistory(); renderWeightProgressionUI(); renderSupplementsUI(); showW(document.querySelector('#wSel button.on')?.dataset.w || 'A'); renderChallengesAndBodyFocus();
+}
+
+let _activeBodyFocusId = 'abs';
+function selectBodyFocus(id) {
+    _activeBodyFocusId = id;
+    renderChallengesAndBodyFocus();
+}
+
+function setWeeklyDaysTarget(days) {
+    const d = parseInt(days, 10);
+    if (![3, 4, 5, 6].includes(d)) return;
+    D.cfg = D.cfg || {};
+    D.cfg.weeklyDays = d;
+    if (D.cfg.bmrInfo) D.cfg.bmrInfo.weeklyDays = d;
+    save();
+    render();
+    if (typeof autoSync === 'function') autoSync();
+    if (typeof msg === 'function') msg(`🗓️ ปรับเป้าหมายเป็น <b>${d} วัน/สัปดาห์</b> และอัปเดตตารางฝึกแล้ว`);
+}
+
+function renderChallengesAndBodyFocus() {
+    const el = document.getElementById('v3ChallengesAndFocus');
+    if (!el || typeof CHALLENGES === 'undefined' || typeof BODY_FOCUS_PROGRAMS === 'undefined') return;
+    const chProgress = (typeof D !== 'undefined' && D.challenges) ? D.challenges : {};
+    const targetDays = typeof getWeeklyDaysTarget === 'function' ? getWeeklyDaysTarget() : 5;
+    const goalProfile = typeof getGoalTrainingProfile === 'function' ? getGoalTrainingProfile() : null;
+
+    // Count unique workout dates in the current week (last 7 days excluding Morning-only 'M' and Rest 'R')
+    const todayD = new Date();
+    const weekDates = new Set();
+    for (let i = 0; i < 7; i++) {
+        const dt = new Date(todayD);
+        dt.setDate(todayD.getDate() - i);
+        weekDates.add(iso(dt));
+    }
+    const doneThisWeekSet = new Set(
+        (D.sessions || [])
+            .filter(s => weekDates.has(s.date) && s.workout_key !== 'M' && s.workout_key !== 'R')
+            .map(s => s.date)
+    );
+    const doneWeekCount = doneThisWeekSet.size;
+    const weekPct = Math.min(100, Math.round((doneWeekCount / targetDays) * 100));
+
+    const weeklyCardHtml = `
+    <div class="card" style="margin-bottom:14px;border-color:rgba(14,165,233,0.35);">
+        <div class="row" style="align-items:center;margin-bottom:6px;">
+            <h2 style="margin:0;font-size:15.5px;">🎯 เป้าหมายรายสัปดาห์ & โปรแกรมตามสรีรวิทยา</h2>
+            <span class="tag" style="font-weight:800;">${doneWeekCount} / ${targetDays} วัน</span>
+        </div>
+        <div style="height:6px;background:rgba(148,163,184,0.2);border-radius:999px;overflow:hidden;margin-bottom:10px;">
+            <div style="height:100%;width:${weekPct}%;background:linear-gradient(90deg,#0284c7,#10b981);border-radius:999px;transition:width 0.3s ease;"></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+            <span class="sub">เลือกจำนวนวันฝึก/สัปดาห์:</span>
+            <div style="display:flex;gap:6px;">
+                ${[3, 4, 5, 6].map(d => {
+                    const isOn = d === targetDays;
+                    return `<button type="button" onclick="setWeeklyDaysTarget(${d})" style="border:1px solid ${isOn ? 'var(--acc)' : 'var(--line)'};background:${isOn ? 'var(--acc)' : 'transparent'};color:${isOn ? '#fff' : 'var(--tx)'};border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;">${d} วัน</button>`;
+                }).join('')}
+            </div>
+        </div>
+        ${goalProfile ? `<div style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);border-radius:10px;padding:9px 11px;font-size:12px;line-height:1.45;">
+            <div style="font-weight:800;color:var(--acc);">${goalProfile.title}</div>
+            <div class="sub" style="margin-top:2px;">⚙️ ${goalProfile.tip}</div>
+        </div>` : ''}
+    </div>`;
+
+    const challengesHtml = CHALLENGES.map(c => {
+        const doneDays = chProgress[c.id] || 0;
+        const isCompleted = doneDays >= c.days;
+        const nextDay = Math.min(doneDays + 1, c.days);
+        const pct = Math.min(100, Math.round((doneDays / c.days) * 100));
+        const btnLabel = isCompleted ? `🏆 ครบ ${c.days} วันแล้ว • ฝึกซ้ำ` : `▶ เริ่มวันที่ ${nextDay} / ${c.days}`;
+        return `
+        <div style="min-width:268px;max-width:285px;flex:0 0 auto;scroll-snap-align:start;border-radius:14px;background:${c.bg};color:#fff;padding:14px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.22);display:flex;flex-direction:column;justify-content:space-between;">
+            <img src="${c.img}" alt="${c.title}" style="position:absolute;right:-8px;bottom:34px;width:88px;height:112px;object-fit:cover;border-radius:10px;opacity:0.26;pointer-events:none;mask-image:linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));-webkit-mask-image:linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));">
+            <div style="position:relative;z-index:1;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px;">
+                    <span style="font-size:11px;font-weight:700;background:rgba(255,255,255,0.22);padding:2px 8px;border-radius:999px;">${c.tag}</span>
+                    <span style="font-size:11px;opacity:0.9;">สำเร็จ ${doneDays}/${c.days} วัน</span>
+                </div>
+                <div style="font-size:16px;font-weight:800;line-height:1.25;margin-bottom:4px;padding-right:42px;">${c.title}</div>
+                <div style="font-size:12px;opacity:0.9;line-height:1.35;margin-bottom:10px;padding-right:36px;">${c.sub}</div>
+                <div style="height:5px;background:rgba(255,255,255,0.22);border-radius:999px;overflow:hidden;margin-bottom:10px;">
+                    <div style="height:100%;width:${pct}%;background:#fff;border-radius:999px;transition:width 0.3s ease;"></div>
+                </div>
+            </div>
+            <button type="button" onclick="startW('${c.wKey}')" style="position:relative;z-index:1;width:100%;border:none;border-radius:999px;background:#fff;color:#0f172a;font-weight:800;font-size:13px;padding:8px 12px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.18);">
+                ${btnLabel}
+            </button>
+        </div>`;
+    }).join('');
+
+    const activeBf = BODY_FOCUS_PROGRAMS.find(b => b.id === _activeBodyFocusId) || BODY_FOCUS_PROGRAMS[0];
+    const bfWorkout = W[activeBf.wKey];
+    const bfItemsHtml = (bfWorkout?.items || []).map(it => {
+        const ex = EX[it.e];
+        if (!ex) return '';
+        const detail = it.type === 'time' ? `${it.sets || 1} × ${it.t} วินาที` : `${it.sets || 1} × ${it.r}`;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12.5px;">
+            <span>${ex.n}</span>
+            <span class="sub" style="font-weight:600;white-space:nowrap;margin-left:8px;">${detail}</span>
+        </div>`;
+    }).join('');
+
+    const bfTabsHtml = BODY_FOCUS_PROGRAMS.map(b => {
+        const isOn = b.id === activeBf.id;
+        return `<button type="button" onclick="selectBodyFocus('${b.id}')" style="flex:0 0 auto;border:1px solid ${isOn ? b.color : 'var(--line)'};background:${isOn ? b.color : 'var(--card)'};color:${isOn ? '#fff' : 'var(--txt)'};border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:700;cursor:pointer;transition:all 0.15s;">${b.label}</button>`;
+    }).join('');
+
+    el.innerHTML = `
+    ${weeklyCardHtml}
+    <div class="card">
+        <div class="row" style="align-items:center;margin-bottom:8px;">
+            <h2 style="margin:0;">🏆 โปรแกรมเสริม & ชาเลนจ์เฉพาะจุด</h2>
+            <span class="tag">ไม่กระทบตารางหลัก</span>
+        </div>
+        <div class="sub" style="margin-bottom:12px;">เลือกเล่นเพิ่มวันพัก/หลังเลิกงาน หรือทำต่อเนื่อง 14-30 วัน โดยนับแคลอรีและอัปเดตแผนที่กล้ามเนื้อให้อัตโนมัติ</div>
+
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">🔥 คำท้าต่อเนื่อง (Challenges)</div>
+        <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory;">
+            ${challengesHtml}
+        </div>
+
+        <div style="font-size:13px;font-weight:700;margin:14px 0 8px;">🎯 เน้นเฉพาะจุดแบบเร่งด่วน (10-15 นาที)</div>
+        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;">
+            ${bfTabsHtml}
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:4px;">
+            <div class="row" style="align-items:center;margin-bottom:6px;">
+                <div>
+                    <div style="font-weight:800;font-size:14.5px;">${activeBf.title}</div>
+                    <div class="sub">${activeBf.sub} • 🔥 ~${bfWorkout?.kcal || 120} kcal</div>
+                </div>
+                <button type="button" class="btn sm" onclick="startW('${activeBf.wKey}')" style="background:${activeBf.color};border-color:${activeBf.color};color:#fff;white-space:nowrap;">▶ เริ่มฝึกเฉพาะจุด</button>
+            </div>
+            <div style="margin-top:8px;">${bfItemsHtml}</div>
+        </div>
+    </div>`;
 }
 
 

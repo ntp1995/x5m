@@ -48,7 +48,8 @@ let obState = {
     exerciseType: 'moderate',
     stepTarget: 8000,
     ifGoal: 16,
-    outdoorMode: false
+    outdoorMode: false,
+    weeklyDays: 5
 };
 
 function initOnboardingDraftFromStore() {
@@ -78,6 +79,7 @@ function initOnboardingDraftFromStore() {
     obState.stepTarget = Number((D && D.cfg && D.cfg.stepTarget) || saved.stepTarget || 8000);
     obState.ifGoal = Number((D && D.if && D.if.goal) || 16);
     obState.outdoorMode = Boolean(D && D.outdoorMode);
+    obState.weeklyDays = Number((D && D.cfg && D.cfg.weeklyDays) || (saved && saved.weeklyDays) || 5);
 }
 
 function openOnboardingWizard(startStep = 1, mode) {
@@ -181,6 +183,13 @@ function selectObGoalType(gType) {
     renderOnboardingStep();
 }
 
+function selectObWeeklyDays(days) {
+    obState.weeklyDays = parseInt(days, 10) || 5;
+    const exMap = { 3: 'light', 4: 'moderate', 5: 'moderate', 6: 'heavy' };
+    obState.exerciseType = exMap[obState.weeklyDays] || 'moderate';
+    renderOnboardingStep();
+}
+
 function onObActivitySelect(lvl) {
     selectObActivity(lvl);
 }
@@ -280,6 +289,7 @@ function applyOnboardingPlanToApp() {
     D.cfg.workType = obState.workType;
     D.cfg.exerciseType = obState.exerciseType;
     D.cfg.stepTarget = obState.stepTarget;
+    D.cfg.weeklyDays = obState.weeklyDays || 5;
 
     D.cfg.bmrInfo = {
         gender: obState.gender,
@@ -292,6 +302,7 @@ function applyOnboardingPlanToApp() {
         workType: obState.workType,
         stepTarget: obState.stepTarget,
         goalType: obState.goalType,
+        weeklyDays: obState.weeklyDays || 5,
         bmr: plan.bmr,
         tdee: plan.tdee,
         courseWeeks: obState.courseWeeks
@@ -959,6 +970,17 @@ function renderOnboardingStep() {
                             </div>
                         </div>`;
                     }).join('')}
+                </div>
+
+                <div style="margin-top:18px; padding:14px; border-radius:16px; background:#f8fafc; border:1px solid #e2e8f0;">
+                    <div style="font-size:13.5px; font-weight:900; color:#0f172a; margin-bottom:4px;">🗓️ เป้าหมายออกกำลังกายกี่วัน/สัปดาห์?</div>
+                    <div style="font-size:11.5px; color:#64748b; margin-bottom:10px;">ระบบจะจัดตารางฝึก 7 วันให้เหมาะกับเป้าหมายของคุณอัตโนมัติ</div>
+                    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px;">
+                        ${[3, 4, 5, 6].map(d => {
+                            const isW = (obState.weeklyDays || 5) === d;
+                            return `<button type="button" onclick="selectObWeeklyDays(${d})" style="padding:10px 6px; border-radius:12px; border:2px solid ${isW ? '#0284c7' : '#cbd5e1'}; background:${isW ? '#eff6ff' : '#fff'}; color:${isW ? '#0284c7' : '#334155'}; font-weight:800; font-size:13px; cursor:pointer;">${d} วัน${d === 5 ? ' ⭐' : ''}</button>`;
+                        }).join('')}
+                    </div>
                 </div>
             </div>
             <div class="wm-ob-footer">

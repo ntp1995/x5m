@@ -213,7 +213,8 @@ async function shiftSchedule(days = 1) {
     }
     const actualD = getThaiDayOfWeek();
     const dow = (actualD - (D.schOffs || 0) + 7) % 7;
-    const targetWk = W[SCHED[dow]];
+    const activeSched = (typeof getActiveSchedule === 'function') ? getActiveSchedule() : SCHED;
+    const targetWk = W[activeSched[dow]];
     msg('✓ เลื่อนชดเชยแล้ว ➜ วันนี้เป็น: <b>' + (targetWk ? targetWk.n : 'ตารางใหม่') + '</b>');
 }
 

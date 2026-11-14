@@ -129,10 +129,29 @@ function toggleOutdoorMode() {
 function fullItems(k) {
     const w = W[k];
     const isOutdoor = !!D.outdoorMode && (['R', 'Z'].includes(k) || w.warm === 'lite');
-    let warm = (isOutdoor ? WARM_OUTDOOR : (w.warm === 'full' ? WARM_FULL : WARM_LITE)).map(x => ({ ...x, ph: 'warm' }));
+    let warm = w.warm === 'none' ? [] : (isOutdoor ? WARM_OUTDOOR : (w.warm === 'full' ? WARM_FULL : WARM_LITE)).map(x => ({ ...x, ph: 'warm' }));
     let items = w.items.map(x => ({ ...x }));
-    let cool = (isOutdoor ? COOL_OUTDOOR : COOL).map(x => ({ ...x, ph: 'cool' }));
+    let cool = w.cool === 'none' ? [] : (isOutdoor ? COOL_OUTDOOR : COOL).map(x => ({ ...x, ph: 'cool' }));
     const morningM = getMorningCardioMinutesToday();
+
+    // Adapt main workout sets/rest/cardio to physiological goal (recomp / cut / slow_cut / lean_bulk)
+    if (!w.isExtra && k !== 'R' && typeof getGoalTrainingProfile === 'function') {
+        const gp = getGoalTrainingProfile();
+        const compoundKeys = ['bench', 'press', 'row', 'goblet', 'rdl', 'thrust', 'bss', 'pushup', 'latrow'];
+        items = items.map(x => {
+            const nx = { ...x };
+            if (nx.type === 'time' && nx.e === 'z2' && gp.cardioSecDelta) {
+                nx.t = Math.max(900, (nx.t || 1800) + gp.cardioSecDelta);
+            }
+            if (nx.sets && nx.rest && gp.restDelta) {
+                nx.rest = Math.max(25, nx.rest + gp.restDelta);
+            }
+            if (gp.compoundExtraSets > 0 && nx.sets && compoundKeys.includes(nx.e)) {
+                nx.sets = Math.min(5, nx.sets + gp.compoundExtraSets);
+            }
+            return nx;
+        });
+    }
 
     if (isOutdoor && k === 'R') {
         // Outdoor Park Walking Active Recovery: 30 minutes continuous walk in the park
@@ -306,7 +325,7 @@ function computeDynamicTDEE(customWeight) {
     const days = {
         rest: makeDayPlan('rest', 'วันพัก (Rest Day)', '🪑', tdeeRest, 'พักฟื้น ฟื้นฟูกล้ามเนื้อและระบบประสาท'),
         weight: makeDayPlan('weight', 'วันเล่นเวท (Weight Day)', '🏋️', tdeeRest + extraWeightKcal, 'โปรแกรม A / B / C เล่นเวท 45-60 นาที (+ ' + extraWeightKcal + ' kcal)'),
-        cardio: makeDayPlan('cardio', 'วันคาร์ดิโอ (Cardio Day)', '🏃', tdeeRest + extraCardioKcal, 'โปรแกรม Z / R / H โซน 2 หรือ HIIT (+ ' + extraCardioKcal + ' kcal)'),
+        cardio: makeDayPlan('cardio', 'วันคาร์ดิโอ (Cardio Day)', '🏃', tdeeRest + extraCardioKcal, 'โปรแกรม Z (Zone 2) หรือ H (HIIT) (+ ' + extraCardioKcal + ' kcal)'),
         both: makeDayPlan('both', 'วันเวท + คาร์ดิโอ', '⚡', tdeeRest + extraBothKcal, 'เล่นเวทพร้อมคาร์ดิโอเบิร์นเข้มข้น (+ ' + extraBothKcal + ' kcal)')
     };
 
@@ -342,7 +361,8 @@ function getTodayEffectiveDayType() {
     const offs = (D && D.schOffs) || 0;
     const actualD = getThaiDayOfWeek();
     const dow = (actualD - offs + 7) % 7;
-    const tk = (typeof SCHED !== 'undefined' && SCHED[dow]) ? SCHED[dow] : 'A';
+    const activeSched = (typeof getActiveSchedule === 'function') ? getActiveSchedule() : (typeof SCHED !== 'undefined' ? SCHED : null);
+    const tk = (activeSched && activeSched[dow]) ? activeSched[dow] : 'A';
 
     const morningDone = Boolean(tc && tc.morningCardioDone);
     const morningM = (tc && tc.morningCardioMin) || 0;
@@ -354,8 +374,8 @@ function getTodayEffectiveDayType() {
         }
         return 'weight';
     }
-    // Z: Cardio Zone 2, R: Active Recovery, H: HIIT -> Cardio Day
-    if (tk === 'Z' || tk === 'R' || tk === 'H') {
+    // Z: Cardio Zone 2, H: HIIT -> Cardio Day (R: Active Recovery counts as Rest Day for accurate fat loss)
+    if (tk === 'Z' || tk === 'H') {
         return 'cardio';
     }
     return 'rest';

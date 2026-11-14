@@ -553,11 +553,21 @@ async function finishW() {
         rpe, back_safe: !!D.bs, pain_after: isNaN(pain) ? null : pain,
         weight_eval: weightEval
     });
+    let challengeNote = '';
+    const chId = W[curK]?.challengeId;
+    if (chId) {
+        D.challenges = D.challenges || {};
+        const chMeta = typeof CHALLENGES !== 'undefined' ? CHALLENGES.find(c => c.id === chId) : null;
+        const maxDays = chMeta ? chMeta.days : 30;
+        const nextVal = Math.min(maxDays, (D.challenges[chId] || 0) + 1);
+        D.challenges[chId] = nextVal;
+        challengeNote = `\n🏆 ชาเลนจ์คืบหน้า: วันที่ ${nextVal}/${maxDays}`;
+    }
     _sid = ''; save(); render(); autoSync();
     beep(660, 150); setTimeout(() => beep(880, 150), 160); setTimeout(() => beep(1320, 300), 320);
     
     const volSummary = totalVol > 0 ? `\n🏋️ ยกสะสมรวม (Volume): ${totalVol.toLocaleString()} กก. (${totalReps} ครั้ง)` : '';
-    await fcAlert('🏆 จบ ' + W[curK].n + '!\n⏱️ ใช้เวลา ' + fmt(dur) + ' • 🔥 ~' + estKcal + ' kcal' + volSummary + '\n\n🥩 ดื่มเวย์/โปรตีน 35-40 g ภายใน 90 นาที');
+    await fcAlert('🏆 จบ ' + W[curK].n + '!\n⏱️ ใช้เวลา ' + fmt(dur) + ' • 🔥 ~' + estKcal + ' kcal' + volSummary + challengeNote + '\n\n🥩 ดื่มเวย์/โปรตีน 35-40 g ภายใน 90 นาที');
 }
 let ac;
 function beep(f, d, type = 'triangle', vol = 0.95) {
@@ -935,6 +945,54 @@ const WORKOUT_MUSCLE_MAPPING = {
         muscles: ['lower_back', 'core', 'glutes_hams'],
         labels: ['🛡️ เกราะหลังล่าง McGill 100%', 'แกนกลางลำตัว 85%', 'การยืดเหยียด 90%'],
         tip: '🛡️ ทำท่า Cat-Camel และ Bird-Dog ต่อเนื่องสม่ำเสมอ ช่วยลดแรงกดทับหมอนรองกระดูกได้ดีที่สุด'
+    },
+    'CH_FATBURN30': {
+        name: 'ชาเลนจ์ 30 วัน — ลดไขมันทั้งตัว & ช่องท้อง',
+        muscles: ['quads', 'glutes_hams', 'chest', 'core'],
+        labels: ['เผาผลาญทั้งตัว 95%', 'แกนกลาง & ช่องท้อง 90%', 'ขา/ก้น 85%'],
+        tip: '🔥 รักษาจังหวะต่อเนื่อง ดื่มน้ำ 500 ml และเดินคูลดาวน์ 3 นาทีเพื่อลดไขมันช่องท้องอย่างยั่งยืน'
+    },
+    'CH_ABS14': {
+        name: 'ชาเลนจ์ 14 วัน — เบิร์นไขมันหน้าท้องเข้มข้น',
+        muscles: ['core', 'lower_back'],
+        labels: ['แกนกลางลำตัว (Core) 100%', 'หน้าท้องลึก 90%', 'เกราะหลังล่าง 80%'],
+        tip: '🛡️ เกร็งหน้าท้องตลอดท่า Plank & Dead Bug โดยไม่แอ่นหลังล่าง เพื่อปั้นเอวคอดอย่างปลอดภัย'
+    },
+    'CH_UPPER28': {
+        name: 'ชาเลนจ์ 28 วัน — ปั้นท่อนบน & ซิกแพค',
+        muscles: ['chest', 'upper_back', 'shoulders', 'biceps', 'triceps', 'core'],
+        labels: ['อก & หลังบน 95%', 'ไหล่ & แขน 85%', 'แกนกลาง 80%'],
+        tip: '🥩 เติมโปรตีนหลังฝึก และยืดเหยียดหน้าอก-หัวไหล่ 30 วินาทีเพื่อป้องกันอาการไหล่ห่อ'
+    },
+    'CH_POSTURE28': {
+        name: 'ชาเลนจ์ 28 วัน — ยืดเหยียดจัดระเบียบหลัง & บุคลิกภาพ',
+        muscles: ['lower_back', 'upper_back', 'core'],
+        labels: ['จัดระเบียบกระดูกสันหลัง 100%', 'คลายสะโพก-อก 90%', 'แกนกลาง 75%'],
+        tip: '🧘 ฝึก Wall Angels และเก็บคางสม่ำเสมอ ช่วยแก้คอยื่น-ไหล่ห่อ และลดอาการปวดหลังเรื้อรัง'
+    },
+    'BF_ABS': {
+        name: 'เน้นเฉพาะจุด — หน้าท้อง & แกนกลาง',
+        muscles: ['core', 'lower_back'],
+        labels: ['แกนกลางลำตัว (Core) 100%', 'หน้าท้อง 95%', 'หลังล่างปลอดภัย 85%'],
+        tip: '🔥 หายใจออกขณะเกร็งหน้าท้องทุกครั้ง ช่วยเพิ่มการกระตุ้นกล้ามเนื้อหน้าท้องชั้นลึกได้ดีขึ้น'
+    },
+    'BF_UPPER': {
+        name: 'เน้นเฉพาะจุด — อก แขน และไหล่',
+        muscles: ['chest', 'shoulders', 'biceps', 'triceps'],
+        labels: ['หน้าอก (Chest) 95%', 'ไหล่ (Delts) 90%', 'แขนหน้า-หลัง 85%'],
+        tip: '💪 คุมจังหวะลงช้าๆ (Tempo 3-1-1) เพื่อสร้างแรงตึงกล้ามเนื้อท่อนบนให้คมชัดขึ้น'
+    },
+    'BF_LOWER': {
+        name: 'เน้นเฉพาะจุด — ขา & ก้นกระชับ',
+        muscles: ['quads', 'glutes_hams', 'core'],
+        labels: ['ต้นขาหน้า (Quads) 95%', 'ก้น/ขาหลัง (Glutes/Hams) 95%', 'แกนกลาง 75%'],
+        tip: '🦵 ดันส้นเท้าขึ้นและบีบก้นทุกครั้งที่ยืนสุด ช่วยกระชับช่วงล่างและกระตุ้นการเผาผลาญสูง'
+    },
+    'BF_STRETCH': {
+        name: 'เน้นเฉพาะจุด — ยืดเหยียดหลัง & คลายปวด',
+        muscles: ['lower_back', 'glutes_hams', 'core'],
+        labels: ['คลายหลังล่าง 100%', 'คลายสะโพก-ขาหลัง 90%', 'ฟื้นฟูระบบประสาท 85%'],
+        tip: '🧘 หายใจเข้าลึกออกยาวระหว่างค้างท่ายืด ช่วยลดคอร์ติซอลและฟื้นฟูกล้ามเนื้อได้เร็วขึ้น'
     }
 };
 

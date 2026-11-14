@@ -23,29 +23,29 @@ const EX = {
     c_twist: { img: 'c_twist.jpg', n: 'Supine Spinal Twist (เบามาก)', eq: 'พื้น', cue: ['นอนหงาย ดึงเข่าขวาข้ามไปทางซ้ายช้าๆ', 'ไหล่ทั้งสองข้างแนบพื้น หันหน้าไปทางขวา', 'ค้าง 40 วินาที ห้ามฝืนถ้ารู้สึกจี๊ด'], yt: 'supine spinal twist stretch', side: 1 },
     c_legs: { img: 'c_legs.jpg', n: 'Legs Up The Wall + หายใจ 4-7-8', eq: 'ผนัง', cue: ['นอนหงาย ยกขาพาดผนัง ก้นชิดผนัง', 'หายใจเข้า 4 วิ กลั้น 7 วิ ออก 8 วิ', 'ทำ 8-10 รอบ ลดแรงกดหมอนรองกระดูก', 'ช่วยดึง HRV กลับขึ้นเร็วขึ้นหลังฝึกหนัก'], yt: 'legs up the wall pose' },
     /* ---------- MAIN ---------- */
-    goblet: { n: 'Goblet Squat', eq: 'ดัมเบลหรือเคทเทิลบอล 4-6 กก.', img: 'squat_trainer.jpg', cue: ['ถือดัมเบลหรือเคทเทิลบอลชิดอก ศอกชี้ลง', 'เท้ากว้างเท่าไหล่ ปลายเท้าเฉียง 15°', 'ย่อลงจนต้นขาขนานพื้น อกเปิด หลังตรง', 'ดันส้นเท้า บีบก้นบนสุด'], yt: 'goblet squat form' },
-    rdl: { n: 'DB Romanian Deadlift', eq: 'ดัมเบล 4 กก.×2', img: 'rdl.jpg', cue: ['ดัมเบลชิดต้นขา เข่างอเล็กน้อยค้างไว้', 'ดันสะโพกไปหลัง ไม่ใช่ก้มหลัง', 'หยุดที่กลางหน้าแข้ง หลังตรงเป็นไม้บรรทัด', 'ถ้ารู้สึกตึงหลังล่างแทนต้นขาหลัง = ฟอร์มผิด'], yt: 'dumbbell romanian deadlift form' },
-    thrust: { n: 'DB Hip Thrust', eq: 'ดัมเบล + เก้าอี้', img: 'thrust.jpg', cue: ['พิงสะบักบนขอบเก้าอี้ วางดัมเบลบนสะโพก', 'เก็บคาง เก็บซี่โครง ดันขึ้นด้วยการบีบก้น', 'ค้างบนสุด 2 วินาที ห้ามแอ่นหลัง', 'ปลอดภัยต่อหลังล่างที่สุดในบรรดาท่าก้น'], yt: 'dumbbell hip thrust form' },
+    goblet: { n: 'Goblet Squat', eq: 'เคทเทิลเบล 8 กก. (หรือดัมเบล 6 กก.)', img: 'squat_trainer.jpg', cue: ['ถือเคทเทิลเบล 8 กก. ชิดอก ศอกชี้ลง', 'เท้ากว้างเท่าไหล่ ปลายเท้าเฉียง 15°', 'ลงช้า 3 วิ ค้างล่าง 1 วิ (Tempo 3-1-1) จนต้นขาขนานพื้น', 'ดันส้นเท้า บีบก้นบนสุด'], yt: 'goblet squat form' },
+    rdl: { n: 'DB Romanian Deadlift', eq: 'ดัมเบล 6 กก.×2', img: 'rdl.jpg', cue: ['ดัมเบลชิดต้นขา เข่างอเล็กน้อยค้างไว้', 'ดันสะโพกไปหลัง ช้า 3 วิ ค้างตึงสุด 1 วิ', 'หยุดที่กลางหน้าแข้ง หลังตรงเป็นไม้บรรทัด', 'ถ้ารู้สึกตึงหลังล่างแทนต้นขาหลัง = ฟอร์มผิด'], yt: 'dumbbell romanian deadlift form' },
+    thrust: { n: 'DB Hip Thrust', eq: 'เคทเทิลเบล 8 กก. (หรือดัมเบล 6 กก.) + เก้าอี้', img: 'thrust.jpg', cue: ['พิงสะบักบนขอบเก้าอี้ วางน้ำหนักบนสะโพก', 'เก็บคาง เก็บซี่โครง ดันขึ้นด้วยการบีบก้น', 'ค้างบนสุด 2 วินาที ลงช้า 3 วิ ห้ามแอ่นหลัง', 'ปลอดภัยต่อหลังล่างที่สุดในบรรดาท่าก้น'], yt: 'dumbbell hip thrust form' },
     bmarch: { img: 'bmarch.jpg', n: 'Glute Bridge March', eq: 'พื้น', cue: ['ยกสะพานก้นค้างไว้', 'ยกเข่าสลับข้างช้าๆ สะโพกไม่บิดตก', '10 ครั้ง/ข้าง ควบคุมทุกจังหวะ'], yt: 'glute bridge march' },
-    bench: { n: 'DB Bench Press', eq: 'ดัมเบล + เก้าอี้', img: 'bench.jpg', cue: ['นอนบนเก้าอี้ เท้าแนบพื้น บีบสะบัก', 'ลงช้า 3 วินาที ศอก 45° กับลำตัว', 'ดันขึ้นจนแขนเกือบตรง ไม่ล็อกศอก'], yt: 'dumbbell bench press form' },
-    bss: { n: 'Bulgarian Split Squat', eq: 'ดัมเบล + เก้าอี้', img: 'bss.jpg', cue: ['วางหลังเท้าบนเก้าอี้ เท้าหน้าห่าง 60-70 ซม.', 'ย่อลงตรงๆ เข่าหลังเกือบแตะพื้น', 'เอนลำตัวหน้าเล็กน้อยเพื่อเน้นก้น'], yt: 'bulgarian split squat form', side: 1 },
-    press: { n: 'DB Shoulder Press (นั่ง)', eq: 'ดัมเบล + เก้าอี้', img: 'press.jpg', cue: ['นั่งพิงพนัก เกร็งแกนกลาง เก็บซี่โครง', 'ดัมเบลระดับหู ดันขึ้นเหนือศีรษะ', 'ห้ามแอ่นหลังเพื่อดันน้ำหนัก'], yt: 'seated dumbbell shoulder press' },
-    row: { n: 'One-Arm DB Row', eq: 'ดัมเบล + เก้าอี้', img: 'row.jpg', cue: ['เข่าและมือวางบนเก้าอี้ หลังขนานพื้น', 'ดึงดัมเบลเข้าหาสะโพก ศอกชิดลำตัว', 'บีบสะบักค้าง 1 วินาที'], yt: 'one arm dumbbell row', side: 1 },
-    csrow: { img: 'csrow.jpg', n: 'Chest-Supported Row', eq: 'ดัมเบล + เก้าอี้เอียง', cue: ['นอนคว่ำอกบนพนักเก้าอี้เอียง 45°', 'ดึงดัมเบลขึ้นพร้อมบีบสะบัก', 'หลังไม่ต้องรับภาระเลย — เหมาะกับคนปวดหลัง'], yt: 'chest supported dumbbell row' },
-    pullover: { img: 'pullover.jpg', n: 'DB Pullover', eq: 'ดัมเบล 1 ตัว + เก้าอี้', cue: ['นอนหงาย ถือดัมเบล 2 มือเหนืออก', 'ลดลงหลังศีรษะจนตึง หลังล่างแนบเบาะ', 'ดึงกลับด้วยกล้ามเนื้อหลัง'], yt: 'dumbbell pullover form' },
-    curl: { img: 'curl.jpg', n: 'DB Hammer Curl', eq: 'ดัมเบล 3-4 กก.×2', cue: ['ฝ่ามือหันเข้าหากันตลอด', 'ศอกล็อกข้างลำตัว ไม่แกว่งตัวช่วย', 'ลงช้า 3 วินาที'], yt: 'hammer curl form' },
-    lat: { img: 'lat.jpg', n: 'DB Lateral Raise', eq: 'ดัมเบล (เบา 2 กก.)', cue: ['ยกออกข้างถึงระดับไหล่', 'ศอกงอเล็กน้อย ลงช้ามาก 3-4 วินาที'], yt: 'lateral raise form' },
-    swing: { img: 'swing.jpg', n: 'Kettlebell Swing', eq: 'ดัมเบลหรือเคทเทิลบอล 4-6 กก.', cue: ['Hip hinge ไม่ใช่ squat — ดีดด้วยสะโพก', 'เคทเทิลบอลลอยถึงระดับอกด้วยแรงสะโพก', 'บีบก้นสุดตอนยืนตรง หลังตรงตลอด', 'ถ้าปวดหลังอยู่ ให้ข้ามไปใช้โหมดหลังปลอดภัย'], yt: 'kettlebell swing hardstyle' },
-    thruster: { img: 'thruster.jpg', n: 'DB Thruster', eq: 'ดัมเบล 3-4 กก.×2', cue: ['ดัมเบลระดับไหล่ → ย่อสควอท', 'ยืนขึ้นแล้วดันเหนือหัวเป็นจังหวะเดียว', 'ท่าเผาผลาญสูงสุดของโปรแกรม'], yt: 'dumbbell thruster form' },
+    bench: { n: 'DB Bench Press', eq: 'ดัมเบล 6 กก.×2 + เก้าอี้', img: 'bench.jpg', cue: ['นอนบนเก้าอี้ เท้าแนบพื้น บีบสะบัก', 'ลงช้า 3 วินาที ค้างอก 1 วินาที ศอก 45° กับลำตัว', 'ดันขึ้นจนแขนเกือบตรง ไม่ล็อกศอก'], yt: 'dumbbell bench press form' },
+    bss: { n: 'Bulgarian Split Squat', eq: 'KB 4 กก.×2 (หรือ DB 6 กก.) + เก้าอี้', img: 'bss.jpg', cue: ['วางหลังเท้าบนเก้าอี้ เท้าหน้าห่าง 60-70 ซม.', 'ย่อลงช้า 3 วิ เข่าหลังเกือบแตะพื้น', 'เอนลำตัวหน้าเล็กน้อยเพื่อเน้นก้น'], yt: 'bulgarian split squat form', side: 1 },
+    press: { n: 'DB Shoulder Press (นั่ง)', eq: 'KB 4 กก.×2 (หรือ DB 6 กก.) + เก้าอี้', img: 'press.jpg', cue: ['นั่งพิงพนัก เกร็งแกนกลาง เก็บซี่โครง', 'ยกน้ำหนักระดับหู ดันขึ้นเหนือศีรษะ ลงช้า 3 วิ', 'ห้ามแอ่นหลังเพื่อดันน้ำหนัก'], yt: 'seated dumbbell shoulder press' },
+    row: { n: 'One-Arm DB Row', eq: 'ดัมเบล 6 กก. (หรือ KB 8 กก.) + เก้าอี้', img: 'row.jpg', cue: ['เข่าและมือวางบนเก้าอี้ หลังขนานพื้น', 'ดึงดัมเบลเข้าหาสะโพก ศอกชิดลำตัว', 'บีบสะบักค้างบน 1-2 วินาที แล้วผ่อนลงช้า 3 วิ'], yt: 'one arm dumbbell row', side: 1 },
+    csrow: { img: 'csrow.jpg', n: 'Chest-Supported Row', eq: 'ดัมเบล 6 กก.×2 + เก้าอี้เอียง', cue: ['นอนคว่ำอกบนพนักเก้าอี้เอียง 45°', 'ดึงดัมเบลขึ้นพร้อมบีบสะบักค้าง 1-2 วิ ผ่อนลงช้า 3 วิ', 'หลังไม่ต้องรับภาระเลย — เหมาะกับคนปวดหลัง'], yt: 'chest supported dumbbell row' },
+    pullover: { img: 'pullover.jpg', n: 'DB Pullover', eq: 'ดัมเบล 6 กก. (หรือ KB 8 กก.) + เก้าอี้', cue: ['นอนหงาย ถือน้ำหนัก 2 มือเหนืออก', 'ลดลงหลังศีรษะช้า 3 วิ จนตึง หลังล่างแนบเบาะ', 'ดึงกลับด้วยกล้ามเนื้อหลัง'], yt: 'dumbbell pullover form' },
+    curl: { img: 'curl.jpg', n: 'DB Hammer Curl', eq: 'เคทเทิลเบล 4 กก.×2', cue: ['ฝ่ามือหันเข้าหากันตลอด', 'ศอกล็อกข้างลำตัว ไม่แกว่งตัวช่วย', 'บีบสุด 1 วิ แล้วผ่อนลงช้า 3 วินาที'], yt: 'hammer curl form' },
+    lat: { img: 'lat.jpg', n: 'DB Lateral Raise', eq: 'เคทเทิลเบล 4 กก.×2', cue: ['ยกออกข้างถึงระดับไหล่', 'ศอกงอเล็กน้อย ลงช้ามาก 3-4 วินาที'], yt: 'lateral raise form' },
+    swing: { img: 'swing.jpg', n: 'Kettlebell Swing', eq: 'เคทเทิลเบล 8 กก.', cue: ['Hip hinge ไม่ใช่ squat — ดีดด้วยสะโพก', 'เคทเทิลเบลลอยถึงระดับอกด้วยแรงสะโพก', 'บีบก้นสุดตอนยืนตรง หลังตรงตลอด', 'ถ้าปวดหลังอยู่ ให้ข้ามไปใช้โหมดหลังปลอดภัย'], yt: 'kettlebell swing hardstyle' },
+    thruster: { img: 'thruster.jpg', n: 'DB Thruster', eq: 'เคทเทิลเบล 4 กก.×2', cue: ['ถือน้ำหนักระดับไหล่ → ย่อสควอท', 'ยืนขึ้นแล้วดันเหนือหัวเป็นจังหวะเดียว', 'ท่าเผาผลาญสูงสุดของโปรแกรม'], yt: 'dumbbell thruster form' },
     pushup: { img: 'pushup.jpg', n: 'Push-Up', eq: 'ไม่ใช้อุปกรณ์', cue: ['มือกว้างกว่าไหล่เล็กน้อย ลำตัวตรง บีบก้น', 'ลงจนอกเกือบแตะพื้น', 'หนักเกินให้ยันมือบนเก้าอี้'], yt: 'push up proper form' },
     wheel: { img: 'wheel.jpg', n: 'Ab Wheel Rollout', eq: 'ลูกกลิ้งออกกำลัง', cue: ['คุกเข่าบนผ้าขนหนู เกร็งหน้าท้องก่อนออกตัว', 'กลิ้งออกเท่าที่หลังไม่แอ่นเด็ดขาด', 'ดึงกลับด้วยหน้าท้อง ไม่ใช่แขน'], yt: 'ab wheel rollout beginner' },
     plank: { n: 'Plank', eq: 'ไม่ใช้อุปกรณ์', img: 'plank.jpg', cue: ['ศอกใต้ไหล่ ลำตัวเป็นเส้นตรง', 'บีบก้น+หน้าท้อง สะโพกไม่ตก', 'หายใจสม่ำเสมอ ห้ามกลั้น'], yt: 'plank proper form' },
     mtn: { img: 'mtn.jpg', n: 'Mountain Climber', eq: 'ไม่ใช้อุปกรณ์', cue: ['ท่าแพลงก์มือเหยียด สะโพกไม่ยกสูง', 'ดึงเข่าเข้าอกสลับเร็ว หลังไม่แอ่น'], yt: 'mountain climbers form' },
-    z2: { img: 'z2.jpg', n: 'วิ่ง/เดินเร็ว Zone 2', eq: 'ลู่วิ่ง', cue: ['คุมชีพจร 130-144 bpm ตลอด', 'เกินให้ลดความเร็ว/ความชันทันที', 'ควรพูดเป็นประโยคได้แต่ร้องเพลงไม่ได้', 'ชัน 2-4% ลดแรงกระแทกเข่าและหลัง'], yt: 'zone 2 training treadmill' },
-    hiitR: { img: 'hiitR.jpg', n: 'Interval — เร่ง', eq: 'ลู่วิ่ง', cue: ['เร่งจน HR แตะ 158-172 bpm', 'ก้าวสั้นถี่ ลำตัวตั้ง ไม่ก้มหลัง'], yt: 'treadmill hiit intervals' },
-    hiitW: { img: 'walk.jpg', n: 'Interval — เดินฟื้นตัว', eq: 'ลู่วิ่ง', cue: ['เดิน 4.5-5 km/h ให้ HR ลงต่ำกว่า 140', 'เดินต่อเนื่อง อย่าหยุดนิ่ง'], yt: 'active recovery walking' },
+    z2: { img: 'z2.jpg', n: 'เดินชัน/วิ่งเบา Zone 2', eq: 'ลู่วิ่ง', cue: ['คุมชีพจร 130-144 bpm ตลอด', 'เกินให้ลดความเร็ว/ความชันทันที', 'ควรพูดเป็นประโยคได้แต่ร้องเพลงไม่ได้', 'ปรับชัน 2-4% ลดแรงกระแทกเข่าและหลังล่าง'], yt: 'zone 2 training treadmill' },
+    hiitR: { img: 'hiitR.jpg', n: 'Interval — ไต่ชันเร่ง HR', eq: 'ลู่วิ่ง', cue: ['ปรับชัน 6-10% เดินเร็ว 5.5-6.5 km/h หรือวิ่งเหยาะ', 'เร่งจน HR แตะ 158-172 bpm โดยไม่กระแทกเข่า/หลัง', 'ลำตัวตั้งตรง ไม่โหนราวจับ'], yt: 'incline treadmill hiit intervals' },
+    hiitW: { img: 'walk.jpg', n: 'Interval — เดินฟื้นตัว', eq: 'ลู่วิ่ง', cue: ['ลดความชันเหลือ 0-2% เดิน 4.5-5 km/h', 'ให้ HR ลงต่ำกว่า 140 bpm ก่อนรอบถัดไป', 'เดินต่อเนื่อง อย่าหยุดนิ่งทันที'], yt: 'active recovery walking' },
     hula: { img: 'hula.jpg', n: 'ฮูล่าฮูป', eq: 'ฮูล่าฮูป', cue: ['ดันสะโพกหน้า-หลัง ไม่ใช่หมุนวน', 'สลับทิศทุก 2 นาที', 'ถ้าปวดหลังเพิ่มขึ้นให้หยุดทันที'], yt: 'hula hoop workout' },
-    walk: { img: 'walk.jpg', n: 'เดินฟื้นตัว', eq: 'ลู่วิ่ง/นอกบ้าน', cue: ['ชีพจร 100-120 bpm', 'เพิ่ม NEAT โดยไม่กระทบการฟื้นตัว'], yt: 'recovery walk' },
+    walk: { img: 'walk.jpg', n: 'เดินฟื้นตัว', eq: 'ลู่วิ่ง / นอกบ้าน', cue: ['ชีพจร 100-120 bpm', 'เพิ่ม NEAT โดยไม่กระทบการฟื้นตัว'], yt: 'recovery walk' },
     /* ---------- OUTDOOR PARK ACTIVE RECOVERY & MOBILITY ---------- */
     w_out_walk: { img: 'w_out_walk.jpg', n: 'เดินปรับจังหวะในสวน (Brisk Walk)', eq: 'ทางเดินสวน', cue: ['ก้าวสั้นๆ ช้าๆ กวัดแกว่งแขนผ่อนคลาย', 'สูดหายใจลึกยาว ปรับอุณหภูมิร่างกาย', 'กระจายน้ำไขข้อ (Synovial Fluid) ในหมอนรองกระดูกและข้อต่อ'], yt: 'brisk walk warmup' },
     w_out_hinge: { img: 'w_out_hinge.jpg', n: 'Standing Hip Hinge (ท่ายืนดันสะโพก)', eq: 'ไม่ต้องใช้อุปกรณ์', cue: ['ยืนขากว้างเท่าสะโพก มือแตะหน้าขา', 'แขม่วพุง ล็อกหลังตรง ดันก้นไปข้างหลัง 45°', 'ห้ามโก่งหลัง รู้สึกตึงก้นและต้นขาหลัง', 'เกร็งก้นดันตัวกลับมายืนตรง 10-12 ครั้ง ปลุกก้นโดยไม่กดทับหลัง'], yt: 'standing hip hinge warmup' },
@@ -110,53 +110,139 @@ const SAFE = { rdl: 'thrust', swing: 'bmarch', wheel: 'w_deadbug', row: 'csrow' 
 /* ============ WORKOUTS (ส่วนหลักเท่านั้น) ============ */
                         const W = {
     A: {
-        n: 'Strength A — ขา + ดัน', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--acc)"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>', warm: 'full', kcal: 400, items: [
-            { e: 'goblet', sets: 4, type: 'reps', r: '12 ครั้ง', rest: 60, after: 90, log: 1 },
-            { e: 'rdl', sets: 4, type: 'reps', r: '12 ครั้ง', rest: 60, after: 90, log: 1 },
-            { e: 'bench', sets: 3, type: 'reps', r: '12 ครั้ง', rest: 60, after: 90, log: 1 },
+        n: 'Strength A — ขา + ดัน', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--acc)"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>', warm: 'full', kcal: 300, items: [
+            { e: 'goblet', sets: 4, type: 'reps', r: '10-15 ครั้ง', rest: 60, after: 90, log: 1 },
+            { e: 'rdl', sets: 4, type: 'reps', r: '10-15 ครั้ง', rest: 60, after: 90, log: 1 },
+            { e: 'bench', sets: 3, type: 'reps', r: '12-15 ครั้ง', rest: 60, after: 90, log: 1 },
             { e: 'bss', sets: 3, type: 'reps', r: '10 ครั้ง/ข้าง', rest: 60, after: 90, log: 1 },
-            { e: 'press', sets: 3, type: 'reps', r: '12 ครั้ง', rest: 60, after: 75, log: 1 },
-            { e: 'wheel', sets: 3, type: 'reps', r: '8 ครั้ง', rest: 45, after: 60 },
-            { e: 'plank', sets: 3, type: 'time', t: 40, rest: 40, after: 60 },
-            { e: 'z2', sets: 1, type: 'time', t: 900, after: 30 }]
+            { e: 'press', sets: 3, type: 'reps', r: '12-15 ครั้ง', rest: 60, after: 75, log: 1 },
+            { e: 'w_deadbug', sets: 3, type: 'reps', r: '10 ครั้ง/ข้าง', rest: 45, after: 60 },
+            { e: 'plank', sets: 3, type: 'time', t: 40, rest: 40, after: 30 }]
     },
     B: {
-        n: 'Strength B — หลัง + ดึง', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--acc)"><path d="M14.4 14.4l-4.8-4.8"/><path d="M6.5 10.8l-4.3 4.3a2 2 0 0 0 2.8 2.8l4.3-4.3"/><path d="M17.5 13.2l4.3-4.3a2 2 0 0 0-2.8-2.8l-4.3 4.3"/><path d="M2.2 16.2l3 3"/><path d="M18.8 4.8l-3 3"/><path d="M7 9l8 8"/><path d="M9 7l8 8"/></svg>', warm: 'full', kcal: 380, items: [
-            { e: 'row', sets: 4, type: 'reps', r: '12 ครั้ง/ข้าง', rest: 60, after: 90, log: 1 },
-            { e: 'csrow', sets: 3, type: 'reps', r: '12 ครั้ง', rest: 60, after: 90, log: 1 },
-            { e: 'pullover', sets: 3, type: 'reps', r: '12 ครั้ง', rest: 60, after: 75, log: 1 },
-            { e: 'curl', sets: 3, type: 'reps', r: '12 ครั้ง', rest: 45, after: 60, log: 1 },
+        n: 'Strength B — หลัง + ดึง', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--acc)"><path d="M14.4 14.4l-4.8-4.8"/><path d="M6.5 10.8l-4.3 4.3a2 2 0 0 0 2.8 2.8l4.3-4.3"/><path d="M17.5 13.2l4.3-4.3a2 2 0 0 0-2.8-2.8l-4.3 4.3"/><path d="M2.2 16.2l3 3"/><path d="M18.8 4.8l-3 3"/><path d="M7 9l8 8"/><path d="M9 7l8 8"/></svg>', warm: 'full', kcal: 310, items: [
+            { e: 'row', sets: 4, type: 'reps', r: '12-15 ครั้ง/ข้าง', rest: 60, after: 90, log: 1 },
+            { e: 'csrow', sets: 3, type: 'reps', r: '12-15 ครั้ง', rest: 60, after: 90, log: 1 },
+            { e: 'pullover', sets: 3, type: 'reps', r: '12-15 ครั้ง', rest: 60, after: 75, log: 1 },
+            { e: 'curl', sets: 3, type: 'reps', r: '12-15 ครั้ง', rest: 45, after: 60, log: 1 },
             { e: 'lat', sets: 3, type: 'reps', r: '15 ครั้ง', rest: 45, after: 75, log: 1 },
             { e: 'swing', sets: 4, type: 'time', t: 30, rest: 45, after: 60 },
             { e: 'w_deadbug', sets: 3, type: 'reps', r: '10 ครั้ง/ข้าง', rest: 40, after: 60 },
-            { e: 'hula', sets: 2, type: 'time', t: 300, rest: 60, after: 30 }]
+            { e: 'walk', sets: 1, type: 'time', t: 600, after: 30 }]
     },
     C: {
-        n: 'Metabolic Circuit', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#f24e1e"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>', warm: 'full', kcal: 440, items: [
+        n: 'Metabolic Circuit', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#f24e1e"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>', warm: 'full', kcal: 350, items: [
             { e: 'swing', sets: 4, type: 'time', t: 40, rest: 20, after: 20 },
             { e: 'goblet', sets: 4, type: 'time', t: 40, rest: 20, after: 20 },
             { e: 'pushup', sets: 4, type: 'time', t: 40, rest: 20, after: 20 },
-            { e: 'thruster', sets: 4, type: 'time', t: 40, rest: 20, after: 20 },
-            { e: 'mtn', sets: 4, type: 'time', t: 40, rest: 90, after: 90 },
+            { e: 'press', sets: 4, type: 'time', t: 40, rest: 20, after: 20 },
+            { e: 'mtn', sets: 4, type: 'time', t: 30, rest: 90, after: 90 },
             { e: 'plank', sets: 3, type: 'time', t: 45, rest: 40, after: 45 }]
     },
     Z: {
-        n: 'Cardio Zone 2', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--ok)"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>', warm: 'lite', kcal: 420, items: [
-            { e: 'z2', sets: 1, type: 'time', t: 2100, after: 60 },
+        n: 'Cardio Zone 2', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--ok)"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>', warm: 'lite', kcal: 360, items: [
+            { e: 'z2', sets: 1, type: 'time', t: 2400, after: 60 },
             { e: 'w_side', sets: 3, type: 'time', t: 30, rest: 30, after: 45 },
             { e: 'plank', sets: 3, type: 'time', t: 45, rest: 40, after: 45 }]
     },
-    H: { n: 'HIIT Intervals', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#f24e1e"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>', warm: 'lite', kcal: 400, items: (() => { const a = []; for (let i = 0; i < 8; i++) { a.push({ e: 'hiitR', sets: 1, type: 'time', t: 60, after: 0 }); a.push({ e: 'hiitW', sets: 1, type: 'time', t: 90, after: i === 7 ? 30 : 0 }) } return a })() },
+    H: { n: 'HIIT Intervals', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#f24e1e"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>', warm: 'lite', kcal: 340, items: (() => { const a = []; for (let i = 0; i < 8; i++) { a.push({ e: 'hiitR', sets: 1, type: 'time', t: 60, after: 0 }); a.push({ e: 'hiitW', sets: 1, type: 'time', t: 90, after: i === 7 ? 30 : 0 }) } return a })() },
     M: {
         n: 'Morning Cardio — เดินลู่ตอนเช้า', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#f59e0b"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="4.22" x2="19.78" y2="5.64"/></svg>', warm: 'lite', kcal: 180, items: [
             { e: 'z2', sets: 1, type: 'time', t: 1500, after: 30 }]
     },
     R: {
-        n: 'Active Recovery', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--vio)"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>', warm: 'lite', kcal: 200, items: [
-            { e: 'walk', sets: 1, type: 'time', t: 1500, after: 60 },
-            { e: 'hula', sets: 2, type: 'time', t: 300, rest: 60, after: 60 }]
+        n: 'Active Recovery', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--vio)"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>', warm: 'lite', kcal: 180, items: [
+            { e: 'walk', sets: 1, type: 'time', t: 1800, after: 60 }]
+    },
+    /* ---------- EXTRA CHALLENGES (14-30 DAYS) & BODY FOCUS (10-15 MIN) ---------- */
+    CH_FATBURN30: {
+        n: 'ชาเลนจ์ 30 วัน — ลดไขมันทั้งตัว & ช่องท้อง', ic: '🔥', isExtra: true, challengeId: 'fatburn30', warm: 'none', cool: 'none', kcal: 220, items: [
+            { e: 'w_out_walk', sets: 1, type: 'time', t: 120, after: 15 },
+            { e: 'goblet', sets: 3, type: 'reps', r: '12-15 ครั้ง', rest: 45, after: 60 },
+            { e: 'pushup', sets: 3, type: 'reps', r: '10-12 ครั้ง', rest: 45, after: 60 },
+            { e: 'swing', sets: 3, type: 'time', t: 30, rest: 30, after: 60 },
+            { e: 'mtn', sets: 3, type: 'time', t: 30, rest: 30, after: 45 },
+            { e: 'plank', sets: 3, type: 'time', t: 40, rest: 30, after: 30 },
+            { e: 'c_legs', sets: 1, type: 'time', t: 120, after: 0 }]
+    },
+    CH_ABS14: {
+        n: 'ชาเลนจ์ 14 วัน — เบิร์นพุง & แกนกลางเข้มข้น', ic: '💥', isExtra: true, challengeId: 'abs14', warm: 'none', cool: 'none', kcal: 140, items: [
+            { e: 'w_cat', sets: 1, type: 'time', t: 60, after: 10 },
+            { e: 'w_deadbug', sets: 3, type: 'reps', r: '10 ครั้ง/ข้าง', rest: 30, after: 40 },
+            { e: 'w_bird', sets: 3, type: 'reps', r: '8 ครั้ง/ข้าง', rest: 30, after: 40 },
+            { e: 'w_side', sets: 3, type: 'time', t: 25, rest: 25, after: 40 },
+            { e: 'plank', sets: 3, type: 'time', t: 40, rest: 30, after: 40 },
+            { e: 'mtn', sets: 3, type: 'time', t: 30, rest: 30, after: 0 }]
+    },
+    CH_UPPER28: {
+        n: 'ชาเลนจ์ 28 วัน — ปั้นท่อนบน & ซิกแพค', ic: '💪', isExtra: true, challengeId: 'upper28', warm: 'none', cool: 'none', kcal: 180, items: [
+            { e: 'w_wall', sets: 1, type: 'reps', r: '12 + เก็บคาง 8', after: 20 },
+            { e: 'bench', sets: 3, type: 'reps', r: '12-15 ครั้ง', rest: 45, after: 60 },
+            { e: 'csrow', sets: 3, type: 'reps', r: '12-15 ครั้ง', rest: 45, after: 60 },
+            { e: 'press', sets: 3, type: 'reps', r: '12 ครั้ง', rest: 45, after: 60 },
+            { e: 'curl', sets: 3, type: 'reps', r: '12 ครั้ง', rest: 40, after: 45 },
+            { e: 'lat', sets: 3, type: 'reps', r: '15 ครั้ง', rest: 40, after: 45 },
+            { e: 'plank', sets: 3, type: 'time', t: 40, rest: 30, after: 0 }]
+    },
+    CH_POSTURE28: {
+        n: 'ชาเลนจ์ 28 วัน — ยืดเหยียดจัดระเบียบหลัง & บุคลิกภาพ', ic: '🧘', isExtra: true, challengeId: 'posture28', warm: 'none', cool: 'none', kcal: 90, items: [
+            { e: 'w_cat', sets: 1, type: 'time', t: 60, after: 10 },
+            { e: 'w_thor', sets: 1, type: 'time', t: 60, after: 10 },
+            { e: 'w_wall', sets: 1, type: 'reps', r: '12 + เก็บคาง 8', after: 20 },
+            { e: 'w_hipflex', sets: 1, type: 'time', t: 40, after: 15 },
+            { e: 'c_thread', sets: 1, type: 'time', t: 30, after: 15 },
+            { e: 'c_door', sets: 1, type: 'time', t: 40, after: 15 },
+            { e: 'c_child', sets: 1, type: 'time', t: 60, after: 15 },
+            { e: 'c_legs', sets: 1, type: 'time', t: 180, after: 0 }]
+    },
+    BF_ABS: {
+        n: 'เน้นเฉพาะจุด — หน้าท้อง & แกนกลาง', ic: '🎯', isExtra: true, warm: 'none', cool: 'none', kcal: 120, items: [
+            { e: 'w_deadbug', sets: 3, type: 'reps', r: '10 ครั้ง/ข้าง', rest: 30, after: 40 },
+            { e: 'w_bird', sets: 3, type: 'reps', r: '8 ครั้ง/ข้าง', rest: 30, after: 40 },
+            { e: 'w_side', sets: 2, type: 'time', t: 30, rest: 25, after: 35 },
+            { e: 'plank', sets: 3, type: 'time', t: 40, rest: 30, after: 30 },
+            { e: 'mtn', sets: 2, type: 'time', t: 30, rest: 30, after: 0 }]
+    },
+    BF_UPPER: {
+        n: 'เน้นเฉพาะจุด — อก แขน และไหล่', ic: '💪', isExtra: true, warm: 'none', cool: 'none', kcal: 160, items: [
+            { e: 'pushup', sets: 3, type: 'reps', r: '10-12 ครั้ง', rest: 45, after: 60 },
+            { e: 'bench', sets: 3, type: 'reps', r: '12-15 ครั้ง', rest: 45, after: 60 },
+            { e: 'press', sets: 3, type: 'reps', r: '12 ครั้ง', rest: 45, after: 60 },
+            { e: 'curl', sets: 3, type: 'reps', r: '12-15 ครั้ง', rest: 40, after: 45 },
+            { e: 'lat', sets: 3, type: 'reps', r: '15 ครั้ง', rest: 40, after: 0 }]
+    },
+    BF_LOWER: {
+        n: 'เน้นเฉพาะจุด — ขา & ก้นกระชับ', ic: '🦵', isExtra: true, warm: 'none', cool: 'none', kcal: 175, items: [
+            { e: 'goblet', sets: 3, type: 'reps', r: '12-15 ครั้ง', rest: 45, after: 60 },
+            { e: 'bss', sets: 3, type: 'reps', r: '10 ครั้ง/ข้าง', rest: 45, after: 60 },
+            { e: 'thrust', sets: 3, type: 'reps', r: '15 ครั้ง', rest: 45, after: 60 },
+            { e: 'w_bridge', sets: 2, type: 'reps', r: '15 ครั้ง', rest: 30, after: 30 },
+            { e: 'bmarch', sets: 2, type: 'reps', r: '10 ครั้ง/ข้าง', rest: 30, after: 0 }]
+    },
+    BF_STRETCH: {
+        n: 'เน้นเฉพาะจุด — ยืดเหยียดหลัง & คลายปวด', ic: '🧘', isExtra: true, warm: 'none', cool: 'none', kcal: 65, items: [
+            { e: 'w_cat', sets: 1, type: 'time', t: 60, after: 10 },
+            { e: 'w_thor', sets: 1, type: 'time', t: 60, after: 10 },
+            { e: 'c_fig4', sets: 1, type: 'time', t: 40, after: 10 },
+            { e: 'c_ham', sets: 1, type: 'time', t: 40, after: 10 },
+            { e: 'c_hip', sets: 1, type: 'time', t: 45, after: 10 },
+            { e: 'c_legs', sets: 1, type: 'time', t: 180, after: 0 }]
     }
 };
+
+const CHALLENGES = [
+    { id: 'fatburn30', wKey: 'CH_FATBURN30', days: 30, title: 'ลดไขมันทั้งตัว & ช่องท้อง', sub: 'เผาผลาญไขมันในอวัยวะ คุม HR ไม่กระแทกหลัง', bg: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)', img: 'body_front.jpg', tag: 'แนะนำสำหรับคุณ' },
+    { id: 'abs14', wKey: 'CH_ABS14', days: 14, title: 'เบิร์นไขมันหน้าท้องเข้มข้น', sub: 'กระชับรอบเอว & แกนกลางแบบ McGill Spine Safe', bg: 'linear-gradient(135deg, #78716c 0%, #57534e 100%)', img: 'plank.jpg', tag: '14 วัน' },
+    { id: 'upper28', wKey: 'CH_UPPER28', days: 28, title: 'ชาเลนจ์ปั้นท่อนบน & ซิกแพค', sub: 'อก-หลัง-ไหล่-แขนชัด ด้วยดัมเบล 6 กก. & KB 4 กก.', bg: 'linear-gradient(135deg, #1e3a8a 0%, #334155 100%)', img: 'bench.jpg', tag: '28 วัน' },
+    { id: 'posture28', wKey: 'CH_POSTURE28', days: 28, title: 'ยืดเหยียด-จัดระเบียบหลัง & ตัวตรง', sub: 'คลายหมอนรองกระดูก แก้คอยื่น-ไหล่ห่อ เพิ่มบุคลิกภาพ', bg: 'linear-gradient(135deg, #0f766e 0%, #10b981 100%)', img: 'w_wall.jpg', tag: '28 วัน' }
+];
+
+const BODY_FOCUS_PROGRAMS = [
+    { id: 'abs', wKey: 'BF_ABS', label: '🔥 หน้าท้อง', title: 'หน้าท้อง & แกนกลาง', sub: 'McGill Safe • 10-12 นาที', color: '#ea580c' },
+    { id: 'upper', wKey: 'BF_UPPER', label: '💪 อก-แขน-ไหล่', title: 'อก แขน และไหล่', sub: 'DB 6 กก. / KB 4 กก. • 14 นาที', color: '#2563eb' },
+    { id: 'lower', wKey: 'BF_LOWER', label: '🦵 ขา-ก้น', title: 'ขา & ก้นกระชับ', sub: 'KB 8 กก. / เก้าอี้ • 14 นาที', color: '#059669' },
+    { id: 'stretch', wKey: 'BF_STRETCH', label: '🧘 ยืดเหยียดหลัง', title: 'ยืดเหยียดหลัง & คลายปวด', sub: 'คลายสะโพก-หลังล่าง • 10 นาที', color: '#7c3aed' }
+];
 /* ============ PERIODIZED WEIGHT PROGRESSION (5 PHASES) ============ */
 const PHASE_WEIGHTS = {
     // Phase 1 (เริ่มต้นคุมฟอร์มด้วยดัมเบล 4 และ 6 กก.), Phase 2 (ขยับใช้ 6 กก. และเคทเทิลเบล 8 กก.), Phase 3-5 (เพิ่มเซ็ต & Tempo)
@@ -212,8 +298,68 @@ function getExerciseWeightInfo(k) {
     };
 }
 
-const SCHED = ['R', 'A', 'Z', 'B', 'R', 'C', 'H'];
+const SCHED = ['R', 'A', 'Z', 'B', 'H', 'R', 'C'];
 const DN = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+
+const GOAL_TRAINING_PROFILES = {
+    recomp: {
+        id: 'recomp',
+        title: '⚡ Body Recomp (ลดไขมัน+รักษากล้ามเนื้อ)',
+        restDelta: 0,
+        compoundExtraSets: 0,
+        cardioSecDelta: 0,
+        tip: 'สมดุลเวท + Zone 2 ลดไขมันช่องท้องและรักษากล้ามเนื้อ'
+    },
+    cut: {
+        id: 'cut',
+        title: '🔥 Fat Loss Cut (เร่งเบิร์นไขมัน)',
+        restDelta: -10,
+        compoundExtraSets: 0,
+        cardioSecDelta: 600,
+        tip: 'เพิ่มเดินลู่ Zone 2 +10 นาที & ลดเวลาพัก -10 วิ เร่งออกซิเดชันไขมัน'
+    },
+    slow_cut: {
+        id: 'slow_cut',
+        title: '🌿 Slow Cut (ลดช้าๆ ยั่งยืน ไม่ล้า)',
+        restDelta: 0,
+        compoundExtraSets: 0,
+        cardioSecDelta: -300,
+        tip: 'คาร์ดิโอพอเหมาะ (-5 นาที) + พักเต็มที่ ไม่กระทบงาน/การเข้าเวร'
+    },
+    lean_bulk: {
+        id: 'lean_bulk',
+        title: '💪 Lean Bulk (เพิ่มกล้ามเนื้อลีน)',
+        restDelta: 15,
+        compoundExtraSets: 1,
+        cardioSecDelta: -600,
+        tip: 'เพิ่ม +1 เซ็ตท่าหลัก & พัก +15 วิ ลดคาร์ดิโอลงเพื่อเก็บพลังงานสร้างกล้าม'
+    }
+};
+
+function getWeeklyDaysTarget() {
+    const raw = (typeof D !== 'undefined' && D.cfg && D.cfg.weeklyDays) ? parseInt(D.cfg.weeklyDays, 10) : 5;
+    return [3, 4, 5, 6].includes(raw) ? raw : 5;
+}
+
+function getGoalTrainingProfile(goalType) {
+    const g = goalType || (typeof D !== 'undefined' && D.cfg && D.cfg.goalType) || 'recomp';
+    return GOAL_TRAINING_PROFILES[g] || GOAL_TRAINING_PROFILES.recomp;
+}
+
+function getActiveSchedule() {
+    const days = getWeeklyDaysTarget();
+    const g = (typeof D !== 'undefined' && D.cfg && D.cfg.goalType) || 'recomp';
+    if (days === 3) {
+        return ['R', 'A', 'R', 'B', 'R', 'C', 'R'];
+    }
+    if (days === 4) {
+        return g === 'lean_bulk' ? ['R', 'A', 'B', 'R', 'C', 'Z', 'R'] : ['R', 'A', 'Z', 'B', 'R', 'C', 'R'];
+    }
+    if (days === 6) {
+        return g === 'lean_bulk' ? ['R', 'A', 'B', 'C', 'Z', 'A', 'B'] : ['R', 'A', 'Z', 'B', 'H', 'C', 'Z'];
+    }
+    return SCHED;
+}
 
 function totalWeeks() { return D.cfg.courseWeeks || 20; }
 function wkNo() { return Math.min(totalWeeks(), Math.max(1, Math.floor((new Date(iso() + 'T00:00:00+07:00') - new Date((D.start || iso()) + 'T00:00:00+07:00')) / 864e5 / 7) + 1)); }
