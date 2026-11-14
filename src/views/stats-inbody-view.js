@@ -757,6 +757,7 @@ async function processMultiImageAIFood(imagesArray = [], textNote = '') {
         if (!jsonMatch) throw new Error('AI ส่งผลลัพธ์ไม่ตรงรูปแบบ JSON');
         const result = JSON.parse(jsonMatch[0]);
         
+        await completeAiScanAnimation();
         fcClose();
         setTimeout(() => {
             const foodName = (result.name || 'อาหาร').trim();
@@ -959,12 +960,14 @@ async function processMultiImageAIFood(imagesArray = [], textNote = '') {
             fcAlert(resModalHtml);
         }, 300);
     } catch (err) {
+        hideAiScanAnimation();
         fcClose();
         setTimeout(() => fcAlert('เกิดข้อผิดพลาด: ' + err.message), 300);
     }
 }
 
 function saveAiFoodMeal(portion) {
+    hideAiScanAnimation();
     const name = (document.getElementById('aiFoodName')?.value || 'อาหาร').trim();
     const mealType = document.getElementById('aiMealType')?.value || 'lunch';
     const cal = Math.round(Number(document.getElementById('aiCal')?.value) || 0);
@@ -1679,6 +1682,7 @@ async function deleteSpecificMeasurement(partKey, dateStr) {
    HOLOGRAPHIC AI LASER SCANNER ANIMATION CONTROLLER (v3.5.0)
    ============================================================================ */
 let _aiScanTimer = null;
+let _aiScanSafetyTimeout = null;
 
 function startAiScanAnimation(sampleImage) {
     const overlay = document.getElementById('fcAiScanLoadingOverlay');
@@ -1696,6 +1700,16 @@ function startAiScanAnimation(sampleImage) {
     overlay.style.display = 'flex';
 
     if (_aiScanTimer) clearInterval(_aiScanTimer);
+    if (_aiScanSafetyTimeout) clearTimeout(_aiScanSafetyTimeout);
+
+    // Safety timeout: auto-hide overlay after 25s if network stalls
+    _aiScanSafetyTimeout = setTimeout(() => {
+        if (overlay.style.display !== 'none') {
+            hideAiScanAnimation();
+            fcAlert('การประมวลผลใช้เวลานานเกินไป กรุณาตรวจสอบสัญญาณอินเทอร์เน็ตแล้วลองใหม่อีกครั้งครับ');
+        }
+    }, 25000);
+
     let curPct = 0;
     _aiScanTimer = setInterval(() => {
         if (curPct < 92) {
@@ -1719,6 +1733,7 @@ function startAiScanAnimation(sampleImage) {
 function completeAiScanAnimation() {
     return new Promise(resolve => {
         if (_aiScanTimer) clearInterval(_aiScanTimer);
+        if (_aiScanSafetyTimeout) clearTimeout(_aiScanSafetyTimeout);
         const pctEl = document.getElementById('fcAiScanPct');
         const barEl = document.getElementById('fcAiScanProgressBar');
         const txtEl = document.getElementById('fcAiScanStatusText');
@@ -1737,6 +1752,10 @@ function completeAiScanAnimation() {
 
 function hideAiScanAnimation() {
     if (_aiScanTimer) clearInterval(_aiScanTimer);
+    if (_aiScanSafetyTimeout) clearTimeout(_aiScanSafetyTimeout);
     const overlay = document.getElementById('fcAiScanLoadingOverlay');
     if (overlay) overlay.style.display = 'none';
 }
+window.startAiScanAnimation = startAiScanAnimation;
+window.completeAiScanAnimation = completeAiScanAnimation;
+window.hideAiScanAnimation = hideAiScanAnimation;

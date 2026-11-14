@@ -1898,6 +1898,15 @@ body.onboard-active nav {
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
     transition: all 0.3s ease;
     z-index: 4;
+    cursor: pointer;
+    user-select: none;
+}
+.wm-if-bead:hover {
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+}
+.wm-if-bead:active {
+    transform: scale(0.95);
 }
 .wm-if-bead.active {
     border-color: #0284c7;

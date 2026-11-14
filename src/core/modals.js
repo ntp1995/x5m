@@ -23,6 +23,7 @@ function fcShow(type, title, desc, defVal) {
     });
 }
 function fcClose(val) {
+    if (typeof hideAiScanAnimation === 'function') hideAiScanAnimation();
     document.getElementById('fcModal').classList.remove('on');
     const okBtn = document.getElementById('fcOk');
     const cancelBtn = document.getElementById('fcCancel');

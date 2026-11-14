@@ -617,17 +617,17 @@
                         <path id="v3IfArcPath" d="M 45 195 A 95 95 0 1 1 195 195" fill="none" stroke="#0284c7" stroke-width="16" stroke-linecap="round" stroke-dasharray="450" stroke-dashoffset="440" style="transition:stroke-dashoffset 0.5s ease;"/>
                     </svg>
 
-                    <!-- 5 Milestone Beads on the Track -->
+                    <!-- 5 Milestone Beads on the Track (Tap to view stage science) -->
                     <!-- Bead 1: Drop Down (น้ำตาลลดลง) - 210 deg -->
-                    <div id="ifBead1" class="wm-if-bead" style="left:26px; top:170px;" title="ระยะที่ 1: น้ำตาลและอินซูลินเริ่มลด">💧↓</div>
+                    <div id="ifBead1" class="wm-if-bead" style="left:26px; top:170px; cursor:pointer;" onclick="openIfStageDetailModal(1)" title="ระยะที่ 1: น้ำตาลและอินซูลินเริ่มลด">💧↓</div>
                     <!-- Bead 2: Drop Up (อินซูลินต่ำ) - 150 deg -->
-                    <div id="ifBead2" class="wm-if-bead" style="left:14px; top:90px;" title="ระยะที่ 2: ตับหยุดเก็บไขมันใหม่">💧↑</div>
+                    <div id="ifBead2" class="wm-if-bead" style="left:14px; top:90px; cursor:pointer;" onclick="openIfStageDetailModal(2)" title="ระยะที่ 2: ตับหยุดเก็บไขมันใหม่">💧↑</div>
                     <!-- Bead 3: Flame (Ketosis สลายไขมัน) - 90 deg (Top) -->
-                    <div id="ifBead3" class="wm-if-bead" style="left:105px; top:10px;" title="ระยะที่ 3: สลายไขมันพอกตับ & ไขมันช่องท้อง">🔥</div>
+                    <div id="ifBead3" class="wm-if-bead" style="left:105px; top:10px; cursor:pointer;" onclick="openIfStageDetailModal(3)" title="ระยะที่ 3: สลายไขมันพอกตับ & ไขมันช่องท้อง">🔥</div>
                     <!-- Bead 4: Rocket (Autophagy กลืนกินเซลล์เก่า) - 30 deg -->
-                    <div id="ifBead4" class="wm-if-bead" style="right:14px; top:90px;" title="ระยะที่ 4: Autophagy ฟื้นฟูเซลล์">🚀</div>
+                    <div id="ifBead4" class="wm-if-bead" style="right:14px; top:90px; cursor:pointer;" onclick="openIfStageDetailModal(4)" title="ระยะที่ 4: เผาผลาญไขมันช่องท้อง & ไตรกลีเซอไรด์">🚀</div>
                     <!-- Bead 5: DNA / Cell Renewal - 330 deg -->
-                    <div id="ifBead5" class="wm-if-bead" style="right:26px; top:170px;" title="ระยะที่ 5: ฟื้นฟูระดับเซลล์สมบูรณ์">🧬</div>
+                    <div id="ifBead5" class="wm-if-bead" style="right:26px; top:170px; cursor:pointer;" onclick="openIfStageDetailModal(5)" title="ระยะที่ 5: ฟื้นฟูระดับเซลล์สมบูรณ์">🧬</div>
 
                     <!-- Dial Center Info -->
                     <div class="wm-if-dial-center">
@@ -662,6 +662,9 @@
                         <div id="ifEndTime" style="font-size:16px; font-weight:900; color:#0f172a; margin-top:2px;">10:00</div>
                     </div>
                 </div>
+
+                <!-- Highlight Card: ระยะการเผาผลาญปัจจุบัน (Current Metabolic Stage Banner) -->
+                <div id="ifCurrentStageBanner" style="margin-top:14px;"></div>
 
                 <!-- Announcement Pill -->
                 <div class="wm-if-notice-pill" onclick="openIfNoticeModal()" title="ดูข้อควรระวังและประกาศสำคัญ">
@@ -1229,7 +1232,8 @@
     
     <!-- ================= FULL-SCREEN AI SCANNING & LASER ANIMATION OVERLAY (v3.5.0) ================= -->
     <div id="fcAiScanLoadingOverlay" class="fc-ai-scan-overlay" style="display:none;">
-        <div class="fc-ai-scan-card">
+        <div class="fc-ai-scan-card" style="position:relative;">
+            <button type="button" onclick="hideAiScanAnimation();" style="position:absolute; top:12px; right:12px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25); color:#fff; width:28px; height:28px; border-radius:50%; font-size:13px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:10;" title="ยกเลิกการสแกน">✕</button>
             <div style="font-size:12px; font-weight:800; color:#34d399; letter-spacing:1px; margin-bottom:8px;">
                 ⚡ GEMINI AI VISION SCANNER
             </div>
