@@ -76,6 +76,42 @@ const MEAL_LABELS = {
     snack: '🍎 ของว่าง'
 };
 
+function getSmartDefaultMealType(cal = 0, targetDateIso = null, customHour = null) {
+    const dStr = targetDateIso || iso();
+    const rec = (typeof D !== 'undefined' && D.checks) ? D.checks.find(x => x.d === dStr) : null;
+    const meals = rec?.meals || [];
+    const now = new Date();
+    const nowH = (customHour != null) ? customHour : (now.getHours() + (now.getMinutes() / 60));
+
+    const hasBreakfast = meals.some(m => m.type === 'breakfast');
+    const hasLunch = meals.some(m => m.type === 'lunch');
+    const hasDinner = meals.some(m => m.type === 'dinner');
+
+    // Case 1: First meal of the day (e.g. 16:8 IF breaking fast in the afternoon at 14:00-16:00)
+    if (!hasBreakfast && !hasLunch) {
+        if (nowH < 11.0) return 'breakfast';
+        if (nowH < 17.0) return 'lunch'; // Substantial first meal in afternoon is Lunch/Main Meal!
+        return 'dinner';
+    }
+
+    // Case 2: Breakfast recorded, no lunch yet
+    if (!hasLunch) {
+        if (nowH < 17.0) return 'lunch';
+        return (cal >= 300) ? 'dinner' : 'snack';
+    }
+
+    // Case 3: Lunch recorded, no dinner yet
+    if (!hasDinner) {
+        // Evening or heavy dish (>= 350 kcal, like half a chicken) -> dinner
+        if (nowH >= 17.0 || cal >= 350) return 'dinner';
+        return 'snack';
+    }
+
+    // Case 4: Main meals already present
+    return 'snack';
+}
+if (typeof window !== 'undefined') window.getSmartDefaultMealType = getSmartDefaultMealType;
+
 function recalculateDailyNutrition(dateKey) {
     const dStr = dateKey || iso();
     let rec = D.checks.find(x => x.d === dStr);
@@ -313,6 +349,43 @@ function addMealToToday(mealType, name, portion, cal, pro, carbs, fat, sugar = 0
     render();
     if (typeof pushToCloud === 'function') pushToCloud();
     msg('✓ บันทึกมื้ออาหารเรียบร้อย (+ ' + newMealItem.cal + ' kcal • เกรด ' + newMealItem.nutriGrade + ')');
+
+    // IF Fast Breaking Detection: If calories > 0 and user is currently in active fasting state
+    if (newMealItem.cal > 0 && typeof D !== 'undefined' && D.if && D.if.start) {
+        const elapsedHours = Math.max(0, (Date.now() - D.if.start) / 3600000);
+        const h = Math.floor(elapsedHours);
+        const m = Math.floor((elapsedHours % 1) * 60);
+        setTimeout(async () => {
+            const confirmFn = typeof fcConfirm === 'function' ? fcConfirm : (typeof window !== 'undefined' ? window.fcConfirm : null);
+            if (confirmFn) {
+                const ok = await confirmFn(`
+                    <div style="text-align:left; font-size:13.5px; line-height:1.5;">
+                        <div style="font-size:16px; font-weight:900; color:var(--acc); margin-bottom:8px;">🍽️ ตรวจพบการทานอาหาร (Break Fast)</div>
+                        <div style="background:var(--card2); border-radius:10px; padding:10px 12px; margin-bottom:10px; border:1px solid var(--line);">
+                            <div>⏱️ <b>เวลาอดอาหารที่ทำได้:</b> <span style="color:#059669; font-weight:800;">${h} ชม. ${m} นาที</span></div>
+                            <div style="margin-top:2px;">🥗 <b>มื้อที่บันทึก:</b> ${newMealItem.name} (${newMealItem.cal} kcal)</div>
+                        </div>
+                        <div style="color:var(--tx); font-size:13px;">การทานอาหารทำให้สภาวะ Fasting สิ้นสุดลงทางสรีรวิทยา ต้องการ <b>สิ้นสุดการอดอาหารรอบนี้</b> และเริ่มต้นนับ <b>ช่วงเวลากินอาหาร (Eating Window)</b> เลยหรือไม่?</div>
+                    </div>
+                `, '⏱️ สิ้นสุดการอดอาหาร');
+                if (ok) {
+                    if (typeof endFastingSession === 'function') {
+                        endFastingSession(Date.now(), elapsedHours);
+                    } else if (typeof window !== 'undefined' && typeof window.endFastingSession === 'function') {
+                        window.endFastingSession(Date.now(), elapsedHours);
+                    } else {
+                        D.if.lastFastEnd = Date.now();
+                        D.if.lastFastDuration = elapsedHours;
+                        D.if.eatingWindowStart = Date.now();
+                        D.if.start = null;
+                        D.if.updatedAt = Date.now();
+                        save();
+                        if (typeof updateIFUI === 'function') updateIFUI();
+                    }
+                }
+            }
+        }, 300);
+    }
 }
 
 /* ============ EDIT / ADJUST LOGGED MEAL PORTION ============ */
@@ -552,12 +625,7 @@ function quickLogFavoriteMeal(favId) {
     const fav = (D.cfg.savedFoods || []).find(f => f.id === favId);
     if (!fav) return;
 
-    const nowH = new Date().getHours() + (new Date().getMinutes() / 60);
-    let mType = 'lunch';
-    if (nowH < 10.5) mType = 'breakfast';
-    else if (nowH < 14.5) mType = 'lunch';
-    else if (nowH < 17.5) mType = 'snack';
-    else mType = 'dinner';
+    const mType = typeof getSmartDefaultMealType === 'function' ? getSmartDefaultMealType(fav.cal || 0) : 'lunch';
 
     const extraMeta = {
         fiber: fav.fiber || 0,
@@ -683,7 +751,7 @@ function deleteCombo(comboId, ev) {
 }
 
 function openAddMealModal(defaultMealType) {
-    const mType = defaultMealType || 'lunch';
+    const mType = defaultMealType || (typeof getSmartDefaultMealType === 'function' ? getSmartDefaultMealType() : 'lunch');
     const html = `
         <div style="text-align:left; font-size:14px; max-height:75vh; display:flex; flex-direction:column;">
             <div style="font-weight:800; font-size:16px; color:var(--acc); margin-bottom:8px;">🥗 บันทึกมื้ออาหาร</div>

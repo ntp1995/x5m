@@ -343,6 +343,7 @@ body {
     display: none;
 }
 .wm-day-chip {
+    flex: 0 0 auto;
     background: #f1f5f9;
     border: 1px solid #cbd5e1;
     border-radius: 99px;

@@ -385,18 +385,71 @@ function setIFGoal(hrs) {
     if (typeof msg === 'function') msg('✓ ตั้งค่าเป้าหมาย IF เป็น ' + hrs + ':8 แล้ว');
 }
 
+function endFastingSession(endTimeMs, durationHours) {
+    if (!D.if) D.if = { goal: 16 };
+    const endMs = endTimeMs || Date.now();
+    const dur = durationHours != null ? durationHours : (D.if.start ? Math.max(0, (endMs - D.if.start) / 3600000) : 0);
+    D.if.lastFastEnd = endMs;
+    D.if.lastFastDuration = dur;
+    D.if.eatingWindowStart = endMs;
+    D.if.start = null;
+    D.if.updatedAt = Date.now();
+    save();
+    if (currentUser && fbDb) pushToCloud();
+    const h = Math.floor(dur);
+    const m = Math.floor((dur % 1) * 60);
+    if (typeof msg === 'function') msg(`✓ สิ้นสุดการอดอาหาร (${h} ชม. ${m} นาที) เริ่มช่วงเวลารับประทานอาหาร`);
+    updateIFUI();
+}
+window.endFastingSession = endFastingSession;
+
+function endFastingFromLoggedMeal() {
+    const tc = typeof todayCheck === 'function' ? todayCheck() : null;
+    const mealsToday = (tc && tc.meals) ? tc.meals.filter(m => (Number(m.cal) || 0) > 0) : [];
+    if (mealsToday.length > 0 && mealsToday[0].time) {
+        const parts = mealsToday[0].time.split(':');
+        const mealDate = new Date();
+        mealDate.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10), 0, 0);
+        const endMs = mealDate.getTime();
+        const dur = (D.if && D.if.start) ? Math.max(0, (endMs - D.if.start) / 3600000) : 0;
+        endFastingSession(endMs, dur);
+    } else {
+        endFastingSession();
+    }
+}
+window.endFastingFromLoggedMeal = endFastingFromLoggedMeal;
+
 async function toggleIF() {
     if (D.if.start) {
-        if (await fcConfirm('สิ้นสุดการทำ IF รอบนี้ (เริ่มช่วงเวลากินอาหาร) ใช่หรือไม่?')) {
-            D.if.start = null;
-            D.if.updatedAt = Date.now();
-            save();
-            if (currentUser && fbDb) pushToCloud();
-            if (typeof msg === 'function') msg('✓ สิ้นสุดการอดอาหาร เริ่มช่วงเวลารับประทานอาหาร');
+        const tc = typeof todayCheck === 'function' ? todayCheck() : null;
+        const mealsToday = (tc && tc.meals) ? tc.meals.filter(m => (Number(m.cal) || 0) > 0) : [];
+        let promptMsg = 'สิ้นสุดการทำ IF รอบนี้ (เริ่มช่วงเวลากินอาหาร) ใช่หรือไม่?';
+        let customEndTime = Date.now();
+        let customDuration = (Date.now() - D.if.start) / 3600000;
+
+        if (mealsToday.length > 0 && mealsToday[0].time) {
+            const mParts = mealsToday[0].time.split(':');
+            if (mParts.length === 2) {
+                const mealDate = new Date();
+                mealDate.setHours(parseInt(mParts[0], 10), parseInt(mParts[1], 10), 0, 0);
+                if (mealDate.getTime() > D.if.start && mealDate.getTime() <= Date.now()) {
+                    const durH = (mealDate.getTime() - D.if.start) / 3600000;
+                    const h = Math.floor(durH);
+                    const m = Math.floor((durH % 1) * 60);
+                    promptMsg = `ตรวจพบว่าเริ่มทานอาหารมื้อแรก (${mealsToday[0].name}) เวลา ${mealsToday[0].time} น.<br><br>ต้องการ <b>สิ้นสุดการอดอาหารที่เวลา ${mealsToday[0].time} น.</b> (ทำได้ ${h} ชม. ${m} นาที) และเริ่มช่วงเวลากินอาหาร ใช่หรือไม่?`;
+                    customEndTime = mealDate.getTime();
+                    customDuration = durH;
+                }
+            }
+        }
+
+        if (await fcConfirm(promptMsg, '⏹ สิ้นสุดการอดอาหาร')) {
+            endFastingSession(customEndTime, customDuration);
         }
     } else {
         D.if.start = Date.now();
         D.if.notifiedComplete = false;
+        D.if.eatingWindowStart = null;
         D.if.updatedAt = Date.now();
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission();
@@ -404,8 +457,8 @@ async function toggleIF() {
         save();
         if (currentUser && fbDb) pushToCloud();
         if (typeof msg === 'function') msg('✓ เริ่มต้นจับเวลาการอดอาหารแล้ว');
+        updateIFUI();
     }
-    updateIFUI();
 }
 
 /* ============ WISEMEAL IF MODAL HANDLERS ============ */
@@ -647,6 +700,7 @@ function updateIFUI() {
         // Toggle Button State
         if (toggleBtn) {
             toggleBtn.classList.add('is-fasting');
+            toggleBtn.style.background = '';
             if (btnIcon) btnIcon.textContent = '⏹';
             if (btnText) btnText.textContent = 'สิ้นสุดการอดอาหาร';
         }
@@ -654,42 +708,144 @@ function updateIFUI() {
         // 5 Milestone Beads on Dial
         updateIfBeads(elapsedHours);
 
+        // Check if user has already eaten meals today during active fasting
+        const conflictBanner = document.getElementById('ifMealConflictBanner');
+        const tc = (typeof todayCheck === 'function') ? todayCheck() : null;
+        const mealsToday = (tc && tc.meals) ? tc.meals.filter(m => (Number(m.cal) || 0) > 0) : [];
+        if (conflictBanner) {
+            if (mealsToday.length > 0) {
+                const fMeal = mealsToday[0];
+                let mTimeMs = Date.now();
+                if (fMeal.time && fMeal.time.includes(':')) {
+                    const p = fMeal.time.split(':');
+                    const mDate = new Date();
+                    mDate.setHours(parseInt(p[0], 10), parseInt(p[1], 10), 0, 0);
+                    mTimeMs = mDate.getTime();
+                }
+                const actualFastH = Math.max(0, (mTimeMs - D.if.start) / 3600000);
+                const fh = Math.floor(actualFastH);
+                const fm = Math.floor((actualFastH % 1) * 60);
+                const durText = `${fh} ชม. ${fm} นาที`;
+
+                conflictBanner.style.display = 'block';
+                conflictBanner.innerHTML = `
+                    <div style="background:rgba(239,68,68,0.08); border:1.5px solid #ef4444; border-radius:14px; padding:12px 14px; text-align:left; box-shadow:0 4px 12px rgba(239,68,68,0.1);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                            <div style="flex:1;">
+                                <div style="font-size:13px; font-weight:800; color:#dc2626; display:flex; align-items:center; gap:6px;">
+                                    <span>⚠️ ตรวจพบการทานอาหารแล้ว</span>
+                                    <span class="tag" style="background:#fee2e2; color:#b91c1c; font-size:10px; padding:1px 6px;">${fMeal.time || ''}</span>
+                                </div>
+                                <div style="font-size:11.5px; color:#475569; margin-top:3px; line-height:1.4;">
+                                    บันทึก <b>${fMeal.name}</b> (${fMeal.cal} kcal) แล้ว — สภาวะ Fasting สิ้นสุดลงทางสรีรวิทยา
+                                </div>
+                            </div>
+                            <button type="button" class="btn sm" onclick="endFastingFromLoggedMeal()" style="background:#dc2626; color:#fff; border:none; border-radius:8px; font-size:11.5px; font-weight:800; padding:8px 12px; cursor:pointer; white-space:nowrap; box-shadow:0 2px 8px rgba(220,38,38,0.25);">
+                                ⏹ ตัดรอบ Fast (${durText})
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                conflictBanner.style.display = 'none';
+                conflictBanner.innerHTML = '';
+            }
+        }
+
         if (stText) stText.textContent = diffSec >= goalSec ? 'ครบเป้าหมายแล้ว' : 'กำลังอดอาหาร';
     } else {
-        // Fasting Not Started (WiseMeal default view as in image 2 & 3)
-        const defaultStart = new Date();
-        defaultStart.setHours(18, 0, 0, 0);
-
-        if (cardTitle) cardTitle.textContent = 'พร้อมเริ่มอดอาหารหรือยัง?';
-        if (timerSub) timerSub.textContent = 'เริ่มอดอาหาร';
-        if (dayLabel) dayLabel.textContent = 'วันนี้';
-        disp.textContent = '18:00';
-
-        if (startDayEl) startDayEl.textContent = 'วันนี้';
-        if (stTime) stTime.textContent = '18:00';
-
-        // Expected End time: 18:00 + goalHrs (e.g. 18:00 + 16h = 10:00 next day)
-        const endH = (18 + goalHrs) % 24;
-        const isNextDay = (18 + goalHrs) >= 24;
-        if (endDayEl) endDayEl.textContent = isNextDay ? 'พรุ่งนี้' : 'วันนี้';
-        if (endTimeEl) endTimeEl.textContent = `${String(endH).padStart(2, '0')}:00`;
-
-        if (arcEl && typeof arcEl.setAttribute === 'function') {
-            arcEl.setAttribute('stroke-dashoffset', '440');
-            arcEl.setAttribute('stroke', '#0284c7');
-        }
-        if (bar) bar.style.width = '0%';
-
-        if (toggleBtn) {
-            toggleBtn.classList.remove('is-fasting');
-            if (btnIcon) btnIcon.textContent = '▶';
-            if (btnText) btnText.textContent = 'เริ่มอดอาหาร';
+        const conflictBanner = document.getElementById('ifMealConflictBanner');
+        if (conflictBanner) {
+            conflictBanner.style.display = 'none';
+            conflictBanner.innerHTML = '';
         }
 
-        // Reset beads
-        updateIfBeads(0);
+        const tc = (typeof todayCheck === 'function') ? todayCheck() : null;
+        const mealsToday = (tc && tc.meals) ? tc.meals.filter(m => (Number(m.cal) || 0) > 0) : [];
 
-        if (stText) stText.textContent = 'พร้อมเริ่มอดอาหาร';
+        // Fasting Not Active — Check if currently within Feeding Window (e.g. 8h)
+        const eatGoalHrs = 24 - goalHrs; // e.g. 8h for 16:8
+        const eatGoalSec = eatGoalHrs * 3600;
+
+        let eatStartMs = D.if?.eatingWindowStart;
+        if (!eatStartMs && mealsToday.length > 0 && mealsToday[0].time) {
+            const parts = mealsToday[0].time.split(':');
+            const mDate = new Date();
+            mDate.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10), 0, 0);
+            eatStartMs = mDate.getTime();
+        }
+
+        const elapsedEatSec = eatStartMs ? Math.max(0, Math.floor((now - eatStartMs) / 1000)) : 0;
+        const isEatingWindow = eatStartMs && (elapsedEatSec < eatGoalSec);
+
+        if (isEatingWindow) {
+            const remainSec = Math.max(0, eatGoalSec - elapsedEatSec);
+            const rh = Math.floor(remainSec / 3600);
+            const rm = Math.floor((remainSec % 3600) / 60);
+            const rs = remainSec % 60;
+
+            if (cardTitle) cardTitle.textContent = 'ช่วงเวลารับประทานอาหาร (Eating Window)';
+            if (timerSub) timerSub.textContent = 'เหลือเวลากินอาหารอีก';
+            if (dayLabel) dayLabel.textContent = 'วันนี้';
+            disp.textContent = `${String(rh).padStart(2, '0')}:${String(rm).padStart(2, '0')}:${String(rs).padStart(2, '0')}`;
+
+            const eatStartDate = new Date(eatStartMs);
+            const eatEndDate = new Date(eatStartMs + eatGoalSec * 1000);
+
+            if (startDayEl) startDayEl.textContent = 'เริ่มกินอาหาร';
+            if (stTime) stTime.textContent = formatThaiTime(eatStartDate);
+            if (endDayEl) endDayEl.textContent = 'หมดเวลากิน';
+            if (endTimeEl) endTimeEl.textContent = formatThaiTime(eatEndDate);
+
+            const eatPct = Math.min(1, Math.max(0.04, elapsedEatSec / eatGoalSec));
+            if (arcEl && typeof arcEl.setAttribute === 'function') {
+                arcEl.setAttribute('stroke-dashoffset', String(Math.round(450 * (1 - eatPct))));
+                arcEl.setAttribute('stroke', '#10b981'); // Emerald green
+            }
+            if (bar) bar.style.width = (eatPct * 100) + '%';
+
+            if (toggleBtn) {
+                toggleBtn.classList.remove('is-fasting');
+                toggleBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                if (btnIcon) btnIcon.textContent = '▶';
+                if (btnText) btnText.textContent = 'เริ่มอดอาหารรอบใหม่';
+            }
+            if (stText) stText.textContent = 'ช่วงเวลารับประทานอาหาร';
+            updateIfBeads(0);
+        } else {
+            // Fasting Not Started (WiseMeal default view)
+            const defaultStart = new Date();
+            defaultStart.setHours(18, 0, 0, 0);
+
+            if (cardTitle) cardTitle.textContent = 'พร้อมเริ่มอดอาหารหรือยัง?';
+            if (timerSub) timerSub.textContent = 'เริ่มอดอาหาร';
+            if (dayLabel) dayLabel.textContent = 'วันนี้';
+            disp.textContent = '18:00';
+
+            if (startDayEl) startDayEl.textContent = 'วันนี้';
+            if (stTime) stTime.textContent = '18:00';
+
+            const endH = (18 + goalHrs) % 24;
+            const isNextDay = (18 + goalHrs) >= 24;
+            if (endDayEl) endDayEl.textContent = isNextDay ? 'พรุ่งนี้' : 'วันนี้';
+            if (endTimeEl) endTimeEl.textContent = `${String(endH).padStart(2, '0')}:00`;
+
+            if (arcEl && typeof arcEl.setAttribute === 'function') {
+                arcEl.setAttribute('stroke-dashoffset', '440');
+                arcEl.setAttribute('stroke', '#0284c7');
+            }
+            if (bar) bar.style.width = '0%';
+
+            if (toggleBtn) {
+                toggleBtn.classList.remove('is-fasting');
+                toggleBtn.style.background = '';
+                if (btnIcon) btnIcon.textContent = '▶';
+                if (btnText) btnText.textContent = 'เริ่มอดอาหาร';
+            }
+
+            updateIfBeads(0);
+            if (stText) stText.textContent = 'พร้อมเริ่มอดอาหาร';
+        }
     }
 }
 

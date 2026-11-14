@@ -833,7 +833,7 @@ async function processMultiImageAIFood(imagesArray = [], textNote = '') {
             }
 
             const nowH = new Date().getHours() + (new Date().getMinutes() / 60);
-            const defMeal = nowH < 10.5 ? 'breakfast' : nowH < 14.5 ? 'lunch' : nowH < 17.5 ? 'snack' : 'dinner';
+            const defMeal = typeof getSmartDefaultMealType === 'function' ? getSmartDefaultMealType(Number(res.calories) || 0) : (nowH < 10.5 ? 'breakfast' : nowH < 14.5 ? 'lunch' : nowH < 17.5 ? 'snack' : 'dinner');
 
             const resModalHtml = `
                 <div style="text-align:left; font-size:14px; max-height:78vh; overflow-y:auto; padding-right:2px;">

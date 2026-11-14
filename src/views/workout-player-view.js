@@ -268,8 +268,23 @@ function loadStep() {
         const wInfo = getExerciseWeightInfo(s.e);
         const eqDisplay = wInfo.label || (e && e.eq) || '';
         const eqText = eqDisplay ? ` • 🏋️ <span style="color:var(--tx);font-weight:700;">${eqDisplay}</span>` : '';
+
+        // Progressive Overload Coach Badge
+        const pIdx = phIdx();
+        const baseKg = (PHASE_WEIGHTS[s.e] && PHASE_WEIGHTS[s.e][pIdx] != null) ? PHASE_WEIGHTS[s.e][pIdx] : null;
+        const isMcGillProtected = (D && D.bs) || (typeof todayCheck === 'function' && todayCheck()?.pain > 2);
+        let coachHintHtml = '';
+        if (baseKg != null) {
+            if (isMcGillProtected && ['rdl', 'swing', 'goblet'].includes(s.e)) {
+                coachHintHtml = `<div style="font-size:11px; font-weight:800; color:#0284c7; background:#e0f2fe; padding:2px 8px; border-radius:99px; margin-top:5px; display:inline-flex; align-items:center; gap:4px; border:1px solid #bae6fd;">🛡️ McGill Shield: เซฟหลัง โฟกัสฟอร์ม</div>`;
+            } else if (wInfo.isCustom && wInfo.kg > baseKg) {
+                coachHintHtml = `<div style="font-size:11px; font-weight:800; color:#ea580c; background:#fff7ed; padding:2px 8px; border-radius:99px; margin-top:5px; display:inline-flex; align-items:center; gap:4px; border:1px solid #fdba74;">🔥 โค้ช Overload: +${wInfo.kg - baseKg}kg (เหนือเกณฑ์ Phase ${pIdx + 1})</div>`;
+            } else {
+                coachHintHtml = `<div style="font-size:11px; font-weight:800; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:99px; margin-top:5px; display:inline-flex; align-items:center; gap:4px; border:1px solid #a7f3d0;">⚡ โค้ชแนะนำ: Phase ${pIdx + 1} (${baseKg} กก.)</div>`;
+            }
+        }
+
         if (s.type === 'reps') {
-            const wInfo = getExerciseWeightInfo(s.e);
             s.actKg = s.actKg != null ? s.actKg : wInfo.kg;
             const weightStepper = (s.actKg != null) ? `
                 <span style="display:inline-flex; align-items:center; gap:4px; margin-left:6px; background:rgba(0,0,0,0.06); padding:2px 6px; border-radius:8px;">
@@ -278,9 +293,9 @@ function loadStep() {
                     <button onclick="adjustLiveSetWeight(1, event)" style="background:none; border:none; color:var(--acc); font-weight:900; font-size:14px; cursor:pointer; padding:0 3px;">+</button>
                 </span>` : eqText;
 
-            targetEl.innerHTML = `<span class="pl-target-pill">🎯 <strong style="font-size:1.15em;">${s.tgt}</strong>${weightStepper}</span>`;
+            targetEl.innerHTML = `<span class="pl-target-pill">🎯 <strong style="font-size:1.15em;">${s.tgt}</strong>${weightStepper}</span>${coachHintHtml ? '<br>' + coachHintHtml : ''}`;
         } else {
-            targetEl.innerHTML = `<span class="pl-target-pill">⏱️ <strong style="font-size:1.15em;">${fmt(s.dur)}</strong>${eqText}</span>`;
+            targetEl.innerHTML = `<span class="pl-target-pill">⏱️ <strong style="font-size:1.15em;">${fmt(s.dur)}</strong>${eqText}</span>${coachHintHtml ? '<br>' + coachHintHtml : ''}`;
         }
         targetEl.style.display = 'block';
     } else {
@@ -613,11 +628,19 @@ function autoAdjustWorkoutWeights(workoutKey, delta) {
     D.cfg.weights = D.cfg.weights || {};
     const items = fullItems(workoutKey);
     const touched = [];
+    const isBackPain = (typeof todayCheck === 'function' && todayCheck()?.pain > 2) || (D && D.bs);
+
     items.forEach(it => {
         if (it.ph === 'main' && PHASE_WEIGHTS[it.e]) {
+            // McGill Lower Back Shield: Don't increase weights on spinal loading lifts if back pain is present
+            if (delta > 0 && isBackPain && ['rdl', 'swing', 'goblet'].includes(it.e)) {
+                return;
+            }
             const curWInfo = getExerciseWeightInfo(it.e);
             if (curWInfo.kg != null) {
-                const newKg = Math.max(2, curWInfo.kg + delta);
+                // Compound: delta (+2/-2), Isolation: half delta (+1/-1)
+                const step = ['curl', 'lat'].includes(it.e) ? (delta > 0 ? 1 : -1) : delta;
+                const newKg = Math.max(1, curWInfo.kg + step);
                 D.cfg.weights[it.e] = newKg;
                 touched.push(`${EX[it.e].n}: ${newKg} กก.`);
             }
@@ -625,6 +648,58 @@ function autoAdjustWorkoutWeights(workoutKey, delta) {
     });
     save(); render(); autoSync();
     return touched;
+}
+
+function applySmartOverload(delta) {
+    D.cfg.weights = D.cfg.weights || {};
+    const keys = Object.keys(PHASE_WEIGHTS);
+    const isBackPain = (typeof todayCheck === 'function' && todayCheck()?.pain > 2) || (D && D.bs);
+    const touched = [];
+
+    keys.forEach(k => {
+        if (delta > 0 && isBackPain && ['rdl', 'swing', 'goblet'].includes(k)) {
+            return;
+        }
+        const curWInfo = getExerciseWeightInfo(k);
+        if (curWInfo.kg != null) {
+            const step = ['curl', 'lat'].includes(k) ? (delta > 0 ? 1 : -1) : delta;
+            const newKg = Math.max(1, curWInfo.kg + step);
+            D.cfg.weights[k] = newKg;
+            touched.push(`${EX[k]?.n || k}: ${newKg} กก.`);
+        }
+    });
+    save(); render(); autoSync();
+    if (typeof msg === 'function') {
+        msg(delta > 0 ? `🔥 Overload สำเร็จ (+2 กก. ท่าหลัก / +1 กก. ท่าเล็ก)` : `🛡️ Deload เซฟฟอร์มและหลังเรียบร้อย (-2 กก.)`);
+    }
+    return touched;
+}
+
+function applyPhaseProgressionWeights(phaseIndex) {
+    const pIdx = (phaseIndex != null) ? phaseIndex : phIdx();
+    D.cfg.weights = D.cfg.weights || {};
+    const keys = Object.keys(PHASE_WEIGHTS);
+    keys.forEach(k => {
+        if (PHASE_WEIGHTS[k] && PHASE_WEIGHTS[k][pIdx] != null) {
+            D.cfg.weights[k] = PHASE_WEIGHTS[k][pIdx];
+        }
+    });
+    save(); render(); autoSync();
+    if (typeof msg === 'function') {
+        msg(`✓ อัปเดตน้ำหนักทุกท่าตามเกณฑ์มาตรฐาน Phase ${pIdx + 1} เรียบร้อยแล้ว`);
+    }
+}
+
+function adjustSingleExerciseWeight(k, delta) {
+    const curWInfo = getExerciseWeightInfo(k);
+    if (!curWInfo || curWInfo.kg == null) return;
+    const newKg = Math.max(1, curWInfo.kg + delta);
+    D.cfg.weights = D.cfg.weights || {};
+    D.cfg.weights[k] = newKg;
+    save(); render(); autoSync();
+    if (typeof msg === 'function') {
+        msg(`✓ ${EX[k]?.n || k}: ${newKg} กก.`);
+    }
 }
 
 async function editExerciseWeight(k) {
@@ -710,41 +785,118 @@ function renderWeightProgressionUI() {
     const container = document.getElementById('weightProgressionList');
     if (!container) return;
     const pIdx = phIdx();
-    const keys = Object.keys(PHASE_WEIGHTS);
+    const curPhase = getPhases()[pIdx] || {};
     const phaseLabel = document.getElementById('weightProgPhaseLabel');
     if (phaseLabel) {
-        phaseLabel.textContent = `สัปดาห์ที่ ${wkNo()}/${totalWeeks()} • Phase ${pIdx + 1} (${getPhases()[pIdx]?.n.split(' · ')[1] || ''})`;
+        phaseLabel.textContent = `สัปดาห์ที่ ${wkNo()}/${totalWeeks()} • Phase ${pIdx + 1} (${curPhase.n?.split(' · ')[1] || 'Progressive'})`;
     }
-    
-    let html = '';
-    keys.forEach(k => {
-        const e = EX[k];
-        if (!e) return;
-        const baseKg = PHASE_WEIGHTS[k][pIdx];
-        const wInfo = getExerciseWeightInfo(k);
-        const isCustom = wInfo.isCustom;
-        
-        html += `
-            <div style="background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
-                <div style="flex:1;min-width:0;">
-                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                        <strong style="font-size:14px;color:var(--tx);">${e.n}</strong>
-                        ${isCustom ? '<span class="tag o" style="font-size:10px;padding:1px 6px;">ปรับแต่งเอง</span>' : '<span class="tag gr" style="font-size:10px;padding:1px 6px;">ตามโปรแกรม P' + (pIdx + 1) + '</span>'}
-                    </div>
-                    <div style="font-size:12px;color:var(--dim);margin-top:2px;">
-                        โปรแกรมแนะนำ: ${baseKg} กก.${wInfo.isPair ? '×2' : ''} • ใช้อยู่: <span style="color:var(--acc);font-weight:700;">${wInfo.label}</span>
+
+    const isBackPain = (typeof todayCheck === 'function' && todayCheck()?.pain > 2) || (D && D.bs);
+
+    // Progressive Overload Coach Strategy Card
+    const coachCardHtml = `
+        <div style="background:linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color:#fff; border-radius:14px; padding:14px; margin-bottom:12px; box-shadow:0 4px 14px rgba(15,23,42,0.18);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                <div>
+                    <div style="font-size:11px; font-weight:800; color:#38bdf8; text-transform:uppercase; letter-spacing:0.5px;">🏋️ PROGRESSIVE OVERLOAD COACH</div>
+                    <div style="font-size:15px; font-weight:900; color:#fff; margin-top:2px;">
+                        สัปดาห์ที่ ${wkNo()} · ${curPhase.n || 'Phase ' + (pIdx + 1)}
                     </div>
                 </div>
-                <div style="display:flex;gap:6px;flex-shrink:0;">
-                    <button class="btn sm" onclick="editExerciseWeight('${k}')" style="padding:6px 12px;font-size:12px;">✏️ ปรับ</button>
-                    ${isCustom ? `<button class="btn sm g" onclick="resetExerciseWeight('${k}')" style="padding:6px 8px;font-size:12px;" title="คืนค่ามาตรฐานโปรแกรม">🔄</button>` : ''}
+                <span style="font-size:10.5px; font-weight:800; background:rgba(255,255,255,0.12); color:#cbd5e1; padding:3px 8px; border-radius:99px; border:1px solid rgba(255,255,255,0.2);">
+                    เป้าหมาย: ${curPhase.tgt || '-1.5 กก.'}
+                </span>
+            </div>
+
+            <div style="font-size:12px; color:#cbd5e1; line-height:1.45; margin-bottom:10px;">
+                ${curPhase.d || 'เน้นการปรับตัวและเรียนรู้ฟอร์ม'} <br>
+                <span style="color:#f97316; font-weight:700;">⚡ รูปแบบ: ${curPhase.v || 'พัก 60 วิ'}</span>
+            </div>
+
+            <!-- McGill Back Shield Status -->
+            <div style="background:rgba(255,255,255,0.06); border-radius:10px; padding:8px 10px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.1); font-size:11.5px;">
+                ${isBackPain 
+                    ? '<span style="color:#38bdf8; font-weight:800;">🛡️ McGill Back Shield: เปิดใช้งาน (ตรวจพบอาการตึง/ปวดหลัง)</span><div style="color:#94a3b8; font-size:10.5px; margin-top:2px;">ระบบจะล็อคน้ำหนักท่า RDL / Swing ไม่ให้เพิ่มอัตโนมัติ เพื่อเซฟหมอนรองกระดูกและข้อต่อ</div>' 
+                    : '<span style="color:#34d399; font-weight:800;">🟢 หลังแข็งแรงสมบูรณ์ (McGill Shield Ready)</span><div style="color:#94a3b8; font-size:10.5px; margin-top:2px;">กล้ามเนื้อแกนกลางพร้อมรับแรงโหลด ท่า Compound สามารถเพิ่มน้ำหนักทีละ +2 กก. ได้อย่างปลอดภัย</div>'}
+            </div>
+
+            <!-- 1-Tap Coach Action Buttons -->
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;">
+                <button type="button" class="btn sm" onclick="applyPhaseProgressionWeights()" style="padding:7px 4px; font-size:10.5px; font-weight:800; background:rgba(56,189,248,0.18); border:1px solid #38bdf8; color:#38bdf8; border-radius:8px; cursor:pointer;" title="ตั้งค่าน้ำหนักทุกท่าตามเกณฑ์มาตรฐาน Phase ปัจจุบัน">
+                    ⚡ ตาม Phase ${pIdx + 1}
+                </button>
+                <button type="button" class="btn sm" onclick="applySmartOverload(2)" style="padding:7px 4px; font-size:10.5px; font-weight:800; background:rgba(249,115,22,0.18); border:1px solid #f97316; color:#f97316; border-radius:8px; cursor:pointer;" title="เพิ่มน้ำหนักก้าวหน้า +2 กก. ท่าหลัก (+1 กก. ท่าเล็ก)">
+                    🔥 Overload +2kg
+                </button>
+                <button type="button" class="btn sm" onclick="applySmartOverload(-2)" style="padding:7px 4px; font-size:10.5px; font-weight:800; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#e2e8f0; border-radius:8px; cursor:pointer;" title="ปรับลดน้ำหนักลง 2 กก. เพื่อเน้นฟอร์มและลดความล้า">
+                    🛡️ Deload -2kg
+                </button>
+            </div>
+        </div>
+    `;
+
+    // Grouping: Compound vs Isolation
+    const compoundKeys = ['goblet', 'rdl', 'bench', 'bss', 'press', 'row', 'csrow', 'pullover', 'thrust', 'thruster', 'swing'];
+    const isolationKeys = ['curl', 'lat'];
+
+    function renderGroupHtml(title, subtitle, keysArr) {
+        let itemsHtml = '';
+        keysArr.forEach(k => {
+            const e = EX[k];
+            if (!e) return;
+            const baseKg = PHASE_WEIGHTS[k] ? PHASE_WEIGHTS[k][pIdx] : null;
+            const wInfo = getExerciseWeightInfo(k);
+            const isCustom = wInfo.isCustom;
+            const isHigher = isCustom && baseKg != null && wInfo.kg > baseKg;
+            const isLower = isCustom && baseKg != null && wInfo.kg < baseKg;
+
+            let tagHtml = `<span class="tag gr" style="font-size:9.5px; padding:1px 6px;">ตาม Phase ${pIdx + 1}</span>`;
+            if (isHigher) tagHtml = `<span style="font-size:9.5px; padding:1px 6px; font-weight:800; background:#fff7ed; color:#ea580c; border:1px solid #fdba74; border-radius:6px;">🔥 Overload (+${wInfo.kg - baseKg}kg)</span>`;
+            else if (isLower) tagHtml = `<span style="font-size:9.5px; padding:1px 6px; font-weight:800; background:#f0fdf4; color:#059669; border:1px solid #bbf7d0; border-radius:6px;">🛡️ เซฟฟอร์ม (-${baseKg - wInfo.kg}kg)</span>`;
+
+            itemsHtml += `
+                <div style="background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                    <div style="flex:1; min-width:0;">
+                        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                            <strong style="font-size:13.5px; color:var(--tx);">${e.n}</strong>
+                            ${tagHtml}
+                        </div>
+                        <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">
+                            เกณฑ์มาตรฐาน P${pIdx + 1}: <b>${baseKg != null ? baseKg : '-'} กก.</b> • กำลังใช้: <span style="color:var(--acc); font-weight:800;">${wInfo.label}</span>
+                        </div>
+                    </div>
+
+                    <!-- 1-Tap Stepper & Actions -->
+                    <div style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
+                        <div style="display:inline-flex; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:2px;">
+                            <button type="button" onclick="adjustSingleExerciseWeight('${k}', -1)" style="border:none; background:transparent; color:var(--tx); font-weight:800; font-size:13px; padding:3px 6px; cursor:pointer;" title="ลด 1 กก.">−</button>
+                            <span style="font-size:11.5px; font-weight:800; color:var(--acc); padding:0 3px; min-width:26px; text-align:center;">${wInfo.kg || 0}</span>
+                            <button type="button" onclick="adjustSingleExerciseWeight('${k}', 1)" style="border:none; background:transparent; color:var(--tx); font-weight:800; font-size:13px; padding:3px 6px; cursor:pointer;" title="เพิ่ม 1 กก.">+</button>
+                        </div>
+                        <button class="btn sm" onclick="editExerciseWeight('${k}')" style="padding:5px 8px; font-size:11.5px;" title="พิมพ์ค่าน้ำหนักเอง">✏️</button>
+                        ${isCustom ? `<button class="btn sm g" onclick="resetExerciseWeight('${k}')" style="padding:5px 7px; font-size:11.5px;" title="คืนค่ามาตรฐานตามโปรแกรม">🔄</button>` : ''}
+                    </div>
                 </div>
+            `;
+        });
+        return `
+            <div style="margin-top:10px; margin-bottom:14px;">
+                <div style="font-size:12.5px; font-weight:800; color:var(--tx); margin-bottom:2px;">${title}</div>
+                <div style="font-size:11px; color:var(--dim); margin-bottom:8px;">${subtitle}</div>
+                ${itemsHtml}
             </div>
         `;
-    });
+    }
 
-    container.innerHTML = html;
+    const compoundSection = renderGroupHtml('🏋️ ท่าหลักลำตัว & ขา (Compound Movements)', 'ท่าหลักหลายข้อต่อ ก้าวหน้าอย่างปลอดภัยทีละ +2 กก.', compoundKeys);
+    const isolationSection = renderGroupHtml('💪 ท่าเฉพาะจุด (Arm & Shoulder Isolation)', 'ท่ากล้ามเนื้อมัดเล็ก ก้าวหน้าอย่างระมัดระวังทีละ +1 กก.', isolationKeys);
+
+    container.innerHTML = coachCardHtml + compoundSection + isolationSection;
 }
+
+window.adjustSingleExerciseWeight = adjustSingleExerciseWeight;
+window.applySmartOverload = applySmartOverload;
+window.applyPhaseProgressionWeights = applyPhaseProgressionWeights;
 
 
 /* ============================================================================

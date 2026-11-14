@@ -1184,6 +1184,22 @@ async function syncNow() {
 }
 
 if (fbAuth) {
+    if (typeof fbAuth.getRedirectResult === 'function') {
+        fbAuth.getRedirectResult().then(async (result) => {
+            if (result && result.credential && result.credential.accessToken) {
+                const token = result.credential.accessToken;
+                if (!D.cfg) D.cfg = {};
+                if (!D.cfg.googleFit) D.cfg.googleFit = {};
+                D.cfg.googleFit.connected = true;
+                D.cfg.googleFit.token = token;
+                setSessionToken('google_fit_token', token);
+                save();
+                if (typeof renderWearablesSyncUI === 'function') renderWearablesSyncUI();
+                if (typeof syncGoogleFitData === 'function') await syncGoogleFitData(false);
+            }
+        }).catch(e => console.warn('[GoogleFit] Redirect result check:', e));
+    }
+
     fbAuth.onAuthStateChanged(async (user) => {
         currentUser = user;
         updateAuthGateState(user);
@@ -1458,8 +1474,29 @@ const GOOGLE_FIT_SCOPES = [
     'https://www.googleapis.com/auth/fitness.heart_rate.read'
 ];
 
+function getSessionToken(k) {
+    try {
+        if (typeof sessionStorage !== 'undefined') return sessionStorage.getItem(k);
+    } catch(e) {}
+    return null;
+}
+function setSessionToken(k, v) {
+    try {
+        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem(k, v);
+    } catch(e) {}
+}
+function removeSessionToken(k) {
+    try {
+        if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem(k);
+    } catch(e) {}
+}
+
 function isGoogleFitConnected() {
     return !!(D.cfg && D.cfg.googleFit && D.cfg.googleFit.connected);
+}
+
+function getGoogleFitToken() {
+    return (D.cfg && D.cfg.googleFit && D.cfg.googleFit.token) || getSessionToken('google_fit_token') || null;
 }
 
 function renderWearablesSyncUI() {
@@ -1472,6 +1509,8 @@ function renderWearablesSyncUI() {
     }
     const gf = D.cfg.googleFit;
     const isConn = isGoogleFitConnected();
+    const token = getGoogleFitToken();
+    const hasValidToken = Boolean(token);
 
     let lastSyncTxt = 'ยังไม่เคยซิงก์';
     if (gf.lastSync) {
@@ -1492,8 +1531,8 @@ function renderWearablesSyncUI() {
                 <span style="font-size:20px;">⌚</span>
                 <h3 style="margin:0; font-size:16px; font-weight:800; color:var(--tx);">อุปกรณ์สุขภาพ & เครื่องชั่ง</h3>
             </div>
-            <span style="font-size:11px; font-weight:800; padding:3px 10px; border-radius:99px; ${isConn ? 'background:#d1fae5; color:#047857;' : 'background:#f1f5f9; color:#64748b;'}">
-                ${isConn ? '🟢 เชื่อมต่อแล้ว ✓' : '⚪ ยังไม่เชื่อมต่อ'}
+            <span style="font-size:11px; font-weight:800; padding:3px 10px; border-radius:99px; ${!isConn ? 'background:#f1f5f9; color:#64748b;' : hasValidToken ? 'background:#d1fae5; color:#047857;' : 'background:#fef3c7; color:#d97706;'}">
+                ${!isConn ? '⚪ ยังไม่เชื่อมต่อ' : hasValidToken ? '🟢 เชื่อมต่อแล้ว ✓' : '🟡 สิทธิ์หมดอายุ (แตะต่ออายุ)'}
             </span>
         </div>
         <div style="font-size:12px; color:var(--dim); line-height:1.4; margin-bottom:12px;">
@@ -1508,8 +1547,9 @@ function renderWearablesSyncUI() {
                     <span style="font-size:14px;">🏃</span>
                     <span style="font-size:12px; font-weight:800; color:var(--tx);">Garmin Connect</span>
                 </div>
-                <div style="font-size:11px; color:var(--dim);">
-                    ก้าวเดิน: <b style="color:#00c070; font-size:13px;">${Number(curSteps).toLocaleString()}</b> ก้าว
+                <div style="font-size:11px; color:var(--dim); display:flex; justify-content:space-between; align-items:center;">
+                    <span>ก้าวเดิน: <b style="color:#00c070; font-size:13px;">${Number(curSteps).toLocaleString()}</b> ก้าว</span>
+                    <button type="button" onclick="logDailySteps()" style="background:none; border:none; cursor:pointer; font-size:12px; padding:2px;" title="แตะเพื่อแก้ไขจำนวนก้าว">✏️</button>
                 </div>
                 <div style="font-size:11px; color:var(--dim); margin-top:2px;">
                     คาร์ดิโอ: <b style="color:var(--tx);">${curCardio} นาที</b>
@@ -1525,8 +1565,9 @@ function renderWearablesSyncUI() {
                     <span style="font-size:14px;">⚖️</span>
                     <span style="font-size:12px; font-weight:800; color:var(--tx);">Zepp Life Scale</span>
                 </div>
-                <div style="font-size:11px; color:var(--dim);">
-                    น้ำหนัก: <b style="color:#00c070; font-size:13px;">${(+curWeight).toFixed(1)}</b> กก.
+                <div style="font-size:11px; color:var(--dim); display:flex; justify-content:space-between; align-items:center;">
+                    <span>น้ำหนัก: <b style="color:#00c070; font-size:13px;">${(+curWeight).toFixed(1)}</b> กก.</span>
+                    <button type="button" onclick="openMorningWeighInModal()" style="background:none; border:none; cursor:pointer; font-size:12px; padding:2px;" title="แตะเพื่อแก้ไขน้ำหนัก">✏️</button>
                 </div>
                 <div style="font-size:11px; color:var(--dim); margin-top:2px;">
                     ไขมัน: <b style="color:var(--tx);">${curBf}%</b>
@@ -1543,16 +1584,23 @@ function renderWearablesSyncUI() {
         </div>
 
         <div style="display:flex; gap:8px;">
-            ${isConn ? `
-                <button type="button" class="btn sm" onclick="syncGoogleFitData(false)" style="flex:1; background:#00c070; color:#fff; font-weight:800; border-radius:8px; padding:9px; border:none; display:flex; align-items:center; justify-content:center; gap:6px;">
-                    <span>🔄 ซิงก์ Garmin & Zepp เดี๋ยวนี้</span>
+            ${!isConn ? `
+                <button type="button" class="btn sm" onclick="connectGoogleFit()" style="flex:1; background:#00c070; color:#fff; font-weight:800; border-radius:8px; padding:10px; border:none; display:flex; align-items:center; justify-content:center; gap:6px;">
+                    <span>🔗 เชื่อมต่อ Google Fit (Garmin & Zepp)</span>
+                </button>
+            ` : !hasValidToken ? `
+                <button type="button" class="btn sm" onclick="connectGoogleFit()" style="flex:1; background:#f59e0b; color:#fff; font-weight:800; border-radius:8px; padding:10px; border:none; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 2px 8px rgba(245,158,11,0.25);">
+                    <span>🔑 แตะเพื่อต่ออายุ Google Fit ทันที</span>
                 </button>
                 <button type="button" class="btn sm g" onclick="disconnectGoogleFit()" style="font-size:11px; padding:9px 12px; border-radius:8px;">
                     ตัดการเชื่อมต่อ
                 </button>
             ` : `
-                <button type="button" class="btn sm" onclick="connectGoogleFit()" style="flex:1; background:#00c070; color:#fff; font-weight:800; border-radius:8px; padding:10px; border:none; display:flex; align-items:center; justify-content:center; gap:6px;">
-                    <span>🔗 เชื่อมต่อ Google Fit (Garmin & Zepp)</span>
+                <button type="button" class="btn sm" onclick="syncGoogleFitData(false)" style="flex:1; background:#00c070; color:#fff; font-weight:800; border-radius:8px; padding:9px; border:none; display:flex; align-items:center; justify-content:center; gap:6px;">
+                    <span>🔄 ซิงก์ Garmin & Zepp เดี๋ยวนี้</span>
+                </button>
+                <button type="button" class="btn sm g" onclick="disconnectGoogleFit()" style="font-size:11px; padding:9px 12px; border-radius:8px;">
+                    ตัดการเชื่อมต่อ
                 </button>
             `}
         </div>
@@ -1567,12 +1615,25 @@ async function connectGoogleFit() {
 
     const provider = new firebase.auth.GoogleAuthProvider();
     GOOGLE_FIT_SCOPES.forEach(s => provider.addScope(s));
+    provider.setCustomParameters({ prompt: 'consent' });
 
     try {
         if (typeof msg === 'function') msg('กำลังขอสิทธิ์เข้าถึง Google Fit (Garmin & Zepp Life)...');
-        const result = await fbAuth.signInWithPopup(provider);
-        const credential = result.credential;
-        const accessToken = credential?.accessToken;
+        let accessToken = null;
+
+        try {
+            const result = await fbAuth.signInWithPopup(provider);
+            const credential = result.credential;
+            accessToken = credential?.accessToken;
+        } catch (popupErr) {
+            console.warn('[GoogleFit] Popup failed or blocked, falling back to redirect:', popupErr);
+            if (popupErr.code === 'auth/popup-blocked' || popupErr.message?.includes('popup')) {
+                if (typeof msg === 'function') msg('เบราว์เซอร์บล็อกป็อปอัป กำลังสลับไปหน้า Google ยืนยันสิทธิ์...');
+                await fbAuth.signInWithRedirect(provider);
+                return;
+            }
+            throw popupErr;
+        }
 
         if (!D.cfg) D.cfg = {};
         if (!D.cfg.googleFit) D.cfg.googleFit = {};
@@ -1580,7 +1641,7 @@ async function connectGoogleFit() {
         D.cfg.googleFit.connected = true;
         if (accessToken) {
             D.cfg.googleFit.token = accessToken;
-            sessionStorage.setItem('google_fit_token', accessToken);
+            setSessionToken('google_fit_token', accessToken);
         }
 
         save();
@@ -1609,7 +1670,7 @@ async function disconnectGoogleFit() {
         D.cfg.googleFit.connected = false;
         D.cfg.googleFit.token = null;
     }
-    sessionStorage.removeItem('google_fit_token');
+    removeSessionToken('google_fit_token');
     save();
     render();
     renderWearablesSyncUI();
@@ -1619,11 +1680,21 @@ async function disconnectGoogleFit() {
 async function syncGoogleFitData(silent = false) {
     if (!isGoogleFitConnected()) return;
 
-    const token = D.cfg?.googleFit?.token || sessionStorage.getItem('google_fit_token');
-    if (!token && !silent) {
-        // Prompt re-auth if token expired
-        const ok = await fcConfirm('โทเคน Google Fit หมดอายุ ต้องการเข้าสู่ระบบเพื่อต่ออายุการซิงก์ใช่หรือไม่?', '🔄 ต่ออายุโทเคน Google Fit');
-        if (ok) await connectGoogleFit();
+    const token = getGoogleFitToken();
+    if (!token) {
+        if (!silent) {
+            fcAlert(`
+                <div style="text-align:left; font-size:13.5px; line-height:1.5;">
+                    <div style="font-size:16px; font-weight:900; color:#d97706; margin-bottom:8px;">🔑 สิทธิ์ Google Fit หมดอายุ</div>
+                    <div style="background:var(--card2); border-radius:10px; padding:10px 12px; margin-bottom:10px; border:1px solid var(--line);">
+                        Google กำหนดให้ Access Token หมดอายุทุก 60 นาที เพื่อความปลอดภัยของข้อมูลสุขภาพ Garmin & Zepp Life
+                    </div>
+                    <div style="margin-bottom:14px;">กรุณากดปุ่มสีส้มด้านล่างเพื่อต่ออายุสิทธิ์เข้าถึง Google Fit ครับ</div>
+                    <button type="button" class="btn sm" onclick="fcClose(); connectGoogleFit();" style="background:#f59e0b; color:#fff; font-weight:800; padding:10px; border-radius:8px;">🔑 แตะเพื่อต่ออายุเดี๋ยวนี้</button>
+                </div>
+            `);
+        }
+        renderWearablesSyncUI();
         return;
     }
 
@@ -1659,10 +1730,24 @@ async function syncGoogleFitData(silent = false) {
 
         if (!resp.ok) {
             console.warn('[GoogleFit] API response not ok:', resp.status);
-            if (resp.status === 401 && !silent) {
-                sessionStorage.removeItem('google_fit_token');
-                const ok = await fcConfirm('เซสชัน Google Fit หมดอายุ ต้องการเชื่อมต่อใหม่ใช่หรือไม่?', '🔑 สิทธิ์หมดอายุ');
-                if (ok) await connectGoogleFit();
+            if (resp.status === 401) {
+                // Expired token: clear cache properly
+                if (D.cfg?.googleFit) D.cfg.googleFit.token = null;
+                removeSessionToken('google_fit_token');
+                save();
+                renderWearablesSyncUI();
+
+                if (!silent) {
+                    fcAlert(`
+                        <div style="text-align:left; font-size:13.5px; line-height:1.5;">
+                            <div style="font-size:16px; font-weight:900; color:#d97706; margin-bottom:8px;">🔑 เซสชัน Google Fit หมดอายุ</div>
+                            <div style="background:var(--card2); border-radius:10px; padding:10px 12px; margin-bottom:10px; border:1px solid var(--line);">
+                                โทเคน Google มีอายุ 60 นาที กรุณากดปุ่มด้านล่างเพื่อเชื่อมต่อใหม่ ระบบจะดึงก้าวเดินจาก Garmin ทันที
+                            </div>
+                            <button type="button" class="btn sm" onclick="fcClose(); connectGoogleFit();" style="background:#f59e0b; color:#fff; font-weight:800; padding:10px; border-radius:8px;">🔑 แตะเพื่อต่ออายุ Google Fit ทันที</button>
+                        </div>
+                    `);
+                }
             }
             return;
         }
@@ -1678,19 +1763,20 @@ async function syncGoogleFitData(silent = false) {
 
         buckets.forEach(b => {
             (b.dataset || []).forEach(ds => {
-                const streamId = ds.dataSourceId || '';
+                const streamId = (ds.dataSourceId || '').toLowerCase();
+                const dType = (ds.dataTypeName || '').toLowerCase();
                 (ds.point || []).forEach(pt => {
                     const vals = pt.value || [];
-                    if (streamId.includes('step_count')) {
-                        fetchedSteps += (vals[0]?.intVal || 0);
-                    } else if (streamId.includes('weight')) {
+                    if (streamId.includes('step') || dType.includes('step')) {
+                        fetchedSteps += (vals[0]?.intVal || vals[0]?.fpVal || 0);
+                    } else if (streamId.includes('weight') || dType.includes('weight')) {
                         fetchedWeight = vals[0]?.fpVal != null ? vals[0].fpVal : fetchedWeight;
-                    } else if (streamId.includes('body.fat')) {
+                    } else if (streamId.includes('fat') || dType.includes('fat')) {
                         fetchedBf = vals[0]?.fpVal != null ? vals[0].fpVal : fetchedBf;
-                    } else if (streamId.includes('heart_rate')) {
+                    } else if (streamId.includes('heart_rate') || dType.includes('heart_rate')) {
                         fetchedRhr = vals[0]?.fpVal != null ? Math.round(vals[0].fpVal) : fetchedRhr;
-                    } else if (streamId.includes('active_minutes')) {
-                        fetchedCardio += (vals[0]?.intVal || 0);
+                    } else if (streamId.includes('active_minutes') || dType.includes('active_minutes')) {
+                        fetchedCardio += (vals[0]?.intVal || vals[0]?.fpVal || 0);
                     }
                 });
             });
@@ -1740,7 +1826,7 @@ async function syncGoogleFitData(silent = false) {
 
             const msgText = summaryParts.length > 0 
                 ? `✓ ซิงก์สำเร็จ!\n\n${summaryParts.join('\n')}` 
-                : '✓ ตรวจสอบข้อมูลล่าสุดเรียบร้อยแล้ว';
+                : '✓ ตรวจสอบข้อมูลล่าสุดเรียบร้อยแล้ว (ไม่มีข้อมูลใหม่)';
             if (typeof fcAlert === 'function') fcAlert(msgText);
         }
     } catch (err) {
