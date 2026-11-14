@@ -613,24 +613,24 @@
                 
                 <!-- Circular Dial with 5 Milestone Beads -->
                 <div class="wm-if-dial-container">
-                    <svg viewBox="0 0 240 240" width="240" height="240" class="wm-if-dial-svg">
-                        <!-- Background Horseshoe Track -->
-                        <path d="M 45 195 A 95 95 0 1 1 195 195" fill="none" stroke="#e2e8f0" stroke-width="16" stroke-linecap="round"/>
-                        <!-- Active Progress Arc -->
-                        <path id="v3IfArcPath" d="M 45 195 A 95 95 0 1 1 195 195" fill="none" stroke="#0284c7" stroke-width="16" stroke-linecap="round" stroke-dasharray="450" stroke-dashoffset="440" style="transition:stroke-dashoffset 0.5s ease;"/>
+                    <svg viewBox="0 0 250 250" width="250" height="250" class="wm-if-dial-svg">
+                        <!-- Background Horseshoe Track (Center 125,125 | Radius 98 | 135° to 45° = 270°) -->
+                        <path d="M 55.7 194.3 A 98 98 0 1 1 194.3 194.3" fill="none" stroke="#e2e8f0" stroke-width="16" stroke-linecap="round"/>
+                        <!-- Active Progress Arc (Length = 462) -->
+                        <path id="v3IfArcPath" d="M 55.7 194.3 A 98 98 0 1 1 194.3 194.3" fill="none" stroke="#0284c7" stroke-width="16" stroke-linecap="round" stroke-dasharray="462" stroke-dashoffset="462" stroke-opacity="0" style="transition:stroke-dashoffset 0.5s ease, stroke-opacity 0.25s ease;"/>
                     </svg>
 
-                    <!-- 5 Milestone Beads on the Track (Tap to view stage science) -->
-                    <!-- Bead 1: Drop Down (น้ำตาลลดลง) - 210 deg -->
-                    <div id="ifBead1" class="wm-if-bead" style="left:26px; top:170px; cursor:pointer;" onclick="openIfStageDetailModal(1)" title="ระยะที่ 1: น้ำตาลและอินซูลินเริ่มลด">💧↓</div>
-                    <!-- Bead 2: Drop Up (อินซูลินต่ำ) - 150 deg -->
-                    <div id="ifBead2" class="wm-if-bead" style="left:14px; top:90px; cursor:pointer;" onclick="openIfStageDetailModal(2)" title="ระยะที่ 2: ตับหยุดเก็บไขมันใหม่">💧↑</div>
-                    <!-- Bead 3: Flame (Ketosis สลายไขมัน) - 90 deg (Top) -->
-                    <div id="ifBead3" class="wm-if-bead" style="left:105px; top:10px; cursor:pointer;" onclick="openIfStageDetailModal(3)" title="ระยะที่ 3: สลายไขมันพอกตับ & ไขมันช่องท้อง">🔥</div>
-                    <!-- Bead 4: Rocket (Autophagy กลืนกินเซลล์เก่า) - 30 deg -->
-                    <div id="ifBead4" class="wm-if-bead" style="right:14px; top:90px; cursor:pointer;" onclick="openIfStageDetailModal(4)" title="ระยะที่ 4: เผาผลาญไขมันช่องท้อง & ไตรกลีเซอไรด์">🚀</div>
-                    <!-- Bead 5: DNA / Cell Renewal - 330 deg -->
-                    <div id="ifBead5" class="wm-if-bead" style="right:26px; top:170px; cursor:pointer;" onclick="openIfStageDetailModal(5)" title="ระยะที่ 5: ฟื้นฟูระดับเซลล์สมบูรณ์">🧬</div>
+                    <!-- 5 Milestone Beads aligned dead-center ON the 98px radius arc -->
+                    <!-- Bead 1: 135° (0h Start) -->
+                    <div id="ifBead1" class="wm-if-bead" style="left:55.7px; top:194.3px; cursor:pointer;" onclick="openIfStageDetailModal(1)" title="ระยะที่ 1: น้ำตาลและอินซูลินเริ่มลด">💧↓</div>
+                    <!-- Bead 2: 202.5° (4h) -->
+                    <div id="ifBead2" class="wm-if-bead" style="left:34.5px; top:87.5px; cursor:pointer;" onclick="openIfStageDetailModal(2)" title="ระยะที่ 2: ตับหยุดเก็บไขมันใหม่">💧↑</div>
+                    <!-- Bead 3: 270° (8h Top) -->
+                    <div id="ifBead3" class="wm-if-bead" style="left:125px; top:27px; cursor:pointer;" onclick="openIfStageDetailModal(3)" title="ระยะที่ 3: สลายไขมันพอกตับ & ไขมันช่องท้อง">🔥</div>
+                    <!-- Bead 4: 337.5° (12h) -->
+                    <div id="ifBead4" class="wm-if-bead" style="left:215.5px; top:87.5px; cursor:pointer;" onclick="openIfStageDetailModal(4)" title="ระยะที่ 4: เผาผลาญไขมันช่องท้อง & ไตรกลีเซอไรด์">🚀</div>
+                    <!-- Bead 5: 45° (16h Goal) -->
+                    <div id="ifBead5" class="wm-if-bead" style="left:194.3px; top:194.3px; cursor:pointer;" onclick="openIfStageDetailModal(5)" title="ระยะที่ 5: ฟื้นฟูระดับเซลล์สมบูรณ์">🧬</div>
 
                     <!-- Dial Center Info -->
                     <div class="wm-if-dial-center">

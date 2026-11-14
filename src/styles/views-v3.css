@@ -1889,6 +1889,9 @@ body.onboard-active nav {
     position: absolute;
     width: 30px;
     height: 30px;
+    margin-left: -15px;
+    margin-top: -15px;
+    z-index: 3;
     border-radius: 50%;
     background: #ffffff;
     border: 2px solid #cbd5e1;

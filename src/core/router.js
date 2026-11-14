@@ -690,10 +690,11 @@ function updateIFUI() {
         if (endDayEl) endDayEl.textContent = endDayStr;
         if (endTimeEl) endTimeEl.textContent = formatThaiTime(endDate);
 
-        // Circular Dial Progress Arc (Total circumference 450)
+        // Circular Dial Progress Arc (Total circumference 462)
         const pct = Math.min(1, Math.max(0.04, diffSec / goalSec));
         if (arcEl && typeof arcEl.setAttribute === 'function') {
-            arcEl.setAttribute('stroke-dashoffset', String(Math.round(450 * (1 - pct))));
+            arcEl.setAttribute('stroke-dashoffset', String(Math.round(462 * (1 - pct))));
+            arcEl.setAttribute('stroke-opacity', '1');
             arcEl.setAttribute('stroke', diffSec >= goalSec ? '#10b981' : '#0284c7');
         }
         if (bar) bar.style.width = (pct * 100) + '%';
@@ -800,8 +801,9 @@ function updateIFUI() {
 
             const eatPct = Math.min(1, Math.max(0.04, elapsedEatSec / eatGoalSec));
             if (arcEl && typeof arcEl.setAttribute === 'function') {
-                arcEl.setAttribute('stroke-dashoffset', String(Math.round(450 * (1 - eatPct))));
-                arcEl.setAttribute('stroke', '#10b981'); // Emerald green
+                // Keep IF fasting arc hidden while in Eating Window (fasting hasn't started)
+                arcEl.setAttribute('stroke-dashoffset', '462');
+                arcEl.setAttribute('stroke-opacity', '0');
             }
             if (bar) bar.style.width = (eatPct * 100) + '%';
 
@@ -832,7 +834,8 @@ function updateIFUI() {
             if (endTimeEl) endTimeEl.textContent = `${String(endH).padStart(2, '0')}:00`;
 
             if (arcEl && typeof arcEl.setAttribute === 'function') {
-                arcEl.setAttribute('stroke-dashoffset', '440');
+                arcEl.setAttribute('stroke-dashoffset', '462');
+                arcEl.setAttribute('stroke-opacity', '0');
                 arcEl.setAttribute('stroke', '#0284c7');
             }
             if (bar) bar.style.width = '0%';
