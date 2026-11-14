@@ -231,17 +231,17 @@ const SAFE = { rdl: 'thrust', swing: 'bmarch', wheel: 'w_deadbug', row: 'csrow' 
 };
 
 const CHALLENGES = [
-    { id: 'fatburn30', wKey: 'CH_FATBURN30', days: 30, title: 'ลดไขมันทั้งตัว & ช่องท้อง', sub: 'เผาผลาญไขมันในอวัยวะ คุม HR ไม่กระแทกหลัง', bg: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)', img: 'body_front.jpg', tag: 'แนะนำสำหรับคุณ' },
-    { id: 'abs14', wKey: 'CH_ABS14', days: 14, title: 'เบิร์นไขมันหน้าท้องเข้มข้น', sub: 'กระชับรอบเอว & แกนกลางแบบ McGill Spine Safe', bg: 'linear-gradient(135deg, #78716c 0%, #57534e 100%)', img: 'plank.jpg', tag: '14 วัน' },
-    { id: 'upper28', wKey: 'CH_UPPER28', days: 28, title: 'ชาเลนจ์ปั้นท่อนบน & ซิกแพค', sub: 'อก-หลัง-ไหล่-แขนชัด ด้วยดัมเบล 6 กก. & KB 4 กก.', bg: 'linear-gradient(135deg, #1e3a8a 0%, #334155 100%)', img: 'bench.jpg', tag: '28 วัน' },
-    { id: 'posture28', wKey: 'CH_POSTURE28', days: 28, title: 'ยืดเหยียด-จัดระเบียบหลัง & ตัวตรง', sub: 'คลายหมอนรองกระดูก แก้คอยื่น-ไหล่ห่อ เพิ่มบุคลิกภาพ', bg: 'linear-gradient(135deg, #0f766e 0%, #10b981 100%)', img: 'w_wall.jpg', tag: '28 วัน' }
+    { id: 'fatburn30', wKey: 'CH_FATBURN30', days: 30, title: 'ลดไขมันทั้งตัว & ช่องท้อง', sub: 'เผาผลาญไขมันในอวัยวะ คุม HR ไม่กระแทกหลัง', bg: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)', img: 'cover_ch_fatburn30.jpg', tag: 'แนะนำสำหรับคุณ' },
+    { id: 'abs14', wKey: 'CH_ABS14', days: 14, title: 'เบิร์นไขมันหน้าท้องเข้มข้น', sub: 'กระชับรอบเอว & แกนกลางแบบ McGill Spine Safe', bg: 'linear-gradient(135deg, #78716c 0%, #57534e 100%)', img: 'cover_ch_abs14.jpg', tag: '14 วัน' },
+    { id: 'upper28', wKey: 'CH_UPPER28', days: 28, title: 'ชาเลนจ์ปั้นท่อนบน & ซิกแพค', sub: 'อก-หลัง-ไหล่-แขนชัด ด้วยดัมเบล 6 กก. & KB 4 กก.', bg: 'linear-gradient(135deg, #1e3a8a 0%, #334155 100%)', img: 'cover_ch_upper28.jpg', tag: '28 วัน' },
+    { id: 'posture28', wKey: 'CH_POSTURE28', days: 28, title: 'ยืดเหยียด-จัดระเบียบหลัง & ตัวตรง', sub: 'คลายหมอนรองกระดูก แก้คอยื่น-ไหล่ห่อ เพิ่มบุคลิกภาพ', bg: 'linear-gradient(135deg, #0f766e 0%, #10b981 100%)', img: 'cover_ch_posture28.jpg', tag: '28 วัน' }
 ];
 
 const BODY_FOCUS_PROGRAMS = [
-    { id: 'abs', wKey: 'BF_ABS', label: '🔥 หน้าท้อง', title: 'หน้าท้อง & แกนกลาง', sub: 'McGill Safe • 10-12 นาที', color: '#ea580c' },
-    { id: 'upper', wKey: 'BF_UPPER', label: '💪 อก-แขน-ไหล่', title: 'อก แขน และไหล่', sub: 'DB 6 กก. / KB 4 กก. • 14 นาที', color: '#2563eb' },
-    { id: 'lower', wKey: 'BF_LOWER', label: '🦵 ขา-ก้น', title: 'ขา & ก้นกระชับ', sub: 'KB 8 กก. / เก้าอี้ • 14 นาที', color: '#059669' },
-    { id: 'stretch', wKey: 'BF_STRETCH', label: '🧘 ยืดเหยียดหลัง', title: 'ยืดเหยียดหลัง & คลายปวด', sub: 'คลายสะโพก-หลังล่าง • 10 นาที', color: '#7c3aed' }
+    { id: 'abs', wKey: 'BF_ABS', label: '🔥 หน้าท้อง', title: 'หน้าท้อง & แกนกลาง', sub: 'McGill Safe • 10-12 นาที', color: '#ea580c', img: 'cover_bf_abs.jpg' },
+    { id: 'upper', wKey: 'BF_UPPER', label: '💪 อก-แขน-ไหล่', title: 'อก แขน และไหล่', sub: 'DB 6 กก. / KB 4 กก. • 14 นาที', color: '#2563eb', img: 'cover_bf_upper.jpg' },
+    { id: 'lower', wKey: 'BF_LOWER', label: '🦵 ขา-ก้น', title: 'ขา & ก้นกระชับ', sub: 'KB 8 กก. / เก้าอี้ • 14 นาที', color: '#059669', img: 'cover_bf_lower.jpg' },
+    { id: 'stretch', wKey: 'BF_STRETCH', label: '🧘 ยืดเหยียดหลัง', title: 'ยืดเหยียดหลัง & คลายปวด', sub: 'คลายสะโพก-หลังล่าง • 10 นาที', color: '#7c3aed', img: 'cover_bf_stretch.jpg' }
 ];
 /* ============ PERIODIZED WEIGHT PROGRESSION (5 PHASES) ============ */
 const PHASE_WEIGHTS = {

@@ -1086,20 +1086,21 @@ function renderChallengesAndBodyFocus() {
         const pct = Math.min(100, Math.round((doneDays / c.days) * 100));
         const btnLabel = isCompleted ? `🏆 ครบ ${c.days} วันแล้ว • ฝึกซ้ำ` : `▶ เริ่มวันที่ ${nextDay} / ${c.days}`;
         return `
-        <div style="min-width:268px;max-width:285px;flex:0 0 auto;scroll-snap-align:start;border-radius:14px;background:${c.bg};color:#fff;padding:14px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.22);display:flex;flex-direction:column;justify-content:space-between;">
-            <img src="${c.img}" alt="${c.title}" style="position:absolute;right:-8px;bottom:34px;width:88px;height:112px;object-fit:cover;border-radius:10px;opacity:0.26;pointer-events:none;mask-image:linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));-webkit-mask-image:linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));">
+        <div style="min-width:278px;max-width:295px;flex:0 0 auto;scroll-snap-align:start;border-radius:14px;background:${c.bg};color:#fff;padding:14px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.22);display:flex;flex-direction:column;justify-content:space-between;">
+            <img src="${c.img}" alt="${c.title}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center;pointer-events:none;">
+            <div style="position:absolute;inset:0;background:linear-gradient(90deg, rgba(15,23,42,0.88) 0%, rgba(15,23,42,0.58) 56%, rgba(15,23,42,0.12) 100%);pointer-events:none;"></div>
             <div style="position:relative;z-index:1;">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px;">
-                    <span style="font-size:11px;font-weight:700;background:rgba(255,255,255,0.22);padding:2px 8px;border-radius:999px;">${c.tag}</span>
-                    <span style="font-size:11px;opacity:0.9;">สำเร็จ ${doneDays}/${c.days} วัน</span>
+                    <span style="font-size:11px;font-weight:700;background:rgba(255,255,255,0.22);backdrop-filter:blur(4px);padding:2px 8px;border-radius:999px;">${c.tag}</span>
+                    <span style="font-size:11px;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,0.6);">สำเร็จ ${doneDays}/${c.days} วัน</span>
                 </div>
-                <div style="font-size:16px;font-weight:800;line-height:1.25;margin-bottom:4px;padding-right:42px;">${c.title}</div>
-                <div style="font-size:12px;opacity:0.9;line-height:1.35;margin-bottom:10px;padding-right:36px;">${c.sub}</div>
-                <div style="height:5px;background:rgba(255,255,255,0.22);border-radius:999px;overflow:hidden;margin-bottom:10px;">
+                <div style="font-size:16px;font-weight:800;line-height:1.25;margin-bottom:4px;padding-right:86px;text-shadow:0 1px 4px rgba(0,0,0,0.5);">${c.title}</div>
+                <div style="font-size:12px;opacity:0.95;line-height:1.35;margin-bottom:10px;padding-right:86px;text-shadow:0 1px 3px rgba(0,0,0,0.5);">${c.sub}</div>
+                <div style="height:5px;background:rgba(255,255,255,0.25);border-radius:999px;overflow:hidden;margin-bottom:10px;">
                     <div style="height:100%;width:${pct}%;background:#fff;border-radius:999px;transition:width 0.3s ease;"></div>
                 </div>
             </div>
-            <button type="button" onclick="startW('${c.wKey}')" style="position:relative;z-index:1;width:100%;border:none;border-radius:999px;background:#fff;color:#0f172a;font-weight:800;font-size:13px;padding:8px 12px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.18);">
+            <button type="button" onclick="startW('${c.wKey}')" style="position:relative;z-index:1;width:100%;border:none;border-radius:999px;background:#fff;color:#0f172a;font-weight:800;font-size:13px;padding:8px 12px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.22);">
                 ${btnLabel}
             </button>
         </div>`;
@@ -1140,15 +1141,19 @@ function renderChallengesAndBodyFocus() {
         <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;">
             ${bfTabsHtml}
         </div>
-        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:4px;">
-            <div class="row" style="align-items:center;margin-bottom:6px;">
-                <div>
-                    <div style="font-weight:800;font-size:14.5px;">${activeBf.title}</div>
-                    <div class="sub">${activeBf.sub} • 🔥 ~${bfWorkout?.kcal || 120} kcal</div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:4px;">
+            <div style="position:relative;padding:16px 14px;min-height:118px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;overflow:hidden;">
+                ${activeBf.img ? `<img src="${activeBf.img}" alt="${activeBf.title}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center;pointer-events:none;">` : ''}
+                <div style="position:absolute;inset:0;background:linear-gradient(90deg, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0.62) 55%, rgba(15,23,42,0.12) 100%);pointer-events:none;"></div>
+                <div style="position:relative;z-index:1;padding-right:100px;">
+                    <div style="font-weight:800;font-size:16px;text-shadow:0 1px 4px rgba(0,0,0,0.5);">${activeBf.title}</div>
+                    <div style="font-size:12px;opacity:0.95;margin-top:3px;text-shadow:0 1px 3px rgba(0,0,0,0.5);">${activeBf.sub} • 🔥 ~${bfWorkout?.kcal || 120} kcal</div>
                 </div>
-                <button type="button" class="btn sm" onclick="startW('${activeBf.wKey}')" style="background:${activeBf.color};border-color:${activeBf.color};color:#fff;white-space:nowrap;">▶ เริ่มฝึกเฉพาะจุด</button>
+                <div style="position:relative;z-index:1;margin-top:12px;">
+                    <button type="button" class="btn sm" onclick="startW('${activeBf.wKey}')" style="background:${activeBf.color};border-color:${activeBf.color};color:#fff;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);">▶ เริ่มฝึกเฉพาะจุด</button>
+                </div>
             </div>
-            <div style="margin-top:8px;">${bfItemsHtml}</div>
+            <div style="padding:10px 12px;">${bfItemsHtml}</div>
         </div>
     </div>`;
 }
