@@ -609,38 +609,38 @@ function render() {
         const curWkObj = (typeof W !== 'undefined' && W[tk]) ? W[tk] : null;
         const curWkName = curWkObj ? curWkObj.n : 'วันพักผ่อน';
 
+        const curDayShortName = curDayPlan && curDayPlan.name ? curDayPlan.name.replace(/\s*\([^)]*\)/g, '').trim() : 'วันฝึก';
+
         nutritionEl.innerHTML = `
         <!-- WiseMeal Header: งบประมาณรายวัน & Action Buttons -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:4px;">
+        <div style="margin-bottom:10px;">
             <div>
-                <h3 style="margin:0; font-size:16px; font-weight:900; color:#0f172a; letter-spacing:-0.3px; white-space:nowrap;">งบประมาณรายวัน</h3>
-                <div style="font-size:11px; color:#64748b; margin-top:1px; white-space:nowrap;">ทานแล้ว <b style="color:#0f172a;">${cal.toLocaleString()}</b> kcal ${extraStepCal > 0 ? `<span style="color:#10b981;font-weight:700;">(+${extraStepCal} ก้าว)</span> ` : ''}${headerStatusHtml}</div>
+                <h3 style="margin:0; font-size:16px; font-weight:900; color:#0f172a; letter-spacing:-0.3px;">งบประมาณรายวัน</h3>
+                <div style="font-size:11.5px; color:#64748b; margin-top:2px;">ทานแล้ว <b style="color:#0f172a;">${cal.toLocaleString()}</b> kcal ${extraStepCal > 0 ? `<span style="color:#10b981;font-weight:700;">(+${extraStepCal} ก้าว)</span> ` : ''}${headerStatusHtml}</div>
             </div>
-            <div style="display:flex; gap:3px; flex-shrink:0;">
-                <button type="button" onclick="openAntiPlateauModal()" style="padding:4px 7px; font-size:10px; border-radius:99px; border:1px solid #bae6fd; background:#eff6ff; color:#0284c7; font-weight:800; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:2px;" title="ดูตารางวิเคราะห์ 4 รูปแบบวัน & แผนแก้น้ำหนักค้าง">🛡️ Anti-YoYo</button>
-                <button type="button" onclick="calcBMR()" style="padding:4px 7px; font-size:10px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer; white-space:nowrap;" title="ปรับเป้าหมายพลังงาน BMR/TDEE">🧮 ปรับเป้า</button>
-                <button type="button" onclick="editDailyTracker()" style="padding:4px 6px; font-size:10px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer; white-space:nowrap;" title="แก้ไขแคลอรี่/น้ำ">✏️</button>
+            <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
+                <button type="button" onclick="openAntiPlateauModal()" style="padding:5px 10px; font-size:11px; border-radius:99px; border:1px solid #bae6fd; background:#eff6ff; color:#0284c7; font-weight:800; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" title="ดูตารางวิเคราะห์ 4 รูปแบบวัน & แผนแก้น้ำหนักค้าง">🛡️ Anti-YoYo</button>
+                <button type="button" onclick="calcBMR()" style="padding:5px 10px; font-size:11px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" title="ปรับเป้าหมายพลังงาน BMR/TDEE">🧮 ปรับเป้า</button>
+                <button type="button" onclick="editDailyTracker()" style="padding:5px 10px; font-size:11px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" title="แก้ไขแคลอรี่/น้ำ">✏️ แก้ไข</button>
             </div>
         </div>
 
         <!-- Dynamic Day Type Status Banner (Single Compact Switching Card) -->
-        <div style="margin-bottom:12px; background:linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color:#fff; border-radius:14px; padding:10px 12px; box-shadow:0 3px 10px rgba(15,23,42,0.14);">
-            <!-- Top Row: Icon + Title + Status Pill + Mode Button -->
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
-                <div style="display:flex; align-items:center; gap:6px; min-width:0; flex:1;">
-                    <span style="font-size:13.5px; font-weight:900; color:#fff; white-space:nowrap;">
-                        ${curDayPlan ? curDayPlan.icon : '🏋️'} วันนี้: ${curDayPlan ? curDayPlan.name : 'วันฝึก'}
-                    </span>
-                    ${dayModeBadge}
+        <div style="margin-bottom:12px; background:linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color:#fff; border-radius:14px; padding:11px 12px; box-shadow:0 3px 10px rgba(15,23,42,0.14);">
+            <!-- Top Row: Icon + Short Thai Title + Mode Button -->
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                <div style="min-width:0; flex:1; font-size:13.5px; font-weight:900; color:#fff; line-height:1.3;">
+                    ${curDayPlan ? curDayPlan.icon : '🏋️'} วันนี้: ${curDayShortName}
                 </div>
-                <button type="button" onclick="openDayTypeSelectorModal()" style="flex:0 0 auto; width:auto; font-size:11px; padding:4px 9px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); color:#fff; border-radius:8px; white-space:nowrap; font-weight:700; cursor:pointer;" title="แตะเพื่อสลับรูปแบบวันหรือคืนค่าตรวจจับอัตโนมัติ">สลับโหมด ▾</button>
+                <button type="button" onclick="openDayTypeSelectorModal()" style="flex:0 0 auto; width:auto; font-size:11px; padding:5px 10px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); color:#fff; border-radius:8px; white-space:nowrap; font-weight:700; cursor:pointer;" title="แตะเพื่อสลับรูปแบบวันหรือคืนค่าตรวจจับอัตโนมัติ">สลับโหมด ▾</button>
             </div>
             
-            <!-- Bottom Row: Clean Metrics Bar -->
-            <div style="display:flex; align-items:center; gap:6px; margin-top:6px; font-size:11px; color:#94a3b8; overflow-x:auto; padding-bottom:2px; white-space:nowrap; scrollbar-width:none;">
-                <span style="background:rgba(255,255,255,0.08); padding:2px 7px; border-radius:6px;">ตาราง: <b style="color:#e2e8f0;">${curWkName}</b></span>
-                <span style="background:rgba(255,255,255,0.08); padding:2px 7px; border-radius:6px;">เป้า <b style="color:#f97316;">${effectiveCalTarget}</b> kcal <span style="color:#38bdf8; font-weight:700;">(-${dynData ? dynData.deficit : 300})</span></span>
-                <span style="background:rgba(255,255,255,0.08); padding:2px 7px; border-radius:6px;">คาร์บ <b style="color:#60a5fa;">${effectiveCarbsTarget}g</b></span>
+            <!-- Bottom Row: Auto/Manual Pill + Clean Metrics Bar (wraps cleanly on narrow screens) -->
+            <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:8px; font-size:11px; color:#94a3b8;">
+                ${dayModeBadge}
+                <span style="background:rgba(255,255,255,0.08); padding:2px 7px; border-radius:6px; white-space:nowrap;">ตาราง: <b style="color:#e2e8f0;">${curWkName}</b></span>
+                <span style="background:rgba(255,255,255,0.08); padding:2px 7px; border-radius:6px; white-space:nowrap;">เป้า <b style="color:#f97316;">${effectiveCalTarget}</b> kcal <span style="color:#38bdf8; font-weight:700;">(-${dynData ? dynData.deficit : 300})</span></span>
+                <span style="background:rgba(255,255,255,0.08); padding:2px 7px; border-radius:6px; white-space:nowrap;">คาร์บ <b style="color:#60a5fa;">${effectiveCarbsTarget}g</b></span>
             </div>
         </div>
 
