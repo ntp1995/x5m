@@ -11,7 +11,7 @@ const MUSCLE_GROUPS_V3 = [
     { id: 'quads', side: 'front', name: 'ต้นขาด้านหน้า (Quads)', wKeys: ['A', 'C', 'H'], exHint: 'Goblet Squat, Split Squat' },
     { id: 'upper_back', side: 'back', name: 'บ่า & หลังบน (Upper Back/Lats)', wKeys: ['B', 'C'], exHint: 'Chest-Supported Row, One-Arm Row' },
     { id: 'triceps', side: 'back', name: 'หลังแขน (Triceps)', wKeys: ['A', 'C'], exHint: 'Overhead Tricep Extension' },
-    { id: 'lower_back', side: 'back', name: '🛡️ หลังส่วนล่าง (McGill Shield)', wKeys: ['A', 'B', 'C'], exHint: 'McGill Big 3, Glute Bridge (เลี่ยงก้มยกหนัก)' },
+    { id: 'lower_back', side: 'back', name: fcIcon('shield-check') + ' หลังส่วนล่าง (McGill Shield)', wKeys: ['A', 'B', 'C'], exHint: 'McGill Big 3, Glute Bridge (เลี่ยงก้มยกหนัก)' },
     { id: 'glutes_hams', side: 'back', name: 'ก้น & ขาด้านหลัง (Glutes/Hams)', wKeys: ['A', 'B', 'C'], exHint: 'Hip Thrust, Romanian Deadlift (Back-Safe)' }
 ];
 
@@ -91,7 +91,7 @@ function renderMuscleRecoveryWidget() {
         <div class="row" style="align-items:center; margin-bottom:8px;">
             <div>
                 <h3 style="margin:0; font-size:15px; font-weight:900; display:flex; align-items:center; gap:6px;">
-                    <span>🧬 แผนผังการฟื้นตัวกล้ามเนื้อ 2D (Muscle Recovery Map)</span>
+                    <span>${fcIcon('activity')} แผนผังการฟื้นตัวกล้ามเนื้อ 2D (Muscle Recovery Map)</span>
                 </h3>
                 <div class="sub" style="font-size:11.5px;">คำนวณความล้าอัตโนมัติจากประวัติฝึกจริง + เกราะเซฟหลังส่วนล่าง</div>
             </div>
@@ -141,9 +141,9 @@ function renderMuscleRecoveryWidget() {
 
         <!-- Legend -->
         <div style="display:flex; justify-content:center; gap:12px; font-size:11px; color:var(--dim); margin-top:8px;">
-            <span><b style="color:#10b981;">●</b> พร้อมฝึก (90-100%)</span>
-            <span><b style="color:#f59e0b;">●</b> กำลังฟื้นตัว (65-85%)</span>
-            <span><b style="color:#f43f5e;">●</b> พักซ่อมแซม (&lt;65%)</span>
+            <span><b style="color:#10b981;">${fcIcon('sparkles')}</b> พร้อมฝึก (90-100%)</span>
+            <span><b style="color:#f59e0b;">${fcIcon('sparkles')}</b> กำลังฟื้นตัว (65-85%)</span>
+            <span><b style="color:#f43f5e;">${fcIcon('sparkles')}</b> พักซ่อมแซม (&lt;65%)</span>
         </div>
 
         <!-- Muscle Pill Selector -->
@@ -164,7 +164,7 @@ function renderMuscleRecoveryWidget() {
                 <span style="font-size:11px; color:var(--dim);">ฝึกล่าสุด: ${sel.daysAgo}</span>
             </div>
             <div style="color:${sel.color}; font-weight:700; margin-top:2px;">สถานะ: ${sel.stateTxt}</div>
-            <div style="color:var(--dim); font-size:11.5px; margin-top:4px;">💡 ท่าแนะนำ/ปลอดภัย: <b>${sel.exHint}</b></div>
+            <div style="color:var(--dim); font-size:11.5px; margin-top:4px;">${fcIcon('lightbulb')} ท่าแนะนำ/ปลอดภัย: <b>${sel.exHint}</b></div>
         </div>
     `;
 }

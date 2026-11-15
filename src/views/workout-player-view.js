@@ -142,7 +142,7 @@ function updateVoiceCoachBtn() {
     const btn = document.getElementById('plVoiceBtn');
     if (btn) {
         const on = D.cfg && D.cfg.voiceCoach !== false;
-        btn.textContent = on ? '🔊' : '🔇';
+        btn.textContent = on ? '' : '';
         btn.title = on ? 'เสียงโค้ช: เปิดอยู่ (แตะเพื่อปิด)' : 'เสียงโค้ช: ปิดอยู่ (แตะเพื่อเปิด)';
     }
 }
@@ -354,16 +354,16 @@ function loadStep() {
                         <div class="rest-header-row">
                             <span class="rest-badge-step">ท่าถัดไป</span>
                             <span class="rest-badge-set">${nextWork.sets > 1 ? `เซ็ตที่ ${nextWork.set} / ${nextWork.sets}` : '1 เซ็ต'}</span>
-                            <span class="rest-badge-remain ${nextSetsRem === 1 ? 'last-set' : ''}">${nextSetsRem === 1 ? '🔥 เซ็ตสุดท้าย!' : `เหลืออีก ${nextSetsRem} เซ็ต`}</span>
+                            <span class="rest-badge-remain ${nextSetsRem === 1 ? 'last-set' : ''}">${nextSetsRem === 1 ? ' เซ็ตสุดท้าย!' : `เหลืออีก ${nextSetsRem} เซ็ต`}</span>
                         </div>
                         <div class="rest-card-content">
                             <div class="rest-media-box" onclick="showExModal('${nextE}')" title="แตะเพื่อดูวิธีเล่นแบบละเอียด">
                                 ${mediaHtml}
-                                <div class="rest-media-zoom">🔍 ขยาย</div>
+                                <div class="rest-media-zoom">${fcIcon('search')} ขยาย</div>
                             </div>
                             <div class="rest-info-box">
                                 <div class="rest-ex-title">${nextWork.name}</div>
-                                <div class="rest-target-line">🎯 เป้าหมาย: <span class="rest-val-highlight">${nextWork.tgt}</span></div>
+                                <div class="rest-target-line">${fcIcon('target')} เป้าหมาย: <span class="rest-val-highlight">${nextWork.tgt}</span></div>
                                 ${nextEq ? `<div class="rest-eq-line">${fcIcon('dumbbell')} อุปกรณ์: <span class="rest-val-highlight">${nextEq}</span></div>` : ''}
                                 ${nextCue ? `<div class="rest-cue-hint">${fcIcon('lightbulb')} <span>${nextCue}</span></div>` : ''}
                             </div>
@@ -374,7 +374,7 @@ function loadStep() {
             } else {
                 restPreviewEl.innerHTML = `
                     <div class="rest-preview-card" style="text-align:center;padding:16px;">
-                        <div style="font-size:26px;margin-bottom:6px;">🏁</div>
+                        <div style="font-size:26px;margin-bottom:6px;">${fcIcon('flag')}</div>
                         <div style="font-weight:800;font-size:16px;color:var(--ok);">จบครบทุกท่าของการฝึกวันนี้แล้ว!</div>
                         <div style="font-size:13px;color:var(--dim);margin-top:4px;">พักฟื้นตัวตามสบาย แล้วกดเสร็จสิ้นเพื่อบันทึกผล</div>
                     </div>
@@ -390,7 +390,7 @@ function loadStep() {
     const nx = ST[idx + 1];
     document.getElementById('plNext').innerHTML = nx ? 'ถัดไป: ' + (nx.k === 'rest' ? 'พัก ' + nx.dur + ' วิ' + (nx.next ? ' → ' + nx.next : '') : nx.name) : '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> ท่าสุดท้าย!';
     document.getElementById('plAdd').style.display = rest ? 'block' : 'none';
-    document.getElementById('plMain').textContent = (isW && s.type === 'reps') ? '✓ เสร็จเซ็ตนี้' : 'หยุดชั่วคราว';
+    document.getElementById('plMain').textContent = (isW && s.type === 'reps') ? ' เสร็จเซ็ตนี้' : 'หยุดชั่วคราว';
     paint();
 }
 function paint() {
@@ -459,7 +459,7 @@ function run() {
 async function togglePlay() {
     const s = ST[idx];
     if (s.k === 'work' && s.type === 'reps') { await logSet(s); nextStep(1); return; }
-    playing = !playing; document.getElementById('plMain').textContent = playing ? 'หยุดชั่วคราว' : '▶ เล่นต่อ';
+    playing = !playing; document.getElementById('plMain').textContent = playing ? 'หยุดชั่วคราว' : ' เล่นต่อ';
     document.querySelectorAll('#plFig video').forEach(v => { if (playing) v.play().catch(()=>{}); else v.pause(); });
 }
 function defaultWeightOf(eKey) {
@@ -482,7 +482,7 @@ async function logSet(s) {
     const eqHint = wInfo.label ? ` • ${fcIcon('dumbbell')} ${wInfo.label}` : (EX[s.e]?.eq ? ` • ${fcIcon('dumbbell')} ${EX[s.e].eq}` : '');
     
     const promptMsg = `บันทึก: ${s.name} (เซ็ต ${s.set}/${s.sets})\nเป้าหมาย: ${s.tgt}${eqHint}\n\nใส่น้ำหนัก (กก.) หรือ "น้ำหนัก x ครั้ง" เช่น "${defW || '10'} x ${defReps}"`;
-    const inputVal = await fcPrompt(promptMsg, defW ? `${defW}` : '', '🏋️ บันทึกน้ำหนัก & จำนวนครั้ง');
+    const inputVal = await fcPrompt(promptMsg, defW ? `${defW}` : '', fcIcon('dumbbell') + ' บันทึกน้ำหนัก & จำนวนครั้ง');
     if (inputVal === null) return;
     
     let w = null, r = defReps;
@@ -567,7 +567,7 @@ async function finishW() {
     beep(660, 150); setTimeout(() => beep(880, 150), 160); setTimeout(() => beep(1320, 300), 320);
     
     const volSummary = totalVol > 0 ? `\n${fcIcon('dumbbell')} ยกสะสมรวม (Volume): ${totalVol.toLocaleString()} กก. (${totalReps} ครั้ง)` : '';
-    await fcAlert('🏆 จบ ' + W[curK].n + '!\n⏱️ ใช้เวลา ' + fmt(dur) + ' • 🔥 ~' + estKcal + ' kcal' + volSummary + challengeNote + '\n\n🥩 ดื่มเวย์/โปรตีน 35-40 g ภายใน 90 นาที');
+    await fcAlert(fcIcon('trophy') + ' จบ ' + W[curK].n + '!\n' + fcIcon('timer') + ' ใช้เวลา ' + fmt(dur) + ' • ' + fcIcon('flame') + ' ~' + estKcal + ' kcal' + volSummary + challengeNote + '\n\n' + fcIcon('utensils') + ' ดื่มเวย์/โปรตีน 35-40 g ภายใน 90 นาที');
 }
 let ac;
 function beep(f, d, type = 'triangle', vol = 0.95) {
@@ -602,12 +602,12 @@ async function evaluateWorkoutWeights(workoutKey, painLevel) {
     }
 
     const choice = await fcChoice(
-        '🏋️ ประเมินน้ำหนักอุปกรณ์ที่ใช้',
+        ' ประเมินน้ำหนักอุปกรณ์ที่ใช้',
         `น้ำหนักที่ใช้ใน <b>${W[workoutKey]?.n || 'การฝึกวันนี้'}</b> ไหวจริงไหม? รู้สึกอย่างไรเพื่อปรับโปรแกรมให้เหมาะสมในครั้งถัดไป:`,
         [
-            { id: 'light', label: '🟢 เบาไป / ยกได้สบายมาก', sub: 'แนะนำปรับเพิ่มน้ำหนัก (+1 ถึง +2 กก.) ในครั้งถัดไป' },
-            { id: 'ok', label: '🔵 พอดี / ท้าทายกำลังดี', sub: 'น้ำหนักเหมาะสมมาก ยึดตามโปรแกรมประจำสัปดาห์' },
-            { id: 'heavy', label: '🔴 หนักเกินไป / ฟอร์มเริ่มหลุด', sub: 'แนะนำปรับลดน้ำหนัก (-1 ถึง -2 กก.) ในครั้งถัดไปเพื่อเซฟฟอร์ม' }
+            { id: 'light', label: fcIcon('check-circle') + ' เบาไป / ยกได้สบายมาก', sub: 'แนะนำปรับเพิ่มน้ำหนัก (+1 ถึง +2 กก.) ในครั้งถัดไป' },
+            { id: 'ok', label: fcIcon('info') + ' พอดี / ท้าทายกำลังดี', sub: 'น้ำหนักเหมาะสมมาก ยึดตามโปรแกรมประจำสัปดาห์' },
+            { id: 'heavy', label: fcIcon('alert-triangle') + ' หนักเกินไป / ฟอร์มเริ่มหลุด', sub: 'แนะนำปรับลดน้ำหนัก (-1 ถึง -2 กก.) ในครั้งถัดไปเพื่อเซฟฟอร์ม' }
         ]
     );
 
@@ -616,16 +616,16 @@ async function evaluateWorkoutWeights(workoutKey, painLevel) {
     D.cfg.weights = D.cfg.weights || {};
 
     if (choice === 'light') {
-        const adjust = await fcConfirm('ต้องการให้ระบบปรับเพิ่มน้ำหนัก (+2 กก.) สำหรับท่าหลักในเซสชันนี้อัตโนมัติเลยไหม?\n(สามารถปรับแต่งเองได้ในแท็บโปรแกรม)', '⚡ ปรับเพิ่มน้ำหนักก้าวหน้า');
+        const adjust = await fcConfirm('ต้องการให้ระบบปรับเพิ่มน้ำหนัก (+2 กก.) สำหรับท่าหลักในเซสชันนี้อัตโนมัติเลยไหม?\n(สามารถปรับแต่งเองได้ในแท็บโปรแกรม)', fcIcon('zap') + ' ปรับเพิ่มน้ำหนักก้าวหน้า');
         if (adjust) {
             const changed = autoAdjustWorkoutWeights(workoutKey, +2);
-            await fcAlert(`✓ ปรับเพิ่มน้ำหนัก (+2 กก.) เรียบร้อยแล้ว:\n\n• ${changed.join('\n• ')}\n\nในครั้งถัดไประบบจะแนะนำน้ำหนักใหม่นี้โดยอัตโนมัติ`);
+            await fcAlert(`${fcIcon('sparkles')} ปรับเพิ่มน้ำหนัก (+2 กก.) เรียบร้อยแล้ว:\n\n• ${changed.join('\n• ')}\n\nในครั้งถัดไประบบจะแนะนำน้ำหนักใหม่นี้โดยอัตโนมัติ`);
         }
     } else if (choice === 'heavy') {
-        const adjust = await fcConfirm('ต้องการให้ระบบปรับลดน้ำหนัก (-2 กก.) เพื่อเซฟฟอร์มและหลังในเซสชันถัดไปไหม?\n(สามารถปรับแต่งเองได้ในแท็บโปรแกรม)', '🛡️ ปรับลดน้ำหนักเซฟหลัง');
+        const adjust = await fcConfirm('ต้องการให้ระบบปรับลดน้ำหนัก (-2 กก.) เพื่อเซฟฟอร์มและหลังในเซสชันถัดไปไหม?\n(สามารถปรับแต่งเองได้ในแท็บโปรแกรม)', fcIcon('shield-check') + ' ปรับลดน้ำหนักเซฟหลัง');
         if (adjust) {
             const changed = autoAdjustWorkoutWeights(workoutKey, -2);
-            await fcAlert(`✓ ปรับลดน้ำหนัก (-2 กก.) เรียบร้อยแล้ว:\n\n• ${changed.join('\n• ')}\n\nในครั้งถัดไประบบจะใช้น้ำหนักที่ปรับลดนี้เพื่อฟื้นฟูฟอร์ม`);
+            await fcAlert(`${fcIcon('sparkles')} ปรับลดน้ำหนัก (-2 กก.) เรียบร้อยแล้ว:\n\n• ${changed.join('\n• ')}\n\nในครั้งถัดไประบบจะใช้น้ำหนักที่ปรับลดนี้เพื่อฟื้นฟูฟอร์ม`);
         }
     }
 
@@ -696,7 +696,7 @@ function applyPhaseProgressionWeights(phaseIndex) {
     });
     save(); render(); autoSync();
     if (typeof msg === 'function') {
-        msg(`✓ อัปเดตน้ำหนักทุกท่าตามเกณฑ์มาตรฐาน Phase ${pIdx + 1} เรียบร้อยแล้ว`);
+        msg(`${fcIcon('sparkles')} อัปเดตน้ำหนักทุกท่าตามเกณฑ์มาตรฐาน Phase ${pIdx + 1} เรียบร้อยแล้ว`);
     }
 }
 
@@ -708,7 +708,7 @@ function adjustSingleExerciseWeight(k, delta) {
     D.cfg.weights[k] = newKg;
     save(); render(); autoSync();
     if (typeof msg === 'function') {
-        msg(`✓ ${EX[k]?.n || k}: ${newKg} กก.`);
+        msg(`${fcIcon('sparkles')} ${EX[k]?.n || k}: ${newKg} กก.`);
     }
 }
 
@@ -721,7 +721,7 @@ async function editExerciseWeight(k) {
     const res = await fcPrompt(
         `กำหนดน้ำหนักสำหรับ ${e.n} (${unitLabel})\n\n• ค่ามาตรฐานโปรแกรม Phase ${pIdx + 1}: ${baseKg} กก.\n• ปัจจุบันของคุณ: ${wInfo.kg} กก.\n(ใส่ตัวเลขน้ำหนัก หรือกดตกลงโดยเว้นว่างเพื่อคืนค่าตามโปรแกรม)`,
         String(wInfo.kg),
-        '🏋️ ปรับน้ำหนักอุปกรณ์เฉพาะตัว'
+        ' ปรับน้ำหนักอุปกรณ์เฉพาะตัว'
     );
     if (res === null) return;
     const val = parseFloat(res);
@@ -732,22 +732,22 @@ async function editExerciseWeight(k) {
     D.cfg.weights = D.cfg.weights || {};
     D.cfg.weights[k] = val;
     save(); render(); autoSync();
-    await fcAlert(`✓ บันทึกน้ำหนัก ${e.n} เป็น ${val} ${unitLabel} เรียบร้อยแล้ว!`);
+    await fcAlert(`${fcIcon('sparkles')} บันทึกน้ำหนัก ${e.n} เป็น ${val} ${unitLabel} เรียบร้อยแล้ว!`);
 }
 
 function resetExerciseWeight(k) {
     if (D.cfg && D.cfg.weights && D.cfg.weights[k] != null) {
         delete D.cfg.weights[k];
         save(); render(); autoSync();
-        msg(`✓ คืนค่าน้ำหนัก ${EX[k]?.n || k} ตามโปรแกรมมาตรฐานแล้ว`);
+        msg(`${fcIcon('sparkles')} คืนค่าน้ำหนัก ${EX[k]?.n || k} ตามโปรแกรมมาตรฐานแล้ว`);
     }
 }
 
 async function resetAllWeightsToProgram() {
-    if (await fcConfirm('ต้องการรีเซ็ตน้ำหนักอุปกรณ์ทุกท่ากลับไปใช้ค่ามาตรฐานตามโปรแกรม 5 เฟสหรือไม่?', '🔄 คืนค่าน้ำหนักมาตรฐาน')) {
+    if (await fcConfirm('ต้องการรีเซ็ตน้ำหนักอุปกรณ์ทุกท่ากลับไปใช้ค่ามาตรฐานตามโปรแกรม 5 เฟสหรือไม่?', fcIcon('refresh-cw') + ' คืนค่าน้ำหนักมาตรฐาน')) {
         if (D.cfg) D.cfg.weights = {};
         save(); render(); autoSync();
-        await fcAlert('✓ รีเซ็ตน้ำหนักทุกท่ากลับเป็นค่ามาตรฐานตามสัปดาห์และเฟสของโปรแกรมแล้ว');
+        await fcAlert(fcIcon('sparkles') + ' รีเซ็ตน้ำหนักทุกท่ากลับเป็นค่ามาตรฐานตามสัปดาห์และเฟสของโปรแกรมแล้ว');
     }
 }
 
@@ -784,7 +784,7 @@ function showWeightTableModal() {
             </table>
         </div>
         <div style="margin-top:14px;font-size:12px;color:var(--dim);line-height:1.4;">
-            💡 <b>คอลัมน์สีส้ม:</b> คือเฟสปัจจุบันของคุณ คุณสามารถแตะปุ่ม "✏️ ปรับ" ในแต่ละท่าเพื่อปรับแต่งน้ำหนักตามความพร้อมได้ทุกเวลา
+            ${fcIcon('lightbulb')} <b>คอลัมน์สีส้ม:</b> คือเฟสปัจจุบันของคุณ คุณสามารถแตะปุ่ม "${fcIcon('pencil')} ปรับ" ในแต่ละท่าเพื่อปรับแต่งน้ำหนักตามความพร้อมได้ทุกเวลา
         </div>
     `;
 
@@ -808,7 +808,7 @@ function renderWeightProgressionUI() {
         <div style="background:linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color:#fff; border-radius:14px; padding:14px; margin-bottom:12px; box-shadow:0 4px 14px rgba(15,23,42,0.18);">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
                 <div>
-                    <div style="font-size:11px; font-weight:800; color:#38bdf8; text-transform:uppercase; letter-spacing:0.5px;">🏋️ PROGRESSIVE OVERLOAD COACH</div>
+                    <div style="font-size:11px; font-weight:800; color:#38bdf8; text-transform:uppercase; letter-spacing:0.5px;">${fcIcon('dumbbell')} PROGRESSIVE OVERLOAD COACH</div>
                     <div style="font-size:15px; font-weight:900; color:#fff; margin-top:2px;">
                         สัปดาห์ที่ ${wkNo()} · ${curPhase.n || 'Phase ' + (pIdx + 1)}
                     </div>
@@ -820,26 +820,26 @@ function renderWeightProgressionUI() {
 
             <div style="font-size:12px; color:#cbd5e1; line-height:1.45; margin-bottom:10px;">
                 ${curPhase.d || 'เน้นการปรับตัวและเรียนรู้ฟอร์ม'} <br>
-                <span style="color:#f97316; font-weight:700;">⚡ รูปแบบ: ${curPhase.v || 'พัก 60 วิ'}</span>
+                <span style="color:#f97316; font-weight:700;">${fcIcon('zap')} รูปแบบ: ${curPhase.v || 'พัก 60 วิ'}</span>
             </div>
 
             <!-- McGill Back Shield Status -->
             <div style="background:rgba(255,255,255,0.06); border-radius:10px; padding:8px 10px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.1); font-size:11.5px;">
                 ${isBackPain 
-                    ? '<span style="color:#38bdf8; font-weight:800;">🛡️ McGill Back Shield: เปิดใช้งาน (ตรวจพบอาการตึง/ปวดหลัง)</span><div style="color:#94a3b8; font-size:10.5px; margin-top:2px;">ระบบจะล็อคน้ำหนักท่า RDL / Swing ไม่ให้เพิ่มอัตโนมัติ เพื่อเซฟหมอนรองกระดูกและข้อต่อ</div>' 
-                    : '<span style="color:#34d399; font-weight:800;">🟢 หลังแข็งแรงสมบูรณ์ (McGill Shield Ready)</span><div style="color:#94a3b8; font-size:10.5px; margin-top:2px;">กล้ามเนื้อแกนกลางพร้อมรับแรงโหลด ท่า Compound สามารถเพิ่มน้ำหนักทีละ +2 กก. ได้อย่างปลอดภัย</div>'}
+                    ? '<span style="color:#38bdf8; font-weight:800;"> McGill Back Shield: เปิดใช้งาน (ตรวจพบอาการตึง/ปวดหลัง)</span><div style="color:#94a3b8; font-size:10.5px; margin-top:2px;">ระบบจะล็อคน้ำหนักท่า RDL / Swing ไม่ให้เพิ่มอัตโนมัติ เพื่อเซฟหมอนรองกระดูกและข้อต่อ</div>' 
+                    : '<span style="color:#34d399; font-weight:800;"> หลังแข็งแรงสมบูรณ์ (McGill Shield Ready)</span><div style="color:#94a3b8; font-size:10.5px; margin-top:2px;">กล้ามเนื้อแกนกลางพร้อมรับแรงโหลด ท่า Compound สามารถเพิ่มน้ำหนักทีละ +2 กก. ได้อย่างปลอดภัย</div>'}
             </div>
 
             <!-- 1-Tap Coach Action Buttons -->
             <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;">
                 <button type="button" class="btn sm" onclick="applyPhaseProgressionWeights()" style="padding:7px 4px; font-size:10.5px; font-weight:800; background:rgba(56,189,248,0.18); border:1px solid #38bdf8; color:#38bdf8; border-radius:8px; cursor:pointer;" title="ตั้งค่าน้ำหนักทุกท่าตามเกณฑ์มาตรฐาน Phase ปัจจุบัน">
-                    ⚡ ตาม Phase ${pIdx + 1}
+                    ${fcIcon('zap')} ตาม Phase ${pIdx + 1}
                 </button>
                 <button type="button" class="btn sm" onclick="applySmartOverload(2)" style="padding:7px 4px; font-size:10.5px; font-weight:800; background:rgba(249,115,22,0.18); border:1px solid #f97316; color:#f97316; border-radius:8px; cursor:pointer;" title="เพิ่มน้ำหนักก้าวหน้า +2 กก. ท่าหลัก (+1 กก. ท่าเล็ก)">
-                    🔥 Overload +2kg
+                    ${fcIcon('flame')} Overload +2kg
                 </button>
                 <button type="button" class="btn sm" onclick="applySmartOverload(-2)" style="padding:7px 4px; font-size:10.5px; font-weight:800; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#e2e8f0; border-radius:8px; cursor:pointer;" title="ปรับลดน้ำหนักลง 2 กก. เพื่อเน้นฟอร์มและลดความล้า">
-                    🛡️ Deload -2kg
+                    ${fcIcon('shield-check')} Deload -2kg
                 </button>
             </div>
         </div>
@@ -883,7 +883,7 @@ function renderWeightProgressionUI() {
                             <span style="font-size:11.5px; font-weight:800; color:var(--acc); padding:0 3px; min-width:26px; text-align:center;">${wInfo.kg || 0}</span>
                             <button type="button" onclick="adjustSingleExerciseWeight('${k}', 1)" style="border:none; background:transparent; color:var(--tx); font-weight:800; font-size:13px; padding:3px 6px; cursor:pointer;" title="เพิ่ม 1 กก.">+</button>
                         </div>
-                        <button class="btn sm" onclick="editExerciseWeight('${k}')" style="padding:5px 8px; font-size:11.5px;" title="พิมพ์ค่าน้ำหนักเอง">✏️</button>
+                        <button class="btn sm" onclick="editExerciseWeight('${k}')" style="padding:5px 8px; font-size:11.5px;" title="พิมพ์ค่าน้ำหนักเอง">${fcIcon('pencil')}</button>
                         ${isCustom ? `<button class="btn sm g" onclick="resetExerciseWeight('${k}')" style="padding:5px 7px; font-size:11.5px;" title="คืนค่ามาตรฐานตามโปรแกรม">${fcIcon('refresh-cw')}</button>` : ''}
                     </div>
                 </div>
@@ -898,8 +898,8 @@ function renderWeightProgressionUI() {
         `;
     }
 
-    const compoundSection = renderGroupHtml('🏋️ ท่าหลักลำตัว & ขา (Compound Movements)', 'ท่าหลักหลายข้อต่อ ก้าวหน้าอย่างปลอดภัยทีละ +2 กก.', compoundKeys);
-    const isolationSection = renderGroupHtml('💪 ท่าเฉพาะจุด (Arm & Shoulder Isolation)', 'ท่ากล้ามเนื้อมัดเล็ก ก้าวหน้าอย่างระมัดระวังทีละ +1 กก.', isolationKeys);
+    const compoundSection = renderGroupHtml(' ท่าหลักลำตัว & ขา (Compound Movements)', 'ท่าหลักหลายข้อต่อ ก้าวหน้าอย่างปลอดภัยทีละ +2 กก.', compoundKeys);
+    const isolationSection = renderGroupHtml(' ท่าเฉพาะจุด (Arm & Shoulder Isolation)', 'ท่ากล้ามเนื้อมัดเล็ก ก้าวหน้าอย่างระมัดระวังทีละ +1 กก.', isolationKeys);
 
     container.innerHTML = coachCardHtml + compoundSection + isolationSection;
 }
@@ -920,79 +920,79 @@ const WORKOUT_MUSCLE_MAPPING = {
         name: 'อก ไหล่หน้า และหลังแขน (Push Day)',
         muscles: ['chest', 'shoulders', 'triceps', 'core'],
         labels: ['อก (Chest) 95%', 'ไหล่ (Delts) 85%', 'หลังแขน (Triceps) 80%', 'แกนกลาง (Core) 70%'],
-        tip: '🥩 เน้นโปรตีน 35-40g ภายใน 60 นาที และยืดเหยียดเปิดหน้าอกคลายความตึง'
+        tip: fcIcon('utensils') + ' เน้นโปรตีน 35-40g ภายใน 60 นาที และยืดเหยียดเปิดหน้าอกคลายความตึง'
     },
     'B': {
         name: 'หลัง บ่า และหน้าแขน (Pull Day)',
         muscles: ['upper_back', 'biceps', 'core'],
         labels: ['หลังบน/ปีก (Lats) 95%', 'หน้าแขน (Biceps) 85%', 'บ่า (Traps) 80%', 'แกนกลาง (Core) 65%'],
-        tip: '🥩 ทานโปรตีนเสริม และทำท่ายืดแขวนบาร์ (Dead Hang) 30 วินาที คลายแรงกดกระดูกสันหลัง'
+        tip: fcIcon('utensils') + ' ทานโปรตีนเสริม และทำท่ายืดแขวนบาร์ (Dead Hang) 30 วินาที คลายแรงกดกระดูกสันหลัง'
     },
     'C': {
         name: 'ขา ก้น และแกนกลางลำตัว (Leg Day)',
         muscles: ['quads', 'glutes_hams', 'core', 'lower_back'],
         labels: ['ต้นขาหน้า (Quads) 95%', 'ก้น/ขาหลัง (Glutes/Hams) 90%', 'แกนกลาง (Core) 80%', 'หลังล่าง 65%'],
-        tip: '🦵 ยืด Hamstring และโฟมโรลเลอร์คลายกล้ามเนื้อขา พร้อมดื่มน้ำชดเชยเหงื่อ 600-800 ml'
+        tip: fcIcon('sparkles') + ' ยืด Hamstring และโฟมโรลเลอร์คลายกล้ามเนื้อขา พร้อมดื่มน้ำชดเชยเหงื่อ 600-800 ml'
     },
     'Z': {
         name: 'Zone 2 คาร์ดิโอ & หน้าท้อง',
         muscles: ['core', 'quads'],
         labels: ['ระบบหัวใจ Zone 2 100%', 'แกนกลาง (Core) 85%', 'ขา/น่อง 75%'],
-        tip: '💧 ดื่มน้ำชดเชยการสูญเสียเหงื่อ และเดินยืดขาเบาๆ 3 นาทีเพื่อ Cooldown สมบูรณ์'
+        tip: fcIcon('droplets') + ' ดื่มน้ำชดเชยการสูญเสียเหงื่อ และเดินยืดขาเบาๆ 3 นาทีเพื่อ Cooldown สมบูรณ์'
     },
     'R': {
         name: 'Active Recovery & ฟื้นฟูหลัง (McGill Shield)',
         muscles: ['lower_back', 'core', 'glutes_hams'],
-        labels: ['🛡️ เกราะหลังล่าง McGill 100%', 'แกนกลางลำตัว 85%', 'การยืดเหยียด 90%'],
-        tip: '🛡️ ทำท่า Cat-Camel และ Bird-Dog ต่อเนื่องสม่ำเสมอ ช่วยลดแรงกดทับหมอนรองกระดูกได้ดีที่สุด'
+        labels: [' เกราะหลังล่าง McGill 100%', 'แกนกลางลำตัว 85%', 'การยืดเหยียด 90%'],
+        tip: fcIcon('shield-check') + ' ทำท่า Cat-Camel และ Bird-Dog ต่อเนื่องสม่ำเสมอ ช่วยลดแรงกดทับหมอนรองกระดูกได้ดีที่สุด'
     },
     'CH_FATBURN30': {
         name: 'ชาเลนจ์ 30 วัน — ลดไขมันทั้งตัว & ช่องท้อง',
         muscles: ['quads', 'glutes_hams', 'chest', 'core'],
         labels: ['เผาผลาญทั้งตัว 95%', 'แกนกลาง & ช่องท้อง 90%', 'ขา/ก้น 85%'],
-        tip: '🔥 รักษาจังหวะต่อเนื่อง ดื่มน้ำ 500 ml และเดินคูลดาวน์ 3 นาทีเพื่อลดไขมันช่องท้องอย่างยั่งยืน'
+        tip: fcIcon('flame') + ' รักษาจังหวะต่อเนื่อง ดื่มน้ำ 500 ml และเดินคูลดาวน์ 3 นาทีเพื่อลดไขมันช่องท้องอย่างยั่งยืน'
     },
     'CH_ABS14': {
         name: 'ชาเลนจ์ 14 วัน — เบิร์นไขมันหน้าท้องเข้มข้น',
         muscles: ['core', 'lower_back'],
         labels: ['แกนกลางลำตัว (Core) 100%', 'หน้าท้องลึก 90%', 'เกราะหลังล่าง 80%'],
-        tip: '🛡️ เกร็งหน้าท้องตลอดท่า Plank & Dead Bug โดยไม่แอ่นหลังล่าง เพื่อปั้นเอวคอดอย่างปลอดภัย'
+        tip: fcIcon('shield-check') + ' เกร็งหน้าท้องตลอดท่า Plank & Dead Bug โดยไม่แอ่นหลังล่าง เพื่อปั้นเอวคอดอย่างปลอดภัย'
     },
     'CH_UPPER28': {
         name: 'ชาเลนจ์ 28 วัน — ปั้นท่อนบน & ซิกแพค',
         muscles: ['chest', 'upper_back', 'shoulders', 'biceps', 'triceps', 'core'],
         labels: ['อก & หลังบน 95%', 'ไหล่ & แขน 85%', 'แกนกลาง 80%'],
-        tip: '🥩 เติมโปรตีนหลังฝึก และยืดเหยียดหน้าอก-หัวไหล่ 30 วินาทีเพื่อป้องกันอาการไหล่ห่อ'
+        tip: fcIcon('utensils') + ' เติมโปรตีนหลังฝึก และยืดเหยียดหน้าอก-หัวไหล่ 30 วินาทีเพื่อป้องกันอาการไหล่ห่อ'
     },
     'CH_POSTURE28': {
         name: 'ชาเลนจ์ 28 วัน — ยืดเหยียดจัดระเบียบหลัง & บุคลิกภาพ',
         muscles: ['lower_back', 'upper_back', 'core'],
         labels: ['จัดระเบียบกระดูกสันหลัง 100%', 'คลายสะโพก-อก 90%', 'แกนกลาง 75%'],
-        tip: '🧘 ฝึก Wall Angels และเก็บคางสม่ำเสมอ ช่วยแก้คอยื่น-ไหล่ห่อ และลดอาการปวดหลังเรื้อรัง'
+        tip: fcIcon('activity') + ' ฝึก Wall Angels และเก็บคางสม่ำเสมอ ช่วยแก้คอยื่น-ไหล่ห่อ และลดอาการปวดหลังเรื้อรัง'
     },
     'BF_ABS': {
         name: 'เน้นเฉพาะจุด — หน้าท้อง & แกนกลาง',
         muscles: ['core', 'lower_back'],
         labels: ['แกนกลางลำตัว (Core) 100%', 'หน้าท้อง 95%', 'หลังล่างปลอดภัย 85%'],
-        tip: '🔥 หายใจออกขณะเกร็งหน้าท้องทุกครั้ง ช่วยเพิ่มการกระตุ้นกล้ามเนื้อหน้าท้องชั้นลึกได้ดีขึ้น'
+        tip: fcIcon('flame') + ' หายใจออกขณะเกร็งหน้าท้องทุกครั้ง ช่วยเพิ่มการกระตุ้นกล้ามเนื้อหน้าท้องชั้นลึกได้ดีขึ้น'
     },
     'BF_UPPER': {
         name: 'เน้นเฉพาะจุด — อก แขน และไหล่',
         muscles: ['chest', 'shoulders', 'biceps', 'triceps'],
         labels: ['หน้าอก (Chest) 95%', 'ไหล่ (Delts) 90%', 'แขนหน้า-หลัง 85%'],
-        tip: '💪 คุมจังหวะลงช้าๆ (Tempo 3-1-1) เพื่อสร้างแรงตึงกล้ามเนื้อท่อนบนให้คมชัดขึ้น'
+        tip: fcIcon('dumbbell') + ' คุมจังหวะลงช้าๆ (Tempo 3-1-1) เพื่อสร้างแรงตึงกล้ามเนื้อท่อนบนให้คมชัดขึ้น'
     },
     'BF_LOWER': {
         name: 'เน้นเฉพาะจุด — ขา & ก้นกระชับ',
         muscles: ['quads', 'glutes_hams', 'core'],
         labels: ['ต้นขาหน้า (Quads) 95%', 'ก้น/ขาหลัง (Glutes/Hams) 95%', 'แกนกลาง 75%'],
-        tip: '🦵 ดันส้นเท้าขึ้นและบีบก้นทุกครั้งที่ยืนสุด ช่วยกระชับช่วงล่างและกระตุ้นการเผาผลาญสูง'
+        tip: fcIcon('sparkles') + ' ดันส้นเท้าขึ้นและบีบก้นทุกครั้งที่ยืนสุด ช่วยกระชับช่วงล่างและกระตุ้นการเผาผลาญสูง'
     },
     'BF_STRETCH': {
         name: 'เน้นเฉพาะจุด — ยืดเหยียดหลัง & คลายปวด',
         muscles: ['lower_back', 'glutes_hams', 'core'],
         labels: ['คลายหลังล่าง 100%', 'คลายสะโพก-ขาหลัง 90%', 'ฟื้นฟูระบบประสาท 85%'],
-        tip: '🧘 หายใจเข้าลึกออกยาวระหว่างค้างท่ายืด ช่วยลดคอร์ติซอลและฟื้นฟูกล้ามเนื้อได้เร็วขึ้น'
+        tip: fcIcon('activity') + ' หายใจเข้าลึกออกยาวระหว่างค้างท่ายืด ช่วยลดคอร์ติซอลและฟื้นฟูกล้ามเนื้อได้เร็วขึ้น'
     }
 };
 
@@ -1248,13 +1248,13 @@ function renderShareCardCanvas() {
     const cardH = 90;
 
     // Card 1: Duration
-    drawBentoCard(ctx, 40, bentoY, cardW, cardH, '⏱️ ระยะเวลาฝึก', `${durMins}`, 'นาที', '#ffffff');
+    drawBentoCard(ctx, 40, bentoY, cardW, cardH, ' ระยะเวลาฝึก', `${durMins}`, 'นาที', '#ffffff');
     // Card 2: Kcal
-    drawBentoCard(ctx, 40 + cardW + 20, bentoY, cardW, cardH, '🔥 เผาผลาญ', kcalVal, 'kcal', '#f59e0b');
+    drawBentoCard(ctx, 40 + cardW + 20, bentoY, cardW, cardH, ' เผาผลาญ', kcalVal, 'kcal', '#f59e0b');
     // Card 3: Volume
-    drawBentoCard(ctx, 40, bentoY + cardH + 16, cardW, cardH, '🏋️ น้ำหนักสะสม (Volume)', volVal, 'กก.', '#38bdf8');
+    drawBentoCard(ctx, 40, bentoY + cardH + 16, cardW, cardH, ' น้ำหนักสะสม (Volume)', volVal, 'กก.', '#38bdf8');
     // Card 4: Intensity / Reps
-    drawBentoCard(ctx, 40 + cardW + 20, bentoY + cardH + 16, cardW, cardH, '🎯 เซ็ต / RPE', `RPE ${s.rpe || 7}`, repsVal, '#10b981');
+    drawBentoCard(ctx, 40 + cardW + 20, bentoY + cardH + 16, cardW, cardH, ' เซ็ต / RPE', `RPE ${s.rpe || 7}`, repsVal, '#10b981');
 
     // 5. Active Muscle Heatmap Card (if Story format or space permits)
     const heatY = bentoY + cardH * 2 + 40;
@@ -1302,7 +1302,7 @@ function renderShareCardCanvas() {
     ctx.fillText('FitCoach Personal AI Assistant • Science-based Training', 40, footerY + 8);
     ctx.textAlign = 'right';
     ctx.fillStyle = '#10b981';
-    ctx.fillText('✓ VERIFIED WORKOUT', W - 40, footerY + 8);
+    ctx.fillText(' VERIFIED WORKOUT', W - 40, footerY + 8);
     ctx.textAlign = 'left';
 }
 
@@ -1353,7 +1353,7 @@ function downloadShareCardPng() {
     link.download = `fitcoach-workout-${d}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
-    if (typeof msg === 'function') msg('✓ บันทึกรูปภาพการ์ดแชร์เรียบร้อยแล้ว');
+    if (typeof msg === 'function') msg(fcIcon('sparkles') + ' บันทึกรูปภาพการ์ดแชร์เรียบร้อยแล้ว');
 }
 
 async function shareCardViaWebShare() {

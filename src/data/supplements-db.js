@@ -50,7 +50,7 @@ const SUPP_MASTER_SLOTS = [
                 dose: '1 แคปซูล',
                 expDate: '-',
                 benefit: 'คุมหิว, ลดน้ำตาลในเลือด',
-                tag: '🩸 คุมหิว+ลดน้ำตาล',
+                tag: ' คุมหิว+ลดน้ำตาล',
                 goalCat: 'liver_lipid',
                 shiftMoveToLunch: true,
                 active: true
@@ -96,7 +96,7 @@ const SUPP_MASTER_SLOTS = [
                 dose: '1 แคปซูล',
                 expDate: '24-09-2028',
                 benefit: 'ชะลอการดูดซึมน้ำตาลเข้ากระแสเลือด',
-                tag: '🍏 พร้อมข้าวคำแรก',
+                tag: ' พร้อมข้าวคำแรก',
                 goalCat: 'liver_lipid',
                 active: true
             },
@@ -130,7 +130,7 @@ const SUPP_MASTER_SLOTS = [
                 dose: '1 เม็ด',
                 expDate: '-',
                 benefit: 'กระตุ้นการสร้างคอลลาเจน, เสริมภูมิคุ้มกันและต้านอนุมูลอิสระ',
-                tag: '🍊 คอลลาเจน+เสริมภูมิ',
+                tag: ' คอลลาเจน+เสริมภูมิ',
                 goalCat: 'skin',
                 active: true
             },
@@ -357,7 +357,7 @@ const SUPP_MASTER_SLOTS = [
     },
     {
         id: 'slot_bedtime',
-        icon: '🛌',
+        icon: '',
         title: 'ช่วงก่อนนอน (Bedtime - Fasted State)',
         timeHint: '21:30 – 22:30 น. (ต้องเป็นตอนท้องว่าง)',
         badge: 'เป้าหมาย: ดีท็อกซ์ตับ, ปรับสมดุลลำไส้ (ต้องเป็นตอนท้องว่าง)',
@@ -462,7 +462,7 @@ function analyzeSupplementTiming(rawName = '', rawGoal = 'all', rawNotes = '') {
     let timing = 'หลังอาหาร';
     let dose = '1 แคปซูล';
     let goalCat = rawGoal !== 'all' ? rawGoal : 'skin';
-    let tag = '✨ บำรุงสุขภาพระยะยาว';
+    let tag = ' บำรุงสุขภาพระยะยาว';
     let benefit = '';
     let rationale = '';
     let skipOnShift = false;
@@ -474,7 +474,7 @@ function analyzeSupplementTiming(rawName = '', rawGoal = 'all', rawNotes = '') {
         slotId = 'slot_evening';
         timing = 'Pre-Workout (ก่อนออกกำลังกาย 30 นาที)';
         goalCat = 'workout';
-        tag = '🔥 Pre-Workout & เผาผลาญไขมัน';
+        tag = ' Pre-Workout & เผาผลาญไขมัน';
         skipOnShift = true;
         dose = /creatine|ครีเอทีน/.test(text) ? '1 สกู๊ป / 5g' : '1 แคปซูล';
         benefit = 'เพิ่มพละกำลังและดึงไขมันช่องท้อง (Visceral Fat 11) มาเผาผลาญเป็นพลังงานขณะออกกำลังกาย';
@@ -485,7 +485,7 @@ function analyzeSupplementTiming(rawName = '', rawGoal = 'all', rawNotes = '') {
         slotId = 'slot_morning';
         timing = 'ตอนเช้า (Fasted State — ห้ามมีแคลอรี)';
         goalCat = 'liver_lipid';
-        tag = '🩸 คุมหิว+ลดน้ำตาล';
+        tag = ' คุมหิว+ลดน้ำตาล';
         shiftMoveToLunch = true;
         benefit = 'คุมหิวและลดน้ำตาลในเลือดช่วง Fasted State โดยไม่มีแคลอรี';
         rationale = 'จัดไว้ช่วงเช้าตอนท้องว่าง (Fasted State) เพื่อคุมความหิวและระดับน้ำตาลในเลือดก่อนเริ่มมื้อแรกครับ';
@@ -494,7 +494,7 @@ function analyzeSupplementTiming(rawName = '', rawGoal = 'all', rawNotes = '') {
         slotId = 'slot_lunch';
         timing = 'ทานพร้อมข้าวคำแรก (ลดการดูดซึมน้ำตาล)';
         goalCat = 'liver_lipid';
-        tag = '🍏 พร้อมข้าวคำแรก';
+        tag = ' พร้อมข้าวคำแรก';
         benefit = 'ชะลอการดูดซึมน้ำตาลเข้ากระแสเลือดและบล็อกแป้งในมื้ออาหาร';
         rationale = 'ทานพร้อมข้าวคำแรกในมื้อที่ 1 (Lunch) เพื่อชะลอการดูดซึมน้ำตาลและลดการสร้างไตรกลีเซอไรด์โดยไม่ระคายเคืองกระเพาะครับ';
     }
@@ -503,7 +503,7 @@ function analyzeSupplementTiming(rawName = '', rawGoal = 'all', rawNotes = '') {
         slotId = 'slot_evening';
         timing = 'Post-Workout (หลังออกกำลังกายทันที)';
         goalCat = /collagen|คอลลาเจน|ceramide|เซราไมด์|hya|ไฮยา/.test(text) ? 'skin' : 'workout';
-        tag = goalCat === 'skin' ? '✨ บำรุงผิว & ข้อต่อ' : '🥤 Post-Workout';
+        tag = goalCat === 'skin' ? ' บำรุงผิว & ข้อต่อ' : ' Post-Workout';
         dose = /whey|เวย์|soy|โปรตีน|protein/.test(text) ? '1 สกู๊ป' : '2 แคปซูล';
         benefit = goalCat === 'skin'
             ? 'บำรุงความยืดหยุ่นของผิวและข้อต่อในระยะยาว (Daily Maintenance)'
@@ -516,15 +516,15 @@ function analyzeSupplementTiming(rawName = '', rawGoal = 'all', rawNotes = '') {
         timing = 'ก่อนนอน (ตอนท้องว่าง)';
         if (/milk\s*thistle|silymarin|ซิลิมาริน|artichoke|nac|ตับ|liver/.test(text)) {
             goalCat = 'liver_lipid';
-            tag = '🛡️ ฟื้นฟูตับ & ลดไขมันพอกตับ';
+            tag = ' ฟื้นฟูตับ & ลดไขมันพอกตับ';
             benefit = 'ฟื้นฟูเซลล์ตับ เพิ่มระดับกลูตาไธโอนในตับ และช่วยเร่งการสลายไขมันพอกตับช่วงหลับลึก';
         } else if (/gluta|กลูต้า|zinc|ซิงค์/.test(text)) {
             goalCat = 'skin';
-            tag = '🛡️ ดีท็อกซ์ตับ + Zinc ลดสิว';
+            tag = ' ดีท็อกซ์ตับ + Zinc ลดสิว';
             benefit = 'ดีท็อกซ์สารพิษในตับและบำรุงผิวใส ควบคุมความมัน/ลดสิว';
         } else {
             goalCat = 'nerve_gut';
-            tag = '🛌 ฟื้นฟูประสาท & ลำไส้';
+            tag = ' ฟื้นฟูประสาท & ลำไส้';
             benefit = 'คลายความตึงเครียดของระบบประสาท ปรับสมดุลลำไส้ และช่วยให้หลับลึก';
         }
         rationale = 'จัดไว้ช่วงก่อนเข้านอน (ตอนท้องว่าง — Fasted State) เพราะตับและระบบซ่อมแซมร่างกายทำงานสูงสุดระหว่างหลับลึก และไม่ถูกแคลเซียมหรืออาหารในมื้อเย็นแย่งดูดซึมครับ';
@@ -534,7 +534,7 @@ function analyzeSupplementTiming(rawName = '', rawGoal = 'all', rawNotes = '') {
         slotId = 'slot_dinner';
         timing = 'หลังอาหาร';
         goalCat = /calcium|แคลเซียม|กระดูก/.test(text) ? 'workout' : 'skin';
-        tag = /calcium|แคลเซียม|กระดูก/.test(text) ? '🦴 กู้มวลกระดูก 2.89kg' : '🌿 ดับกลิ่นกาย';
+        tag = /calcium|แคลเซียม|กระดูก/.test(text) ? ' กู้มวลกระดูก 2.89kg' : ' ดับกลิ่นกาย';
         benefit = /calcium|แคลเซียม|กระดูก/.test(text)
             ? 'เสริมความหนาแน่นมวลกระดูก (เป้าหมายกู้มวลกระดูก 2.89kg) และบำรุงข้อต่อในระยะยาว'
             : 'ลดสาร Nonenal ระงับกลิ่นกายจากภายใน';
@@ -546,7 +546,7 @@ function analyzeSupplementTiming(rawName = '', rawGoal = 'all', rawNotes = '') {
         slotId = 'slot_lunch';
         timing = 'หลังอาหาร';
         goalCat = isLipidOrLiver ? 'liver_lipid' : (/b[\s-]?complex|วิตามินบี/.test(text) ? 'nerve_gut' : 'skin');
-        tag = isLipidOrLiver ? '🐟 ลดไตรกลีเซอไรด์' : (/b[\s-]?complex|วิตามินบี/.test(text) ? '🧠 บำรุงระบบประสาท' : '✨ ชะลอวัย & ต้านอนุมูลอิสระ');
+        tag = isLipidOrLiver ? ' ลดไตรกลีเซอไรด์' : (/b[\s-]?complex|วิตามินบี/.test(text) ? ' บำรุงระบบประสาท' : ' ชะลอวัย & ต้านอนุมูลอิสระ');
         benefit = isLipidOrLiver
             ? 'ลดไตรกลีเซอไรด์ (จาก 333) และลดไขมันช่องท้อง (Visceral Fat 11)'
             : 'ดูดซึมพร้อมไขมันดีในมื้ออาหารเพื่อบำรุงระบบประสาทและปกป้องผิวจากแสงแดด';
@@ -558,21 +558,21 @@ function analyzeSupplementTiming(rawName = '', rawGoal = 'all', rawNotes = '') {
             slotId = 'slot_dinner';
             timing = 'หลังอาหาร';
             goalCat = 'liver_lipid';
-            tag = '🛡️ ดูแลตับ & ลดไขมันช่องท้อง';
+            tag = ' ดูแลตับ & ลดไขมันช่องท้อง';
             benefit = 'ช่วยสนับสนุนการทำงานของตับและลดไตรกลีเซอไรด์ควบคู่กับมื้ออาหาร';
             rationale = 'จัดไว้หลังมื้ออาหารที่ 2 (Dinner) เพื่อกระจายจำนวนเม็ดยาไม่ให้กระจุกที่มื้อกลางวันมากเกินไป (เซฟตับ ห้าม Overdose) ครับ';
         } else if (rawGoal === 'workout') {
             slotId = 'slot_evening';
             timing = 'Post-Workout (หลังออกกำลังกายทันที)';
             goalCat = 'workout';
-            tag = '💪 เสริมการออกกำลังกาย';
+            tag = ' เสริมการออกกำลังกาย';
             benefit = 'ช่วยฟื้นฟูพลังงานและซ่อมแซมกล้ามเนื้อจากการฝึกซ้อม';
             rationale = 'จัดไว้ช่วงเย็นควบคู่กับเซสชันออกกำลังกายเพื่อให้ร่างกายนำไปใช้ฟื้นฟูกล้ามเนื้อได้ทันทีครับ';
         } else {
             slotId = 'slot_lunch';
             timing = 'หลังอาหาร';
             goalCat = 'skin';
-            tag = '✨ บำรุงผิวพรรณ & ชะลอวัย';
+            tag = ' บำรุงผิวพรรณ & ชะลอวัย';
             benefit = 'เสริมสร้างคอลลาเจนและต้านอนุมูลอิสระเพื่อดูแลผิวพรรณและข้อต่อในระยะยาว';
             rationale = 'จัดไว้หลังอาหารมื้อที่ 1 (Lunch) เพื่อไม่ให้ระคายเคืองกระเพาะและทำงานเสริมฤทธิ์กับ Watsons Triple C และ Astaxanthin ครับ';
         }
@@ -582,13 +582,13 @@ function analyzeSupplementTiming(rawName = '', rawGoal = 'all', rawNotes = '') {
     const inv = ensureSuppInventory().filter(x => x.active !== false);
     const warnings = [];
     if (/zinc|ซิงค์/.test(text) && inv.some(x => /zinc|ซิงค์|gluta/i.test(x.name + ' ' + (x.activeIngredients || '') + ' ' + x.benefit + ' ' + x.tag))) {
-        warnings.push('⚠️ ในตารางปัจจุบันมี Whitelab Liposomal Gluta+ ที่มี Zinc 30mg อยู่แล้ว แนะนำระวังปริมาณ Zinc รวมเกิน 40mg/วัน เพื่อไม่ให้รบกวนการดูดซึมทองแดงและเซฟตับครับ');
+        warnings.push(' ในตารางปัจจุบันมี Whitelab Liposomal Gluta+ ที่มี Zinc 30mg อยู่แล้ว แนะนำระวังปริมาณ Zinc รวมเกิน 40mg/วัน เพื่อไม่ให้รบกวนการดูดซึมทองแดงและเซฟตับครับ');
     }
     if (/coq10|คิวเท็น/.test(text) && inv.some(x => /triple\s*c|astaxanthin/i.test(x.name))) {
-        warnings.push('🛑 กฎเซฟตับ (Standby/Hold): ปัจจุบันคุณทาน Watsons Triple C (มี CoQ10) และ Whitelab Astaxanthin (มี Vit E) อยู่แล้ว แนะนำให้พัก Dr.PONG CoQ10 30mg ไว้ในหมวดกองหนุน รอใช้เมื่อ Astaxanthin หรือ Triple C หมดเพื่อป้องกันร่างกายรับ Vitamin E/CoQ10 ซ้ำซ้อนครับ');
+        warnings.push(' กฎเซฟตับ (Standby/Hold): ปัจจุบันคุณทาน Watsons Triple C (มี CoQ10) และ Whitelab Astaxanthin (มี Vit E) อยู่แล้ว แนะนำให้พัก Dr.PONG CoQ10 30mg ไว้ในหมวดกองหนุน รอใช้เมื่อ Astaxanthin หรือ Triple C หมดเพื่อป้องกันร่างกายรับ Vitamin E/CoQ10 ซ้ำซ้อนครับ');
     }
     if (/ldee/.test(text) && inv.some(x => /medita|a1c/i.test(x.name))) {
-        warnings.push('🛑 กฎเซฟตับ (Standby/Hold): LDEE Dietary มีสารสกัดคุมหิวซ้ำซ้อนกับ Medita A1C แนะนำให้ทาน 1 แคปซูล เฉพาะก่อนมื้อ Cheat Meal เท่านั้นครับ');
+        warnings.push(' กฎเซฟตับ (Standby/Hold): LDEE Dietary มีสารสกัดคุมหิวซ้ำซ้อนกับ Medita A1C แนะนำให้ทาน 1 แคปซูล เฉพาะก่อนมื้อ Cheat Meal เท่านั้นครับ');
     }
     if (/fish\s*oil|น้ำมันปลา|omega|โอเมก้า/.test(text) && inv.filter(x => /fish\s*oil|น้ำมันปลา|omega/i.test(x.name)).length >= 2) {
         warnings.push('ℹ️ ปัจจุบันคุณทาน Mega We Care Fish Oil มื้อเที่ยงและมื้อเย็นอยู่แล้ว (รวม 2 แคปซูล/วัน) หากเพิ่มอีกเม็ดแนะนำให้รวม EPA+DHA ไม่เกิน 2,000–3,000 mg/วันครับ');
@@ -640,7 +640,7 @@ const SUPP_MODES = {
         color: '#2563eb',
         bg: '#eff6ff',
         border: '#bfdbfe',
-        title: '🏋️ โหมดวันออกกำลังกายปกติ (Pre & Post-Workout)',
+        title: fcIcon('dumbbell') + ' โหมดวันออกกำลังกายปกติ (Pre & Post-Workout)',
         desc: 'ทานครบเซ็ต Pre & Post-Workout และวิตามินบำรุงตามช่วงเวลาปกติ'
     },
     rest: {
@@ -651,7 +651,7 @@ const SUPP_MODES = {
         color: '#0284c7',
         bg: '#f0f9ff',
         border: '#bae6fd',
-        title: '🛋️ โหมดวันพัก (Rest Day - ไม่ได้ออกกำลังกาย)',
+        title: fcIcon('sofa') + ' โหมดวันพัก (Rest Day - ไม่ได้ออกกำลังกาย)',
         desc: 'งด L-Carnitine และย้าย Creatine ไปหลังมื้อเย็นเพื่อสะสมรายวัน (ทาน Soy & Collagen ได้ปกติ)'
     },
     shift: {
@@ -662,7 +662,7 @@ const SUPP_MODES = {
         color: '#d97706',
         bg: '#fffbeb',
         border: '#fde68a',
-        title: '🏥 โหมดวันเข้าเวรเหนื่อย / งดออกกำลังกาย',
+        title: fcIcon('hospital') + ' โหมดวันเข้าเวรเหนื่อย / งดออกกำลังกาย',
         desc: 'งดเซ็ต Pre-Workout (Creatine + L-Carnitine + Whitelab) และย้าย Medita A1C ไปมื้อแรกอัตโนมัติ'
     },
     seminar: {
@@ -673,7 +673,7 @@ const SUPP_MODES = {
         color: '#059669',
         bg: '#ecfdf5',
         border: '#a7f3d0',
-        title: '🎓 โหมดวันอบรม (พกเฉพาะตลับยา / ซอง)',
+        title: fcIcon('graduation-cap') + ' โหมดวันอบรม (พกเฉพาะตลับยา / ซอง)',
         desc: 'งดแบบชง/ผงและตัวซ้อม (Creatine, L-Carnitine, Whitelab ผง, Soy) คงเฉพาะเม็ด/แคปซูล/ซองในตลับยา'
     },
     travel: {
@@ -684,7 +684,7 @@ const SUPP_MODES = {
         color: '#ea580c',
         bg: '#fff7ed',
         border: '#fed7aa',
-        title: '✈️ โหมดเดินทาง / ไปเที่ยว (Travel Kit 2 รอบ)',
+        title: fcIcon('plane') + ' โหมดเดินทาง / ไปเที่ยว (Travel Kit 2 รอบ)',
         desc: 'งดแบบชง/ซ้อม/กล้วยหอม และยุบแคปซูลเป็น 2 รอบหลัก (หลังมื้อแรก + ก่อนนอน) ให้กินง่ายเวลาไม่เป็นเวลา'
     }
 };
@@ -721,8 +721,8 @@ function getSuppMoveInfo(item, mode, isOmad) {
         return {
             targetSlotId: toDinner ? 'slot_dinner' : 'slot_lunch',
             timing: toDinner ? 'ก่อนมื้อเย็น 15–20 นาที (ย้ายมาจากช่วงเช้า)' : 'ก่อนอาหารมื้อแรก (ย้ายมาจากช่วงเช้า)',
-            timingTag: toDinner ? '🍽️ ก่อนมื้อเย็น' : '🥣 ก่อนอาหารมื้อแรก',
-            badgeText: mode === 'travel' ? (toDinner ? '✈️ OMAD + เดินทาง' : '✈️ Travel Kit: มื้อแรก') : (toDinner ? '🍽️ OMAD + เข้าเวร' : '↪️ โหมดวันเข้าเวร'),
+            timingTag: toDinner ? ' ก่อนมื้อเย็น' : ' ก่อนอาหารมื้อแรก',
+            badgeText: mode === 'travel' ? (toDinner ? ' OMAD + เดินทาง' : ' Travel Kit: มื้อแรก') : (toDinner ? ' OMAD + เข้าเวร' : ' โหมดวันเข้าเวร'),
             moveOutText: toDinner ? 'ย้ายไปทานก่อนมื้อเย็นแล้ว' : 'ย้ายไปทานก่อนมื้อกลางวันแล้ว'
         };
     }
@@ -731,7 +731,7 @@ function getSuppMoveInfo(item, mode, isOmad) {
             targetSlotId: 'slot_dinner',
             timing: 'หลังมื้อเย็น (วันพัก: ทานสะสมรายวัน)',
             timingTag: fcIcon('refresh-cw') + ' หลังมื้อเย็น',
-            badgeText: '🛋️ วันพัก (สะสมรายวัน)',
+            badgeText: ' วันพัก (สะสมรายวัน)',
             moveOutText: 'ย้ายไปทานหลังมื้อเย็นแล้ว'
         };
     }
@@ -740,8 +740,8 @@ function getSuppMoveInfo(item, mode, isOmad) {
         return {
             targetSlotId: 'slot_dinner',
             timing: isAcv ? 'ก่อนมื้อเย็น 15–20 นาที (ย้ายจากมื้อเที่ยง)' : 'หลังมื้อเย็นทันที (ย้ายจากมื้อเที่ยง)',
-            timingTag: isAcv ? '🍽️ ก่อนมื้อเย็น' : '🌙 หลังมื้อเย็น',
-            badgeText: '🍽️ ย้ายจากมื้อเที่ยง (OMAD)',
+            timingTag: isAcv ? ' ก่อนมื้อเย็น' : ' หลังมื้อเย็น',
+            badgeText: ' ย้ายจากมื้อเที่ยง (OMAD)',
             moveOutText: 'ย้ายไปทานมื้อเย็น (OMAD) แล้ว'
         };
     }
@@ -751,8 +751,8 @@ function getSuppMoveInfo(item, mode, isOmad) {
             return {
                 targetSlotId,
                 timing: isOmad ? 'หลังมื้อเย็น (Travel Kit)' : 'หลังมื้อแรกของวัน (Travel Kit)',
-                timingTag: isOmad ? '🌙 หลังมื้อเย็น' : '✈️ หลังมื้อแรก',
-                badgeText: isOmad ? '✈️ OMAD + เดินทาง' : '✈️ Travel Kit: รวมมื้อแรก',
+                timingTag: isOmad ? ' หลังมื้อเย็น' : ' หลังมื้อแรก',
+                badgeText: isOmad ? ' OMAD + เดินทาง' : ' Travel Kit: รวมมื้อแรก',
                 moveOutText: isOmad ? 'ย้ายไปทานมื้อเย็นแล้ว' : 'ยุบไปทานมื้อแรกแล้ว'
             };
         }
@@ -878,7 +878,7 @@ function toggleSuppSlotAll(slotId) {
     save();
     render();
     if (typeof pushToCloud === 'function') pushToCloud();
-    msg(targetState ? '✓ เช็กอาหารเสริมครบช่วงเวลานี้แล้ว!' : '↺ ยกเลิกการเช็กช่วงเวลานี้แล้ว');
+    msg(targetState ? fcIcon('sparkles') + ' เช็กอาหารเสริมครบช่วงเวลานี้แล้ว!' : '↺ ยกเลิกการเช็กช่วงเวลานี้แล้ว');
 }
 
 function setSuppMode(mode) {
@@ -908,8 +908,8 @@ function toggleSuppOmadMode() {
     render();
     if (typeof pushToCloud === 'function') pushToCloud();
     msg(rec.suppOmadMode
-        ? '🍽️ เปิดโหมดทานมื้อเดียว (OMAD): ย้ายวิตามินมื้อเที่ยงไปมื้อเย็น และงด B Complex เพื่อไม่ให้กวนเวลานอน'
-        : '🍽️ ปิดโหมดทานมื้อเดียว: กลับสู่ตารางอาหารเสริม 2 มื้อปกติ');
+        ? ' เปิดโหมดทานมื้อเดียว (OMAD): ย้ายวิตามินมื้อเที่ยงไปมื้อเย็น และงด B Complex เพื่อไม่ให้กวนเวลานอน'
+        : ' ปิดโหมดทานมื้อเดียว: กลับสู่ตารางอาหารเสริม 2 มื้อปกติ');
 }
 
 function checkAllSuppsToday(markDone) {
@@ -946,7 +946,7 @@ function checkAllSuppsToday(markDone) {
     save();
     render();
     if (typeof pushToCloud === 'function') pushToCloud();
-    msg(markDone ? '🎉 เช็กอาหารเสริมครบทุกรายการของวันนี้แล้ว!' : '↺ รีเซ็ตตารางอาหารเสริมวันนี้แล้ว');
+    msg(markDone ? fcIcon('trophy') + ' เช็กอาหารเสริมครบทุกรายการของวันนี้แล้ว!' : '↺ รีเซ็ตตารางอาหารเสริมวันนี้แล้ว');
 }
 
 async function editProbioticStock(ev, itemId = 'supp_night_probio') {
@@ -961,7 +961,7 @@ async function editProbioticStock(ev, itemId = 'supp_night_probio') {
         `ปรับจำนวนสต็อกคงเหลือของ "${item ? item.name : 'Probiotic'}" (เม็ด/ซอง):
 (ใส่ 0 หากหมดสต็อกแล้ว ระบบจะถามเพื่อพักรายการนี้ชั่วคราว)`,
         String(curVal),
-        '📦 อัปเดตสต็อกอาหารเสริม'
+        ' อัปเดตสต็อกอาหารเสริม'
     );
     if (res === null) return;
     const n = parseInt(res);
@@ -974,7 +974,7 @@ async function editProbioticStock(ev, itemId = 'supp_night_probio') {
         if (n === 0 && item) {
             const pauseNow = await fcConfirm(`"${item.name}" หมดสต็อกแล้ว (0 เม็ด)
 
-ต้องการพักรายการนี้ชั่วคราว (ย้ายไปหมวด "รายการที่หมด/พักทาน") เพื่อไม่ให้ค้างในตารางรายวันเลยไหมครับ?`, '⏸️ พักรายการที่หมดสต็อก');
+ต้องการพักรายการนี้ชั่วคราว (ย้ายไปหมวด "รายการที่หมด/พักทาน") เพื่อไม่ให้ค้างในตารางรายวันเลยไหมครับ?`, ' พักรายการที่หมดสต็อก');
             if (pauseNow) {
                 item.active = false;
             }
@@ -982,7 +982,7 @@ async function editProbioticStock(ev, itemId = 'supp_night_probio') {
         save();
         render();
         if (typeof pushToCloud === 'function') pushToCloud();
-        msg('✓ อัปเดตสต็อกเรียบร้อยแล้ว');
+        msg(fcIcon('sparkles') + ' อัปเดตสต็อกเรียบร้อยแล้ว');
     }
 }
 
@@ -997,7 +997,7 @@ function toggleSuppItemActive(itemId, ev) {
     render();
     if (typeof pushToCloud === 'function') pushToCloud();
     msg(item.active
-        ? `▶️ เปิดทาน "${item.name}" ในตารางประจำวันแล้ว`
+        ? `${fcIcon('sparkles')}️ เปิดทาน "${item.name}" ในตารางประจำวันแล้ว`
         : `${fcIcon('pause-circle')} พักการทาน "${item.name}" (หมดชั่วคราว) เรียบร้อยแล้ว`);
 }
 
@@ -1010,18 +1010,18 @@ function activateIncomingCalcium(ev) {
     calItem.incoming = calItem.optional;
     calItem.name = calItem.optional ? '(Incoming) Dr.PONG Calcium 500 PLUS D3 & K2' : 'Dr.PONG Calcium 500 PLUS D3 & K2';
     calItem.timing = calItem.optional ? 'รอนำเข้าตาราง (ของยังไม่มาส่ง)' : 'หลังอาหาร (กู้มวลกระดูก K2 นำแคลเซียมเข้ากระดูก)';
-    calItem.timingTag = '🍽️ หลังอาหารทันที';
+    calItem.timingTag = ' หลังอาหารทันที';
     calItem.timingBg = '#ecfdf5';
     calItem.timingColor = '#059669';
     calItem.timingBorder = '#a7f3d0';
-    calItem.tag = calItem.optional ? '⏳ รอมาส่ง (กู้มวลกระดูก)' : '🦴 กู้มวลกระดูก 2.89kg';
+    calItem.tag = calItem.optional ? ' รอมาส่ง (กู้มวลกระดูก)' : ' กู้มวลกระดูก 2.89kg';
     calItem.expDate = '14-09-2028';
     save();
     render();
     if (typeof pushToCloud === 'function') pushToCloud();
     msg(calItem.optional
-        ? '⏳ ปรับ Dr.PONG Calcium 500 PLUS D3 & K2 เป็นสถานะ Incoming ชั่วคราว'
-        : '🎉 นำเข้า Dr.PONG Calcium 500 PLUS D3 & K2 เข้าตารางมื้อที่ 2 (Dinner) เต็มรูปแบบแล้ว!');
+        ? ' ปรับ Dr.PONG Calcium 500 PLUS D3 & K2 เป็นสถานะ Incoming ชั่วคราว'
+        : ' นำเข้า Dr.PONG Calcium 500 PLUS D3 & K2 เข้าตารางมื้อที่ 2 (Dinner) เต็มรูปแบบแล้ว!');
 }
 
 function promoteStandbyToActive(holdId) {
@@ -1078,7 +1078,7 @@ function applySmartSuppAnalysisToForm() {
             : '';
         ratBox.style.display = 'block';
         ratBox.innerHTML = `
-            <div style="font-weight:800; color:#059669; margin-bottom:3px;">🧠 ผลวิเคราะห์เวลาที่เหมาะสมที่สุด: ${slotObj ? slotObj.icon + ' ' + slotObj.title.split(' (')[0] : ''} (${analysis.timing})</div>
+            <div style="font-weight:800; color:#059669; margin-bottom:3px;">${fcIcon('brain')} ผลวิเคราะห์เวลาที่เหมาะสมที่สุด: ${slotObj ? slotObj.icon + ' ' + slotObj.title.split(' (')[0] : ''} (${analysis.timing})</div>
             <div style="color:var(--tx); line-height:1.45;">${analysis.rationale}</div>
             ${warnHtml}
         `;
@@ -1119,7 +1119,7 @@ ${currentStackStr}
 - "slot_bedtime": ช่วงก่อนนอน (Bedtime - Fasted State ตอนท้องว่าง)
 
 ตอบกลับเป็น JSON เท่านั้น (ห้ามใส่ markdown backticks):
-{"name": "ชื่ออาหารเสริม", "activeIngredients": "สารสำคัญหลัก", "dose": "1 แคปซูล", "slotId": "slot_lunch", "timing": "หลังอาหาร", "goalCat": "liver_lipid หรือ skin หรือ workout หรือ nerve_gut", "tag": "ป้ายสั้นๆ เช่น 🛡️ เซฟตับ", "benefit": "สรรพคุณสั้นๆ 1 ประโยค", "rationale": "เหตุผลว่าทำไมทานเวลานี้ถึงดูดซึมดีที่สุดและเซฟตับ ไม่ตีกับตัวเดิมอย่างไร", "skipOnShift": false}`;
+{"name": "ชื่ออาหารเสริม", "activeIngredients": "สารสำคัญหลัก", "dose": "1 แคปซูล", "slotId": "slot_lunch", "timing": "หลังอาหาร", "goalCat": "liver_lipid หรือ skin หรือ workout หรือ nerve_gut", "tag": "ป้ายสั้นๆ เช่น ${fcIcon('shield-check')} เซฟตับ", "benefit": "สรรพคุณสั้นๆ 1 ประโยค", "rationale": "เหตุผลว่าทำไมทานเวลานี้ถึงดูดซึมดีที่สุดและเซฟตับ ไม่ตีกับตัวเดิมอย่างไร", "skipOnShift": false}`;
 
             const fullParts = [{ text: sysText }, ...parts];
             const models = ['gemini-3.1-flash-lite', 'gemini-3.6-flash', 'gemini-3.8-flash', 'gemini-2.5-flash-lite'];
@@ -1155,7 +1155,7 @@ ${currentStackStr}
             if (ratBox) {
                 const slotObj = SUPP_MASTER_SLOTS.find(s => s.id === aiRes.slotId);
                 ratBox.innerHTML = `
-                    <div style="font-weight:800; color:#059669; margin-bottom:3px;">🤖 Gemini AI จัดตารางให้ที่: ${slotObj ? slotObj.icon + ' ' + slotObj.title.split(' (')[0] : ''} (${aiRes.timing || ''})</div>
+                    <div style="font-weight:800; color:#059669; margin-bottom:3px;">${fcIcon('bot')} Gemini AI จัดตารางให้ที่: ${slotObj ? slotObj.icon + ' ' + slotObj.title.split(' (')[0] : ''} (${aiRes.timing || ''})</div>
                     <div style="color:var(--tx); line-height:1.45;">${aiRes.rationale || ''}</div>
                 `;
             }
@@ -1221,21 +1221,21 @@ async function openAddSupplementModal(editItemId = null) {
     const defTiming = existing ? existing.timing : 'หลังอาหาร';
     const defGoal = existing ? (existing.goalCat || 'skin') : 'liver_lipid';
     const defBenefit = existing ? existing.benefit : '';
-    const defTag = existing ? existing.tag : '✨ อาหารเสริม';
+    const defTag = existing ? existing.tag : ' อาหารเสริม';
     const defStock = existing && existing.stock != null ? existing.stock : '';
     const defSkipShift = existing ? !!existing.skipOnShift : false;
     const defOptional = existing ? !!existing.optional : false;
 
     const presetsHtml = !existing ? `
         <div style="margin-bottom:12px;">
-            <div style="font-size:11px; font-weight:800; color:var(--dim); margin-bottom:5px;">⚡ เลือกตัวเสริมหรือตัวในคลัง (แตะเพื่อวิเคราะห์และจัดตารางทันที):</div>
+            <div style="font-size:11px; font-weight:800; color:var(--dim); margin-bottom:5px;">${fcIcon('zap')} เลือกตัวเสริมหรือตัวในคลัง (แตะเพื่อวิเคราะห์และจัดตารางทันที):</div>
             <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                <button type="button" onclick="fillQuickPresetSupp('Dr.PONG Calcium 500 PLUS', '1 แคปซูล', 'workout', 'กู้มวลกระดูก 2.89kg', 'Calcium 500mg PLUS', '-')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">🦴 Dr.PONG Calcium 500+</button>
-                <button type="button" onclick="fillQuickPresetSupp('Dr.PONG CoQ10 30mg', '1 แคปซูล', 'skin', 'พลังงานเซลล์และผิว', 'Coenzyme Q10 30mg', '10-08-2028')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">❤️ Dr.PONG CoQ10 30mg</button>
-                <button type="button" onclick="fillQuickPresetSupp('Milk Thistle (Silymarin)', '1 แคปซูล', 'liver_lipid', 'ฟื้นฟูตับ ลดไขมันพอกตับ', 'Silymarin Extract', '-')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">🛡️ Milk Thistle (เซฟตับ)</button>
-                <button type="button" onclick="fillQuickPresetSupp('NAC (N-Acetyl Cysteine) 600mg', '1 เม็ด', 'liver_lipid', 'ตั้งต้นกลูต้า ล้างพิษตับ', 'N-Acetyl Cysteine 600mg', '-')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">🛡️ NAC 600mg</button>
-                <button type="button" onclick="fillQuickPresetSupp('Ceramide / Rice Extract', '1 แคปซูล', 'skin', 'บำรุงความชุ่มชื้นและเกราะผิวระยะยาว', 'Rice Ceramide', '-')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">✨ Ceramide (เกราะผิว)</button>
-                <button type="button" onclick="fillQuickPresetSupp('Magnesium Glycinate', '1–2 แคปซูล', 'nerve_gut', 'คลายกล้ามเนื้อ หลับลึก', 'Magnesium Glycinate', '-')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">🛌 Magnesium (หลับลึก)</button>
+                <button type="button" onclick="fillQuickPresetSupp('Dr.PONG Calcium 500 PLUS', '1 แคปซูล', 'workout', 'กู้มวลกระดูก 2.89kg', 'Calcium 500mg PLUS', '-')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">${fcIcon('shield')} Dr.PONG Calcium 500+</button>
+                <button type="button" onclick="fillQuickPresetSupp('Dr.PONG CoQ10 30mg', '1 แคปซูล', 'skin', 'พลังงานเซลล์และผิว', 'Coenzyme Q10 30mg', '10-08-2028')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">${fcIcon('heart')} Dr.PONG CoQ10 30mg</button>
+                <button type="button" onclick="fillQuickPresetSupp('Milk Thistle (Silymarin)', '1 แคปซูล', 'liver_lipid', 'ฟื้นฟูตับ ลดไขมันพอกตับ', 'Silymarin Extract', '-')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">${fcIcon('shield-check')} Milk Thistle (เซฟตับ)</button>
+                <button type="button" onclick="fillQuickPresetSupp('NAC (N-Acetyl Cysteine) 600mg', '1 เม็ด', 'liver_lipid', 'ตั้งต้นกลูต้า ล้างพิษตับ', 'N-Acetyl Cysteine 600mg', '-')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">${fcIcon('shield-check')} NAC 600mg</button>
+                <button type="button" onclick="fillQuickPresetSupp('Ceramide / Rice Extract', '1 แคปซูล', 'skin', 'บำรุงความชุ่มชื้นและเกราะผิวระยะยาว', 'Rice Ceramide', '-')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">${fcIcon('sparkles')} Ceramide (เกราะผิว)</button>
+                <button type="button" onclick="fillQuickPresetSupp('Magnesium Glycinate', '1–2 แคปซูล', 'nerve_gut', 'คลายกล้ามเนื้อ หลับลึก', 'Magnesium Glycinate', '-')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">${fcIcon('sparkles')} Magnesium (หลับลึก)</button>
             </div>
         </div>
     ` : '';
@@ -1243,7 +1243,7 @@ async function openAddSupplementModal(editItemId = null) {
     const html = `
         <div style="text-align:left; font-size:13.5px; max-height:76vh; overflow-y:auto; padding-right:2px;">
             <div style="font-weight:900; font-size:16px; color:var(--acc); margin-bottom:4px;">
-                ${existing ? '✏️ แก้ไขข้อมูลอาหารเสริม & ตารางประจำวัน' : '➕ เพิ่มอาหารเสริมใหม่ & วิเคราะห์จัดตารางอัตโนมัติ'}
+                ${existing ? ' แก้ไขข้อมูลอาหารเสริม & ตารางประจำวัน' : ' เพิ่มอาหารเสริมใหม่ & วิเคราะห์จัดตารางอัตโนมัติ'}
             </div>
             <div style="font-size:11.5px; color:var(--dim); margin-bottom:10px;">
                 พิมพ์ชื่อหรือถ่ายรูปฉลาก เพื่อให้ระบบวิเคราะห์ช่วงเวลาที่ดูดซึมดีที่สุดและเซฟตับ (Daily Maintenance)
@@ -1255,7 +1255,7 @@ async function openAddSupplementModal(editItemId = null) {
                 <label style="font-size:11.5px; font-weight:800; color:var(--tx); display:block; margin-bottom:4px;">1. ชื่ออาหารเสริม / วิตามิน:</label>
                 <div style="display:flex; gap:6px; margin-bottom:8px;">
                     <input type="text" id="newSuppName" value="${defName}" oninput="applySmartSuppAnalysisToForm()" placeholder="เช่น Dr.PONG Calcium 500 PLUS, Milk Thistle..." style="flex:1; padding:8px 10px; font-size:13.5px; font-weight:700; border-radius:8px; border:1.5px solid var(--acc); background:var(--bg); color:var(--tx); box-sizing:border-box;">
-                    <button type="button" class="btn sm" onclick="analyzeNewSuppWithGemini('image')" style="width:auto; flex:0 0 auto; padding:6px 10px; font-size:11.5px; background:var(--card); border:1px solid var(--acc); color:var(--acc); font-weight:800; border-radius:8px; cursor:pointer;" title="ถ่ายรูปกระปุกยาให้ AI อ่านฉลาก">📸 สแกนกระปุก</button>
+                    <button type="button" class="btn sm" onclick="analyzeNewSuppWithGemini('image')" style="width:auto; flex:0 0 auto; padding:6px 10px; font-size:11.5px; background:var(--card); border:1px solid var(--acc); color:var(--acc); font-weight:800; border-radius:8px; cursor:pointer;" title="ถ่ายรูปกระปุกยาให้ AI อ่านฉลาก">${fcIcon('camera')} สแกนกระปุก</button>
                 </div>
 
                 <div style="display:grid; grid-template-columns:1.2fr 0.8fr; gap:8px; margin-bottom:8px;">
@@ -1273,10 +1273,10 @@ async function openAddSupplementModal(editItemId = null) {
                     <div>
                         <label style="font-size:11px; font-weight:700; color:var(--dim); display:block; margin-bottom:2px;">เป้าหมายหลักที่ต้องการบำรุง:</label>
                         <select id="newSuppGoal" onchange="applySmartSuppAnalysisToForm()" style="width:100%; padding:7px 8px; font-size:12.5px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx);">
-                            <option value="liver_lipid" ${defGoal === 'liver_lipid' ? 'selected' : ''}>🛡️ ลดไตรกลีเซอไรด์ (333) & บำรุงตับ</option>
-                            <option value="workout" ${defGoal === 'workout' ? 'selected' : ''}>💪 ลดไขมันช่องท้อง (VF 11) & สร้างกล้ามเนื้อ/มวลกระดูก</option>
-                            <option value="skin" ${defGoal === 'skin' ? 'selected' : ''}>✨ บำรุงผิวพรรณ ชะลอวัย & ข้อต่อระยะยาว</option>
-                            <option value="nerve_gut" ${defGoal === 'nerve_gut' ? 'selected' : ''}>🧠 บำรุงระบบประสาท ลำไส้ & การนอน</option>
+                            <option value="liver_lipid" ${defGoal === 'liver_lipid' ? 'selected' : ''}> ลดไตรกลีเซอไรด์ (333) & บำรุงตับ</option>
+                            <option value="workout" ${defGoal === 'workout' ? 'selected' : ''}> ลดไขมันช่องท้อง (VF 11) & สร้างกล้ามเนื้อ/มวลกระดูก</option>
+                            <option value="skin" ${defGoal === 'skin' ? 'selected' : ''}> บำรุงผิวพรรณ ชะลอวัย & ข้อต่อระยะยาว</option>
+                            <option value="nerve_gut" ${defGoal === 'nerve_gut' ? 'selected' : ''}> บำรุงระบบประสาท ลำไส้ & การนอน</option>
                         </select>
                     </div>
                     <div>
@@ -1286,7 +1286,7 @@ async function openAddSupplementModal(editItemId = null) {
                 </div>
 
                 <button type="button" class="btn sm" onclick="analyzeNewSuppWithGemini('text')" style="width:100%; padding:7px; font-size:12px; font-weight:800; background:linear-gradient(135deg, #059669 0%, #10b981 100%); color:#fff; border:none; border-radius:8px; cursor:pointer;">
-                    🧠 วิเคราะห์เวลาทานที่เหมาะสมที่สุด (เซฟตับ & ดูดซึมสูงสุด)
+                    ${fcIcon('brain')} วิเคราะห์เวลาทานที่เหมาะสมที่สุด (เซฟตับ & ดูดซึมสูงสุด)
                 </button>
 
                 <div id="newSuppRationaleBox" style="display:none; margin-top:8px; padding:8px 10px; border-radius:8px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.35); font-size:11.5px;"></div>
@@ -1295,11 +1295,11 @@ async function openAddSupplementModal(editItemId = null) {
             <div style="background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:10px;">
                 <label style="font-size:11.5px; font-weight:800; color:var(--tx); display:block; margin-bottom:4px;">2. ช่วงเวลาในตาราง DAILY TIME TABLE:</label>
                 <select id="newSuppSlot" style="width:100%; padding:8px; font-size:13px; font-weight:800; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); margin-bottom:8px;">
-                    <option value="slot_morning" ${defSlot === 'slot_morning' ? 'selected' : ''}>☀️ ช่วงเช้า (Morning - Fasted State)</option>
-                    <option value="slot_lunch" ${defSlot === 'slot_lunch' ? 'selected' : ''}>🍽️ มื้อที่ 1 (Lunch - Feeding Window Starts)</option>
-                    <option value="slot_evening" ${defSlot === 'slot_evening' ? 'selected' : ''}>🏋️ ช่วงเย็น (Evening - Workout Phase)</option>
-                    <option value="slot_dinner" ${defSlot === 'slot_dinner' ? 'selected' : ''}>🌙 มื้อที่ 2 (Dinner - Last Meal)</option>
-                    <option value="slot_bedtime" ${defSlot === 'slot_bedtime' ? 'selected' : ''}>🛌 ช่วงก่อนนอน (Bedtime - Fasted State)</option>
+                    <option value="slot_morning" ${defSlot === 'slot_morning' ? 'selected' : ''}> ช่วงเช้า (Morning - Fasted State)</option>
+                    <option value="slot_lunch" ${defSlot === 'slot_lunch' ? 'selected' : ''}> มื้อที่ 1 (Lunch - Feeding Window Starts)</option>
+                    <option value="slot_evening" ${defSlot === 'slot_evening' ? 'selected' : ''}> ช่วงเย็น (Evening - Workout Phase)</option>
+                    <option value="slot_dinner" ${defSlot === 'slot_dinner' ? 'selected' : ''}> มื้อที่ 2 (Dinner - Last Meal)</option>
+                    <option value="slot_bedtime" ${defSlot === 'slot_bedtime' ? 'selected' : ''}> ช่วงก่อนนอน (Bedtime - Fasted State)</option>
                 </select>
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
@@ -1308,7 +1308,7 @@ async function openAddSupplementModal(editItemId = null) {
                         <input type="text" id="newSuppTiming" value="${defTiming}" placeholder="เช่น หลังอาหาร, ทานพร้อมข้าวคำแรก" style="width:100%; padding:7px 8px; font-size:12.5px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                     </div>
                     <div>
-                        <label style="font-size:11px; font-weight:700; color:var(--dim); display:block; margin-bottom:2px;">📦 นับสต็อกคงเหลือ (เว้นว่างได้):</label>
+                        <label style="font-size:11px; font-weight:700; color:var(--dim); display:block; margin-bottom:2px;">${fcIcon('package')} นับสต็อกคงเหลือ (เว้นว่างได้):</label>
                         <input type="number" id="newSuppStock" value="${defStock}" placeholder="เช่น 30 เม็ด" style="width:100%; padding:7px 8px; font-size:12.5px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                     </div>
                 </div>
@@ -1320,11 +1320,11 @@ async function openAddSupplementModal(editItemId = null) {
                 <div style="display:flex; flex-direction:column; gap:5px; font-size:12px;">
                     <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
                         <input type="checkbox" id="newSuppSkipShift" ${defSkipShift ? 'checked' : ''} style="width:auto; margin:0;">
-                        <span>🏥 งดทานอัตโนมัติในวันเข้าเวร / วันไม่ได้ออกกำลังกาย (เช่น Pre-Workout)</span>
+                        <span>${fcIcon('hospital')} งดทานอัตโนมัติในวันเข้าเวร / วันไม่ได้ออกกำลังกาย (เช่น Pre-Workout)</span>
                     </label>
                     <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
                         <input type="checkbox" id="newSuppOptional" ${defOptional ? 'checked' : ''} style="width:auto; margin:0;">
-                        <span>⏳ เป็นรายการ Incoming (ยังไม่มาส่ง) หรือรายการเสริม (ไม่บังคับคิดรวมใน % รายวัน)</span>
+                        <span>${fcIcon('clock')} เป็นรายการ Incoming (ยังไม่มาส่ง) หรือรายการเสริม (ไม่บังคับคิดรวมใน % รายวัน)</span>
                     </label>
                 </div>
             </div>
@@ -1332,17 +1332,17 @@ async function openAddSupplementModal(editItemId = null) {
             ${existing ? `
                 <div style="display:flex; gap:8px; margin-bottom:8px;">
                     <button type="button" class="btn sm g" onclick="toggleSuppItemActive('${existing.id}'); fcClose();" style="flex:1; padding:8px; color:#d97706; border-color:rgba(245,158,11,0.4);">
-                        ${existing.active === false ? '▶️ เปิดทานต่อ (มีของแล้ว)' : '⏸️ พักทานชั่วคราว (ของหมด)'}
+                        ${existing.active === false ? '️ เปิดทานต่อ (มีของแล้ว)' : ' พักทานชั่วคราว (ของหมด)'}
                     </button>
                     <button type="button" class="btn sm g" onclick="deleteSuppItemFromInventory('${existing.id}', event)" style="flex:0.8; padding:8px; color:var(--red); border-color:rgba(239,68,68,0.35);">
-                        🗑️ ลบถาวร
+                         ลบถาวร
                     </button>
                 </div>
             ` : ''}
         </div>
     `;
 
-    const ok = await fcConfirm(html, existing ? '💾 บันทึกการแก้ไข' : '➕ เพิ่มเข้าตารางอาหารเสริม');
+    const ok = await fcConfirm(html, existing ? fcIcon('save') + ' บันทึกการแก้ไข' : fcIcon('plus') + ' เพิ่มเข้าตารางอาหารเสริม');
     if (!ok) return;
 
     const finalName = (document.getElementById('newSuppName')?.value || '').trim();
@@ -1380,7 +1380,7 @@ async function openAddSupplementModal(editItemId = null) {
         }
         existing.skipOnShift = finalSkipShift;
         existing.optional = finalOptional;
-        msg(`✓ อัปเดต "${finalName}" เรียบร้อยแล้ว`);
+        msg(`${fcIcon('sparkles')} อัปเดต "${finalName}" เรียบร้อยแล้ว`);
     } else {
         inv.push({
             id: 'supp_custom_' + Date.now(),
@@ -1399,7 +1399,7 @@ async function openAddSupplementModal(editItemId = null) {
             optional: finalOptional,
             active: true
         });
-        msg(`✓ เพิ่ม "${finalName}" ลงในตารางเรียบร้อยแล้ว`);
+        msg(`${fcIcon('sparkles')} เพิ่ม "${finalName}" ลงในตารางเรียบร้อยแล้ว`);
     }
 
     save();
@@ -1423,15 +1423,15 @@ function openSuppStackAuditModal() {
 
     const html = `
         <div style="text-align:left; font-size:13.5px; max-height:78vh; overflow-y:auto; padding-right:2px;">
-            <div style="font-weight:900; font-size:16px; color:var(--acc); margin-bottom:4px;">🩺 วิเคราะห์แผนดูแลสุขภาพระยะยาว (Daily Maintenance & Liver Safety)</div>
+            <div style="font-weight:900; font-size:16px; color:var(--acc); margin-bottom:4px;">${fcIcon('stethoscope')} วิเคราะห์แผนดูแลสุขภาพระยะยาว (Daily Maintenance & Liver Safety)</div>
             <div style="font-size:12px; color:var(--dim); margin-bottom:12px;">ออกแบบให้ทานได้ทุกวันตลอดปีโดยไม่กระทบตับ • IF 2 มื้อ • ไม่กินสารให้ความหวานช่วงฟาสต์</div>
 
             <!-- Liver Load & Absorption Balance -->
             <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.35); border-radius:12px; padding:10px 12px; margin-bottom:10px;">
-                <div style="font-weight:800; color:#059669; font-size:13.5px; margin-bottom:4px;">✅ 1. การกระจายมื้อเพื่อเซฟตับ (ทานได้ต่อเนื่องตลอดปี)</div>
+                <div style="font-weight:800; color:#059669; font-size:13.5px; margin-bottom:4px;">${fcIcon('check-circle')} 1. การกระจายมื้อเพื่อเซฟตับ (ทานได้ต่อเนื่องตลอดปี)</div>
                 <div style="font-size:12px; color:var(--tx); line-height:1.5;">
                     • <b>ช่วงเช้า (Fasted):</b> ${mornCaps} แคปซูล • <b>มื้อที่ 1 (Lunch):</b> ${lunchCaps} เม็ด • <b>มื้อที่ 2 (Dinner):</b> ${dinnerCaps} เม็ด • <b>ก่อนนอน:</b> ${bedCaps} เม็ด<br>
-                    • <b>ผลประเมิน:</b> <span style="color:#059669; font-weight:700;">ปลอดภัยต่อตับและไตในระยะยาว!</span> แยกกลุ่มที่ซ้ำซ้อน (LDEE, CoQ10 30mg, ACV น้ำ) ไปไว้ในหมวด <b>🛑 STANDBY / HOLD (กองหนุน)</b> เพื่อใช้แบบ On-Demand หรือรอสลับเมื่อตัวหลักหมด
+                    • <b>ผลประเมิน:</b> <span style="color:#059669; font-weight:700;">ปลอดภัยต่อตับและไตในระยะยาว!</span> แยกกลุ่มที่ซ้ำซ้อน (LDEE, CoQ10 30mg, ACV น้ำ) ไปไว้ในหมวด <b>${fcIcon('sparkles')} STANDBY / HOLD (กองหนุน)</b> เพื่อใช้แบบ On-Demand หรือรอสลับเมื่อตัวหลักหมด
                 </div>
             </div>
 
@@ -1454,12 +1454,12 @@ function openSuppStackAuditModal() {
             </div>
 
             <div style="background:rgba(59,130,246,0.08); border-left:3px solid #3b82f6; border-radius:8px; padding:9px 10px; font-size:12px; color:var(--tx); line-height:1.45;">
-                📦 <b>สถานะรายการที่รอมาส่ง (Incoming):</b><br>
-                • <b>Dr.PONG Calcium 500 PLUS:</b> ตอนนี้ตั้งสถานะเป็น <b>"⏳ รอมาส่ง"</b> (ยังไม่นำมาคิดหักเปอร์เซ็นต์รายวัน) ทันทีที่ของมาส่งแล้ว สามารถกดปุ่ม <b>"📦 ของมาส่งแล้ว กดนำเข้าตาราง"</b> ในมื้อที่ 2 เพื่อเริ่มกู้มวลกระดูก 2.89kg ได้ทันทีครับ
+                ${fcIcon('package')} <b>สถานะรายการที่รอมาส่ง (Incoming):</b><br>
+                • <b>Dr.PONG Calcium 500 PLUS:</b> ตอนนี้ตั้งสถานะเป็น <b>"${fcIcon('clock')} รอมาส่ง"</b> (ยังไม่นำมาคิดหักเปอร์เซ็นต์รายวัน) ทันทีที่ของมาส่งแล้ว สามารถกดปุ่ม <b>"${fcIcon('package')} ของมาส่งแล้ว กดนำเข้าตาราง"</b> ในมื้อที่ 2 เพื่อเริ่มกู้มวลกระดูก 2.89kg ได้ทันทีครับ
             </div>
         </div>
     `;
-    fcAlert(html, '🩺 วิเคราะห์ตาราง Daily Maintenance & เซฟตับ');
+    fcAlert(html, fcIcon('stethoscope') + ' วิเคราะห์ตาราง Daily Maintenance & เซฟตับ');
 }
 
 function renderSupplementsUI() {
@@ -1513,10 +1513,10 @@ function renderSupplementsUI() {
                 <div style="font-size:12px; color:var(--tx); flex:1;">
                     <span style="font-weight:800; color:${curSlot.color};">${curSlot.icon} ช่วงเวลานี้:</span> ${curSlot.title.split(' (')[0]}
                     ${mode !== 'workout' ? ` <span style="font-size:10.5px; color:${modeMeta.color}; font-weight:700;">(${modeMeta.badge})</span>` : ''}
-                    ${isOmad ? ' <span style="font-size:10.5px; color:#7c3aed; font-weight:700;">(🍽️ OMAD มื้อเย็นเดียว)</span>' : ''}
+                    ${isOmad ? ' <span style="font-size:10.5px; color:#7c3aed; font-weight:700;">( OMAD มื้อเย็นเดียว)</span>' : ''}
                 </div>
                 <button class="btn sm" onclick="go('supp')" style="width:auto; flex:0 0 auto; padding:6px 12px; font-size:11.5px; background:var(--acc); color:#fff; font-weight:800; border-radius:8px; cursor:pointer;">
-                    💊 เปิดตารางเช็กชื่อ ❯
+                    ${fcIcon('pill')} เปิดตารางเช็กชื่อ ${fcIcon('sparkles')}
                 </button>
             </div>
         `;
@@ -1537,7 +1537,7 @@ function renderSupplementsUI() {
         if (skipReason) {
             return `
                 <div style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border-radius:10px; background:var(--card2); border:1px dashed var(--line); opacity:0.65; margin-bottom:8px;">
-                    <div style="font-size:16px; line-height:1.2; margin-top:2px;">⏸️</div>
+                    <div style="font-size:16px; line-height:1.2; margin-top:2px;">${fcIcon('pause-circle')}</div>
                     <div style="flex:1;">
                         <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; flex-wrap:wrap;">
                             <span style="font-weight:800; font-size:13.5px; color:var(--dim); text-decoration:line-through;">${it.name} (${it.dose})</span>
@@ -1552,7 +1552,7 @@ function renderSupplementsUI() {
         if (mvInfo) {
             return `
                 <div style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border-radius:10px; background:rgba(245,158,11,0.08); border:1px dashed rgba(245,158,11,0.4); margin-bottom:8px;">
-                    <div style="font-size:16px; line-height:1.2; margin-top:2px;">↪️</div>
+                    <div style="font-size:16px; line-height:1.2; margin-top:2px;">${fcIcon('corner-down-right')}</div>
                     <div style="flex:1;">
                         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                             <span style="font-weight:800; font-size:13.5px; color:#d97706;">${it.name} (${it.dose})</span>
@@ -1566,24 +1566,24 @@ function renderSupplementsUI() {
 
         const stockBadge = (it.hasStockCounter || itemStock != null) ? `
             <button type="button" onclick="editProbioticStock(event, '${it.id}')" style="background:${itemStock <= 3 ? 'rgba(239,68,68,0.15)' : 'rgba(139,92,246,0.15)'}; color:${itemStock <= 3 ? '#ef4444' : '#8b5cf6'}; border:1px solid ${itemStock <= 3 ? 'rgba(239,68,68,0.35)' : 'rgba(139,92,246,0.35)'}; font-size:10px; font-weight:800; padding:2px 6px; border-radius:6px; cursor:pointer;" title="แตะเพื่อปรับจำนวนสต็อก">
-                📦 เหลือ ${itemStock} เม็ด
+                ${fcIcon('package')} เหลือ ${itemStock} เม็ด
             </button>
         ` : '';
 
         const waterQuickBtn = it.waterMl ? `
             <button type="button" onclick="event.stopPropagation(); addWaterMl(${it.waterMl}); if(!todayCheck()?.supps?.['${it.id}']) toggleSuppItem('${it.id}');" style="background:rgba(139,92,246,0.12); color:var(--vio); border:1px solid rgba(139,92,246,0.3); font-size:10px; font-weight:800; padding:2px 7px; border-radius:6px; cursor:pointer;">
-                💧 +บวกน้ำ ${it.waterMl}ml
+                ${fcIcon('droplets')} +บวกน้ำ ${it.waterMl}ml
             </button>
         ` : '';
 
         const incomingBtn = it.id === 'supp_din_calcium' ? `
             <button type="button" onclick="activateIncomingCalcium(event)" style="background:${it.optional ? 'rgba(59,130,246,0.14)' : 'rgba(16,185,129,0.14)'}; color:${it.optional ? '#2563eb' : '#059669'}; border:1px solid ${it.optional ? 'rgba(59,130,246,0.35)' : 'rgba(16,185,129,0.35)'}; font-size:10px; font-weight:800; padding:2px 7px; border-radius:6px; cursor:pointer;">
-                ${it.optional ? '📦 ของมาส่งแล้ว กดนำเข้าตาราง' : '✓ นำเข้าตารางแล้ว'}
+                ${it.optional ? ' ของมาส่งแล้ว กดนำเข้าตาราง' : ' นำเข้าตารางแล้ว'}
             </button>
         ` : '';
 
         const expChip = (it.expDate && it.expDate !== '-') ? `<span style="font-size:10px; color:var(--dim); font-weight:600;">${fcIcon('clock')} Exp: ${it.expDate}</span>` : '';
-        const ingChip = (it.activeIngredients && it.activeIngredients !== '-' && !it.waterMl) ? `<span style="font-size:10.5px; color:var(--acc); font-weight:700;">🔬 ${it.activeIngredients}</span>` : '';
+        const ingChip = (it.activeIngredients && it.activeIngredients !== '-' && !it.waterMl) ? `<span style="font-size:10.5px; color:var(--acc); font-weight:700;">${fcIcon('microscope')} ${it.activeIngredients}</span>` : '';
 
         const timingTagHtml = it.timingTag ? `
             <span class="supp-timing-badge" style="display:inline-flex; align-items:center; font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px; background:${it.timingBg || 'rgba(2,132,199,0.1)'}; color:${it.timingColor || '#0284c7'}; border:1px solid ${it.timingBorder || 'rgba(2,132,199,0.25)'}; letter-spacing:0.2px;">
@@ -1594,7 +1594,7 @@ function renderSupplementsUI() {
         return `
             <div onclick="toggleSuppItem('${it.id}')" style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border-radius:11px; background:${isDone ? 'rgba(16,185,129,0.08)' : (it.optional ? 'rgba(59,130,246,0.04)' : 'var(--card2)')}; border:1.5px ${it.optional && !isDone ? 'dashed rgba(59,130,246,0.4)' : 'solid ' + (isDone ? '#10b981' : 'var(--line)')}; margin-bottom:8px; cursor:pointer; transition:all 0.15s ease;">
                 <div style="width:22px; height:22px; border-radius:6px; border:2px solid ${isDone ? '#10b981' : 'var(--dim)'}; background:${isDone ? '#10b981' : 'var(--bg)'}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:900; flex-shrink:0; margin-top:2px;">
-                    ${isDone ? '✓' : ''}
+                    ${isDone ? '' : ''}
                 </div>
                 <div style="flex:1; min-width:0;">
                     <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
@@ -1607,7 +1607,7 @@ function renderSupplementsUI() {
                             ${stockBadge}
                             ${waterQuickBtn}
                             <span style="font-size:10px; font-weight:700; padding:1px 6px; border-radius:6px; background:var(--card); border:1px solid var(--line); color:var(--dim);">${it.tag}</span>
-                            <button type="button" onclick="event.stopPropagation(); openAddSupplementModal('${it.id}')" style="background:transparent; border:1px solid var(--line); color:var(--dim); font-size:10px; font-weight:700; padding:1px 6px; border-radius:6px; cursor:pointer;" title="แก้ไข / ตั้งค่าเมื่อของหมด">⚙️ จัดการ</button>
+                            <button type="button" onclick="event.stopPropagation(); openAddSupplementModal('${it.id}')" style="background:transparent; border:1px solid var(--line); color:var(--dim); font-size:10px; font-weight:700; padding:1px 6px; border-radius:6px; cursor:pointer;" title="แก้ไข / ตั้งค่าเมื่อของหมด">${fcIcon('settings')} จัดการ</button>
                         </div>
                     </div>
                     <div style="font-weight:800; font-size:14px; color:${isDone ? '#059669' : 'var(--tx)'}; margin-top:2px; ${isDone ? 'text-decoration:line-through; opacity:0.85;' : ''}">
@@ -1637,14 +1637,14 @@ function renderSupplementsUI() {
             slotItemsHtml = `
                 <div style="margin-bottom:12px;">
                     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; padding:6px 10px; background:linear-gradient(90deg, rgba(124,58,237,0.08), rgba(124,58,237,0.02)); border-left:3px solid #7c3aed; border-radius:0 8px 8px 0;">
-                        <span style="font-size:11.5px; font-weight:800; color:#7c3aed;">⚡ ก่อนออกกำลังกาย (Pre-Workout - ท้องว่าง 30 นาที)</span>
+                        <span style="font-size:11.5px; font-weight:800; color:#7c3aed;">${fcIcon('zap')} ก่อนออกกำลังกาย (Pre-Workout - ท้องว่าง 30 นาที)</span>
                         <span style="font-size:10.5px; color:var(--dim); font-weight:600;">ชงน้ำเย็น ท้องว่าง (ไม่ต้องทานเวย์รองท้อง)</span>
                     </div>
                     ${preHtml}
                 </div>
                 <div>
                     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; padding:6px 10px; background:linear-gradient(90deg, rgba(79,70,229,0.08), rgba(79,70,229,0.02)); border-left:3px solid #4f46e5; border-radius:0 8px 8px 0;">
-                        <span style="font-size:11.5px; font-weight:800; color:#4f46e5;">🥤 หลังออกกำลังกายทันที (Post-Workout - นาทีทอง Anabolic Window)</span>
+                        <span style="font-size:11.5px; font-weight:800; color:#4f46e5;">${fcIcon('droplets')} หลังออกกำลังกายทันที (Post-Workout - นาทีทอง Anabolic Window)</span>
                         <span style="font-size:10.5px; color:var(--dim); font-weight:600;">ซ่อมแซมกล้ามเนื้อ & ผิวพรรณ</span>
                     </div>
                     ${postHtml}
@@ -1676,7 +1676,7 @@ function renderSupplementsUI() {
         const startIfQuickBtn = slot.id === 'slot_dinner' ? `
             <div style="margin-top:8px; display:flex; justify-content:flex-end;">
                 <button type="button" class="btn sm" onclick="if(!D.if?.on && typeof toggleFast==='function'){toggleFast();} else {go('if');}" style="width:auto; padding:6px 12px; font-size:11.5px; font-weight:800; background:linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color:#fff; border:none; border-radius:8px; cursor:pointer;">
-                    ⏱️ ${D.if?.on ? 'กำลังนับเวลา IF อยู่ (ดูนาฬิกา ❯)' : 'จบมื้อที่ 2 แล้ว — เริ่มนับเวลา IF ทันที!'}
+                    ${fcIcon('timer')} ${D.if?.on ? 'กำลังนับเวลา IF อยู่ (ดูนาฬิกา )' : 'จบมื้อที่ 2 แล้ว — เริ่มนับเวลา IF ทันที!'}
                 </button>
             </div>
         ` : '';
@@ -1691,11 +1691,11 @@ function renderSupplementsUI() {
                             ${isCurrentWindow ? `<span style="background:${slot.color}22; color:${slot.color}; border:1px solid ${slot.color}55; font-size:10px; font-weight:800; padding:1px 7px; border-radius:99px;">${fcIcon('clock')} ช่วงเวลานี้</span>` : ''}
                         </div>
                         <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">
-                            🕒 <b>${slot.timeHint}</b> • <span style="color:${slot.color}; font-weight:700;">${slot.badge}</span>
+                            ${fcIcon('sparkles')} <b>${slot.timeHint}</b> • <span style="color:${slot.color}; font-weight:700;">${slot.badge}</span>
                         </div>
                     </div>
                     <button type="button" class="btn sm" onclick="toggleSuppSlotAll('${slot.id}')" style="width:auto; flex:0 0 auto; padding:5px 10px; font-size:11px; font-weight:800; border-radius:8px; background:${slotAllDone ? 'rgba(16,185,129,0.16)' : 'var(--card2)'}; color:${slotAllDone ? '#059669' : 'var(--tx)'}; border:1px solid ${slotAllDone ? '#10b981' : 'var(--line)'}; cursor:pointer;">
-                        ${slotAllDone ? '✓ ครบมื้อนี้แล้ว' : `เช็กครบ (${slotDoneCount}/${reqItems.length})`}
+                        ${slotAllDone ? ' ครบมื้อนี้แล้ว' : `เช็กครบ (${slotDoneCount}/${reqItems.length})`}
                     </button>
                 </div>
 
@@ -1703,7 +1703,7 @@ function renderSupplementsUI() {
 
                 ${slot.note ? `
                     <div style="margin-top:6px; padding:8px 10px; border-radius:8px; background:rgba(245,158,11,0.08); border-left:3px solid #f59e0b; font-size:11.5px; color:var(--tx); line-height:1.45;">
-                        💡 <b>Note:</b> ${slot.note}
+                         <b>Note:</b> ${slot.note}
                     </div>
                 ` : ''}
                 ${startIfQuickBtn}
@@ -1717,7 +1717,7 @@ function renderSupplementsUI() {
         <div class="card" style="margin-bottom:12px;">
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
                 <div>
-                    <h3 style="margin:0; font-size:15px; font-weight:900; color:var(--tx);">📦 INVENTORY: ACTIVE SUPPLEMENTS (${activeInventoryItems.length} รายการ)</h3>
+                    <h3 style="margin:0; font-size:15px; font-weight:900; color:var(--tx);">${fcIcon('package')} INVENTORY: ACTIVE SUPPLEMENTS (${activeInventoryItems.length} รายการ)</h3>
                     <div style="font-size:11.5px; color:var(--dim);">คลังอาหารเสริมประจำวัน (Daily Maintenance) พร้อมสารสำคัญ วันหมดอายุ และวัตถุประสงค์</div>
                 </div>
             </div>
@@ -1758,7 +1758,7 @@ function renderSupplementsUI() {
         <div class="card" style="margin-bottom:12px; border:1.5px solid rgba(239,68,68,0.3); background:rgba(239,68,68,0.03);">
             <div style="margin-bottom:8px;">
                 <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                    <span style="font-size:17px;">🛑</span>
+                    <span style="font-size:17px;">${fcIcon('sparkles')}</span>
                     <h3 style="margin:0; font-size:15px; font-weight:900; color:#dc2626;">INVENTORY: STANDBY / HOLD (กองหนุน)</h3>
                 </div>
                 <div style="font-size:11.5px; color:#b91c1c; font-weight:700; margin-top:2px;">
@@ -1788,10 +1788,10 @@ function renderSupplementsUI() {
                                     <td style="padding:8px 10px; color:var(--dim);">${h.reason}</td>
                                     <td style="padding:8px 10px; text-align:right; white-space:nowrap;">
                                         <button type="button" onclick="toggleStandbySpecialUse('${h.id}')" style="padding:4px 8px; font-size:10.5px; font-weight:800; border-radius:6px; border:1px solid ${usedToday ? '#10b981' : 'var(--line)'}; background:${usedToday ? 'rgba(16,185,129,0.15)' : 'var(--card2)'}; color:${usedToday ? '#059669' : 'var(--tx)'}; cursor:pointer;">
-                                            ${usedToday ? '✓ ใช้วันนี้แล้ว' : '🍽️ ใช้ On-Demand วันนี้'}
+                                            ${usedToday ? ' ใช้วันนี้แล้ว' : ' ใช้ On-Demand วันนี้'}
                                         </button>
                                         <button type="button" onclick="promoteStandbyToActive('${h.id}')" style="padding:4px 7px; font-size:10.5px; font-weight:700; border-radius:6px; border:1px solid var(--line); background:transparent; color:var(--dim); cursor:pointer; margin-left:4px;" title="สลับเข้าตารางหลักเมื่อตัวเดิมหมด">
-                                            🔄
+                                            
                                         </button>
                                     </td>
                                 </tr>
@@ -1806,7 +1806,7 @@ function renderSupplementsUI() {
     const pausedSectionHtml = pausedItems.length > 0 ? `
         <div class="card" style="margin-bottom:12px; border:1px dashed var(--line); background:var(--card2);">
             <div style="font-weight:800; font-size:13.5px; color:var(--dim); margin-bottom:8px;">
-                ⏸️ รายการที่หมดชั่วคราว / พักการทาน (${pausedItems.length} รายการ)
+                ${fcIcon('pause-circle')} รายการที่หมดชั่วคราว / พักการทาน (${pausedItems.length} รายการ)
             </div>
             <div style="display:flex; flex-direction:column; gap:6px;">
                 ${pausedItems.map(p => `
@@ -1816,8 +1816,8 @@ function renderSupplementsUI() {
                             <div style="font-size:11px; color:var(--dim);">${p.timing} • ${p.tag}</div>
                         </div>
                         <div style="display:flex; gap:6px;">
-                            <button type="button" class="btn sm" onclick="toggleSuppItemActive('${p.id}', event)" style="width:auto; padding:4px 10px; font-size:11px; background:rgba(16,185,129,0.15); color:#059669; border:1px solid #10b981; font-weight:800; border-radius:6px; cursor:pointer;">▶️ เปิดทานต่อ</button>
-                            <button type="button" class="btn sm g" onclick="openAddSupplementModal('${p.id}')" style="width:auto; padding:4px 8px; font-size:11px; border-radius:6px;">✏️</button>
+                            <button type="button" class="btn sm" onclick="toggleSuppItemActive('${p.id}', event)" style="width:auto; padding:4px 10px; font-size:11px; background:rgba(16,185,129,0.15); color:#059669; border:1px solid #10b981; font-weight:800; border-radius:6px; cursor:pointer;">️ เปิดทานต่อ</button>
+                            <button type="button" class="btn sm g" onclick="openAddSupplementModal('${p.id}')" style="width:auto; padding:4px 8px; font-size:11px; border-radius:6px;"></button>
                         </div>
                     </div>
                 `).join('')}
@@ -1829,11 +1829,11 @@ function renderSupplementsUI() {
         <div class="card" style="margin-bottom:12px; background:#ffffff; border:1px solid #dbeafe; box-shadow:0 4px 14px rgba(37,99,235,0.06); padding:16px 16px 14px;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
                 <div>
-                    <h1 style="margin:0; font-size:22px; font-weight:900; color:#0f172a; letter-spacing:-0.5px;">💊 ตารางอาหารเสริม & IF ประจำวัน</h1>
-                    <div style="font-size:12px; font-weight:800; color:#1d4ed8; margin-top:4px;">🎯 เป้าหมายหลัก (Daily Routine):</div>
+                    <h1 style="margin:0; font-size:22px; font-weight:900; color:#0f172a; letter-spacing:-0.5px;">${fcIcon('pill')} ตารางอาหารเสริม & IF ประจำวัน</h1>
+                    <div style="font-size:12px; font-weight:800; color:#1d4ed8; margin-top:4px;">${fcIcon('target')} เป้าหมายหลัก (Daily Routine):</div>
                     <div style="font-size:12px; color:#334155; line-height:1.6; margin-top:3px; font-weight:600;">
                         • คุมน้ำตาลและลดไขมันสะสม • บำรุงตับและข้อต่อ • เสริมสร้างกล้ามเนื้อ<br>
-                        <span style="color:#059669; font-weight:800;">✓ กฎเหล็ก:</span> ทานตามเวลา IF • เซฟตับ (ไม่เกินขนาด) • ดื่มน้ำเปล่าให้ถึงเป้าหมาย
+                        <span style="color:#059669; font-weight:800;">${fcIcon('sparkles')} กฎเหล็ก:</span> ทานตามเวลา IF • เซฟตับ (ไม่เกินขนาด) • ดื่มน้ำเปล่าให้ถึงเป้าหมาย
                     </div>
                 </div>
             </div>
@@ -1842,10 +1842,10 @@ function renderSupplementsUI() {
         <!-- Action Bar: Add New Supplement & AI Stack Audit -->
         <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:8px; margin-bottom:12px;">
             <button type="button" class="btn sm" onclick="openAddSupplementModal()" style="padding:10px; font-size:12.5px; font-weight:800; background:linear-gradient(135deg, var(--acc) 0%, #ea580c 100%); color:#fff; border:none; border-radius:10px; cursor:pointer; box-shadow:0 3px 10px rgba(234,88,12,0.22);">
-                ➕ เพิ่มตัวใหม่ / AI จัดตาราง
+                ${fcIcon('plus')} เพิ่มตัวใหม่ / AI จัดตาราง
             </button>
             <button type="button" class="btn sm" onclick="openSuppStackAuditModal()" style="padding:10px; font-size:12px; font-weight:800; background:var(--card); color:var(--tx); border:1.5px solid var(--line); border-radius:10px; cursor:pointer;">
-                🩺 วิเคราะห์สมดุล & ตับ
+                ${fcIcon('stethoscope')} วิเคราะห์สมดุล & ตับ
             </button>
         </div>
 
@@ -1853,7 +1853,7 @@ function renderSupplementsUI() {
         <div class="card" style="margin-bottom:12px; background:#ffffff !important; color:#0f172a !important; border:1.5px solid #dbeafe !important; box-shadow:0 6px 20px rgba(37,99,235,0.08) !important;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <div>
-                    <div style="font-size:11px; color:#64748b; font-weight:700;">📅 DAILY TIME TABLE วันนี้ (${iso()})</div>
+                    <div style="font-size:11px; color:#64748b; font-weight:700;">${fcIcon('calendar')} DAILY TIME TABLE วันนี้ (${iso()})</div>
                     <div style="display:flex; align-items:baseline; gap:6px; margin-top:2px;">
                         <span style="font-size:30px; font-weight:900; color:#10b981; line-height:1;">${stats.doneReq}/${stats.totalReq}</span>
                         <span style="font-size:13px; color:#475569; font-weight:800;">รายการหลัก (${stats.pct}%)</span>
@@ -1861,7 +1861,7 @@ function renderSupplementsUI() {
                     </div>
                 </div>
                 <div style="display:flex; gap:6px;">
-                    <button type="button" class="btn sm" onclick="checkAllSuppsToday(true)" style="width:auto; padding:6px 12px; font-size:11.5px; background:#10b981; color:#fff; font-weight:800; border-radius:10px; border:none; cursor:pointer; box-shadow:0 2px 6px rgba(16,185,129,0.3);">✓ เช็กครบทั้งวัน</button>
+                    <button type="button" class="btn sm" onclick="checkAllSuppsToday(true)" style="width:auto; padding:6px 12px; font-size:11.5px; background:#10b981; color:#fff; font-weight:800; border-radius:10px; border:none; cursor:pointer; box-shadow:0 2px 6px rgba(16,185,129,0.3);">${fcIcon('sparkles')} เช็กครบทั้งวัน</button>
                     <button type="button" class="btn sm" onclick="checkAllSuppsToday(false)" style="width:auto; padding:6px 9px; font-size:11px; background:#f1f5f9; color:#475569; font-weight:700; border-radius:10px; border:1px solid #cbd5e1; cursor:pointer;">↺ รีเซ็ต</button>
                 </div>
             </div>
@@ -1872,7 +1872,7 @@ function renderSupplementsUI() {
 
             <!-- Daily Mode Selector Chips -->
             <div style="background:${modeMeta.bg}; border:1px solid ${modeMeta.border}; border-radius:12px; padding:10px 12px;">
-                <div style="font-size:11px; font-weight:800; color:#475569; margin-bottom:6px;">🎯 เลือกโหมดกิจกรรมวันนี้:</div>
+                <div style="font-size:11px; font-weight:800; color:#475569; margin-bottom:6px;">${fcIcon('target')} เลือกโหมดกิจกรรมวันนี้:</div>
                 <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
                     ${Object.values(SUPP_MODES).map(m => {
                         const active = m.id === mode;
@@ -1887,14 +1887,14 @@ function renderSupplementsUI() {
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:8px; background:${isOmad ? '#f5f3ff' : '#f8fafd'}; border:1px solid ${isOmad ? '#ddd6fe' : '#e2e8f0'}; border-radius:12px; padding:10px 12px;">
                 <div style="flex:1;">
                     <div style="font-size:12.5px; font-weight:900; color:${isOmad ? '#6d28d9' : '#0f172a'};">
-                        ${isOmad ? '🍽️ โหมดทานมื้อเย็นมื้อเดียว (OMAD เปิดอยู่)' : '🍽️ วันนี้ทานแค่มื้อเย็นมื้อเดียว (OMAD)?'}
+                        ${isOmad ? ' โหมดทานมื้อเย็นมื้อเดียว (OMAD เปิดอยู่)' : ' วันนี้ทานแค่มื้อเย็นมื้อเดียว (OMAD)?'}
                     </div>
                     <div style="font-size:11px; color:#475569; font-weight:600; margin-top:2px; line-height:1.4;">
                         ${isOmad ? 'ย้าย ACV, Triple C, Astaxanthin, Fish Oil มามื้อเย็น และงด B Complex กันนอนไม่หลับ' : 'กดสลับเพื่อรวมวิตามินมื้อเที่ยงไปมื้อเย็นอัตโนมัติ (เว้นแคลเซียมห่าง Zinc ก่อนนอน ≥ 2 ชม.)'}
                     </div>
                 </div>
                 <button type="button" class="btn sm" onclick="toggleSuppOmadMode()" style="width:auto; flex:0 0 auto; padding:7px 11px; font-size:11.5px; font-weight:800; border-radius:8px; background:${isOmad ? '#7c3aed' : '#475569'}; color:#fff; border:none; cursor:pointer; box-shadow:0 2px 6px rgba(124,58,237,0.2);">
-                    ${isOmad ? '🍽️ OMAD เปิด ⇄' : 'เปิดโหมด OMAD ⇄'}
+                    ${isOmad ? ' OMAD เปิด ⇄' : 'เปิดโหมด OMAD ⇄'}
                 </button>
             </div>
         </div>
@@ -1902,17 +1902,17 @@ function renderSupplementsUI() {
         <!-- 3 Core Goals Banner -->
         <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:12px; text-align:center;">
             <div style="background:#ffffff; border:1px solid #bfdbfe; border-radius:12px; padding:10px 6px; box-shadow:0 2px 6px rgba(15,23,42,0.04);">
-                <div style="font-size:18px;">🛡️</div>
+                <div style="font-size:18px;">${fcIcon('shield-check')}</div>
                 <div style="font-size:12px; font-weight:900; color:#1d4ed8; margin-top:2px;">ลดไขมัน & บำรุงตับ</div>
                 <div style="font-size:10.5px; font-weight:700; color:#475569; margin-top:2px;">Fish Oil • ACV • Gluta+</div>
             </div>
             <div style="background:#ffffff; border:1px solid #bfdbfe; border-radius:12px; padding:10px 6px; box-shadow:0 2px 6px rgba(15,23,42,0.04);">
-                <div style="font-size:18px;">💪</div>
+                <div style="font-size:18px;">${fcIcon('dumbbell')}</div>
                 <div style="font-size:12px; font-weight:900; color:#0284c7; margin-top:2px;">กล้ามเนื้อ & ออกกำลัง</div>
                 <div style="font-size:10.5px; font-weight:700; color:#475569; margin-top:2px;">Creatine • Carnitine • Soy</div>
             </div>
             <div style="background:#ffffff; border:1px solid #bbf7d0; border-radius:12px; padding:10px 6px; box-shadow:0 2px 6px rgba(15,23,42,0.04);">
-                <div style="font-size:18px;">✨</div>
+                <div style="font-size:18px;">${fcIcon('sparkles')}</div>
                 <div style="font-size:12px; font-weight:900; color:#059669; margin-top:2px;">ประสาท ผิว & ข้อต่อ</div>
                 <div style="font-size:10.5px; font-weight:700; color:#475569; margin-top:2px;">B Complex • Vida • Asta</div>
             </div>
@@ -1946,24 +1946,24 @@ function showW(k) {
     <div style="margin-top:5px;font-size:12.5px;font-weight:700;color:var(--acc)">
       ${it.sets>1?it.sets+' เซ็ต × ':''}${it.type==='time'?fmt(it.t):it.r}${e.side?' (ทั้ง 2 ข้าง)':''}${it.rest?' • พัก '+it.rest+' วิ':''}</div>
     <ul class="cue">${e.cue.map(c=>'<li>'+c+'</li>').join('')}</ul>
-    <a class="yt" href="javascript:void(0)" onclick="showExModal('${it.e}')">▶ ดูตัวอย่างท่านี้</a>
+    <a class="yt" href="javascript:void(0)" onclick="showExModal('${it.e}')">${fcIcon('sparkles')} ดูตัวอย่างท่านี้</a>
     </div></div>`;
     });
     const outdoorDetailSwitcher = (['R', 'Z'].includes(k) || W[k].warm === 'lite') ? `
         <div style="display:flex; align-items:center; justify-content:space-between; margin:10px 0; padding:8px 12px; background:var(--card2); border-radius:10px; border:1px solid var(--line);">
             <div>
-                <div style="font-weight:700; font-size:12.5px; color:var(--tx);">${D.outdoorMode ? '🌲 โหมดเดินสวนสาธารณะ (ไม่ใช้เสื่อ)' : '🏠 โหมดในบ้าน (ใช้เสื่อโยคะ)'}</div>
+                <div style="font-weight:700; font-size:12.5px; color:var(--tx);">${D.outdoorMode ? ' โหมดเดินสวนสาธารณะ (ไม่ใช้เสื่อ)' : ' โหมดในบ้าน (ใช้เสื่อโยคะ)'}</div>
                 <div style="font-size:11px; color:var(--dim);">${D.outdoorMode ? 'ชุดวอร์ม & คูลดาวน์ท่ายืน/ม้านั่ง เหมาะกับการไปเดินสวน' : 'ชุดวอร์ม & คูลดาวน์มาตรฐานบนเสื่อโยคะ'}</div>
             </div>
             <button class="btn sm" onclick="toggleOutdoorMode(); showW('${k}')" style="width:auto; padding:4px 10px; font-size:11.5px; font-weight:700; border-radius:8px; background:${D.outdoorMode ? 'rgba(16,185,129,0.15)' : 'var(--card)'}; border:1px solid ${D.outdoorMode ? '#10b981' : 'var(--line)'}; color:${D.outdoorMode ? '#059669' : 'var(--dim)'}; cursor:pointer;">
-                ${D.outdoorMode ? '🌲 สวนสาธารณะ ⇄' : '🏠 ในบ้าน ⇄'}
+                ${D.outdoorMode ? ' สวนสาธารณะ ⇄' : ' ในบ้าน ⇄'}
             </button>
         </div>
     ` : '';
 
     document.getElementById('wDetail').innerHTML = `<div class="card">
     <div class="row"><h3>${W[k].ic} ${W[k].n}</h3><span class="tag b">~${estMin(k)} นาที</span></div>${outdoorDetailSwitcher}${h}
-    <button class="btn" style="margin-top:14px" onclick="startW('${k}')">▶ เริ่มเลย</button></div>`;
+    <button class="btn" style="margin-top:14px" onclick="startW('${k}')">${fcIcon('sparkles')} เริ่มเลย</button></div>`;
 }
 function toggleBS() { D.bs = document.getElementById('bsMode').checked; save(); render() }
 

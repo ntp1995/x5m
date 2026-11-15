@@ -70,10 +70,10 @@ const TF_MACROS = [
 ];
 
 const MEAL_LABELS = {
-    breakfast: '🌅 มื้อเช้า',
-    lunch: '☀️ มื้อเที่ยง',
-    dinner: '🌙 มื้อเย็น',
-    snack: '🍎 ของว่าง'
+    breakfast: ' มื้อเช้า',
+    lunch: ' มื้อเที่ยง',
+    dinner: ' มื้อเย็น',
+    snack: ' ของว่าง'
 };
 
 function getSmartDefaultMealType(cal = 0, targetDateIso = null, customHour = null) {
@@ -259,7 +259,7 @@ function renderNutriScoreWidgetHtml(metrics) {
 
     const ingHtml = (metrics.ingredients && metrics.ingredients.length > 0) ? `
         <div style="margin-top:10px; padding-top:8px; border-top:1px dashed var(--line);">
-            <div style="font-size:11px; font-weight:800; color:var(--dim); margin-bottom:5px;">🍲 แยกส่วนประกอบในจาน (ประมาณการ):</div>
+            <div style="font-size:11px; font-weight:800; color:var(--dim); margin-bottom:5px;">${fcIcon('sparkles')} แยกส่วนประกอบในจาน (ประมาณการ):</div>
             <div id="aiIngBreakdownList" style="display:flex; flex-direction:column; gap:4px;">
                 ${metrics.ingredients.map(ing => `
                     <div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; background:var(--bg); padding:4px 8px; border-radius:6px; border:1px solid var(--line);">
@@ -288,14 +288,14 @@ function renderNutriScoreWidgetHtml(metrics) {
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px;">
                 <div style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:7px 9px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:800;">
-                        <span style="color:var(--tx);">💚 คะแนนสุขภาพ</span>
+                        <span style="color:var(--tx);">${fcIcon('sparkles')} คะแนนสุขภาพ</span>
                         <span style="color:${hColor};">${metrics.healthScore}/10</span>
                     </div>
                     ${buildSegBar(metrics.healthScore, hColor)}
                 </div>
                 <div style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:7px 9px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:800;">
-                        <span style="color:var(--tx);">⭐ ความอิ่มอยู่ท้อง</span>
+                        <span style="color:var(--tx);">${fcIcon('star')} ความอิ่มอยู่ท้อง</span>
                         <span style="color:${sColor};">${metrics.satietyScore}/10</span>
                     </div>
                     ${buildSegBar(metrics.satietyScore, sColor)}
@@ -305,7 +305,7 @@ function renderNutriScoreWidgetHtml(metrics) {
             ${ingHtml}
 
             <div style="margin-top:10px; background:rgba(249,115,22,0.08); border-left:3px solid var(--acc); border-radius:6px; padding:7px 9px; font-size:11.5px; color:var(--tx); line-height:1.45;">
-                <strong style="color:var(--acc);">💡 คำแนะนำโค้ช:</strong> ${metrics.coachTip}
+                <strong style="color:var(--acc);">${fcIcon('lightbulb')} คำแนะนำโค้ช:</strong> ${metrics.coachTip}
             </div>
         </div>
     `;
@@ -348,7 +348,7 @@ function addMealToToday(mealType, name, portion, cal, pro, carbs, fat, sugar = 0
     save();
     render();
     if (typeof pushToCloud === 'function') pushToCloud();
-    msg('✓ บันทึกมื้ออาหารเรียบร้อย (+ ' + newMealItem.cal + ' kcal • เกรด ' + newMealItem.nutriGrade + ')');
+    msg(fcIcon('sparkles') + ' บันทึกมื้ออาหารเรียบร้อย (+ ' + newMealItem.cal + ' kcal • เกรด ' + newMealItem.nutriGrade + ')');
 
     // IF Fast Breaking Detection: If calories > 0 and user is currently in active fasting state
     if (newMealItem.cal > 0 && typeof D !== 'undefined' && D.if && D.if.start) {
@@ -360,14 +360,14 @@ function addMealToToday(mealType, name, portion, cal, pro, carbs, fat, sugar = 0
             if (confirmFn) {
                 const ok = await confirmFn(`
                     <div style="text-align:left; font-size:13.5px; line-height:1.5;">
-                        <div style="font-size:16px; font-weight:900; color:var(--acc); margin-bottom:8px;">🍽️ ตรวจพบการทานอาหาร (Break Fast)</div>
+                        <div style="font-size:16px; font-weight:900; color:var(--acc); margin-bottom:8px;">${fcIcon('utensils')} ตรวจพบการทานอาหาร (Break Fast)</div>
                         <div style="background:var(--card2); border-radius:10px; padding:10px 12px; margin-bottom:10px; border:1px solid var(--line);">
-                            <div>⏱️ <b>เวลาอดอาหารที่ทำได้:</b> <span style="color:#059669; font-weight:800;">${h} ชม. ${m} นาที</span></div>
-                            <div style="margin-top:2px;">🥗 <b>มื้อที่บันทึก:</b> ${newMealItem.name} (${newMealItem.cal} kcal)</div>
+                            <div>${fcIcon('timer')} <b>เวลาอดอาหารที่ทำได้:</b> <span style="color:#059669; font-weight:800;">${h} ชม. ${m} นาที</span></div>
+                            <div style="margin-top:2px;">${fcIcon('utensils')} <b>มื้อที่บันทึก:</b> ${newMealItem.name} (${newMealItem.cal} kcal)</div>
                         </div>
                         <div style="color:var(--tx); font-size:13px;">การทานอาหารทำให้สภาวะ Fasting สิ้นสุดลงทางสรีรวิทยา ต้องการ <b>สิ้นสุดการอดอาหารรอบนี้</b> และเริ่มต้นนับ <b>ช่วงเวลากินอาหาร (Eating Window)</b> เลยหรือไม่?</div>
                     </div>
-                `, '⏱️ สิ้นสุดการอดอาหาร');
+                `, ' สิ้นสุดการอดอาหาร');
                 if (ok) {
                     if (typeof endFastingSession === 'function') {
                         endFastingSession(Date.now(), elapsedHours);
@@ -442,16 +442,16 @@ async function editMealItem(dateKey, mealIndex) {
                 </div>
                 <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:8px;">
                     <div>
-                        <label style="font-size:11px; font-weight:700; color:var(--acc); display:block; margin-bottom:3px;">📍 มื้ออาหาร (แตะเพื่อเปลี่ยน):</label>
+                        <label style="font-size:11px; font-weight:700; color:var(--acc); display:block; margin-bottom:3px;">${fcIcon('sparkles')} มื้ออาหาร (แตะเพื่อเปลี่ยน):</label>
                         <select id="edMealType" style="width:100%; padding:8px; font-size:13px; font-weight:700; border-radius:8px; border:1.5px solid var(--acc); background:var(--bg); color:var(--tx); box-sizing:border-box;">
-                            <option value="breakfast" ${m.type === 'breakfast' ? 'selected' : ''}>🌅 มื้อเช้า</option>
-                            <option value="lunch" ${m.type === 'lunch' ? 'selected' : ''}>☀️ มื้อเที่ยง</option>
-                            <option value="dinner" ${m.type === 'dinner' ? 'selected' : ''}>🌙 มื้อเย็น</option>
-                            <option value="snack" ${m.type === 'snack' ? 'selected' : ''}>🍎 ของว่าง</option>
+                            <option value="breakfast" ${m.type === 'breakfast' ? 'selected' : ''}> มื้อเช้า</option>
+                            <option value="lunch" ${m.type === 'lunch' ? 'selected' : ''}> มื้อเที่ยง</option>
+                            <option value="dinner" ${m.type === 'dinner' ? 'selected' : ''}> มื้อเย็น</option>
+                            <option value="snack" ${m.type === 'snack' ? 'selected' : ''}> ของว่าง</option>
                         </select>
                     </div>
                     <div>
-                        <label style="font-size:11px; font-weight:700; color:var(--dim); display:block; margin-bottom:3px;">⏰ เวลาบันทึก:</label>
+                        <label style="font-size:11px; font-weight:700; color:var(--dim); display:block; margin-bottom:3px;">${fcIcon('clock')} เวลาบันทึก:</label>
                         <input type="text" id="edMealTime" value="${m.time || ''}" placeholder="12:00" style="width:100%; padding:8px; font-size:13px; font-weight:600; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                     </div>
                 </div>
@@ -461,7 +461,7 @@ async function editMealItem(dateKey, mealIndex) {
 
             <div style="background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-size:12px; font-weight:700; color:var(--dim);">⚡ เลือกสัดส่วนที่ทานจริง:</span>
+                    <span style="font-size:12px; font-weight:700; color:var(--dim);">${fcIcon('zap')} เลือกสัดส่วนที่ทานจริง:</span>
                     <span id="edMealPortionLabel" style="font-size:11.5px; font-weight:800; color:var(--acc);">${m.portion ? m.portion : 'ปรับสัดส่วน'}</span>
                 </div>
                 <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; margin-bottom:12px;">
@@ -473,34 +473,34 @@ async function editMealItem(dateKey, mealIndex) {
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                     <div>
-                        <label style="font-size:11.5px; font-weight:700; color:var(--acc); display:block; margin-bottom:2px;">⚡ แคลอรี่ (kcal)</label>
+                        <label style="font-size:11.5px; font-weight:700; color:var(--acc); display:block; margin-bottom:2px;">${fcIcon('zap')} แคลอรี่ (kcal)</label>
                         <input type="number" id="edMealCal" value="${m.cal}" style="width:100%; padding:8px; font-size:14px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                     </div>
                     <div>
-                        <label style="font-size:11.5px; font-weight:700; color:var(--acc2); display:block; margin-bottom:2px;">🍗 โปรตีน (g)</label>
+                        <label style="font-size:11.5px; font-weight:700; color:var(--acc2); display:block; margin-bottom:2px;">${fcIcon('utensils')} โปรตีน (g)</label>
                         <input type="number" id="edMealPro" value="${m.pro || 0}" style="width:100%; padding:8px; font-size:14px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                     </div>
                     <div>
-                        <label style="font-size:11.5px; font-weight:700; color:#3b82f6; display:block; margin-bottom:2px;">🍚 คาร์บ (g)</label>
+                        <label style="font-size:11.5px; font-weight:700; color:#3b82f6; display:block; margin-bottom:2px;">${fcIcon('utensils')} คาร์บ (g)</label>
                         <input type="number" id="edMealCarbs" value="${m.carbs || 0}" style="width:100%; padding:8px; font-size:14px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                     </div>
                     <div>
-                        <label style="font-size:11.5px; font-weight:700; color:#10b981; display:block; margin-bottom:2px;">🥑 ไขมัน (g)</label>
+                        <label style="font-size:11.5px; font-weight:700; color:#10b981; display:block; margin-bottom:2px;">${fcIcon('sparkles')} ไขมัน (g)</label>
                         <input type="number" id="edMealFat" value="${m.fat || 0}" style="width:100%; padding:8px; font-size:14px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                     </div>
                 </div>
 
                 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:8px;">
                     <div>
-                        <label style="font-size:11px; font-weight:700; color:#059669; display:block; margin-bottom:2px;">🥦 ไฟเบอร์ (g)</label>
+                        <label style="font-size:11px; font-weight:700; color:#059669; display:block; margin-bottom:2px;">${fcIcon('leaf')} ไฟเบอร์ (g)</label>
                         <input type="number" step="0.5" id="edMealFiber" value="${m.fiber || 0}" style="width:100%; padding:8px 6px; font-size:13.5px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                     </div>
                     <div>
-                        <label style="font-size:11px; font-weight:700; color:#ec4899; display:block; margin-bottom:2px;">🍭 น้ำตาล (g)</label>
+                        <label style="font-size:11px; font-weight:700; color:#ec4899; display:block; margin-bottom:2px;">${fcIcon('sparkles')} น้ำตาล (g)</label>
                         <input type="number" id="edMealSugar" value="${m.sugar || 0}" style="width:100%; padding:8px 6px; font-size:13.5px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                     </div>
                     <div>
-                        <label style="font-size:11px; font-weight:700; color:#8b5cf6; display:block; margin-bottom:2px;">🧂 โซเดียม (mg)</label>
+                        <label style="font-size:11px; font-weight:700; color:#8b5cf6; display:block; margin-bottom:2px;">${fcIcon('sparkles')} โซเดียม (mg)</label>
                         <input type="number" id="edMealSodium" value="${m.sodium || 0}" style="width:100%; padding:8px 6px; font-size:13.5px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                     </div>
                 </div>
@@ -513,7 +513,7 @@ async function editMealItem(dateKey, mealIndex) {
         </div>
     `;
 
-    const confirmed = typeof fcConfirm === 'function' ? await fcConfirm(html, '✏️ แก้ไขข้อมูลมื้ออาหาร & สัดส่วน') : (window.fcConfirm ? await window.fcConfirm(html, '✏️ แก้ไขข้อมูลมื้ออาหาร & สัดส่วน') : false);
+    const confirmed = typeof fcConfirm === 'function' ? await fcConfirm(html, fcIcon('pencil') + ' แก้ไขข้อมูลมื้ออาหาร & สัดส่วน') : (window.fcConfirm ? await window.fcConfirm(html, fcIcon('pencil') + ' แก้ไขข้อมูลมื้ออาหาร & สัดส่วน') : false);
     if (!confirmed) return;
 
     const finalName = (document.getElementById('edMealName')?.value || m.name || '').trim();
@@ -563,7 +563,7 @@ async function editMealItem(dateKey, mealIndex) {
         pushToCloud();
     }
     const typeTxt = MEAL_LABELS[finalType] || finalType;
-    msg(`✓ แก้ไขเป็น "${m.name}" (${typeTxt}) เรียบร้อย`);
+    msg(`${fcIcon('sparkles')} แก้ไขเป็น "${m.name}" (${typeTxt}) เรียบร้อย`);
 }
 
 async function deleteMealItem(dateKey, mealIndex) {
@@ -574,7 +574,7 @@ async function deleteMealItem(dateKey, mealIndex) {
     const item = rec.meals[mealIndex];
     const confirmed = await fcConfirm(
         `ต้องการลบรายการ <b>${item.name}</b> (${item.cal} kcal) ออกจากบันทึกใช่หรือไม่?`,
-        '🗑️ ยืนยันการลบรายการ'
+        ' ยืนยันการลบรายการ'
     );
     if (!confirmed) return;
 
@@ -585,7 +585,7 @@ async function deleteMealItem(dateKey, mealIndex) {
     if (currentUser && fbDb) {
         pushToCloud();
     }
-    msg('✓ ลบรายการอาหารแล้ว');
+    msg(fcIcon('sparkles') + ' ลบรายการอาหารแล้ว');
 }
 
 /* ============ FEATURE: QUICK FAVORITE MEALS & 1-TAP LOGGING ============ */
@@ -614,7 +614,7 @@ function toggleMealFavorite(dateKey, mealIndex) {
             sugar: m.sugar || 0,
             sodium: m.sodium || 0
         });
-        msg('⭐ บันทึก "' + cleanName + '" ลงเมนูโปรดแล้ว!');
+        msg(fcIcon('star') + ' บันทึก "' + cleanName + '" ลงเมนูโปรดแล้ว!');
     }
     save();
     render();
@@ -636,7 +636,7 @@ function quickLogFavoriteMeal(favId) {
         ingredients: fav.ingredients
     };
     addMealToToday(mType, fav.name, fav.portion, fav.cal, fav.pro, fav.carbs, fav.fat, fav.sugar || 0, fav.sodium || 0, extraMeta);
-    msg('⭐ บันทึก "' + fav.name + '" ลงในมื้อ' + (MEAL_LABELS[mType] || '') + ' เรียบร้อย (+ ' + fav.cal + ' kcal)');
+    msg(fcIcon('star') + ' บันทึก "' + fav.name + '" ลงในมื้อ' + (MEAL_LABELS[mType] || '') + ' เรียบร้อย (+ ' + fav.cal + ' kcal)');
 }
 
 
@@ -652,7 +652,7 @@ async function suggestNextMealAI() {
     if (remCal <= 100 && remPro <= 10) {
         fcAlert(`
             <div style="text-align:center; padding:10px;">
-                <div style="font-size:32px; margin-bottom:8px;">🎉</div>
+                <div style="font-size:32px; margin-bottom:8px;">${fcIcon('trophy')}</div>
                 <div style="font-weight:800; font-size:16px; color:var(--acc);">วันนี้ทานครบโควตาแล้วครับ!</div>
                 <div style="font-size:13px; color:var(--dim); margin-top:6px;">คุณได้รับพลังงานและสารอาหารเกือบครบตามเป้าหมายแล้ว หากยังหิวแนะนำดื่มน้ำเปล่า, ชาอุ่นไม่ใส่น้ำตาล หรือผักลวกจิ้มน้ำพริกหนุ่มเล็กน้อยครับ</div>
             </div>
@@ -675,21 +675,21 @@ async function suggestNextMealAI() {
             <div style="flex:1; padding-right:8px;">
                 <div style="font-weight:800; font-size:13.5px; color:var(--tx);">${f.name} ${f.cat === 'north' ? '<span style="background:rgba(16,185,129,0.15);color:#10b981;font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;">อาหารเหนือ</span>' : ''}</div>
                 <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">
-                    ขนาด: ${f.portion} • 🍗 P ${f.pro}g • 🍚 C ${f.carbs}g • 🥑 F ${f.fat}g
+                    ขนาด: ${f.portion} • ${fcIcon('utensils')} P ${f.pro}g • ${fcIcon('utensils')} C ${f.carbs}g • ${fcIcon('sparkles')} F ${f.fat}g
                 </div>
             </div>
             <div style="text-align:right;">
                 <div style="font-weight:800; color:var(--acc); font-size:14px; margin-bottom:4px;">${f.cal} kcal</div>
-                <button class="btn sm" onclick="fcClose(); selectFoodToLog('${f.id}');" style="padding:4px 8px; font-size:11px;">✓ เลือกเมนูนี้</button>
+                <button class="btn sm" onclick="fcClose(); selectFoodToLog('${f.id}');" style="padding:4px 8px; font-size:11px;">${fcIcon('sparkles')} เลือกเมนูนี้</button>
             </div>
         </div>
     `).join('');
 
     fcAlert(`
         <div style="text-align:left; font-size:14px;">
-            <div style="font-weight:800; font-size:16px; color:var(--acc); margin-bottom:4px;">🤖 AI แนะนำเมนูมื้อถัดไป</div>
+            <div style="font-weight:800; font-size:16px; color:var(--acc); margin-bottom:4px;">${fcIcon('bot')} AI แนะนำเมนูมื้อถัดไป</div>
             <div style="font-size:12px; color:var(--dim); margin-bottom:12px;">
-                โควตาสารอาหารที่ยังเหลือ: ⚡ <b>${remCal} kcal</b> • 🍗 P <b>${remPro}g</b> • 🍚 C <b>${remCarbs}g</b>
+                โควตาสารอาหารที่ยังเหลือ: ${fcIcon('zap')} <b>${remCal} kcal</b> • ${fcIcon('utensils')} P <b>${remPro}g</b> • ${fcIcon('utensils')} C <b>${remCarbs}g</b>
             </div>
 
             <div style="max-height:60vh; overflow-y:auto;">
@@ -697,7 +697,7 @@ async function suggestNextMealAI() {
             </div>
 
             <div style="margin-top:12px; text-align:center;">
-                <button class="btn sm g" onclick="fcClose(); openAddMealModal();" style="padding:6px 14px; font-size:12px;">🔍 ค้นหาเมนูอื่นในฐานข้อมูล</button>
+                <button class="btn sm g" onclick="fcClose(); openAddMealModal();" style="padding:6px 14px; font-size:12px;">${fcIcon('search')} ค้นหาเมนูอื่นในฐานข้อมูล</button>
             </div>
         </div>
     `);
@@ -725,7 +725,7 @@ function saveCurrentMealsAsCombo() {
         D.cfg.myCombos.push(combo);
         save();
         if (typeof pushToCloud === 'function') pushToCloud();
-        msg('✓ บันทึกเซ็ตเมนูประจำเรียบร้อย!');
+        msg(fcIcon('sparkles') + ' บันทึกเซ็ตเมนูประจำเรียบร้อย!');
         openAddMealModal();
     });
 }
@@ -737,7 +737,7 @@ function logComboToMeal(comboId, mealType) {
         addMealToToday(mealType, it.name, it.portion, it.cal, it.pro, it.carbs, it.fat);
     });
     fcClose();
-    msg('✓ บันทึกเซ็ต ' + combo.name + ' เรียบร้อย!');
+    msg(fcIcon('sparkles') + ' บันทึกเซ็ต ' + combo.name + ' เรียบร้อย!');
 }
 
 function deleteCombo(comboId, ev) {
@@ -747,42 +747,42 @@ function deleteCombo(comboId, ev) {
     save();
     if (typeof pushToCloud === 'function') pushToCloud();
     filterFoodListUI();
-    msg('✓ ลบเซ็ตโปรดแล้ว');
+    msg(fcIcon('sparkles') + ' ลบเซ็ตโปรดแล้ว');
 }
 
 function openAddMealModal(defaultMealType) {
     const mType = defaultMealType || (typeof getSmartDefaultMealType === 'function' ? getSmartDefaultMealType() : 'lunch');
     const html = `
         <div style="text-align:left; font-size:14px; max-height:75vh; display:flex; flex-direction:column;">
-            <div style="font-weight:800; font-size:16px; color:var(--acc); margin-bottom:8px;">🥗 บันทึกมื้ออาหาร</div>
+            <div style="font-weight:800; font-size:16px; color:var(--acc); margin-bottom:8px;">${fcIcon('utensils')} บันทึกมื้ออาหาร</div>
             <div style="margin-bottom:12px;">
                 <label style="font-size:12px; font-weight:700; color:var(--dim); display:block; margin-bottom:4px;">เลือกมื้ออาหาร:</label>
                 <select id="modalMealTypeSelect" style="width:100%; padding:10px; border-radius:10px; font-size:14px; font-weight:700; background:var(--card2); border:1px solid var(--line); color:var(--tx);">
-                    <option value="breakfast" ${mType === 'breakfast' ? 'selected' : ''}>🌅 มื้อเช้า</option>
-                    <option value="lunch" ${mType === 'lunch' ? 'selected' : ''}>☀️ มื้อเที่ยง</option>
-                    <option value="dinner" ${mType === 'dinner' ? 'selected' : ''}>🌙 มื้อเย็น</option>
-                    <option value="snack" ${mType === 'snack' ? 'selected' : ''}>🍎 ของว่าง</option>
+                    <option value="breakfast" ${mType === 'breakfast' ? 'selected' : ''}> มื้อเช้า</option>
+                    <option value="lunch" ${mType === 'lunch' ? 'selected' : ''}> มื้อเที่ยง</option>
+                    <option value="dinner" ${mType === 'dinner' ? 'selected' : ''}> มื้อเย็น</option>
+                    <option value="snack" ${mType === 'snack' ? 'selected' : ''}> ของว่าง</option>
                 </select>
             </div>
 
             <div style="display:flex; gap:8px; margin-bottom:12px;">
-                <button class="btn sm" onclick="openManualMealForm()" style="flex:1; padding:8px; font-size:12px; background:rgba(234,88,12,0.12); color:var(--acc); border:1px solid var(--acc);">✍️ กรอกเอง</button>
-                <button class="btn sm" onclick="fcClose(); openAiFoodScanner();" style="flex:1; padding:8px; font-size:12px; background:var(--card2); border:1px solid var(--line); color:var(--tx);">📸 สแกน AI</button>
+                <button class="btn sm" onclick="openManualMealForm()" style="flex:1; padding:8px; font-size:12px; background:rgba(234,88,12,0.12); color:var(--acc); border:1px solid var(--acc);">${fcIcon('pencil')} กรอกเอง</button>
+                <button class="btn sm" onclick="fcClose(); openAiFoodScanner();" style="flex:1; padding:8px; font-size:12px; background:var(--card2); border:1px solid var(--line); color:var(--tx);">${fcIcon('camera')} สแกน AI</button>
             </div>
 
             <!-- Category Tabs Filter -->
             <div style="display:flex; gap:6px; margin-bottom:10px; overflow-x:auto; padding-bottom:2px;" id="foodCatTabs">
                 <button type="button" class="btn sm on" onclick="setFoodCategoryFilter('all', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto;">ทั้งหมด</button>
-                <button type="button" class="btn sm" onclick="setFoodCategoryFilter('fav', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">⭐ เมนูโปรดคลาวด์</button>
-                <button type="button" class="btn sm" onclick="setFoodCategoryFilter('protein', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">🥤 โปรตีนขวด & RTD</button>
-                <button type="button" class="btn sm" onclick="setFoodCategoryFilter('north', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">🍲 อาหารเหนือ</button>
-                <button type="button" class="btn sm" onclick="setFoodCategoryFilter('clean', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">💪 โปรตีน/คลีน</button>
-                <button type="button" class="btn sm" onclick="setFoodCategoryFilter('dish', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">🍚 อาหารจานเดียว</button>
-                <button type="button" class="btn sm" onclick="setFoodCategoryFilter('combo', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">🍱 เซ็ตโปรด</button>
+                <button type="button" class="btn sm" onclick="setFoodCategoryFilter('fav', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">${fcIcon('star')} เมนูโปรดคลาวด์</button>
+                <button type="button" class="btn sm" onclick="setFoodCategoryFilter('protein', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">${fcIcon('droplets')} โปรตีนขวด & RTD</button>
+                <button type="button" class="btn sm" onclick="setFoodCategoryFilter('north', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">${fcIcon('sparkles')} อาหารเหนือ</button>
+                <button type="button" class="btn sm" onclick="setFoodCategoryFilter('clean', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">${fcIcon('dumbbell')} โปรตีน/คลีน</button>
+                <button type="button" class="btn sm" onclick="setFoodCategoryFilter('dish', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">${fcIcon('utensils')} อาหารจานเดียว</button>
+                <button type="button" class="btn sm" onclick="setFoodCategoryFilter('combo', this)" style="padding:4px 10px; font-size:12px; border-radius:99px; white-space:nowrap; flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--tx);">${fcIcon('sparkles')} เซ็ตโปรด</button>
             </div>
 
             <div style="position:relative; margin-bottom:10px;">
-                <input type="text" id="foodSearchInput" placeholder="🔍 ค้นหาเมนู (เช่น ข้าวซอย, น้ำพริกหนุ่ม, อกไก่)..." oninput="filterFoodListUI()" style="width:100%; padding:10px 12px; font-size:13.5px; border-radius:10px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
+                <input type="text" id="foodSearchInput" placeholder="ค้นหาเมนู (เช่น ข้าวซอย, น้ำพริกหนุ่ม, อกไก่)..." oninput="filterFoodListUI()" style="width:100%; padding:10px 12px; font-size:13.5px; border-radius:10px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
             </div>
 
             <div id="foodListContainer" style="overflow-y:auto; flex:1; max-height:280px; border:1px solid var(--line); border-radius:12px; padding:6px; background:var(--card);">
@@ -827,7 +827,7 @@ function filterFoodListUI() {
         if (filteredFavs.length === 0) {
             container.innerHTML = `
                 <div style="text-align:center; padding:20px; color:var(--dim); font-size:13px;">
-                    ${favs.length === 0 ? 'ยังไม่มีเมนูโปรดที่บันทึกไว้ในคลาวด์<br><span style="font-size:11.5px;">คุณสามารถสแกนโปรตีนขวด/อาหาร แล้วกด <b>"⭐ บันทึกลงคลัง"</b> หรือกดเพิ่มเองได้ครับ</span>' : 'ไม่พบเมนูโปรดที่ค้นหา'}<br>
+                    ${favs.length === 0 ? 'ยังไม่มีเมนูโปรดที่บันทึกไว้ในคลาวด์<br><span style="font-size:11.5px;">คุณสามารถสแกนโปรตีนขวด/อาหาร แล้วกด <b>" บันทึกลงคลัง"</b> หรือกดเพิ่มเองได้ครับ</span>' : 'ไม่พบเมนูโปรดที่ค้นหา'}<br>
                     <button class="btn sm" onclick="addNewCustomFavoriteFood()" style="margin-top:12px; font-size:12px; padding:6px 14px; background:var(--acc); color:#fff; border-radius:8px;">+ เพิ่มเมนูโปรดใหม่ด้วยตัวเอง</button>
                 </div>
             `;
@@ -836,23 +836,23 @@ function filterFoodListUI() {
 
         container.innerHTML = `
             <div style="padding:4px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:11.5px; color:var(--dim); font-weight:700;">☁️ บันทึกลงคลาวด์แล้ว (${filteredFavs.length} เมนู)</span>
+                <span style="font-size:11.5px; color:var(--dim); font-weight:700;">${fcIcon('cloud')} บันทึกลงคลาวด์แล้ว (${filteredFavs.length} เมนู)</span>
                 <button class="btn sm" onclick="addNewCustomFavoriteFood()" style="font-size:11px; padding:3px 8px; background:transparent; border:1px solid var(--acc); color:var(--acc); border-radius:6px;">+ เพิ่มเมนู</button>
             </div>
         ` + filteredFavs.map(f => `
             <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-bottom:1px solid var(--line); border-radius:8px; background:var(--card2); margin-bottom:6px;">
                 <div onclick="promptPortionAndLog(${JSON.stringify(f).replace(/"/g, '&quot;')}, '${mType}')" style="flex:1; padding-right:8px; cursor:pointer;">
                     <div style="font-weight:800; font-size:13.5px; color:var(--tx); display:flex; align-items:center; gap:6px;">
-                        <span>⭐ ${f.name}</span>
+                        <span>${fcIcon('star')} ${f.name}</span>
                         <span class="tag" style="font-size:9.5px; padding:1px 5px; background:rgba(234,88,12,0.15); color:var(--acc);">${f.portion || '1 หน่วย'}</span>
                     </div>
                     <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">
-                        ⚡ ${f.cal} kcal • <b style="color:var(--acc2);">🍗 P ${f.pro}g</b> • 🍚 C ${f.carbs}g • 🥑 F ${f.fat}g
+                        ${fcIcon('zap')} ${f.cal} kcal • <b style="color:var(--acc2);">${fcIcon('utensils')} P ${f.pro}g</b> • ${fcIcon('utensils')} C ${f.carbs}g • ${fcIcon('sparkles')} F ${f.fat}g
                     </div>
                 </div>
                 <div style="display:flex; align-items:center; gap:6px;">
                     <button class="btn sm" onclick="quickLogSavedFood('${f.id}')" style="font-size:11px; padding:5px 8px; background:var(--acc); color:#fff; font-weight:700; border-radius:6px; white-space:nowrap;">+ บันทึก</button>
-                    <button onclick="deleteFavoriteFood('${f.id}', event)" style="background:none; border:none; color:var(--red); font-size:13px; cursor:pointer; padding:2px;" title="ลบออกจากคลัง">🗑️</button>
+                    <button onclick="deleteFavoriteFood('${f.id}', event)" style="background:none; border:none; color:var(--red); font-size:13px; cursor:pointer; padding:2px;" title="ลบออกจากคลัง">${fcIcon('trash')}</button>
                 </div>
             </div>
         `).join('');
@@ -878,14 +878,14 @@ function filterFoodListUI() {
         ` + combos.map(c => `
             <div onclick="logComboToMeal('${c.id}', '${mType}')" style="display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-bottom:1px solid var(--line); cursor:pointer; border-radius:8px; background:var(--card2); margin-bottom:6px;">
                 <div style="flex:1; padding-right:8px;">
-                    <div style="font-weight:800; font-size:13.5px; color:var(--tx);">⭐ ${c.name}</div>
+                    <div style="font-weight:800; font-size:13.5px; color:var(--tx);">${fcIcon('star')} ${c.name}</div>
                     <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">
-                        ${c.items.length} รายการ • 🍗 P ${c.totalPro || 0}g • 🍚 C ${c.totalCarbs || 0}g • 🥑 F ${c.totalFat || 0}g
+                        ${c.items.length} รายการ • ${fcIcon('utensils')} P ${c.totalPro || 0}g • ${fcIcon('utensils')} C ${c.totalCarbs || 0}g • ${fcIcon('sparkles')} F ${c.totalFat || 0}g
                     </div>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span style="font-weight:800; color:var(--acc); font-size:14px;">${c.totalCal || 0} kcal</span>
-                    <button onclick="deleteCombo('${c.id}', event)" style="background:none; border:none; color:var(--red); font-size:13px; cursor:pointer; padding:2px;" title="ลบเซ็ตนี้">❌</button>
+                    <button onclick="deleteCombo('${c.id}', event)" style="background:none; border:none; color:var(--red); font-size:13px; cursor:pointer; padding:2px;" title="ลบเซ็ตนี้">${fcIcon('x')}</button>
                 </div>
             </div>
         `).join('');
@@ -913,7 +913,7 @@ function filterFoodListUI() {
                         <span>${f.name}</span>${northBadge}
                     </div>
                     <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">
-                        🍗 P ${f.pro}g • 🍚 C ${f.carbs}g • 🥑 F ${f.fat}g
+                        ${fcIcon('utensils')} P ${f.pro}g • ${fcIcon('utensils')} C ${f.carbs}g • ${fcIcon('sparkles')} F ${f.fat}g
                     </div>
                 </div>
                 <div style="text-align:right;">
@@ -933,23 +933,23 @@ function selectFoodToLog(foodId) {
 }
 
 function promptPortionAndLog(food, mealType) {
-    const sSugar = (food.sugar != null && food.sugar > 0) ? ' • 🍭 ' + food.sugar + 'g' : '';
-    const sSodium = (food.sodium != null && food.sodium > 0) ? ' • 🧂 ' + food.sodium + 'mg' : '';
+    const sSugar = (food.sugar != null && food.sugar > 0) ? ' •  ' + food.sugar + 'g' : '';
+    const sSodium = (food.sodium != null && food.sodium > 0) ? ' •  ' + food.sodium + 'mg' : '';
     const html = `
         <div style="text-align:left; font-size:14px;">
             <div style="font-weight:800; font-size:15px; color:var(--acc); margin-bottom:4px;">${food.name}</div>
-            <div style="font-size:12px; color:var(--dim); margin-bottom:14px;">ขนาดปกติ: ${food.portion} (⚡ ${food.cal} kcal, P ${food.pro}g, C ${food.carbs}g, F ${food.fat}g${sSugar}${sSodium})</div>
+            <div style="font-size:12px; color:var(--dim); margin-bottom:14px;">ขนาดปกติ: ${food.portion} (${fcIcon('zap')} ${food.cal} kcal, P ${food.pro}g, C ${food.carbs}g, F ${food.fat}g${sSugar}${sSodium})</div>
 
             <label style="font-weight:700; font-size:13px; display:block; margin-bottom:4px;">จำนวนหน่วยบริโภค (เท่า):</label>
             <input type="number" id="foodMultiplierInput" value="1" step="0.25" min="0.25" max="10" oninput="updatePortionPreview(${food.cal}, ${food.pro}, ${food.carbs}, ${food.fat}, ${food.sugar || 0}, ${food.sodium || 0})" style="width:100%; padding:10px; font-size:16px; font-weight:700; border-radius:10px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
 
             <div id="portionPreviewBox" style="margin-top:12px; padding:10px 14px; background:var(--card2); border-radius:10px; border:1px solid var(--line); font-size:13px;">
-                สรุป: ⚡ <b style="color:var(--acc);">${food.cal}</b> kcal • 🍗 <b>${food.pro}g</b> • 🍚 <b>${food.carbs}g</b> • 🥑 <b>${food.fat}g</b>${(food.sugar != null && food.sugar > 0) ? ' • 🍭 <b>' + food.sugar + 'g</b>' : ''}${(food.sodium != null && food.sodium > 0) ? ' • 🧂 <b>' + food.sodium + 'mg</b>' : ''}
+                สรุป: ${fcIcon('zap')} <b style="color:var(--acc);">${food.cal}</b> kcal • ${fcIcon('utensils')} <b>${food.pro}g</b> • ${fcIcon('utensils')} <b>${food.carbs}g</b> • ${fcIcon('sparkles')} <b>${food.fat}g</b>${(food.sugar != null && food.sugar > 0) ? ' •  <b>' + food.sugar + 'g</b>' : ''}${(food.sodium != null && food.sodium > 0) ? ' •  <b>' + food.sodium + 'mg</b>' : ''}
             </div>
 
             <div style="margin-top:16px; display:flex; gap:8px;">
                 <button class="btn sm g" onclick="openAddMealModal('${mealType}')" style="flex:1;">ย้อนกลับ</button>
-                <button class="btn sm" onclick="confirmPortionAndSave('${food.id}', '${mealType}')" style="flex:1.5;">✓ บันทึกมื้อนี้</button>
+                <button class="btn sm" onclick="confirmPortionAndSave('${food.id}', '${mealType}')" style="flex:1.5;">${fcIcon('sparkles')} บันทึกมื้อนี้</button>
             </div>
         </div>
     `;
@@ -960,7 +960,7 @@ function updatePortionPreview(baseCal, basePro, baseCarbs, baseFat, baseSugar = 
     const mult = parseFloat(document.getElementById('foodMultiplierInput')?.value) || 1;
     const pBox = document.getElementById('portionPreviewBox');
     if (pBox) {
-        pBox.innerHTML = 'สรุป: ⚡ <b style="color:var(--acc);">' + Math.round(baseCal * mult) + '</b> kcal • 🍗 <b>' + Math.round(basePro * mult) + 'g</b> • 🍚 <b>' + Math.round(baseCarbs * mult) + 'g</b> • 🥑 <b>' + Math.round(baseFat * mult) + 'g</b>' + (baseSugar > 0 ? ' • 🍭 <b>' + Math.round(baseSugar * mult) + 'g</b>' : '') + (baseSodium > 0 ? ' • 🧂 <b>' + Math.round(baseSodium * mult) + 'mg</b>' : '');
+        pBox.innerHTML = 'สรุป:  <b style="color:var(--acc);">' + Math.round(baseCal * mult) + '</b> kcal •  <b>' + Math.round(basePro * mult) + 'g</b> •  <b>' + Math.round(baseCarbs * mult) + 'g</b> •  <b>' + Math.round(baseFat * mult) + 'g</b>' + (baseSugar > 0 ? ' •  <b>' + Math.round(baseSugar * mult) + 'g</b>' : '') + (baseSodium > 0 ? ' •  <b>' + Math.round(baseSodium * mult) + 'mg</b>' : '');
     }
 }
 
@@ -987,14 +987,14 @@ function openManualMealForm(defaultMealType) {
     const mType = defaultMealType || document.getElementById('modalMealTypeSelect')?.value || 'lunch';
     const html = `
         <div style="text-align:left; font-size:14px; max-height:75vh; overflow-y:auto;">
-            <div style="font-weight:800; font-size:16px; color:var(--acc); margin-bottom:10px;">✍️ กรอกสารอาหารด้วยตนเอง</div>
+            <div style="font-weight:800; font-size:16px; color:var(--acc); margin-bottom:10px;">${fcIcon('pencil')} กรอกสารอาหารด้วยตนเอง</div>
 
             <label style="font-size:12px; font-weight:700; color:var(--dim); display:block; margin-bottom:3px;">มื้ออาหาร:</label>
             <select id="manMealType" style="width:100%; padding:9px; border-radius:8px; font-size:13.5px; font-weight:700; background:var(--card2); border:1px solid var(--line); color:var(--tx); margin-bottom:10px;">
-                <option value="breakfast" ${mType === 'breakfast' ? 'selected' : ''}>🌅 มื้อเช้า</option>
-                <option value="lunch" ${mType === 'lunch' ? 'selected' : ''}>☀️ มื้อเที่ยง</option>
-                <option value="dinner" ${mType === 'dinner' ? 'selected' : ''}>🌙 มื้อเย็น</option>
-                <option value="snack" ${mType === 'snack' ? 'selected' : ''}>🍎 ของว่าง</option>
+                <option value="breakfast" ${mType === 'breakfast' ? 'selected' : ''}> มื้อเช้า</option>
+                <option value="lunch" ${mType === 'lunch' ? 'selected' : ''}> มื้อเที่ยง</option>
+                <option value="dinner" ${mType === 'dinner' ? 'selected' : ''}> มื้อเย็น</option>
+                <option value="snack" ${mType === 'snack' ? 'selected' : ''}> ของว่าง</option>
             </select>
 
             <label style="font-size:12px; font-weight:700; color:var(--dim); display:block; margin-bottom:3px;">ชื่ออาหาร:</label>
@@ -1005,37 +1005,37 @@ function openManualMealForm(defaultMealType) {
 
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
                 <div>
-                    <label style="font-size:12px; font-weight:700; color:var(--acc); display:block; margin-bottom:3px;">⚡ แคลอรี่ (kcal)*</label>
+                    <label style="font-size:12px; font-weight:700; color:var(--acc); display:block; margin-bottom:3px;">${fcIcon('zap')} แคลอรี่ (kcal)*</label>
                     <input type="number" id="manFoodCal" placeholder="0" style="width:100%; padding:9px; font-size:15px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                 </div>
                 <div>
-                    <label style="font-size:12px; font-weight:700; color:var(--acc2); display:block; margin-bottom:3px;">🍗 โปรตีน (g)</label>
+                    <label style="font-size:12px; font-weight:700; color:var(--acc2); display:block; margin-bottom:3px;">${fcIcon('utensils')} โปรตีน (g)</label>
                     <input type="number" id="manFoodPro" placeholder="0" style="width:100%; padding:9px; font-size:15px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                 </div>
                 <div>
-                    <label style="font-size:12px; font-weight:700; color:#3b82f6; display:block; margin-bottom:3px;">🍚 คาร์โบไฮเดรต (g)</label>
+                    <label style="font-size:12px; font-weight:700; color:#3b82f6; display:block; margin-bottom:3px;">${fcIcon('utensils')} คาร์โบไฮเดรต (g)</label>
                     <input type="number" id="manFoodCarbs" placeholder="0" style="width:100%; padding:9px; font-size:15px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                 </div>
                 <div>
-                    <label style="font-size:12px; font-weight:700; color:#10b981; display:block; margin-bottom:3px;">🥑 ไขมัน (g)</label>
+                    <label style="font-size:12px; font-weight:700; color:#10b981; display:block; margin-bottom:3px;">${fcIcon('sparkles')} ไขมัน (g)</label>
                     <input type="number" id="manFoodFat" placeholder="0" style="width:100%; padding:9px; font-size:15px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                 </div>
             </div>
 
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
                 <div>
-                    <label style="font-size:12px; font-weight:700; color:#ec4899; display:block; margin-bottom:3px;">🍭 น้ำตาล (g)</label>
+                    <label style="font-size:12px; font-weight:700; color:#ec4899; display:block; margin-bottom:3px;">${fcIcon('sparkles')} น้ำตาล (g)</label>
                     <input type="number" id="manFoodSugar" placeholder="0" style="width:100%; padding:9px; font-size:15px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                 </div>
                 <div>
-                    <label style="font-size:12px; font-weight:700; color:#8b5cf6; display:block; margin-bottom:3px;">🧂 โซเดียม (mg)</label>
+                    <label style="font-size:12px; font-weight:700; color:#8b5cf6; display:block; margin-bottom:3px;">${fcIcon('sparkles')} โซเดียม (mg)</label>
                     <input type="number" id="manFoodSodium" placeholder="0" style="width:100%; padding:9px; font-size:15px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                 </div>
             </div>
 
             <div style="display:flex; gap:8px;">
                 <button class="btn sm g" onclick="openAddMealModal()" style="flex:1;">ย้อนกลับ</button>
-                <button class="btn sm" onclick="saveManualMeal()" style="flex:1.5;">💾 บันทึกอาหาร</button>
+                <button class="btn sm" onclick="saveManualMeal()" style="flex:1.5;">${fcIcon('save')} บันทึกอาหาร</button>
             </div>
         </div>
     `;

@@ -215,7 +215,7 @@ async function shiftSchedule(days = 1) {
     const dow = (actualD - (D.schOffs || 0) + 7) % 7;
     const activeSched = (typeof getActiveSchedule === 'function') ? getActiveSchedule() : SCHED;
     const targetWk = W[activeSched[dow]];
-    msg('✓ เลื่อนชดเชยแล้ว ➜ วันนี้เป็น: <b>' + (targetWk ? targetWk.n : 'ตารางใหม่') + '</b>');
+    msg(fcIcon('sparkles') + ' เลื่อนชดเชยแล้ว ' + fcIcon('sparkles') + ' วันนี้เป็น: <b>' + (targetWk ? targetWk.n : 'ตารางใหม่') + '</b>');
 }
 
 async function resetScheduleShift() {
@@ -226,17 +226,17 @@ async function resetScheduleShift() {
     if (currentUser && fbDb) {
         await pushToCloud();
     }
-    msg('✓ คืนค่าตารางปกติเรียบร้อยแล้ว');
+    msg(fcIcon('sparkles') + ' คืนค่าตารางปกติเรียบร้อยแล้ว');
 }
 
 async function resetProgram() {
-    const confirmed = await fcConfirm('ต้องการรีเซ็ตเพื่อเริ่มต้นโปรแกรมใหม่ (เริ่มสัปดาห์ที่ 1 วันนี้) ใช่หรือไม่?', '🔄 เริ่มโปรแกรมใหม่');
+    const confirmed = await fcConfirm('ต้องการรีเซ็ตเพื่อเริ่มต้นโปรแกรมใหม่ (เริ่มสัปดาห์ที่ 1 วันนี้) ใช่หรือไม่?', fcIcon('refresh-cw') + ' เริ่มโปรแกรมใหม่');
     if (!confirmed) return;
 
-    const clearStats = await fcConfirm('ต้องการล้างประวัติสถิติเดิมทั้งหมด (เช็คอิน, กราฟ, ประวัติซ้อม) ด้วยหรือไม่?\n\n• กด "ตกลง" = ล้างสถิติเก่า เริ่มนับ 1 ใหม่ทั้งหมด\n• กด "ยกเลิก" = เก็บสถิติเดิมไว้ แค่เริ่มโปรแกรมใหม่', '📊 ล้างสถิติเก่าหรือไม่?');
+    const clearStats = await fcConfirm('ต้องการล้างประวัติสถิติเดิมทั้งหมด (เช็คอิน, กราฟ, ประวัติซ้อม) ด้วยหรือไม่?\n\n• กด "ตกลง" = ล้างสถิติเก่า เริ่มนับ 1 ใหม่ทั้งหมด\n• กด "ยกเลิก" = เก็บสถิติเดิมไว้ แค่เริ่มโปรแกรมใหม่', fcIcon('bar-chart') + ' ล้างสถิติเก่าหรือไม่?');
 
     // Open full onboarding Smart Program Wizard
-    const res = await calcBMR('🎯 ตั้งค่าโปรแกรมและข้อมูลสุขภาพใหม่', true, true);
+    const res = await calcBMR(' ตั้งค่าโปรแกรมและข้อมูลสุขภาพใหม่', true, true);
     if (!res) return; // User cancelled modal
 
     const { w, bmr, tdee, targetCal, targetPro, targetWater, targetW, courseWeeks, lossPerWk, lossPerMonth, bf, muscle, visceral, rhr, vo2max, hrv } = res;
@@ -282,7 +282,7 @@ async function resetProgram() {
     
     setTimeout(() => {
         fcAlert(`
-            <div style="font-size:16px;"><b>🎉 เริ่มต้นโปรแกรมใหม่สำเร็จ!</b></div><br>
+            <div style="font-size:16px;"><b>${fcIcon('trophy')} เริ่มต้นโปรแกรมใหม่สำเร็จ!</b></div><br>
             ระยะเวลาคอร์ส: <b>${courseWeeks} สัปดาห์ (~${(courseWeeks/4.33).toFixed(1)} เดือน)</b><br>
             เป้าหมายน้ำหนัก: <b>${w.toFixed(1)} กก. → ${targetW.toFixed(1)} กก.</b> (ลด ${(w - targetW).toFixed(1)} กก.)<br>
             อัตราลดเป้าหมาย: <b>${lossPerWk.toFixed(2)} กก./สัปดาห์ (~${lossPerMonth.toFixed(1)} กก./เดือน)</b><br><br>
@@ -296,13 +296,13 @@ async function resetProgram() {
 }
 
 async function resetAllData() {
-    const ok = await fcConfirm('⚠️ ต้องการล้างสถิติและข้อมูลทั้งหมดเพื่อเริ่มต้นใหม่จากศูนย์หรือไม่?\n\n(ประวัติเช็คอิน กราฟ และประวัติการออกกำลังกายทั้งในเครื่องและบนคลาวด์จะถูกล้างใหม่ทั้งหมด)', '⚠️ ล้างข้อมูลเริ่มต้นใหม่');
+    const ok = await fcConfirm(fcIcon('alert-triangle') + ' ต้องการล้างสถิติและข้อมูลทั้งหมดเพื่อเริ่มต้นใหม่จากศูนย์หรือไม่?\n\n(ประวัติเช็คอิน กราฟ และประวัติการออกกำลังกายทั้งในเครื่องและบนคลาวด์จะถูกล้างใหม่ทั้งหมด)', fcIcon('alert-triangle') + ' ล้างข้อมูลเริ่มต้นใหม่');
     if (!ok) return;
 
     const doubleCheck = await fcConfirm('ยืนยันอีกครั้ง! คุณแน่ใจหรือไม่ว่าต้องการล้างข้อมูลทั้งหมดเพื่อเริ่มนับ 1 ใหม่?', 'ยืนยันการล้างข้อมูล');
     if (!doubleCheck) return;
 
-    const res = await calcBMR('🎯 ตั้งค่าน้ำหนักและเป้าหมายใหม่', true);
+    const res = await calcBMR(' ตั้งค่าน้ำหนักและเป้าหมายใหม่', true);
     if (!res) return;
 
     const { w, bmr, tdee, targetCal, targetPro } = res;
@@ -347,7 +347,7 @@ const IF_PLANS_CATALOG = [
         goal: 14, eat: 10,
         name: '14:10',
         desc: 'ช่วงอดอาหารแบบเบา',
-        icon: '🍲',
+        icon: '',
         clockColor: '#fde047',
         bowlColor: '#fef9c3'
     },
@@ -363,7 +363,7 @@ const IF_PLANS_CATALOG = [
         goal: 18, eat: 6,
         name: '18:6',
         desc: 'ช่วงอดอาหารที่นานขึ้น',
-        icon: '🥘',
+        icon: '',
         clockColor: '#f472b6',
         bowlColor: '#fce7f3'
     },
@@ -371,7 +371,7 @@ const IF_PLANS_CATALOG = [
         goal: 20, eat: 4,
         name: '20:4',
         desc: 'แผนอดอาหารขั้นสูง',
-        icon: '🥑',
+        icon: '',
         clockColor: '#c084fc',
         bowlColor: '#f3e8ff'
     }
@@ -383,7 +383,7 @@ function setIFGoal(hrs) {
     save();
     updateIFUI();
     if (currentUser && fbDb) pushToCloud();
-    if (typeof msg === 'function') msg('✓ ตั้งค่าเป้าหมาย IF เป็น ' + hrs + ':8 แล้ว');
+    if (typeof msg === 'function') msg(fcIcon('sparkles') + ' ตั้งค่าเป้าหมาย IF เป็น ' + hrs + ':8 แล้ว');
 }
 
 function endFastingSession(endTimeMs, durationHours) {
@@ -399,7 +399,7 @@ function endFastingSession(endTimeMs, durationHours) {
     if (currentUser && fbDb) pushToCloud();
     const h = Math.floor(dur);
     const m = Math.floor((dur % 1) * 60);
-    if (typeof msg === 'function') msg(`✓ สิ้นสุดการอดอาหาร (${h} ชม. ${m} นาที) เริ่มช่วงเวลารับประทานอาหาร`);
+    if (typeof msg === 'function') msg(`${fcIcon('sparkles')} สิ้นสุดการอดอาหาร (${h} ชม. ${m} นาที) เริ่มช่วงเวลารับประทานอาหาร`);
     updateIFUI();
 }
 window.endFastingSession = endFastingSession;
@@ -444,7 +444,7 @@ async function toggleIF() {
             }
         }
 
-        if (await fcConfirm(promptMsg, '⏹ สิ้นสุดการอดอาหาร')) {
+        if (await fcConfirm(promptMsg, fcIcon('sparkles') + ' สิ้นสุดการอดอาหาร')) {
             endFastingSession(customEndTime, customDuration);
         }
     } else {
@@ -457,7 +457,7 @@ async function toggleIF() {
         }
         save();
         if (currentUser && fbDb) pushToCloud();
-        if (typeof msg === 'function') msg('✓ เริ่มต้นจับเวลาการอดอาหารแล้ว');
+        if (typeof msg === 'function') msg(fcIcon('sparkles') + ' เริ่มต้นจับเวลาการอดอาหารแล้ว');
         updateIFUI();
     }
 }
@@ -569,7 +569,7 @@ function saveIfRollerTime() {
     updateIFUI();
     if (currentUser && fbDb) pushToCloud();
     closeIfModal('ifTimeModalSheet');
-    if (typeof msg === 'function') msg('✓ บันทึกเวลาเริ่มอดอาหารเป็น ' + formatThaiTime(targetDate) + ' น.');
+    if (typeof msg === 'function') msg(fcIcon('sparkles') + ' บันทึกเวลาเริ่มอดอาหารเป็น ' + formatThaiTime(targetDate) + ' น.');
 }
 
 function openIfNoticeModal() {
@@ -587,11 +587,11 @@ function openIfHistoryModal() {
     const goalHrs = (D && D.if && D.if.goal) ? D.if.goal : 16;
     fcAlert(`
         <div style="text-align:left; font-size:13.5px; line-height:1.6;">
-            <div style="font-size:16px; font-weight:900; color:#0f172a; margin-bottom:8px;">📋 ประวัติและสถิติ IF</div>
+            <div style="font-size:16px; font-weight:900; color:#0f172a; margin-bottom:8px;">${fcIcon('file-text')} ประวัติและสถิติ IF</div>
             <div style="background:#f8fafd; border-radius:12px; padding:12px; border:1px solid #e2e8f0; margin-bottom:10px;">
-                <div>🎯 <b>แผนปัจจุบัน:</b> IF ${goalHrs}:${24 - goalHrs}</div>
-                <div>⏱️ <b>สถานะล่าสุด:</b> ${D.if.start ? 'กำลังอดอาหาร' : 'ช่วงเวลารับประทาน (Feeding Window)'}</div>
-                <div>🔥 <b>การเผาผลาญไขมันตับ:</b> กำลังทำงานสมบูรณ์</div>
+                <div>${fcIcon('target')} <b>แผนปัจจุบัน:</b> IF ${goalHrs}:${24 - goalHrs}</div>
+                <div>${fcIcon('timer')} <b>สถานะล่าสุด:</b> ${D.if.start ? 'กำลังอดอาหาร' : 'ช่วงเวลารับประทาน (Feeding Window)'}</div>
+                <div>${fcIcon('flame')} <b>การเผาผลาญไขมันตับ:</b> กำลังทำงานสมบูรณ์</div>
             </div>
             <div style="font-size:12px; color:#64748b;">ระบบบันทึกเวลา IF และซิงก์ตรงกับ Google Cloud อัตโนมัติทุกรอบ</div>
         </div>
@@ -648,7 +648,7 @@ function updateIFUI() {
             speakCoach('ยินดีด้วยครับ คุณอดอาหารครบ ' + goalHrs + ' ชั่วโมงแล้ว เริ่มรับประทานอาหารได้ครับ');
             if ('Notification' in window && Notification.permission === 'granted') {
                 try {
-                    new Notification('🎉 FitCoach: อดอาหารครบเวลาแล้ว!', {
+                    new Notification(' FitCoach: อดอาหารครบเวลาแล้ว!', {
                         body: 'คุณอดอาหารครบ ' + goalHrs + ' ชั่วโมงแล้ว เริ่มช่วงเวลาทานอาหารได้เลยครับ',
                         icon: 'icon.svg'
                     });
@@ -693,7 +693,7 @@ function updateIFUI() {
         // Active Metabolic Stage Color & Live Status Badge
         const stageBadge = document.getElementById('ifStageStatusBadge');
         const stages = (typeof IF_METABOLIC_STAGES !== 'undefined') ? IF_METABOLIC_STAGES : null;
-        let activeStage = stages ? stages[0] : { num: 1, icon: '💧↓', badge: 'น้ำตาลและอินซูลินเริ่มลด', color: '#0284c7', bg: '#eff6ff', border: '#bfdbfe' };
+        let activeStage = stages ? stages[0] : { num: 1, icon: fcIcon('droplets') + '↓', badge: 'น้ำตาลและอินซูลินเริ่มลด', color: '#0284c7', bg: '#eff6ff', border: '#bfdbfe' };
         if (stages) {
             for (const st of stages) {
                 if (elapsedHours >= st.minH && elapsedHours < st.maxH) { activeStage = st; break; }
@@ -716,7 +716,7 @@ function updateIFUI() {
             stageBadge.style.background = activeStage.bg;
             stageBadge.style.color = activeStage.color;
             stageBadge.style.border = `1px solid ${activeStage.border}`;
-            stageBadge.textContent = `${activeStage.icon} ระยะที่ ${activeStage.num}: ${activeStage.badge}`;
+            stageBadge.innerHTML = `${activeStage.icon} ระยะที่ ${activeStage.num}: ${activeStage.badge}`;
         }
         if (bar) bar.style.width = (pct * 100) + '%';
 
@@ -724,7 +724,7 @@ function updateIFUI() {
         if (toggleBtn) {
             toggleBtn.classList.add('is-fasting');
             toggleBtn.style.background = '';
-            if (btnIcon) btnIcon.textContent = '⏹';
+            if (btnIcon) btnIcon.textContent = '';
             if (btnText) btnText.textContent = 'สิ้นสุดการอดอาหาร';
         }
 
@@ -756,7 +756,7 @@ function updateIFUI() {
                         <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
                             <div style="flex:1;">
                                 <div style="font-size:13px; font-weight:800; color:#dc2626; display:flex; align-items:center; gap:6px;">
-                                    <span>⚠️ ตรวจพบการทานอาหารแล้ว</span>
+                                    <span>${fcIcon('alert-triangle')} ตรวจพบการทานอาหารแล้ว</span>
                                     <span class="tag" style="background:#fee2e2; color:#b91c1c; font-size:10px; padding:1px 6px;">${fMeal.time || ''}</span>
                                 </div>
                                 <div style="font-size:11.5px; color:#475569; margin-top:3px; line-height:1.4;">
@@ -764,7 +764,7 @@ function updateIFUI() {
                                 </div>
                             </div>
                             <button type="button" class="btn sm" onclick="endFastingFromLoggedMeal()" style="background:#dc2626; color:#fff; border:none; border-radius:8px; font-size:11.5px; font-weight:800; padding:8px 12px; cursor:pointer; white-space:nowrap; box-shadow:0 2px 8px rgba(220,38,38,0.25);">
-                                ⏹ ตัดรอบ Fast (${durText})
+                                ${fcIcon('sparkles')} ตัดรอบ Fast (${durText})
                             </button>
                         </div>
                     </div>
@@ -834,7 +834,7 @@ function updateIFUI() {
             if (toggleBtn) {
                 toggleBtn.classList.remove('is-fasting');
                 toggleBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-                if (btnIcon) btnIcon.textContent = '▶';
+                if (btnIcon) btnIcon.textContent = '';
                 if (btnText) btnText.textContent = 'เริ่มอดอาหารรอบใหม่';
             }
             if (stText) stText.textContent = 'ช่วงเวลารับประทานอาหาร';
@@ -870,7 +870,7 @@ function updateIFUI() {
             if (toggleBtn) {
                 toggleBtn.classList.remove('is-fasting');
                 toggleBtn.style.background = '';
-                if (btnIcon) btnIcon.textContent = '▶';
+                if (btnIcon) btnIcon.textContent = '';
                 if (btnText) btnText.textContent = 'เริ่มอดอาหาร';
             }
 

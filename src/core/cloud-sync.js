@@ -43,13 +43,13 @@ function saveScannedToFavorites(portion) {
 
     const btn = document.getElementById('btnSaveFavCloud');
     if (btn) {
-        btn.textContent = '✓ อยู่ในคลังแล้ว';
+        btn.textContent = ' อยู่ในคลังแล้ว';
         btn.style.background = 'rgba(16,185,129,0.15)';
         btn.style.borderColor = '#10b981';
         btn.style.color = '#10b981';
         btn.onclick = null;
     }
-    msg('⭐ บันทึก "' + name + '" (เกรด ' + (newFav.nutriGrade || 'A') + ') ลงคลังเมนูโปรด & ซิงก์คลาวด์แล้ว');
+    msg(fcIcon('star') + ' บันทึก "' + name + '" (เกรด ' + (newFav.nutriGrade || 'A') + ') ลงคลังเมนูโปรด & ซิงก์คลาวด์แล้ว');
 }
 
 async function addNewCustomFavoriteFood() {
@@ -79,19 +79,19 @@ async function addNewCustomFavoriteFood() {
     setTimeout(() => {
         openAddMealModal();
         setFoodCategoryFilter('fav');
-        fcAlert('✓ เพิ่มเมนู "' + name + '" ลงในคลังคลาวด์เรียบร้อยแล้ว!');
+        fcAlert(fcIcon('sparkles') + ' เพิ่มเมนู "' + name + '" ลงในคลังคลาวด์เรียบร้อยแล้ว!');
     }, 300);
 }
 
 async function deleteFavoriteFood(id, event) {
     if (event) event.stopPropagation();
-    const confirmed = await fcConfirm('ต้องการลบเมนูนี้ออกจากคลังคลาวด์ใช่หรือไม่?', '🗑️ ยืนยันการลบ');
+    const confirmed = await fcConfirm('ต้องการลบเมนูนี้ออกจากคลังคลาวด์ใช่หรือไม่?', fcIcon('trash') + ' ยืนยันการลบ');
     if (!confirmed) return;
     D.cfg.savedFoods = (D.cfg.savedFoods || []).filter(f => f.id !== id);
     save();
     if (currentUser && fbDb) pushToCloud();
     filterFoodListUI();
-    msg('✓ ลบเมนูออกจากคลังเรียบร้อยแล้ว');
+    msg(fcIcon('sparkles') + ' ลบเมนูออกจากคลังเรียบร้อยแล้ว');
 }
 
 function quickLogSavedFood(id) {
@@ -108,7 +108,7 @@ function quickLogSavedFood(id) {
     };
     addMealToToday(mType, food.name, food.portion, food.cal, food.pro, food.carbs, food.fat, food.sugar || 0, food.sodium || 0, extraMeta);
     fcClose();
-    msg('✓ บันทึก "' + food.name + '" ลงในมื้อแล้ว');
+    msg(fcIcon('sparkles') + ' บันทึก "' + food.name + '" ลงในมื้อแล้ว');
 }
 
 window.saveAIFoodAsFavorite = function(name, cal, event) {
@@ -117,7 +117,7 @@ window.saveAIFoodAsFavorite = function(name, cal, event) {
     save();
     if (currentUser && fbDb) pushToCloud();
     if (event) {
-        event.target.textContent = '⭐ บันทึกลงเมนูโปรดแล้ว!';
+        event.target.textContent = ' บันทึกลงเมนูโปรดแล้ว!';
         event.target.style.color = 'var(--acc)';
         event.target.style.borderColor = 'var(--acc)';
         event.target.onclick = null;
@@ -186,30 +186,30 @@ function openWaterLogModal() {
             </div>
         </div>
 
-        <div style="font-size:12.5px; font-weight:700; color:var(--dim); margin-bottom:8px; text-align:left;">⚡ เลือกขนาดภาชนะที่ดื่ม (กดเพื่อบวกทันที):</div>
+        <div style="font-size:12.5px; font-weight:700; color:var(--dim); margin-bottom:8px; text-align:left;">${fcIcon('zap')} เลือกขนาดภาชนะที่ดื่ม (กดเพื่อบวกทันที):</div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
             <button class="btn sm" onclick="addWaterMl(250)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center; border-radius:12px;">
-                🥛 <b>+250 ml</b><br><span style="font-size:10.5px; color:var(--dim);">แก้วน้ำทั่วไป / กาแฟ</span>
+                ${fcIcon('droplets')} <b>+250 ml</b><br><span style="font-size:10.5px; color:var(--dim);">แก้วน้ำทั่วไป / กาแฟ</span>
             </button>
             <button class="btn sm" onclick="addWaterMl(350)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center; border-radius:12px;">
-                ☕ <b>+350 ml</b><br><span style="font-size:10.5px; color:var(--dim);">แก้วมัค / กระป๋อง</span>
+                ${fcIcon('flame')} <b>+350 ml</b><br><span style="font-size:10.5px; color:var(--dim);">แก้วมัค / กระป๋อง</span>
             </button>
             <button class="btn sm" onclick="addWaterMl(500)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center; border-radius:12px;">
-                🧴 <b>+500 ml</b><br><span style="font-size:10.5px; color:var(--dim);">ขวดน้ำเล็กมาตรฐาน</span>
+                ${fcIcon('sparkles')} <b>+500 ml</b><br><span style="font-size:10.5px; color:var(--dim);">ขวดน้ำเล็กมาตรฐาน</span>
             </button>
             <button class="btn sm" onclick="addWaterMl(600)" style="padding:10px 8px; font-size:12.5px; background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.3); color:var(--vio); text-align:center; border-radius:12px;">
-                🥤 <b>+600 ml</b><br><span style="font-size:10.5px; color:var(--dim);">แก้ว Tyeso / ขวด 600</span>
+                ${fcIcon('droplets')} <b>+600 ml</b><br><span style="font-size:10.5px; color:var(--dim);">แก้ว Tyeso / ขวด 600</span>
             </button>
             <button class="btn sm" onclick="addWaterMl(750)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center; border-radius:12px;">
-                🚴 <b>+750 ml</b><br><span style="font-size:10.5px; color:var(--dim);">กระบอกน้ำสปอร์ต</span>
+                ${fcIcon('sparkles')} <b>+750 ml</b><br><span style="font-size:10.5px; color:var(--dim);">กระบอกน้ำสปอร์ต</span>
             </button>
             <button class="btn sm" onclick="addWaterMl(1000)" style="padding:10px 8px; font-size:12.5px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:#059669; text-align:center; border-radius:12px;">
-                🍶 <b>+1,000 ml (1L)</b><br><span style="font-size:10.5px; color:var(--dim);">ขวดลิตร / Yeti ใหญ่</span>
+                ${fcIcon('sparkles')} <b>+1,000 ml (1L)</b><br><span style="font-size:10.5px; color:var(--dim);">ขวดลิตร / Yeti ใหญ่</span>
             </button>
         </div>
 
         <div style="border-top:1px solid var(--line); padding-top:12px; margin-top:8px;">
-            <div style="font-size:12.5px; font-weight:700; color:var(--dim); margin-bottom:8px; text-align:left;">✍️ หรือกรอกปริมาณที่ดื่ม (มล. / ml):</div>
+            <div style="font-size:12.5px; font-weight:700; color:var(--dim); margin-bottom:8px; text-align:left;">${fcIcon('pencil')} หรือกรอกปริมาณที่ดื่ม (มล. / ml):</div>
             <div style="display:flex; gap:8px; align-items:center;">
                 <div style="position:relative; flex:1; min-width:0;">
                     <input type="number" id="customWaterInput" step="50" min="10" max="5000" placeholder="เช่น 300 หรือ 450" 
@@ -235,15 +235,15 @@ function openWaterLogModal() {
         ${curWat > 0 ? `
         <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--line); padding-top:10px;">
             <button type="button" onclick="subtractWaterMl(250)" style="background:transparent; border:none; color:var(--dim); font-size:12px; cursor:pointer; padding:4px 6px;">↺ ลบออก 250 ml</button>
-            <button type="button" onclick="setWaterTotal(0)" style="background:transparent; border:none; color:var(--red); font-size:12px; cursor:pointer; padding:4px 6px;">🗑️ ล้างเป็น 0</button>
+            <button type="button" onclick="setWaterTotal(0)" style="background:transparent; border:none; color:var(--red); font-size:12px; cursor:pointer; padding:4px 6px;"> ล้างเป็น 0</button>
         </div>` : ''}
 
         <div style="margin-top:14px; text-align:center;">
-            <button type="button" onclick="fcClose()" style="background:var(--card2); border:1px solid var(--line); color:var(--dim); font-size:13px; font-weight:700; padding:9px 24px; border-radius:99px; cursor:pointer; width:100%;">✕ ปิดหน้าต่าง</button>
+            <button type="button" onclick="fcClose()" style="background:var(--card2); border:1px solid var(--line); color:var(--dim); font-size:13px; font-weight:700; padding:9px 24px; border-radius:99px; cursor:pointer; width:100%;">${fcIcon('sparkles')} ปิดหน้าต่าง</button>
         </div>
     `;
 
-    fcAlert(html, '💧 บันทึกปริมาณน้ำดื่ม');
+    fcAlert(html, fcIcon('droplets') + ' บันทึกปริมาณน้ำดื่ม');
 }
 
 function setCustomWaterVal(val) {
@@ -269,7 +269,7 @@ function addWaterMl(ml) {
         pushToCloud();
     }
     fcClose();
-    msg('✓ ดื่มน้ำเพิ่ม +' + ml.toLocaleString() + ' ml แล้ว (รวมวันนี้: ' + rec.water.toLocaleString() + ' ml)');
+    msg(fcIcon('sparkles') + ' ดื่มน้ำเพิ่ม +' + ml.toLocaleString() + ' ml แล้ว (รวมวันนี้: ' + rec.water.toLocaleString() + ' ml)');
 }
 
 function subtractWaterMl(ml) {
@@ -282,7 +282,7 @@ function subtractWaterMl(ml) {
             pushToCloud();
         }
         fcClose();
-        msg('✓ หักลบน้ำดื่ม -' + ml + ' ml แล้ว (เหลือ: ' + rec.water.toLocaleString() + ' ml)');
+        msg(fcIcon('sparkles') + ' หักลบน้ำดื่ม -' + ml + ' ml แล้ว (เหลือ: ' + rec.water.toLocaleString() + ' ml)');
     }
 }
 
@@ -296,7 +296,7 @@ function setWaterTotal(val) {
             pushToCloud();
         }
         fcClose();
-        msg('✓ ปรับค่าน้ำดื่มเป็น ' + val + ' ml แล้ว');
+        msg(fcIcon('sparkles') + ' ปรับค่าน้ำดื่มเป็น ' + val + ' ml แล้ว');
     }
 }
 
@@ -321,12 +321,12 @@ async function quickAdd(type) {
         const allFoods = [...(D.cfg.myFoods || []), ...TF];
         
         const html = `<div style="display:flex; gap:8px; margin-bottom:10px;">
-            <button class="btn" style="flex:1; border:1px solid var(--acc); background:transparent; color:var(--acc); font-size:13px; padding:8px;" onclick="aiFoodScanner('image')">📸 ถ่ายรูปให้ AI ดู</button>
-            <button class="btn" style="flex:1; border:1px solid var(--acc); background:transparent; color:var(--acc); font-size:13px; padding:8px;" onclick="aiFoodScanner('text')">💬 พิมพ์บอก AI</button>
+            <button class="btn" style="flex:1; border:1px solid var(--acc); background:transparent; color:var(--acc); font-size:13px; padding:8px;" onclick="aiFoodScanner('image')">${fcIcon('camera')} ถ่ายรูปให้ AI ดู</button>
+            <button class="btn" style="flex:1; border:1px solid var(--acc); background:transparent; color:var(--acc); font-size:13px; padding:8px;" onclick="aiFoodScanner('text')">${fcIcon('sparkles')} พิมพ์บอก AI</button>
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <div style="font-size:12px; color:var(--dim); text-align:left;">เมนูประจำ:</div>
-            <button class="btn" style="padding:4px 8px; font-size:12px; border:1px solid var(--line); background:transparent; color:var(--tx);" onclick="addCustomFood()">➕ เพิ่มของโปรด</button>
+            <button class="btn" style="padding:4px 8px; font-size:12px; border:1px solid var(--line); background:transparent; color:var(--tx);" onclick="addCustomFood()">${fcIcon('plus')} เพิ่มของโปรด</button>
         </div>
         <div style="text-align:left; font-size:14px; max-height:220px; overflow-y:auto; margin-bottom:10px; border:1px solid var(--line); border-radius:8px; padding:4px;">
             ${allFoods.map((f, i) => `<div onclick="document.getElementById('fcInput').value='${f.c}'; document.getElementById('fcOk').click();" style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid var(--line); cursor:pointer;">
@@ -516,10 +516,10 @@ function toggleKeyVisibility(inputId, btnEl) {
     if (!inp) return;
     if (inp.type === 'password') {
         inp.type = 'text';
-        if (btnEl) btnEl.textContent = '🔒 ซ่อนคีย์';
+        if (btnEl) btnEl.textContent = ' ซ่อนคีย์';
     } else {
         inp.type = 'password';
-        if (btnEl) btnEl.textContent = '👁️ แสดงคีย์';
+        if (btnEl) btnEl.textContent = ' แสดงคีย์';
     }
 }
 
@@ -532,7 +532,7 @@ function saveCfg() {
         save();
         autoSync();
         renderAiQuotaWidget();
-        fcAlert('✓ บันทึก Gemini API Key ลงเครื่องและซิงก์เข้า Firebase เรียบร้อยแล้ว!');
+        fcAlert(fcIcon('sparkles') + ' บันทึก Gemini API Key ลงเครื่องและซิงก์เข้า Firebase เรียบร้อยแล้ว!');
     }
 }
 
@@ -557,7 +557,7 @@ async function testGeminiKey(keyType = 'primary') {
         statusBox.className = 'ai-key-status-box loading';
         statusBox.innerHTML = `
             <div style="display:flex; align-items:center; gap:8px;">
-                <span class="ai-spin">⏳</span>
+                <span class="ai-spin">${fcIcon('clock')}</span>
                 <span>กำลังเชื่อมต่อทดสอบกับ Google Generative Language API (${keyType === 'backup' ? 'คีย์สำรอง' : 'คีย์หลัก'})...</span>
             </div>
         `;
@@ -580,7 +580,7 @@ async function testGeminiKey(keyType = 'primary') {
                 statusBox.className = 'ai-key-status-box ok';
                 statusBox.innerHTML = `
                     <div style="font-weight:800; font-size:12.5px; color:#059669; display:flex; align-items:center; gap:6px;">
-                        <span>🟢 คีย์ถูกต้องและพร้อมใช้งาน 100%!</span>
+                        <span>${fcIcon('check-circle')} คีย์ถูกต้องและพร้อมใช้งาน 100%!</span>
                         <span style="font-size:11px; font-weight:700; background:#dcfce7; color:#15803d; padding:2px 7px; border-radius:99px;">Ping ${latency}ms</span>
                     </div>
                     <div style="font-size:11.5px; color:#334155; margin-top:4px; line-height:1.4;">
@@ -596,7 +596,7 @@ async function testGeminiKey(keyType = 'primary') {
                 statusBox.className = 'ai-key-status-box warn';
                 statusBox.innerHTML = `
                     <div style="font-weight:800; font-size:12.5px; color:#d97706;">
-                        🟡 โควต้าชนเพดานชั่วคราว (429 Rate Limit / Quota Exhausted)
+                        ${fcIcon('alert-triangle')} โควต้าชนเพดานชั่วคราว (429 Rate Limit / Quota Exhausted)
                     </div>
                     <div style="font-size:11.5px; color:#475569; margin-top:4px; line-height:1.4;">
                         คำขอเกินเพดาน 15 ครั้ง/นาที (RPM) หรือครบ 1,500 ครั้ง/วัน (RPD) แนะนำให้รอ 1 นาที หรือสลับใช้คีย์สำรอง
@@ -608,7 +608,7 @@ async function testGeminiKey(keyType = 'primary') {
                 statusBox.className = 'ai-key-status-box error';
                 statusBox.innerHTML = `
                     <div style="font-weight:800; font-size:12.5px; color:#dc2626;">
-                        🔴 คีย์ไม่ถูกต้องหรือไม่มีสิทธิ์ใช้งาน (HTTP ${resp.status} Invalid API Key)
+                        ${fcIcon('alert-triangle')} คีย์ไม่ถูกต้องหรือไม่มีสิทธิ์ใช้งาน (HTTP ${resp.status} Invalid API Key)
                     </div>
                     <div style="font-size:11.5px; color:#475569; margin-top:4px; line-height:1.4;">
                         กรุณาตรวจสอบว่าคัดลอกคีย์มาครบถ้วน (ขึ้นต้นด้วย AIzaSy...) หรือสร้างคีย์ใหม่ใน Google AI Studio
@@ -621,7 +621,7 @@ async function testGeminiKey(keyType = 'primary') {
                 statusBox.className = 'ai-key-status-box warn';
                 statusBox.innerHTML = `
                     <div style="font-weight:800; font-size:12.5px; color:#d97706;">
-                        ⚠️ ผลการทดสอบ: HTTP ${resp.status}
+                        ${fcIcon('alert-triangle')} ผลการทดสอบ: HTTP ${resp.status}
                     </div>
                     <div style="font-size:11px; color:#475569; margin-top:2px;">${errTxt.substring(0, 100)}</div>
                 `;
@@ -632,7 +632,7 @@ async function testGeminiKey(keyType = 'primary') {
             statusBox.className = 'ai-key-status-box error';
             statusBox.innerHTML = `
                 <div style="font-weight:800; font-size:12.5px; color:#dc2626;">
-                    ⚠️ ไม่สามารถเชื่อมต่อกับ Google ได้
+                    ${fcIcon('alert-triangle')} ไม่สามารถเชื่อมต่อกับ Google ได้
                 </div>
                 <div style="font-size:11.5px; color:#475569; margin-top:2px;">
                     กรุณาตรวจสอบสัญญาณอินเทอร์เน็ต (${netErr.message})
@@ -652,7 +652,7 @@ function renderAiQuotaWidget() {
         <div style="background:#f8fafd; border:1px solid #e2e8f0; border-radius:12px; padding:12px; margin-top:10px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="font-size:14px;">📊</span>
+                    <span style="font-size:14px;">${fcIcon('bar-chart')}</span>
                     <span style="font-size:12.5px; font-weight:800; color:#0f172a;">สถิติการใช้งาน & โควต้าวันนี้</span>
                 </div>
                 <span style="font-size:11px; font-weight:800; color:${u.remaining > 50 ? '#059669' : '#d97706'}; background:${u.remaining > 50 ? '#ecfdf5' : '#fffbeb'}; padding:2px 8px; border-radius:99px; border:1px solid ${u.remaining > 50 ? '#a7f3d0' : '#fde68a'};">
@@ -662,7 +662,7 @@ function renderAiQuotaWidget() {
 
             <!-- Active Model Badge -->
             <div style="display:flex; align-items:center; gap:6px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:6px 10px; margin-bottom:10px; font-size:11.5px; color:#1d4ed8; font-weight:700;">
-                <span>⚡ โมเดลหลัก: <b>Gemini 3.1 Flash Lite</b> (โควต้าสูงสุด 500 ครั้ง/วัน)</span>
+                <span>${fcIcon('zap')} โมเดลหลัก: <b>Gemini 3.1 Flash Lite</b> (โควต้าสูงสุด 500 ครั้ง/วัน)</span>
             </div>
 
             <!-- Progress Bar -->
@@ -693,7 +693,7 @@ function renderAiQuotaWidget() {
             <!-- External Link Button -->
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
                 <a href="https://aistudio.google.com/app/plan_information" target="_blank" rel="noopener" style="flex:1; min-width:180px; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px; background:#ffffff; color:#1e293b; border:1px solid #cbd5e1; font-size:11.5px; font-weight:700; padding:8px 10px; border-radius:8px; cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,0.04);">
-                    <span>📊 ดูโควต้าจริงบน Google AI Studio</span>
+                    <span>${fcIcon('bar-chart')} ดูโควต้าจริงบน Google AI Studio</span>
                     <span style="font-size:11px; color:#64748b;">↗</span>
                 </a>
             </div>
@@ -720,7 +720,7 @@ function renderAuthUI() {
                 </div>
             </div>
             <div style="margin-top:12px; padding:9px 12px; background:rgba(16,185,129,0.12); border-radius:10px; display:flex; align-items:center; gap:8px; font-size:13px; color:#059669; font-weight:600;">
-                <span style="font-size:16px; line-height:1;">●</span> เชื่อมต่อ Google สำเร็จแล้ว
+                <span style="font-size:16px; line-height:1;">${fcIcon('sparkles')}</span> เชื่อมต่อ Google สำเร็จแล้ว
             </div>
             <div class="sub" id="syncMsg" style="margin-top:8px; font-size:12px;">ซิงก์ข้อมูลอัตโนมัติ</div>
             <div class="g2" style="margin-top:12px;">
@@ -743,7 +743,7 @@ function renderAuthUI() {
             <div class="sub" id="syncMsg" style="margin-top:12px; font-size:12.5px; text-align:center;">ยังไม่ได้เชื่อมต่อบัญชี</div>
         `;
         if (userBadge) {
-            userBadge.innerHTML = `<span style="font-size:11px; font-weight:700; padding:3px 8px; border-radius:99px; background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe; display:inline-flex; align-items:center; gap:3px;">🔑 ล็อกอิน</span>`;
+            userBadge.innerHTML = `<span style="font-size:11px; font-weight:700; padding:3px 8px; border-radius:99px; background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe; display:inline-flex; align-items:center; gap:3px;">${fcIcon('sparkles')} ล็อกอิน</span>`;
             userBadge.style.display = 'inline-flex';
         }
     }
@@ -869,7 +869,7 @@ function mergeCloudData(cloud) {
         const timeStr = typeof formatThaiTime === 'function' ? formatThaiTime(new Date()) : new Date().toLocaleTimeString('th-TH');
         lastCloudSyncTime = timeStr;
         updateCloudSyncPill('synced');
-        msg('<span style="color:#10b981;font-weight:600;">✓ โหลดข้อมูลคลาวด์ล่าสุดเรียบร้อย (' + timeStr + ' น.)</span>');
+        msg('<span style="color:#10b981;font-weight:600;">' + fcIcon('sparkles') + ' โหลดข้อมูลคลาวด์ล่าสุดเรียบร้อย (' + timeStr + ' น.)</span>');
         return;
     }
 
@@ -1095,7 +1095,7 @@ async function handleCloudSyncPillClick() {
     if (ok) {
         lastCloudSyncTime = typeof formatThaiTime === 'function' ? formatThaiTime(new Date()) : new Date().toLocaleTimeString('th-TH');
         updateCloudSyncPill('synced');
-        msg('✓ ซิงก์คลาวด์สำเร็จ (' + lastCloudSyncTime + ' น.)');
+        msg(fcIcon('sparkles') + ' ซิงก์คลาวด์สำเร็จ (' + lastCloudSyncTime + ' น.)');
     } else {
         updateCloudSyncPill('dirty');
     }
@@ -1145,13 +1145,13 @@ async function pushToCloud() {
         const timeStr = typeof formatThaiTime === 'function' ? formatThaiTime(new Date()) : new Date().toLocaleTimeString('th-TH');
         lastCloudSyncTime = timeStr;
         updateCloudSyncPill('synced');
-        msg(`<span style="color:#10b981;font-weight:600;">✓ ซิงก์สมบูรณ์เวลา ${timeStr} น.</span>`);
+        msg(`<span style="color:#10b981;font-weight:600;">${fcIcon('sparkles')} ซิงก์สมบูรณ์เวลา ${timeStr} น.</span>`);
         return true;
     } catch (err) {
         console.error("Cloud push error:", err);
         updateCloudSyncPill('dirty');
         if (err.code === 'permission-denied' || (err.message && err.message.includes('permission'))) {
-            msg('⚠️ ซิงก์ไม่สำเร็จ: ยังไม่ได้ตั้งค่า Rules ใน Firestore');
+            msg(fcIcon('alert-triangle') + ' ซิงก์ไม่สำเร็จ: ยังไม่ได้ตั้งค่า Rules ใน Firestore');
         } else {
             msg('<span style="color:#ef4444;font-weight:600;">ซิงก์ขัดข้อง: ' + (err.message || 'ไม่สามารถบันทึกข้อมูลได้') + '</span>');
         }
@@ -1176,12 +1176,12 @@ function autoSync() {
 
 async function syncNow() {
     if (!currentUser) return fcAlert('กรุณาเข้าสู่ระบบ Google ก่อนทำการซิงก์');
-    msg('<span style="color:var(--warn);font-weight:600;">⏳ กำลังซิงก์ข้อมูล...</span>');
+    msg('<span style="color:var(--warn);font-weight:600;">' + fcIcon('clock') + ' กำลังซิงก์ข้อมูล...</span>');
     const ok = await pushToCloud();
     if (ok) {
-        fcAlert('✓ ซิงก์ข้อมูลขึ้น Google Cloud เรียบร้อยแล้ว!');
+        fcAlert(fcIcon('sparkles') + ' ซิงก์ข้อมูลขึ้น Google Cloud เรียบร้อยแล้ว!');
     } else {
-        fcAlert('⚠️ ซิงก์ไม่สำเร็จ กรุณาดูรายละเอียดที่ข้อความแจ้งเตือนสีแดงด้านล่างปุ่ม');
+        fcAlert(fcIcon('alert-triangle') + ' ซิงก์ไม่สำเร็จ กรุณาดูรายละเอียดที่ข้อความแจ้งเตือนสีแดงด้านล่างปุ่ม');
     }
 }
 
@@ -1218,7 +1218,7 @@ if (fbAuth) {
                 } else {
                     // Only brand-new users without a Firestore doc push initial baseline
                     await pushToCloud();
-                    msg('✓ สร้างฐานข้อมูล Cloud ใหม่เรียบร้อย');
+                    msg(fcIcon('sparkles') + ' สร้างฐานข้อมูล Cloud ใหม่เรียบร้อย');
                 }
 
                 if (fbUnsubscribe) fbUnsubscribe();
@@ -1230,7 +1230,7 @@ if (fbAuth) {
             } catch (err) {
                 console.error("Auth state handling error:", err);
                 if (err.code === 'permission-denied' || (err.message && err.message.includes('permission'))) {
-                    msg('⚠️ ยังไม่ได้ตั้งค่า Rules ใน Firestore: ไปที่ Firebase Console > Firestore Database > Rules');
+                    msg(fcIcon('alert-triangle') + ' ยังไม่ได้ตั้งค่า Rules ใน Firestore: ไปที่ Firebase Console > Firestore Database > Rules');
                 } else {
                     msg('ดึงข้อมูลไม่สำเร็จ: ' + err.message.slice(0, 100));
                 }
@@ -1264,21 +1264,21 @@ function updatePushStatusUI() {
 
     const status = getNotificationPermissionStatus();
     if (status === 'granted') {
-        badge.textContent = 'เปิดใช้งานแล้ว ✓';
+        badge.textContent = 'เปิดใช้งานแล้ว ';
         badge.style.background = '#d1fae5';
         badge.style.color = '#047857';
         if (btn) {
-            btn.innerHTML = '<span>✓ เปิดแจ้งเตือนแล้ว</span>';
+            btn.innerHTML = '<span> เปิดแจ้งเตือนแล้ว</span>';
             btn.style.background = '#059669';
             btn.disabled = true;
             btn.style.opacity = '0.85';
         }
     } else if (status === 'denied') {
-        badge.textContent = 'ถูกบล็อกในเบราว์เซอร์ ✕';
+        badge.textContent = 'ถูกบล็อกในเบราว์เซอร์ ';
         badge.style.background = '#fee2e2';
         badge.style.color = '#991b1b';
         if (btn) {
-            btn.innerHTML = '<span>⚙️ ถูกปิดกั้นในสิทธิ์เบราว์เซอร์</span>';
+            btn.innerHTML = '<span> ถูกปิดกั้นในสิทธิ์เบราว์เซอร์</span>';
             btn.style.background = '#64748b';
         }
     } else {
@@ -1286,7 +1286,7 @@ function updatePushStatusUI() {
         badge.style.background = '#fef3c7';
         badge.style.color = '#b45309';
         if (btn) {
-            btn.innerHTML = '<span>🔔 เปิดรับการแจ้งเตือน</span>';
+            btn.innerHTML = '<span> เปิดรับการแจ้งเตือน</span>';
             btn.style.background = '#10b981';
             btn.disabled = false;
             btn.style.opacity = '1';
@@ -1307,11 +1307,11 @@ async function requestPushNotificationPermission() {
         if (perm === 'granted') {
             await initFcmPushMessaging();
             if (typeof fcAlert === 'function') {
-                fcAlert('✓ เปิดรับการแจ้งเตือนสำเร็จ! ระบบพร้อมเตือนชั่งน้ำหนักและสัดส่วนทุกเช้าครับ');
+                fcAlert(fcIcon('sparkles') + ' เปิดรับการแจ้งเตือนสำเร็จ! ระบบพร้อมเตือนชั่งน้ำหนักและสัดส่วนทุกเช้าครับ');
             }
         } else if (perm === 'denied') {
             if (typeof fcAlert === 'function') {
-                fcAlert('สิทธิ์การแจ้งเตือนถูกปฏิเสธ หากต้องการเปิด กรุณากดรูปแม่กุญแจ 🔒 ที่แถบ URL ของเบราว์เซอร์เพื่ออนุญาตการแจ้งเตือนครับ');
+                fcAlert('สิทธิ์การแจ้งเตือนถูกปฏิเสธ หากต้องการเปิด กรุณากดรูปแม่กุญแจ ' + fcIcon('lock') + ' ที่แถบ URL ของเบราว์เซอร์เพื่ออนุญาตการแจ้งเตือนครับ');
             }
         }
     } catch (e) {
@@ -1387,7 +1387,7 @@ async function sendTestNotificationNow() {
     }
 
     if (Notification.permission !== 'granted') {
-        const ok = await fcConfirm('ต้องเปิดรับสิทธิ์การแจ้งเตือนก่อนส่งทดสอบ ต้องการเปิดสิทธิ์ทันทีใช่หรือไม่?', '🔔 ขอสิทธิ์การแจ้งเตือน');
+        const ok = await fcConfirm('ต้องเปิดรับสิทธิ์การแจ้งเตือนก่อนส่งทดสอบ ต้องการเปิดสิทธิ์ทันทีใช่หรือไม่?', fcIcon('bell') + ' ขอสิทธิ์การแจ้งเตือน');
         if (ok) await requestPushNotificationPermission();
         if (Notification.permission !== 'granted') return;
     }
@@ -1395,7 +1395,7 @@ async function sendTestNotificationNow() {
     try {
         const reg = await navigator.serviceWorker.ready;
         const isSunday = (new Date().getDay() === 0);
-        const testTitle = isSunday ? '📏 รอบวัดสัดส่วนประจำสัปดาห์ (ทดสอบ)' : '🌅 ได้เวลาชั่งน้ำหนักยามเช้า (ทดสอบ)';
+        const testTitle = isSunday ? ' รอบวัดสัดส่วนประจำสัปดาห์ (ทดสอบ)' : ' ได้เวลาชั่งน้ำหนักยามเช้า (ทดสอบ)';
         const testBody = isSunday 
             ? 'เช้าวันอาทิตย์: แตะเพื่อเปิดสายวัดสัดส่วนรอบเอว รอบอก รอบสะโพกทันที'
             : 'ชั่งน้ำหนักหลังตื่นนอนและปัสสาวะ เพื่อผลลัพธ์ที่แม่นยำที่สุด แตะเพื่อบันทึกทันที';
@@ -1411,16 +1411,16 @@ async function sendTestNotificationNow() {
                 url: `./index.html?action=${testAction}`
             },
             actions: [
-                { action: 'open', title: '✍️ บันทึกทันที' },
-                { action: 'snooze', title: '⏰ เลื่อน 15 นาที' }
+                { action: 'open', title: fcIcon('pencil') + ' บันทึกทันที' },
+                { action: 'snooze', title: fcIcon('clock') + ' เลื่อน 15 นาที' }
             ]
         });
 
-        if (typeof msg === 'function') msg('✓ ส่งการแจ้งเตือนทดสอบเข้ามือถือเรียบร้อยแล้ว');
+        if (typeof msg === 'function') msg(fcIcon('sparkles') + ' ส่งการแจ้งเตือนทดสอบเข้ามือถือเรียบร้อยแล้ว');
     } catch (err) {
         console.warn('Test notification error:', err);
         // Fallback for environments without ServiceWorker showNotification
-        new Notification('🌅 ได้เวลาชั่งน้ำหนักยามเช้า (FitCoach)', {
+        new Notification(' ได้เวลาชั่งน้ำหนักยามเช้า (FitCoach)', {
             body: 'ระบบแจ้งเตือนทำงานได้สมบูรณ์แบบบนอุปกรณ์ของคุณ!',
             icon: './icon.svg'
         });
@@ -1534,7 +1534,7 @@ function renderWearablesSyncUI() {
                 <h3 style="margin:0; font-size:16px; font-weight:800; color:var(--tx);">อุปกรณ์สุขภาพ & เครื่องชั่ง</h3>
             </div>
             <span style="font-size:11px; font-weight:800; padding:3px 10px; border-radius:99px; ${!isConn ? 'background:#f1f5f9; color:#64748b;' : hasValidToken ? 'background:#d1fae5; color:#047857;' : 'background:#fef3c7; color:#d97706;'}">
-                ${!isConn ? '⚪ ยังไม่เชื่อมต่อ' : hasValidToken ? '🟢 เชื่อมต่อแล้ว ✓' : '🟡 สิทธิ์หมดอายุ (แตะต่ออายุ)'}
+                ${!isConn ? ' ยังไม่เชื่อมต่อ' : hasValidToken ? ' เชื่อมต่อแล้ว ' : ' สิทธิ์หมดอายุ (แตะต่ออายุ)'}
             </span>
         </div>
         <div style="font-size:12px; color:var(--dim); line-height:1.4; margin-bottom:12px;">
@@ -1546,12 +1546,12 @@ function renderWearablesSyncUI() {
             <!-- Garmin Box -->
             <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 12px;">
                 <div style="display:flex; align-items:center; gap:5px; margin-bottom:6px;">
-                    <span style="font-size:14px;">🏃</span>
+                    <span style="font-size:14px;">${fcIcon('footprints')}</span>
                     <span style="font-size:12px; font-weight:800; color:var(--tx);">Garmin Connect</span>
                 </div>
                 <div style="font-size:11px; color:var(--dim); display:flex; justify-content:space-between; align-items:center;">
                     <span>ก้าวเดิน: <b style="color:#00c070; font-size:13px;">${Number(curSteps).toLocaleString()}</b> ก้าว</span>
-                    <button type="button" onclick="logDailySteps()" style="background:none; border:none; cursor:pointer; font-size:12px; padding:2px;" title="แตะเพื่อแก้ไขจำนวนก้าว">✏️</button>
+                    <button type="button" onclick="logDailySteps()" style="background:none; border:none; cursor:pointer; font-size:12px; padding:2px;" title="แตะเพื่อแก้ไขจำนวนก้าว">${fcIcon('pencil')}</button>
                 </div>
                 <div style="font-size:11px; color:var(--dim); margin-top:2px;">
                     คาร์ดิโอ: <b style="color:var(--tx);">${curCardio} นาที</b>
@@ -1564,18 +1564,18 @@ function renderWearablesSyncUI() {
             <!-- Zepp Life Box -->
             <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 12px;">
                 <div style="display:flex; align-items:center; gap:5px; margin-bottom:6px;">
-                    <span style="font-size:14px;">⚖️</span>
+                    <span style="font-size:14px;">${fcIcon('scale')}</span>
                     <span style="font-size:12px; font-weight:800; color:var(--tx);">Zepp Life Scale</span>
                 </div>
                 <div style="font-size:11px; color:var(--dim); display:flex; justify-content:space-between; align-items:center;">
                     <span>น้ำหนัก: <b style="color:#00c070; font-size:13px;">${(+curWeight).toFixed(1)}</b> กก.</span>
-                    <button type="button" onclick="openMorningWeighInModal()" style="background:none; border:none; cursor:pointer; font-size:12px; padding:2px;" title="แตะเพื่อแก้ไขน้ำหนัก">✏️</button>
+                    <button type="button" onclick="openMorningWeighInModal()" style="background:none; border:none; cursor:pointer; font-size:12px; padding:2px;" title="แตะเพื่อแก้ไขน้ำหนัก">${fcIcon('pencil')}</button>
                 </div>
                 <div style="font-size:11px; color:var(--dim); margin-top:2px;">
                     ไขมัน: <b style="color:var(--tx);">${curBf}%</b>
                 </div>
                 <div style="font-size:10px; color:#10b981; font-weight:700; margin-top:4px;">
-                    ✓ Xiaomi Scale Sync
+                    ${fcIcon('sparkles')} Xiaomi Scale Sync
                 </div>
             </div>
         </div>
@@ -1588,18 +1588,18 @@ function renderWearablesSyncUI() {
         <div style="display:flex; gap:8px;">
             ${!isConn ? `
                 <button type="button" class="btn sm" onclick="connectGoogleFit()" style="flex:1; background:#00c070; color:#fff; font-weight:800; border-radius:8px; padding:10px; border:none; display:flex; align-items:center; justify-content:center; gap:6px;">
-                    <span>🔗 เชื่อมต่อ Google Fit (Garmin & Zepp)</span>
+                    <span> เชื่อมต่อ Google Fit (Garmin & Zepp)</span>
                 </button>
             ` : !hasValidToken ? `
                 <button type="button" class="btn sm" onclick="connectGoogleFit()" style="flex:1; background:#f59e0b; color:#fff; font-weight:800; border-radius:8px; padding:10px; border:none; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 2px 8px rgba(245,158,11,0.25);">
-                    <span>🔑 แตะเพื่อต่ออายุ Google Fit ทันที</span>
+                    <span> แตะเพื่อต่ออายุ Google Fit ทันที</span>
                 </button>
                 <button type="button" class="btn sm g" onclick="disconnectGoogleFit()" style="font-size:11px; padding:9px 12px; border-radius:8px;">
                     ตัดการเชื่อมต่อ
                 </button>
             ` : `
                 <button type="button" class="btn sm" onclick="syncGoogleFitData(false)" style="flex:1; background:#00c070; color:#fff; font-weight:800; border-radius:8px; padding:9px; border:none; display:flex; align-items:center; justify-content:center; gap:6px;">
-                    <span>🔄 ซิงก์ Garmin & Zepp เดี๋ยวนี้</span>
+                    <span> ซิงก์ Garmin & Zepp เดี๋ยวนี้</span>
                 </button>
                 <button type="button" class="btn sm g" onclick="disconnectGoogleFit()" style="font-size:11px; padding:9px 12px; border-radius:8px;">
                     ตัดการเชื่อมต่อ
@@ -1654,7 +1654,7 @@ async function connectGoogleFit() {
         await syncGoogleFitData(false);
 
         if (typeof fcAlert === 'function') {
-            fcAlert('✓ เชื่อมต่อ Google Fit สำเร็จ! ระบบจะดึงก้าวเดินจาก Garmin และน้ำหนักจาก Zepp Life อัตโนมัติครับ');
+            fcAlert(fcIcon('sparkles') + ' เชื่อมต่อ Google Fit สำเร็จ! ระบบจะดึงก้าวเดินจาก Garmin และน้ำหนักจาก Zepp Life อัตโนมัติครับ');
         }
     } catch (err) {
         console.error('Google Fit connect error:', err);
@@ -1687,12 +1687,12 @@ async function syncGoogleFitData(silent = false) {
         if (!silent) {
             fcAlert(`
                 <div style="text-align:left; font-size:13.5px; line-height:1.5;">
-                    <div style="font-size:16px; font-weight:900; color:#d97706; margin-bottom:8px;">🔑 สิทธิ์ Google Fit หมดอายุ</div>
+                    <div style="font-size:16px; font-weight:900; color:#d97706; margin-bottom:8px;">${fcIcon('sparkles')} สิทธิ์ Google Fit หมดอายุ</div>
                     <div style="background:var(--card2); border-radius:10px; padding:10px 12px; margin-bottom:10px; border:1px solid var(--line);">
                         Google กำหนดให้ Access Token หมดอายุทุก 60 นาที เพื่อความปลอดภัยของข้อมูลสุขภาพ Garmin & Zepp Life
                     </div>
                     <div style="margin-bottom:14px;">กรุณากดปุ่มสีส้มด้านล่างเพื่อต่ออายุสิทธิ์เข้าถึง Google Fit ครับ</div>
-                    <button type="button" class="btn sm" onclick="fcClose(); connectGoogleFit();" style="background:#f59e0b; color:#fff; font-weight:800; padding:10px; border-radius:8px;">🔑 แตะเพื่อต่ออายุเดี๋ยวนี้</button>
+                    <button type="button" class="btn sm" onclick="fcClose(); connectGoogleFit();" style="background:#f59e0b; color:#fff; font-weight:800; padding:10px; border-radius:8px;">${fcIcon('sparkles')} แตะเพื่อต่ออายุเดี๋ยวนี้</button>
                 </div>
             `);
         }
@@ -1742,11 +1742,11 @@ async function syncGoogleFitData(silent = false) {
                 if (!silent) {
                     fcAlert(`
                         <div style="text-align:left; font-size:13.5px; line-height:1.5;">
-                            <div style="font-size:16px; font-weight:900; color:#d97706; margin-bottom:8px;">🔑 เซสชัน Google Fit หมดอายุ</div>
+                            <div style="font-size:16px; font-weight:900; color:#d97706; margin-bottom:8px;">${fcIcon('sparkles')} เซสชัน Google Fit หมดอายุ</div>
                             <div style="background:var(--card2); border-radius:10px; padding:10px 12px; margin-bottom:10px; border:1px solid var(--line);">
                                 โทเคน Google มีอายุ 60 นาที กรุณากดปุ่มด้านล่างเพื่อเชื่อมต่อใหม่ ระบบจะดึงก้าวเดินจาก Garmin ทันที
                             </div>
-                            <button type="button" class="btn sm" onclick="fcClose(); connectGoogleFit();" style="background:#f59e0b; color:#fff; font-weight:800; padding:10px; border-radius:8px;">🔑 แตะเพื่อต่ออายุ Google Fit ทันที</button>
+                            <button type="button" class="btn sm" onclick="fcClose(); connectGoogleFit();" style="background:#f59e0b; color:#fff; font-weight:800; padding:10px; border-radius:8px;">${fcIcon('sparkles')} แตะเพื่อต่ออายุ Google Fit ทันที</button>
                         </div>
                     `);
                 }
@@ -1827,8 +1827,8 @@ async function syncGoogleFitData(silent = false) {
             if (fetchedRhr != null) summaryParts.push(`${fcIcon('heart-pulse')} RHR ${rec.hrv} bpm`);
 
             const msgText = summaryParts.length > 0 
-                ? `✓ ซิงก์สำเร็จ!\n\n${summaryParts.join('\n')}` 
-                : '✓ ตรวจสอบข้อมูลล่าสุดเรียบร้อยแล้ว (ไม่มีข้อมูลใหม่)';
+                ? `${fcIcon('sparkles')} ซิงก์สำเร็จ!\n\n${summaryParts.join('\n')}` 
+                : ' ตรวจสอบข้อมูลล่าสุดเรียบร้อยแล้ว (ไม่มีข้อมูลใหม่)';
             if (typeof fcAlert === 'function') fcAlert(msgText);
         }
     } catch (err) {

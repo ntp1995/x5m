@@ -110,11 +110,11 @@ function renderFastingMetabolicStages() {
                         </span>
                         ${nextStage ? `
                             <span style="font-size:11px; font-weight:800; color:${curStage.color};">
-                                ⏳ อีก ${remHText} สู่ระยะที่ ${nextStage.num} (${nextStage.icon})
+                                 อีก ${remHText} สู่ระยะที่ ${nextStage.num} (${nextStage.icon})
                             </span>
                         ` : `
                             <span style="font-size:11px; font-weight:800; color:#059669;">
-                                ⭐ ถึงระยะสูงสุดแล้ว (Autophagy เต็มรูปแบบ)
+                                 ถึงระยะสูงสุดแล้ว (Autophagy เต็มรูปแบบ)
                             </span>
                         `}
                     </div>
@@ -133,7 +133,7 @@ function renderFastingMetabolicStages() {
                     </div>
 
                     <div style="background:rgba(255,255,255,0.88); border:1px solid ${curStage.border}; border-radius:12px; padding:8px 10px; font-size:11.5px; color:#334155; font-weight:700; display:flex; align-items:center; gap:6px;">
-                        <span style="font-size:15px;">💊</span>
+                        <span style="font-size:15px;">${fcIcon('pill')}</span>
                         <span style="flex:1;"><b>คู่หูวิตามิน & การดื่มน้ำ:</b> ${curStage.suppTip}</span>
                         <span style="color:#94a3b8; font-size:14px; font-weight:800;">›</span>
                     </div>
@@ -143,7 +143,7 @@ function renderFastingMetabolicStages() {
             bannerEl.innerHTML = `
                 <div style="background:#f8fafc; border:1px dashed #cbd5e1; border-radius:18px; padding:14px 16px; text-align:left; margin-bottom:12px;">
                     <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-                        <span style="font-size:16px;">🍽️</span>
+                        <span style="font-size:16px;">${fcIcon('utensils')}</span>
                         <span style="font-size:13.5px; font-weight:800; color:#0f172a;">ช่วงเปิดหน้าต่างรับประทานอาหาร (Feeding Window)</span>
                     </div>
                     <div style="font-size:12px; color:#64748b; font-weight:600; line-height:1.4;">
@@ -161,7 +161,7 @@ function renderFastingMetabolicStages() {
     el.innerHTML = `
         <div class="row" style="align-items:center; margin-bottom:10px;">
             <div>
-                <h3 style="margin:0; font-size:15px; font-weight:900;">🔥 5 ระยะการเผาผลาญขณะทำ IF (Metabolic Stages)</h3>
+                <h3 style="margin:0; font-size:15px; font-weight:900;">${fcIcon('flame')} 5 ระยะการเผาผลาญขณะทำ IF (Metabolic Stages)</h3>
                 <div class="sub" style="font-size:11.5px;">เชื่อมโยงระยะเวลาอดอาหารเข้ากับการลดไตรกลีเซอไรด์และตารางวิตามิน</div>
             </div>
             <span class="tag" style="background:rgba(16,185,129,0.15); color:#059669; font-weight:800;">${isFasting ? `${elapsedHours.toFixed(1)} ชม.` : 'Feeding Window'}</span>
@@ -177,10 +177,10 @@ function renderFastingMetabolicStages() {
                         <div style="flex:1;">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <strong style="font-size:13px; color:var(--tx);">${st.title}</strong>
-                                ${active ? `<span class="tag" style="background:${st.color}; color:#fff; font-size:10px; font-weight:800; padding:2px 7px;">ระยะปัจจุบัน</span>` : (isPassed ? '<span style="color:#10b981; font-size:11px; font-weight:800;">✓ สำเร็จแล้ว</span>' : '')}
+                                ${active ? `<span class="tag" style="background:${st.color}; color:#fff; font-size:10px; font-weight:800; padding:2px 7px;">ระยะปัจจุบัน</span>` : (isPassed ? '<span style="color:#10b981; font-size:11px; font-weight:800;"> สำเร็จแล้ว</span>' : '')}
                             </div>
                             <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">${st.desc}</div>
-                            <div style="font-size:11px; color:${st.color}; font-weight:700; margin-top:4px;">💊 คู่หูวิตามิน: ${st.suppTip}</div>
+                            <div style="font-size:11px; color:${st.color}; font-weight:700; margin-top:4px;"> คู่หูวิตามิน: ${st.suppTip}</div>
                         </div>
                     </div>
                 `;
@@ -205,33 +205,33 @@ function openIfStageDetailModal(stageNum) {
                     <span style="font-size:16px;">${st.icon}</span>
                     <span style="font-size:11.5px; font-weight:800; color:${st.color};">ระยะที่ ${st.num} จาก 5 (${st.minH} - ${st.maxH > 24 ? '16+' : st.maxH} ชม.)</span>
                 </div>
-                ${isCurrent ? '<span style="background:#10b981; color:#fff; font-size:10px; font-weight:800; padding:2px 8px; border-radius:99px;">✓ ระยะปัจจุบันของคุณ</span>' : ''}
+                ${isCurrent ? '<span style="background:#10b981; color:#fff; font-size:10px; font-weight:800; padding:2px 8px; border-radius:99px;"> ระยะปัจจุบันของคุณ</span>' : ''}
             </div>
 
             <h2 style="margin:0 0 4px; font-size:18px; font-weight:900; color:#0f172a; line-height:1.25;">
                 ${st.title}
             </h2>
             <div style="font-size:12px; color:#64748b; font-weight:700; margin-bottom:12px;">
-                🎯 ${st.badge}
+                ${fcIcon('target')} ${st.badge}
             </div>
 
             <!-- Medical & Physiology Explanation Card -->
             <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:16px; padding:14px; margin-bottom:12px; box-shadow:0 4px 12px rgba(15,23,42,0.03);">
                 <div style="font-size:11.5px; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:4px; letter-spacing:0.3px;">
-                    🔬 กระบวนการสรีรวิทยาในร่างกาย
+                    ${fcIcon('microscope')} กระบวนการสรีรวิทยาในร่างกาย
                 </div>
                 <div style="font-size:13px; color:#1e293b; font-weight:600; line-height:1.55;">
                     ${st.desc}
                 </div>
                 <div style="margin-top:8px; padding-top:8px; border-top:1px dashed #e2e8f0; font-size:12px; color:#475569; line-height:1.45;">
-                    💡 <b>กลไกทางชีวเคมี:</b> ${st.clinicalNote}
+                    ${fcIcon('lightbulb')} <b>กลไกทางชีวเคมี:</b> ${st.clinicalNote}
                 </div>
             </div>
 
             <!-- Goal Impact: Triglycerides & Visceral Fat -->
             <div style="background:${st.bg}; border:1px solid ${st.border}; border-radius:16px; padding:12px 14px; margin-bottom:12px;">
                 <div style="font-size:11.5px; font-weight:800; color:${st.color}; margin-bottom:4px;">
-                    🎯 ผลลัพธ์ต่อเป้าหมายของคุณ
+                    ${fcIcon('target')} ผลลัพธ์ต่อเป้าหมายของคุณ
                 </div>
                 <div style="font-size:12px; color:#334155; font-weight:600; line-height:1.45;">
                     ${st.num === 1 ? '• รักษาระดับน้ำตาลให้คงที่ ป้องกันอินซูลินสวิง' : ''}
@@ -245,7 +245,7 @@ function openIfStageDetailModal(stageNum) {
             <!-- Targeted Vitamin & Water Guideline -->
             <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:12px 14px; margin-bottom:16px;">
                 <div style="font-size:11.5px; font-weight:800; color:#0f172a; margin-bottom:4px; display:flex; align-items:center; gap:5px;">
-                    <span>💊</span> คู่หูอาหารเสริม & วินัยการดื่มน้ำ
+                    <span>${fcIcon('pill')}</span> คู่หูอาหารเสริม & วินัยการดื่มน้ำ
                 </div>
                 <div style="font-size:12.5px; color:#0369a1; font-weight:700; line-height:1.45;">
                     ${st.suppTip}

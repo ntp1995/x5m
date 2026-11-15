@@ -13,11 +13,11 @@ function ensureClinicalBioMetrics() {
 
 async function editClinicalBioMetricsModal() {
     const bio = ensureClinicalBioMetrics();
-    const tg = await fcPrompt('ระบุค่าไตรกลีเซอไรด์ล่าสุด (mg/dL) — เป้าหมาย < 150:', String(bio.triglycerides), '🩸 อัปเดตผลเลือด & InBody');
+    const tg = await fcPrompt('ระบุค่าไตรกลีเซอไรด์ล่าสุด (mg/dL) — เป้าหมาย < 150:', String(bio.triglycerides), fcIcon('heart-pulse') + ' อัปเดตผลเลือด & InBody');
     if (tg === null) return;
-    const vf = await fcPrompt('ระบุระดับไขมันช่องท้อง (Visceral Fat) — เป้าหมาย < 9:', String(bio.visceralFat), '🔥 อัปเดต Visceral Fat');
+    const vf = await fcPrompt('ระบุระดับไขมันช่องท้อง (Visceral Fat) — เป้าหมาย < 9:', String(bio.visceralFat), fcIcon('flame') + ' อัปเดต Visceral Fat');
     if (vf === null) return;
-    const bm = await fcPrompt('ระบุมวลกระดูก (Bone Mass กก.) — ค่าเริ่มต้น 2.89 กก.:', String(bio.boneMass), '🦴 อัปเดตมวลกระดูก');
+    const bm = await fcPrompt('ระบุมวลกระดูก (Bone Mass กก.) — ค่าเริ่มต้น 2.89 กก.:', String(bio.boneMass), fcIcon('shield') + ' อัปเดตมวลกระดูก');
     if (bm === null) return;
 
     const tgNum = parseFloat(tg);
@@ -124,26 +124,26 @@ function renderInBodyAndRadarWidgets() {
             <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:8px;">
                 <div>
                     <div style="display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:800; color:#059669; background:rgba(16,185,129,0.12); padding:3px 8px; border-radius:99px; margin-bottom:4px;">
-                        🛡️ Medical-Aware Nutrition & Liver Guard
+                        ${fcIcon('shield-check')} Medical-Aware Nutrition & Liver Guard
                     </div>
                     <h3 style="margin:0; font-size:14.5px; font-weight:900;">สมดุลสุขภาพ 5 มิติ & เป้าหมายคลินิก</h3>
                 </div>
-                <button type="button" class="btn sm g" onclick="editClinicalBioMetricsModal()" style="width:auto; padding:4px 9px; font-size:11px;">✏️ อัปเดตผลตรวจ</button>
+                <button type="button" class="btn sm g" onclick="editClinicalBioMetricsModal()" style="width:auto; padding:4px 9px; font-size:11px;">${fcIcon('pencil')} อัปเดตผลตรวจ</button>
             </div>
 
             <div style="display:grid; grid-template-columns: 1.05fr 1fr; gap:8px; align-items:center;">
                 <div>${buildRadarPentagonSvg(radar.axes)}</div>
                 <div style="display:flex; flex-direction:column; gap:7px;">
                     <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:7px 9px;">
-                        <div style="font-size:10px; color:var(--dim); font-weight:700;">🩸 ไตรกลีเซอไรด์ (เป้า &lt;150)</div>
+                        <div style="font-size:10px; color:var(--dim); font-weight:700;">${fcIcon('heart-pulse')} ไตรกลีเซอไรด์ (เป้า &lt;150)</div>
                         <div style="font-size:15px; font-weight:900; color:${bio.triglycerides > 150 ? '#ea580c' : '#10b981'};">${bio.triglycerides} <span style="font-size:10px; font-weight:600;">mg/dL</span></div>
                     </div>
                     <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:7px 9px;">
-                        <div style="font-size:10px; color:var(--dim); font-weight:700;">🔥 ไขมันช่องท้อง (เป้า &lt;9)</div>
+                        <div style="font-size:10px; color:var(--dim); font-weight:700;">${fcIcon('flame')} ไขมันช่องท้อง (เป้า &lt;9)</div>
                         <div style="font-size:15px; font-weight:900; color:${bio.visceralFat >= 10 ? '#f59e0b' : '#10b981'};">ระดับ ${bio.visceralFat}</div>
                     </div>
                     <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:7px 9px;">
-                        <div style="font-size:10px; color:var(--dim); font-weight:700;">🦴 มวลกระดูก (ฐาน 2.89 กก.)</div>
+                        <div style="font-size:10px; color:var(--dim); font-weight:700;">${fcIcon('shield')} มวลกระดูก (ฐาน 2.89 กก.)</div>
                         <div style="font-size:15px; font-weight:900; color:#0284c7;">${Number(bio.boneMass).toFixed(2)} <span style="font-size:10px; font-weight:600;">กก.</span></div>
                     </div>
                 </div>
@@ -161,7 +161,7 @@ function renderInBodyAndRadarWidgets() {
         statEl.innerHTML = `
             <div class="row" style="align-items:center; margin-bottom:10px;">
                 <div>
-                    <h3 style="margin:0; font-size:15px; font-weight:900;">🏥 ใบรายงานองค์ประกอบร่างกาย (InBody & Liver Clinical Sheet)</h3>
+                    <h3 style="margin:0; font-size:15px; font-weight:900;">${fcIcon('hospital')} ใบรายงานองค์ประกอบร่างกาย (InBody & Liver Clinical Sheet)</h3>
                     <div class="sub" style="font-size:11.5px;">อ้างอิงรูปแบบ InOut: ติดตามการลดไขมันช่องท้อง ไตรกลีเซอไรด์ และมวลกระดูก</div>
                 </div>
                 <button type="button" class="btn sm g" onclick="editClinicalBioMetricsModal()" style="width:auto; padding:5px 10px; font-size:11.5px;">อัปเดตค่า</button>
@@ -169,7 +169,7 @@ function renderInBodyAndRadarWidgets() {
 
             <div class="inbody-row">
                 <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:800;">
-                    <span>🩸 ไตรกลีเซอไรด์ (Triglycerides)</span>
+                    <span>${fcIcon('heart-pulse')} ไตรกลีเซอไรด์ (Triglycerides)</span>
                     <span style="color:${bio.triglycerides > 150 ? '#ea580c' : '#10b981'};">${bio.triglycerides} mg/dL (เป้าหมาย &lt; 150)</span>
                 </div>
                 <div class="inbody-track">
@@ -185,7 +185,7 @@ function renderInBodyAndRadarWidgets() {
 
             <div class="inbody-row">
                 <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:800;">
-                    <span>🔥 ไขมันช่องท้อง (Visceral Fat)</span>
+                    <span>${fcIcon('flame')} ไขมันช่องท้อง (Visceral Fat)</span>
                     <span style="color:${bio.visceralFat >= 10 ? '#f59e0b' : '#10b981'};">ระดับ ${bio.visceralFat} (เป้าหมาย &lt; 9)</span>
                 </div>
                 <div class="inbody-track">
@@ -201,7 +201,7 @@ function renderInBodyAndRadarWidgets() {
 
             <div class="inbody-row">
                 <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:800;">
-                    <span>🦴 มวลกระดูกแร่ธาตุ (Bone Mass) + กล้ามเนื้อ (${curMuscle} กก.)</span>
+                    <span>${fcIcon('shield')} มวลกระดูกแร่ธาตุ (Bone Mass) + กล้ามเนื้อ (${curMuscle} กก.)</span>
                     <span style="color:#0284c7;">${Number(bio.boneMass).toFixed(2)} กก. (เป้าหมาย ≥ 3.00 กก.)</span>
                 </div>
                 <div class="inbody-track">

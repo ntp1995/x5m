@@ -156,7 +156,7 @@ const SAFE = { rdl: 'thrust', swing: 'bmarch', wheel: 'w_deadbug', row: 'csrow' 
             { e: 'walk', sets: 1, type: 'time', t: 1800, after: 60 }]
     },
     T: {
-        n: 'Hotel / Travel Bodyweight (ไร้ดัมเบล)', ic: '🏨', warm: 'lite', kcal: 155, items: [
+        n: 'Hotel / Travel Bodyweight (ไร้ดัมเบล)', ic: '', warm: 'lite', kcal: 155, items: [
             { e: 'bw_squat', sets: 3, type: 'reps', r: '15 ครั้ง', rest: 40, after: 45 },
             { e: 'pushup', sets: 3, type: 'reps', r: '10-12 ครั้ง', rest: 45, after: 45 },
             { e: 'bmarch', sets: 3, type: 'reps', r: '10 ครั้ง/ข้าง', rest: 35, after: 45 },
@@ -165,7 +165,7 @@ const SAFE = { rdl: 'thrust', swing: 'bmarch', wheel: 'w_deadbug', row: 'csrow' 
     },
     /* ---------- EXTRA CHALLENGES (14-30 DAYS) & BODY FOCUS (10-15 MIN) ---------- */
     CH_FATBURN30: {
-        n: 'ชาเลนจ์ 30 วัน — ลดไขมันทั้งตัว & ช่องท้อง', ic: '🔥', isExtra: true, challengeId: 'fatburn30', warm: 'none', cool: 'none', kcal: 220, items: [
+        n: 'ชาเลนจ์ 30 วัน — ลดไขมันทั้งตัว & ช่องท้อง', ic: '', isExtra: true, challengeId: 'fatburn30', warm: 'none', cool: 'none', kcal: 220, items: [
             { e: 'w_out_walk', sets: 1, type: 'time', t: 120, after: 15 },
             { e: 'goblet', sets: 3, type: 'reps', r: '12-15 ครั้ง', rest: 45, after: 60 },
             { e: 'pushup', sets: 3, type: 'reps', r: '10-12 ครั้ง', rest: 45, after: 60 },
@@ -175,7 +175,7 @@ const SAFE = { rdl: 'thrust', swing: 'bmarch', wheel: 'w_deadbug', row: 'csrow' 
             { e: 'c_legs', sets: 1, type: 'time', t: 120, after: 0 }]
     },
     CH_ABS14: {
-        n: 'ชาเลนจ์ 14 วัน — เบิร์นพุง & แกนกลางเข้มข้น', ic: '💥', isExtra: true, challengeId: 'abs14', warm: 'none', cool: 'none', kcal: 140, items: [
+        n: 'ชาเลนจ์ 14 วัน — เบิร์นพุง & แกนกลางเข้มข้น', ic: '', isExtra: true, challengeId: 'abs14', warm: 'none', cool: 'none', kcal: 140, items: [
             { e: 'w_cat', sets: 1, type: 'time', t: 60, after: 10 },
             { e: 'w_deadbug', sets: 3, type: 'reps', r: '10 ครั้ง/ข้าง', rest: 30, after: 40 },
             { e: 'w_bird', sets: 3, type: 'reps', r: '8 ครั้ง/ข้าง', rest: 30, after: 40 },
@@ -184,7 +184,7 @@ const SAFE = { rdl: 'thrust', swing: 'bmarch', wheel: 'w_deadbug', row: 'csrow' 
             { e: 'mtn', sets: 3, type: 'time', t: 30, rest: 30, after: 0 }]
     },
     CH_UPPER28: {
-        n: 'ชาเลนจ์ 28 วัน — ปั้นท่อนบน & ซิกแพค', ic: '💪', isExtra: true, challengeId: 'upper28', warm: 'none', cool: 'none', kcal: 180, items: [
+        n: 'ชาเลนจ์ 28 วัน — ปั้นท่อนบน & ซิกแพค', ic: '', isExtra: true, challengeId: 'upper28', warm: 'none', cool: 'none', kcal: 180, items: [
             { e: 'w_wall', sets: 1, type: 'reps', r: '12 + เก็บคาง 8', after: 20 },
             { e: 'bench', sets: 3, type: 'reps', r: '12-15 ครั้ง', rest: 45, after: 60 },
             { e: 'csrow', sets: 3, type: 'reps', r: '12-15 ครั้ง', rest: 45, after: 60 },
@@ -194,7 +194,7 @@ const SAFE = { rdl: 'thrust', swing: 'bmarch', wheel: 'w_deadbug', row: 'csrow' 
             { e: 'plank', sets: 3, type: 'time', t: 40, rest: 30, after: 0 }]
     },
     CH_POSTURE28: {
-        n: 'ชาเลนจ์ 28 วัน — ยืดเหยียดจัดระเบียบหลัง & บุคลิกภาพ', ic: '🧘', isExtra: true, challengeId: 'posture28', warm: 'none', cool: 'none', kcal: 90, items: [
+        n: 'ชาเลนจ์ 28 วัน — ยืดเหยียดจัดระเบียบหลัง & บุคลิกภาพ', ic: '', isExtra: true, challengeId: 'posture28', warm: 'none', cool: 'none', kcal: 90, items: [
             { e: 'w_cat', sets: 1, type: 'time', t: 60, after: 10 },
             { e: 'w_thor', sets: 1, type: 'time', t: 60, after: 10 },
             { e: 'w_wall', sets: 1, type: 'reps', r: '12 + เก็บคาง 8', after: 20 },
@@ -205,7 +205,7 @@ const SAFE = { rdl: 'thrust', swing: 'bmarch', wheel: 'w_deadbug', row: 'csrow' 
             { e: 'c_legs', sets: 1, type: 'time', t: 180, after: 0 }]
     },
     BF_ABS: {
-        n: 'เน้นเฉพาะจุด — หน้าท้อง & แกนกลาง', ic: '🎯', isExtra: true, warm: 'none', cool: 'none', kcal: 120, items: [
+        n: 'เน้นเฉพาะจุด — หน้าท้อง & แกนกลาง', ic: '', isExtra: true, warm: 'none', cool: 'none', kcal: 120, items: [
             { e: 'w_deadbug', sets: 3, type: 'reps', r: '10 ครั้ง/ข้าง', rest: 30, after: 40 },
             { e: 'w_bird', sets: 3, type: 'reps', r: '8 ครั้ง/ข้าง', rest: 30, after: 40 },
             { e: 'w_side', sets: 2, type: 'time', t: 30, rest: 25, after: 35 },
@@ -213,7 +213,7 @@ const SAFE = { rdl: 'thrust', swing: 'bmarch', wheel: 'w_deadbug', row: 'csrow' 
             { e: 'mtn', sets: 2, type: 'time', t: 30, rest: 30, after: 0 }]
     },
     BF_UPPER: {
-        n: 'เน้นเฉพาะจุด — อก แขน และไหล่', ic: '💪', isExtra: true, warm: 'none', cool: 'none', kcal: 160, items: [
+        n: 'เน้นเฉพาะจุด — อก แขน และไหล่', ic: '', isExtra: true, warm: 'none', cool: 'none', kcal: 160, items: [
             { e: 'pushup', sets: 3, type: 'reps', r: '10-12 ครั้ง', rest: 45, after: 60 },
             { e: 'bench', sets: 3, type: 'reps', r: '12-15 ครั้ง', rest: 45, after: 60 },
             { e: 'press', sets: 3, type: 'reps', r: '12 ครั้ง', rest: 45, after: 60 },
@@ -221,7 +221,7 @@ const SAFE = { rdl: 'thrust', swing: 'bmarch', wheel: 'w_deadbug', row: 'csrow' 
             { e: 'lat', sets: 3, type: 'reps', r: '15 ครั้ง', rest: 40, after: 0 }]
     },
     BF_LOWER: {
-        n: 'เน้นเฉพาะจุด — ขา & ก้นกระชับ', ic: '🦵', isExtra: true, warm: 'none', cool: 'none', kcal: 175, items: [
+        n: 'เน้นเฉพาะจุด — ขา & ก้นกระชับ', ic: '', isExtra: true, warm: 'none', cool: 'none', kcal: 175, items: [
             { e: 'goblet', sets: 3, type: 'reps', r: '12-15 ครั้ง', rest: 45, after: 60 },
             { e: 'bss', sets: 3, type: 'reps', r: '10 ครั้ง/ข้าง', rest: 45, after: 60 },
             { e: 'thrust', sets: 3, type: 'reps', r: '15 ครั้ง', rest: 45, after: 60 },
@@ -229,7 +229,7 @@ const SAFE = { rdl: 'thrust', swing: 'bmarch', wheel: 'w_deadbug', row: 'csrow' 
             { e: 'bmarch', sets: 2, type: 'reps', r: '10 ครั้ง/ข้าง', rest: 30, after: 0 }]
     },
     BF_STRETCH: {
-        n: 'เน้นเฉพาะจุด — ยืดเหยียดหลัง & คลายปวด', ic: '🧘', isExtra: true, warm: 'none', cool: 'none', kcal: 65, items: [
+        n: 'เน้นเฉพาะจุด — ยืดเหยียดหลัง & คลายปวด', ic: '', isExtra: true, warm: 'none', cool: 'none', kcal: 65, items: [
             { e: 'w_cat', sets: 1, type: 'time', t: 60, after: 10 },
             { e: 'w_thor', sets: 1, type: 'time', t: 60, after: 10 },
             { e: 'c_fig4', sets: 1, type: 'time', t: 40, after: 10 },
@@ -247,10 +247,10 @@ const CHALLENGES = [
 ];
 
 const BODY_FOCUS_PROGRAMS = [
-    { id: 'abs', wKey: 'BF_ABS', label: '🔥 หน้าท้อง', title: 'หน้าท้อง & แกนกลาง', sub: 'McGill Safe • 10-12 นาที', color: '#ea580c', img: 'cover_bf_abs.jpg' },
-    { id: 'upper', wKey: 'BF_UPPER', label: '💪 อก-แขน-ไหล่', title: 'อก แขน และไหล่', sub: 'DB 6 กก. / KB 4 กก. • 14 นาที', color: '#2563eb', img: 'cover_bf_upper.jpg' },
-    { id: 'lower', wKey: 'BF_LOWER', label: '🦵 ขา-ก้น', title: 'ขา & ก้นกระชับ', sub: 'KB 8 กก. / เก้าอี้ • 14 นาที', color: '#059669', img: 'cover_bf_lower.jpg' },
-    { id: 'stretch', wKey: 'BF_STRETCH', label: '🧘 ยืดเหยียดหลัง', title: 'ยืดเหยียดหลัง & คลายปวด', sub: 'คลายสะโพก-หลังล่าง • 10 นาที', color: '#7c3aed', img: 'cover_bf_stretch.jpg' }
+    { id: 'abs', wKey: 'BF_ABS', label: fcIcon('flame') + ' หน้าท้อง', title: 'หน้าท้อง & แกนกลาง', sub: 'McGill Safe • 10-12 นาที', color: '#ea580c', img: 'cover_bf_abs.jpg' },
+    { id: 'upper', wKey: 'BF_UPPER', label: fcIcon('dumbbell') + ' อก-แขน-ไหล่', title: 'อก แขน และไหล่', sub: 'DB 6 กก. / KB 4 กก. • 14 นาที', color: '#2563eb', img: 'cover_bf_upper.jpg' },
+    { id: 'lower', wKey: 'BF_LOWER', label: fcIcon('sparkles') + ' ขา-ก้น', title: 'ขา & ก้นกระชับ', sub: 'KB 8 กก. / เก้าอี้ • 14 นาที', color: '#059669', img: 'cover_bf_lower.jpg' },
+    { id: 'stretch', wKey: 'BF_STRETCH', label: fcIcon('activity') + ' ยืดเหยียดหลัง', title: 'ยืดเหยียดหลัง & คลายปวด', sub: 'คลายสะโพก-หลังล่าง • 10 นาที', color: '#7c3aed', img: 'cover_bf_stretch.jpg' }
 ];
 /* ============ PERIODIZED WEIGHT PROGRESSION (5 PHASES) ============ */
 const PHASE_WEIGHTS = {
@@ -313,7 +313,7 @@ const DN = ['อาทิตย์', 'จันทร์', 'อังคาร',
 const GOAL_TRAINING_PROFILES = {
     recomp: {
         id: 'recomp',
-        title: '⚡ Body Recomp (ลดไขมัน+รักษากล้ามเนื้อ)',
+        title: fcIcon('zap') + ' Body Recomp (ลดไขมัน+รักษากล้ามเนื้อ)',
         restDelta: 0,
         compoundExtraSets: 0,
         cardioSecDelta: 0,
@@ -321,7 +321,7 @@ const GOAL_TRAINING_PROFILES = {
     },
     cut: {
         id: 'cut',
-        title: '🔥 Fat Loss Cut (เร่งเบิร์นไขมัน)',
+        title: fcIcon('flame') + ' Fat Loss Cut (เร่งเบิร์นไขมัน)',
         restDelta: -10,
         compoundExtraSets: 0,
         cardioSecDelta: 600,
@@ -329,7 +329,7 @@ const GOAL_TRAINING_PROFILES = {
     },
     slow_cut: {
         id: 'slow_cut',
-        title: '🌿 Slow Cut (ลดช้าๆ ยั่งยืน ไม่ล้า)',
+        title: fcIcon('leaf') + ' Slow Cut (ลดช้าๆ ยั่งยืน ไม่ล้า)',
         restDelta: 0,
         compoundExtraSets: 0,
         cardioSecDelta: -300,
@@ -337,7 +337,7 @@ const GOAL_TRAINING_PROFILES = {
     },
     lean_bulk: {
         id: 'lean_bulk',
-        title: '💪 Lean Bulk (เพิ่มกล้ามเนื้อลีน)',
+        title: fcIcon('dumbbell') + ' Lean Bulk (เพิ่มกล้ามเนื้อลีน)',
         restDelta: 15,
         compoundExtraSets: 1,
         cardioSecDelta: -600,
@@ -451,23 +451,23 @@ async function markCardioDayDone(k) {
     save();
     render();
     autoSync();
-    await fcAlert('🎉 ยอดเยี่ยมมาก! บันทึกจบโปรแกรมวันนี้เรียบร้อยแล้ว');
+    await fcAlert(fcIcon('trophy') + ' ยอดเยี่ยมมาก! บันทึกจบโปรแกรมวันนี้เรียบร้อยแล้ว');
 }
 
 async function startMorningCardio() {
     const currentM = getMorningCardioMinutesToday();
     const defaultM = currentM > 0 ? String(currentM) : '35';
-    const mins = await fcPrompt('เลือกระยะเวลาเดินลู่ตอนเช้า (นาที)', defaultM, '🌅 เดินลู่ Zone 2 ตอนเช้า');
+    const mins = await fcPrompt('เลือกระยะเวลาเดินลู่ตอนเช้า (นาที)', defaultM, fcIcon('sunrise') + ' เดินลู่ Zone 2 ตอนเช้า');
     if (!mins) return;
     const m = Math.max(5, Math.min(120, parseInt(mins) || 35));
     const kcal = Math.round(m * 7.5);
 
     const choice = await fcChoice(
-        '🌅 บันทึกการเดินลู่ตอนเช้า',
+        ' บันทึกการเดินลู่ตอนเช้า',
         `คุณระบุเดินลู่ <b>${m} นาที</b> (~${kcal} kcal)<br>ต้องการดำเนินการอย่างไร?`,
         [
-            { id: 'log_now', label: '✓ บันทึกว่าเดินเสร็จแล้วทันที', sub: 'สำหรับกรณีเดินเสร็จแล้วจากบนลู่วิ่ง บันทึกลงประวัติทันทีโดยไม่ต้องจับเวลา' },
-            { id: 'timer', label: '⏱️ เปิดตัวจับเวลาเดินลู่ตอนนี้', sub: 'เปิดหน้าจอจับเวลานับถอยหลังพร้อมเสียงเตือน' }
+            { id: 'log_now', label: fcIcon('sparkles') + ' บันทึกว่าเดินเสร็จแล้วทันที', sub: 'สำหรับกรณีเดินเสร็จแล้วจากบนลู่วิ่ง บันทึกลงประวัติทันทีโดยไม่ต้องจับเวลา' },
+            { id: 'timer', label: fcIcon('timer') + ' เปิดตัวจับเวลาเดินลู่ตอนนี้', sub: 'เปิดหน้าจอจับเวลานับถอยหลังพร้อมเสียงเตือน' }
         ]
     );
     if (!choice) return;
@@ -500,7 +500,7 @@ async function startMorningCardio() {
         save();
         render();
         autoSync();
-        await fcAlert(`✓ บันทึกการเดินลู่ตอนเช้า ${m} นาที (~${kcal} kcal) เรียบร้อยแล้ว!\n\nระบบได้ปรับหักลบเวลาเดินลู่ และตัดเดินวอร์ม/คูลดาวน์ออกจากโปรแกรมวันนี้ให้อัตโนมัติ`);
+        await fcAlert(`${fcIcon('sparkles')} บันทึกการเดินลู่ตอนเช้า ${m} นาที (~${kcal} kcal) เรียบร้อยแล้ว!\n\nระบบได้ปรับหักลบเวลาเดินลู่ และตัดเดินวอร์ม/คูลดาวน์ออกจากโปรแกรมวันนี้ให้อัตโนมัติ`);
     } else {
         W.M.items[0].t = m * 60;
         W.M.kcal = kcal;

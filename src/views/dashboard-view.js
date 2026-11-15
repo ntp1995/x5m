@@ -76,12 +76,12 @@ function openWeeklyReportModal() {
     let backHealthMsg = '';
     let backHealthColor = 'var(--ok)';
     if (data.avgPain <= 1) {
-        backHealthMsg = '🛡️ สุขภาพหลังยอดเยี่ยม (เฉลี่ย ' + data.avgPain + '/10) — แกนกลางลำตัวแข็งแรง ปลอดภัย พร้อมฝึกต่อเนื่อง';
+        backHealthMsg = ' สุขภาพหลังยอดเยี่ยม (เฉลี่ย ' + data.avgPain + '/10) — แกนกลางลำตัวแข็งแรง ปลอดภัย พร้อมฝึกต่อเนื่อง';
     } else if (data.avgPain <= 3) {
-        backHealthMsg = '⚠️ ระดับการตึงตัวเล็กน้อย (เฉลี่ย ' + data.avgPain + '/10) — แนะนำเน้น Bird Dog & Side Plank ไม่ก้มยกของหลังค่อม';
+        backHealthMsg = ' ระดับการตึงตัวเล็กน้อย (เฉลี่ย ' + data.avgPain + '/10) — แนะนำเน้น Bird Dog & Side Plank ไม่ก้มยกของหลังค่อม';
         backHealthColor = 'var(--warn)';
     } else {
-        backHealthMsg = '🚨 เฝ้าระวังหลังล่าง (เฉลี่ย ' + data.avgPain + '/10) — ระบบแนะนำเปิดโหมด Back-Safe และเน้น Active Recovery';
+        backHealthMsg = ' เฝ้าระวังหลังล่าง (เฉลี่ย ' + data.avgPain + '/10) — ระบบแนะนำเปิดโหมด Back-Safe และเน้น Active Recovery';
         backHealthColor = 'var(--red)';
     }
 
@@ -89,7 +89,7 @@ function openWeeklyReportModal() {
         <div style="text-align:left; font-size:13.5px; max-height:80vh; overflow-y:auto; padding-right:2px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <div>
-                    <div style="font-weight:900; font-size:17px; color:var(--acc);">📊 รายงานสรุปผลประจำสัปดาห์</div>
+                    <div style="font-weight:900; font-size:17px; color:var(--acc);">${fcIcon('bar-chart')} รายงานสรุปผลประจำสัปดาห์</div>
                     <div style="font-size:12px; color:var(--dim);">ช่วงวันที่ ${data.past7Days[0].slice(5)} ถึง ${data.past7Days[6].slice(5)} (รอบ 7 วัน)</div>
                 </div>
                 <span class="tag o" style="font-size:11px; padding:3px 8px; font-weight:700;">Executive Report</span>
@@ -99,7 +99,7 @@ function openWeeklyReportModal() {
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0;">
                 <!-- Box 1: Weight -->
                 <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:10px;">
-                    <div style="font-size:11px; color:var(--dim); font-weight:700;">⚖️ น้ำหนักตัว</div>
+                    <div style="font-size:11px; color:var(--dim); font-weight:700;">${fcIcon('scale')} น้ำหนักตัว</div>
                     <div style="font-size:18px; font-weight:900; color:var(--tx); margin-top:2px;">
                         ${data.wEnd.toFixed(1)} <span style="font-size:12px; font-weight:600;">กก.</span>
                     </div>
@@ -110,7 +110,7 @@ function openWeeklyReportModal() {
 
                 <!-- Box 2: Protein & Nutrition -->
                 <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:10px;">
-                    <div style="font-size:11px; color:var(--dim); font-weight:700;">🍗 โปรตีนเฉลี่ย</div>
+                    <div style="font-size:11px; color:var(--dim); font-weight:700;">${fcIcon('utensils')} โปรตีนเฉลี่ย</div>
                     <div style="font-size:18px; font-weight:900; color:var(--acc2); margin-top:2px;">
                         ${data.avgPro} <span style="font-size:12px; font-weight:600; color:var(--dim);">/ ${PROTEIN_TARGET}g</span>
                     </div>
@@ -121,7 +121,7 @@ function openWeeklyReportModal() {
 
                 <!-- Box 3: Water & Steps -->
                 <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:10px;">
-                    <div style="font-size:11px; color:var(--dim); font-weight:700;">💧 น้ำดื่ม & ก้าวเดิน</div>
+                    <div style="font-size:11px; color:var(--dim); font-weight:700;">${fcIcon('droplets')} น้ำดื่ม & ก้าวเดิน</div>
                     <div style="font-size:18px; font-weight:900; color:var(--vio); margin-top:2px;">
                         ~{(${data.avgWat} / 1000).toFixed(1)}L <span style="font-size:12px; font-weight:600; color:var(--dim);">/ วัน</span>
                     </div>
@@ -132,7 +132,7 @@ function openWeeklyReportModal() {
 
                 <!-- Box 4: Training & Volume -->
                 <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:10px;">
-                    <div style="font-size:11px; color:var(--dim); font-weight:700;">🏋️ ผลงานการฝึกซ้อม</div>
+                    <div style="font-size:11px; color:var(--dim); font-weight:700;">${fcIcon('dumbbell')} ผลงานการฝึกซ้อม</div>
                     <div style="font-size:18px; font-weight:900; color:var(--acc); margin-top:2px;">
                         ${data.sessions7Count} วัน <span style="font-size:12px; font-weight:600; color:var(--dim);">(${data.totalTrainMin} นาที)</span>
                     </div>
@@ -154,7 +154,7 @@ function openWeeklyReportModal() {
 
             <!-- Strategic Advice -->
             <div style="background:rgba(234,88,12,0.06); border:1px solid rgba(234,88,12,0.25); border-radius:10px; padding:10px; margin-bottom:14px;">
-                <div style="font-size:12px; font-weight:800; color:var(--acc); margin-bottom:4px;">💡 ข้อคิดเห็นและกลยุทธ์สำหรับสัปดาห์หน้า:</div>
+                <div style="font-size:12px; font-weight:800; color:var(--acc); margin-bottom:4px;">${fcIcon('lightbulb')} ข้อคิดเห็นและกลยุทธ์สำหรับสัปดาห์หน้า:</div>
                 <ul style="margin:0; padding-left:18px; font-size:12.5px; color:var(--tx); line-height:1.5;">
                     <li>${data.wDelta <= 0 ? 'อัตราการลดน้ำหนักอยู่ในเกณฑ์ที่ปลอดภัยและเหมาะสม รักษาความสม่ำเสมอนี้ไว้' : 'น้ำหนักแกว่งขึ้นเล็กน้อย อาจเกิดจากปริมาณโซเดียมหรือไกลโคเจนสะสม แนะนำคุมปริมาณน้ำดื่มให้ครบเป้า'}</li>
                     <li>${proPct >= 90 ? 'ปริมาณโปรตีนถึงเป้ายอดเยี่ยม กล้ามเนื้อได้รับการซ่อมแซมเต็มที่' : 'โปรตีนยังเฉลี่ยต่ำกว่าเป้า แนะนำเพิ่มไข่ต้ม CP หรือนมโปรตีน RTD ในช่วงบ่าย/เย็น'}</li>
@@ -165,7 +165,7 @@ function openWeeklyReportModal() {
             <!-- Gemini AI Deep Dive Section -->
             <div id="geminiWeeklyReportBox">
                 <button class="btn" onclick="generateGeminiWeeklyDeepReport()" style="width:100%; padding:10px; font-size:13px; font-weight:800; background:linear-gradient(135deg, var(--acc) 0%, #d97706 100%); color:#fff; border-radius:8px;">
-                    🧠 ขอคำวิเคราะห์เชิงลึกจาก Gemini AI
+                    ${fcIcon('brain')} ขอคำวิเคราะห์เชิงลึกจาก Gemini AI
                 </button>
             </div>
 
@@ -187,7 +187,7 @@ async function generateGeminiWeeklyDeepReport() {
     if (box) {
         box.innerHTML = `
             <div style="text-align:center; padding:16px; background:var(--card2); border-radius:10px; border:1px solid var(--line);">
-                <div style="font-size:20px; animation: spin 1s linear infinite; margin-bottom:8px;">⏳</div>
+                <div style="font-size:20px; animation: spin 1s linear infinite; margin-bottom:8px;">${fcIcon('clock')}</div>
                 <div style="font-size:12.5px; font-weight:700; color:var(--acc);">Gemini AI กำลังวิเคราะห์ผลงานรอบสัปดาห์ของคุณ...</div>
             </div>
         `;
@@ -242,7 +242,7 @@ async function generateGeminiWeeklyDeepReport() {
         if (box) {
             box.innerHTML = `
                 <div style="background:var(--card2); border:1px solid var(--acc); border-radius:10px; padding:12px; margin-top:8px;">
-                    <div style="font-size:12px; font-weight:800; color:var(--acc); margin-bottom:6px;">🤖 บทวิเคราะห์และกลยุทธ์จาก Gemini AI:</div>
+                    <div style="font-size:12px; font-weight:800; color:var(--acc); margin-bottom:6px;">${fcIcon('bot')} บทวิเคราะห์และกลยุทธ์จาก Gemini AI:</div>
                     <div style="font-size:12.5px; color:var(--tx); line-height:1.5; white-space:pre-wrap;">${resText}</div>
                 </div>
             `;
@@ -251,7 +251,7 @@ async function generateGeminiWeeklyDeepReport() {
         if (box) {
             box.innerHTML = `
                 <div style="color:var(--warn); font-size:12px; padding:8px; background:var(--card2); border-radius:8px;">
-                    ⚠️ ${err.message}
+                    ${fcIcon('alert-triangle')} ${err.message}
                 </div>
             `;
         }
@@ -470,7 +470,7 @@ function render() {
                     <div style="font-size:11px; color:#64748b; margin-top:2px;">เป้าหมาย ${stepTarget.toLocaleString()}</div>
                     <div style="display:inline-block; margin-top:6px; font-size:10px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:99px;">${extraStepCal > 0 ? `+${extraStepCal} kcal โบนัส` : `${stepPct}% ของเป้า`}</div>
                 </div>
-                <div style="width:50px; height:50px; border-radius:16px; background:linear-gradient(135deg,#fef3c7,#fde68a); display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:0 4px 10px rgba(245,158,11,0.18);">👟</div>
+                <div style="width:50px; height:50px; border-radius:16px; background:linear-gradient(135deg,#fef3c7,#fde68a); display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:0 4px 10px rgba(245,158,11,0.18);">${fcIcon('sparkles')}</div>
             </div>
         </div>`;
     }
@@ -488,7 +488,7 @@ function render() {
             <div style="margin-top:10px; padding:8px 10px; background:var(--card2); border-radius:10px; border:1px solid var(--line);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <span style="font-size:11.5px; font-weight:700; color:var(--dim); display:flex; align-items:center; gap:4px;">
-                        ⭐ เมนูกินประจำ (แตะเพื่อบวกทันที):
+                        ${fcIcon('star')} เมนูกินประจำ (แตะเพื่อบวกทันที):
                     </span>
                     <button onclick="openAddMealModal('lunch')" style="background:transparent; border:none; color:var(--acc); font-size:11px; font-weight:700; cursor:pointer;">ดูคลัง</button>
                 </div>
@@ -504,19 +504,19 @@ function render() {
     }
 
     mealsHtml = '<div style="margin-top:8px; display:flex; flex-direction:column; gap:6px;">' + mealsList.map((m, idx) => {
-            const typeLabel = MEAL_LABELS[m.type] || '🍽️ อาหาร';
+            const typeLabel = MEAL_LABELS[m.type] || ' อาหาร';
             const mHealth = computeFoodHealthMetrics(m.cal, m.pro, m.carbs, m.fat, m.sugar, m.sodium, m.fiber, m);
             return `
                 <div style="display:flex; align-items:center; justify-content:space-between; background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:12.5px;">
                     <div style="flex:1; padding-right:8px;">
                         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                            <button type="button" onclick="editMealItem('${tc.d}', ${idx})" style="background:transparent; border:none; padding:0; cursor:pointer; font-weight:700; color:var(--acc); font-size:11.5px; display:inline-flex; align-items:center; gap:2px;" title="แตะเพื่อเปลี่ยนมื้อหรือแก้ไข">${typeLabel} ▾</button>
+                            <button type="button" onclick="editMealItem('${tc.d}', ${idx})" style="background:transparent; border:none; padding:0; cursor:pointer; font-weight:700; color:var(--acc); font-size:11.5px; display:inline-flex; align-items:center; gap:2px;" title="แตะเพื่อเปลี่ยนมื้อหรือแก้ไข">${typeLabel} ${fcIcon('sparkles')}</button>
                             <span style="color:var(--dim); font-size:11px;">${m.time || ''}</span>
                             <span style="background:${mHealth.gradeColor}20; color:${mHealth.gradeColor}; border:1px solid ${mHealth.gradeColor}55; font-weight:800; font-size:9.5px; padding:1px 6px; border-radius:6px;">เกรด ${mHealth.nutriGrade} • สุขภาพ ${mHealth.healthScore}/10 • อิ่ม ${mHealth.satietyScore}/10</span>
                         </div>
                         <div style="font-weight:700; color:var(--tx); margin-top:2px;">${m.name} ${m.portion ? '<span style="color:var(--dim);font-weight:400;font-size:11.5px;">(' + m.portion + ')</span>' : ''}</div>
                         <div style="font-size:11px; color:var(--dim); margin-top:2px;">
-                            🍗 ${m.pro || 0}g • 🍚 ${m.carbs || 0}g • 🥑 ${m.fat || 0}g${(mHealth.fiber > 0) ? ' • <span style="color:#10b981;font-weight:600;">🥦 ' + mHealth.fiber + 'g</span>' : ''}${(m.sugar != null && m.sugar > 0) ? ' • <span style="color:#ec4899;font-weight:600;">🍭 ' + m.sugar + 'g</span>' : ''}${(m.sodium != null && m.sodium > 0) ? ' • <span style="color:#8b5cf6;font-weight:600;">🧂 ' + m.sodium + 'mg</span>' : ''}
+                            ${fcIcon('utensils')} ${m.pro || 0}g • ${fcIcon('utensils')} ${m.carbs || 0}g • ${fcIcon('sparkles')} ${m.fat || 0}g${(mHealth.fiber > 0) ? ' • <span style="color:#10b981;font-weight:600;"> ' + mHealth.fiber + 'g</span>' : ''}${(m.sugar != null && m.sugar > 0) ? ' • <span style="color:#ec4899;font-weight:600;"> ' + m.sugar + 'g</span>' : ''}${(m.sodium != null && m.sodium > 0) ? ' • <span style="color:#8b5cf6;font-weight:600;"> ' + m.sodium + 'mg</span>' : ''}
                         </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:6px;">
@@ -525,9 +525,9 @@ function render() {
                             <span style="font-size:10.5px; color:var(--dim);"> kcal</span>
                         </div>
                         <!-- Star Favorite Button -->
-                        <button onclick="toggleMealFavorite('${tc.d}', ${idx})" style="background:transparent; border:none; color:${(D.cfg.savedFoods || []).some(f => f.name.trim().toLowerCase() === m.name.trim().toLowerCase()) ? '#eab308' : 'var(--dim)'}; cursor:pointer; padding:4px 5px; font-size:13px;" title="${(D.cfg.savedFoods || []).some(f => f.name.trim().toLowerCase() === m.name.trim().toLowerCase()) ? 'อยู่ในเมนูโปรดแล้ว (แตะเพื่อลบ)' : 'แตะเพื่อบันทึกเป็นเมนูโปรด'}">${(D.cfg.savedFoods || []).some(f => f.name.trim().toLowerCase() === m.name.trim().toLowerCase()) ? '⭐' : '☆'}</button>
-                        <button onclick="editMealItem('${tc.d}', ${idx})" style="background:transparent; border:none; color:var(--dim); cursor:pointer; padding:4px 5px; font-size:13px;" title="แตะเพื่อปรับสัดส่วนหรือหักลบแคลอรี่">✏️</button>
-                        <button onclick="deleteMealItem('${tc.d}', ${idx})" style="background:transparent; border:none; color:var(--red); cursor:pointer; padding:4px 5px; font-size:13px; opacity:0.8;" title="ลบรายการนี้">🗑️</button>
+                        <button onclick="toggleMealFavorite('${tc.d}', ${idx})" style="background:transparent; border:none; color:${(D.cfg.savedFoods || []).some(f => f.name.trim().toLowerCase() === m.name.trim().toLowerCase()) ? '#eab308' : 'var(--dim)'}; cursor:pointer; padding:4px 5px; font-size:13px;" title="${(D.cfg.savedFoods || []).some(f => f.name.trim().toLowerCase() === m.name.trim().toLowerCase()) ? 'อยู่ในเมนูโปรดแล้ว (แตะเพื่อลบ)' : 'แตะเพื่อบันทึกเป็นเมนูโปรด'}">${(D.cfg.savedFoods || []).some(f => f.name.trim().toLowerCase() === m.name.trim().toLowerCase()) ? '' : ''}</button>
+                        <button onclick="editMealItem('${tc.d}', ${idx})" style="background:transparent; border:none; color:var(--dim); cursor:pointer; padding:4px 5px; font-size:13px;" title="แตะเพื่อปรับสัดส่วนหรือหักลบแคลอรี่">${fcIcon('pencil')}</button>
+                        <button onclick="deleteMealItem('${tc.d}', ${idx})" style="background:transparent; border:none; color:var(--red); cursor:pointer; padding:4px 5px; font-size:13px; opacity:0.8;" title="ลบรายการนี้">${fcIcon('trash')}</button>
                     </div>
                 </div>
             `;
@@ -552,7 +552,7 @@ function render() {
         if (isCalOver) {
             sphereCardClass = 'wm-sphere-card is-over';
             sphereInnerClass = 'wm-sphere-inner is-over';
-            sphereLabel = '⚠️ ทานเกินเป้า';
+            sphereLabel = ' ทานเกินเป้า';
             sphereLabelColor = '#991b1b';
             sphereNumColor = '#7f1d1d';
             sphereUnitColor = '#991b1b';
@@ -564,7 +564,7 @@ function render() {
         } else if (isCalExact) {
             sphereCardClass = 'wm-sphere-card is-exact';
             sphereInnerClass = 'wm-sphere-inner is-exact';
-            sphereLabel = '✓ พอดีเป้าหมาย';
+            sphereLabel = ' พอดีเป้าหมาย';
             sphereLabelColor = '#065f46';
             sphereNumColor = '#064e3b';
             sphereUnitColor = '#065f46';
@@ -599,8 +599,8 @@ function render() {
 
         const isManualOverride = Boolean(tc?.dayTypeOverride && tc.dayTypeOverride !== 'auto');
         const dayModeBadge = isManualOverride 
-            ? '<span style="font-size:9.5px; font-weight:800; background:rgba(234,88,12,0.18); color:#f97316; padding:1.5px 7px; border-radius:99px; border:1px solid rgba(234,88,12,0.35); white-space:nowrap; flex-shrink:0;">📌 ล็อกโหมด</span>'
-            : '<span style="font-size:9.5px; font-weight:800; background:rgba(16,185,129,0.18); color:#10b981; padding:1.5px 7px; border-radius:99px; border:1px solid rgba(16,185,129,0.35); white-space:nowrap; flex-shrink:0;">⚡ อัตโนมัติ</span>';
+            ? '<span style="font-size:9.5px; font-weight:800; background:rgba(234,88,12,0.18); color:#f97316; padding:1.5px 7px; border-radius:99px; border:1px solid rgba(234,88,12,0.35); white-space:nowrap; flex-shrink:0;"> ล็อกโหมด</span>'
+            : '<span style="font-size:9.5px; font-weight:800; background:rgba(16,185,129,0.18); color:#10b981; padding:1.5px 7px; border-radius:99px; border:1px solid rgba(16,185,129,0.35); white-space:nowrap; flex-shrink:0;"> อัตโนมัติ</span>';
 
         const offs = (D && D.schOffs) || 0;
         const actualD = getThaiDayOfWeek();
@@ -620,9 +620,9 @@ function render() {
                 <div style="font-size:11.5px; color:#64748b; margin-top:2px;">ทานแล้ว <b style="color:#0f172a;">${cal.toLocaleString()}</b> kcal ${extraStepCal > 0 ? `<span style="color:#10b981;font-weight:700;">(+${extraStepCal} ก้าว)</span> ` : ''}${headerStatusHtml}</div>
             </div>
             <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
-                <button type="button" onclick="openAntiPlateauModal()" style="padding:5px 10px; font-size:11px; border-radius:99px; border:1px solid #bae6fd; background:#eff6ff; color:#0284c7; font-weight:800; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" title="ดูตารางวิเคราะห์ 4 รูปแบบวัน & แผนแก้น้ำหนักค้าง">🛡️ Anti-YoYo</button>
-                <button type="button" onclick="calcBMR()" style="padding:5px 10px; font-size:11px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" title="ปรับเป้าหมายพลังงาน BMR/TDEE">🧮 ปรับเป้า</button>
-                <button type="button" onclick="editDailyTracker()" style="padding:5px 10px; font-size:11px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" title="แก้ไขแคลอรี่/น้ำ">✏️ แก้ไข</button>
+                <button type="button" onclick="openAntiPlateauModal()" style="padding:5px 10px; font-size:11px; border-radius:99px; border:1px solid #bae6fd; background:#eff6ff; color:#0284c7; font-weight:800; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" title="ดูตารางวิเคราะห์ 4 รูปแบบวัน & แผนแก้น้ำหนักค้าง">${fcIcon('shield-check')} Anti-YoYo</button>
+                <button type="button" onclick="calcBMR()" style="padding:5px 10px; font-size:11px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" title="ปรับเป้าหมายพลังงาน BMR/TDEE">${fcIcon('sparkles')} ปรับเป้า</button>
+                <button type="button" onclick="editDailyTracker()" style="padding:5px 10px; font-size:11px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" title="แก้ไขแคลอรี่/น้ำ">${fcIcon('pencil')} แก้ไข</button>
             </div>
         </div>
 
@@ -631,9 +631,9 @@ function render() {
             <!-- Top Row: Icon + Short Thai Title + Mode Button -->
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
                 <div style="min-width:0; flex:1; font-size:13.5px; font-weight:900; color:#fff; line-height:1.3;">
-                    ${curDayPlan ? curDayPlan.icon : '🏋️'} วันนี้: ${curDayShortName}
+                    ${curDayPlan ? curDayPlan.icon : ''} วันนี้: ${curDayShortName}
                 </div>
-                <button type="button" onclick="openDayTypeSelectorModal()" style="flex:0 0 auto; width:auto; font-size:11px; padding:5px 10px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); color:#fff; border-radius:8px; white-space:nowrap; font-weight:700; cursor:pointer;" title="แตะเพื่อสลับรูปแบบวันหรือคืนค่าตรวจจับอัตโนมัติ">สลับโหมด ▾</button>
+                <button type="button" onclick="openDayTypeSelectorModal()" style="flex:0 0 auto; width:auto; font-size:11px; padding:5px 10px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); color:#fff; border-radius:8px; white-space:nowrap; font-weight:700; cursor:pointer;" title="แตะเพื่อสลับรูปแบบวันหรือคืนค่าตรวจจับอัตโนมัติ">สลับโหมด ${fcIcon('sparkles')}</button>
             </div>
             
             <!-- Bottom Row: Auto/Manual Pill + Clean Metrics Bar (wraps cleanly on narrow screens) -->
@@ -681,7 +681,7 @@ function render() {
                             <circle cx="22" cy="22" r="18" fill="none" stroke="#e2e8f0" stroke-width="4"/>
                             <circle cx="22" cy="22" r="18" fill="none" stroke="${carbsRingColor}" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="${Math.max(0, 113 - (113 * carbsPct) / 100)}"/>
                         </svg>
-                        <span>🍞</span>
+                        <span>${fcIcon('sparkles')}</span>
                     </div>
                 </div>
 
@@ -699,7 +699,7 @@ function render() {
                             <circle cx="22" cy="22" r="18" fill="none" stroke="#e2e8f0" stroke-width="4"/>
                             <circle cx="22" cy="22" r="18" fill="none" stroke="${proRingColor}" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="${Math.max(0, 113 - (113 * proPct) / 100)}"/>
                         </svg>
-                        <span>🍗</span>
+                        <span>${fcIcon('utensils')}</span>
                     </div>
                 </div>
 
@@ -717,12 +717,12 @@ function render() {
                             <circle cx="22" cy="22" r="18" fill="none" stroke="#e2e8f0" stroke-width="4"/>
                             <circle cx="22" cy="22" r="18" fill="none" stroke="${fatRingColor}" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="${Math.max(0, 113 - (113 * fatPct) / 100)}"/>
                         </svg>
-                        <span>🧀</span>
+                        <span>${fcIcon('sparkles')}</span>
                     </div>
                 </div>
             </div>
         </div>
-                        <span>🧀</span>
+                        <span>${fcIcon('sparkles')}</span>
                     </div>
                 </div>
             </div>
@@ -740,9 +740,9 @@ function render() {
                 <div style="width:${fatRatio}%; background:#10b981;" title="ไขมัน ${fatRatio}%"></div>
             </div>
             <div style="display:flex; justify-content:space-between; font-size:10.5px; color:var(--dim);">
-                <span style="color:var(--acc2); font-weight:700;">🍗 P ${proRatio}%</span>
-                <span style="color:#3b82f6; font-weight:700;">🍚 C ${carbsRatio}%</span>
-                <span style="color:#10b981; font-weight:700;">🥑 F ${fatRatio}%</span>
+                <span style="color:var(--acc2); font-weight:700;">${fcIcon('utensils')} P ${proRatio}%</span>
+                <span style="color:#3b82f6; font-weight:700;">${fcIcon('utensils')} C ${carbsRatio}%</span>
+                <span style="color:#10b981; font-weight:700;">${fcIcon('sparkles')} F ${fatRatio}%</span>
             </div>
         </div>
 
@@ -752,7 +752,7 @@ function render() {
             <div style="background:var(--card2); border:1px solid ${sugarBorderColor}; border-radius:10px; padding:8px 10px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
                     <span style="font-size:11.5px; font-weight:800; color:var(--tx); display:flex; align-items:center; gap:4px;">
-                        <span>🍭 น้ำตาล</span>
+                        <span>${fcIcon('sparkles')} น้ำตาล</span>
                     </span>
                     <span style="font-size:10px; font-weight:700; color:${sugarStatusColor};">${sugarStatusText}</span>
                 </div>
@@ -767,7 +767,7 @@ function render() {
             <div style="background:var(--card2); border:1px solid ${sodiumBorderColor}; border-radius:10px; padding:8px 10px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
                     <span style="font-size:11.5px; font-weight:800; color:var(--tx); display:flex; align-items:center; gap:4px;">
-                        <span>🧂 โซเดียม</span>
+                        <span>${fcIcon('sparkles')} โซเดียม</span>
                     </span>
                     <span style="font-size:10px; font-weight:700; color:${sodiumStatusColor};">${sodiumStatusText}</span>
                 </div>
@@ -782,7 +782,7 @@ function render() {
         <!-- Today's Meals Timeline -->
         <div style="margin-top:12px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <div style="font-weight:800; font-size:13px; color:var(--tx);">🍽️ รายการอาหารวันนี้ (${mealsList.length} เมนู)</div>
+                <div style="font-weight:800; font-size:13px; color:var(--tx);">${fcIcon('utensils')} รายการอาหารวันนี้ (${mealsList.length} เมนู)</div>
                 <button class="btn sm" onclick="openAddMealModal()" style="width:auto; flex:0 0 auto; padding:3px 10px; font-size:11.5px; background:rgba(234,88,12,0.1); border:1px solid var(--acc); color:var(--acc); border-radius:99px; font-weight:700; cursor:pointer;">+ เพิ่มมื้อ</button>
             </div>
             ${mealsHtml}
@@ -791,10 +791,10 @@ function render() {
         <!-- Action Buttons with AI Suggester -->
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
             <button class="btn sm" onclick="openAddMealModal()" style="padding:8px; font-size:12px; background:var(--acc); color:#fff; font-weight:700;">+ บันทึกมื้ออาหาร</button>
-            <button class="btn sm" onclick="openAiFoodScanner()" style="padding:8px; font-size:12px; background:rgba(234,88,12,0.12); color:var(--acc); border:1px solid var(--acc); font-weight:700;">📸 สแกนอาหาร AI</button>
+            <button class="btn sm" onclick="openAiFoodScanner()" style="padding:8px; font-size:12px; background:rgba(234,88,12,0.12); color:var(--acc); border:1px solid var(--acc); font-weight:700;">${fcIcon('camera')} สแกนอาหาร AI</button>
         </div>
         <div style="margin-top:8px;">
-            <button class="btn sm" onclick="suggestNextMealAI()" style="width:100%; padding:9px; font-size:12.5px; background:linear-gradient(135deg, #ea580c, #f59e0b); color:#fff; font-weight:800; border:none; box-shadow:0 3px 12px rgba(234,88,12,0.25);">🤖 AI แนะนำเมนูมื้อถัดไป (ตามโควตาที่เหลือ)</button>
+            <button class="btn sm" onclick="suggestNextMealAI()" style="width:100%; padding:9px; font-size:12.5px; background:linear-gradient(135deg, #ea580c, #f59e0b); color:#fff; font-weight:800; border:none; box-shadow:0 3px 12px rgba(234,88,12,0.25);">${fcIcon('bot')} AI แนะนำเมนูมื้อถัดไป (ตามโควตาที่เหลือ)</button>
         </div>`;
     }
 
@@ -830,22 +830,22 @@ function render() {
         weeklyEl.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <div style="font-weight:800; font-size:13.5px; color:var(--tx); display:flex; align-items:center; gap:6px;">
-                <span>📈 สรุปภาพรวมรอบ 7 วัน (Weekly Overview)</span>
+                <span>${fcIcon('trending-up')} สรุปภาพรวมรอบ 7 วัน (Weekly Overview)</span>
             </div>
-            <button class="btn sm" onclick="openWeeklyReportModal()" style="font-size:11px; padding:3px 8px; background:var(--acc); color:#fff; font-weight:700; border-radius:6px; cursor:pointer;">📊 ดูรายงานผู้บริหาร ❯</button>
+            <button class="btn sm" onclick="openWeeklyReportModal()" style="font-size:11px; padding:3px 8px; background:var(--acc); color:#fff; font-weight:700; border-radius:6px; cursor:pointer;">${fcIcon('bar-chart')} ดูรายงานผู้บริหาร ${fcIcon('sparkles')}</button>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:12px;">
             <div style="background:var(--card); padding:8px 10px; border-radius:8px; border:1px solid var(--line);">
-                <div style="color:var(--dim); font-size:11px;">🏋️ เล่นเวทเทรนนิ่ง</div>
+                <div style="color:var(--dim); font-size:11px;">${fcIcon('dumbbell')} เล่นเวทเทรนนิ่ง</div>
                 <div style="font-weight:800; font-size:14px; color:var(--acc); margin-top:2px;">${weekSessions.length} วัน</div>
             </div>
             <div style="background:var(--card); padding:8px 10px; border-radius:8px; border:1px solid var(--line);">
-                <div style="color:var(--dim); font-size:11px;">⚡ แคลอรี่เฉลี่ย</div>
+                <div style="color:var(--dim); font-size:11px;">${fcIcon('zap')} แคลอรี่เฉลี่ย</div>
                 <div style="font-weight:800; font-size:14px; color:var(--tx); margin-top:2px;">${avgWeekCal.toLocaleString()} kcal</div>
             </div>
         </div>
         <div style="margin-top:8px; font-size:11.5px; color:var(--dim); line-height:1.4;">
-            💡 <b>คำแนะนำโค้ช:</b> ${remPro > 50 ? 'วันนี้โปรตีนยังขาดค่อนข้างเยอะ แนะนำมื้อถัดไปเน้น อกไก่, ลาบคั่วไก่, หรือไข่ขาวต้ม' : (remCal < 200 ? 'พลังงานวันนี้ใกล้แตะเป้าแล้ว มื้อเย็นเน้นผักต้มน้ำพริกหนุ่มหรือซุปใส' : 'สัดส่วนอาหารและพลังงานอยู่ในเกณฑ์ยอดเยี่ยม รักษาความต่อเนื่องไว้ครับ!')}
+            ${fcIcon('lightbulb')} <b>คำแนะนำโค้ช:</b> ${remPro > 50 ? 'วันนี้โปรตีนยังขาดค่อนข้างเยอะ แนะนำมื้อถัดไปเน้น อกไก่, ลาบคั่วไก่, หรือไข่ขาวต้ม' : (remCal < 200 ? 'พลังงานวันนี้ใกล้แตะเป้าแล้ว มื้อเย็นเน้นผักต้มน้ำพริกหนุ่มหรือซุปใส' : 'สัดส่วนอาหารและพลังงานอยู่ในเกณฑ์ยอดเยี่ยม รักษาความต่อเนื่องไว้ครับ!')}
         </div>`;
     }
 
@@ -860,63 +860,63 @@ function render() {
     const done = D.sessions.some(s => s.date === iso() && (s.workout_key !== 'M' || (['Z', 'R'].includes(tk) && (s.duration_sec >= 1800 || morningM >= 30))));
     
     let cardioNote = '';
-    let startBtnTxt = `▶ เริ่มออกกำลังกาย (~${estMin(tk)} นาที)`;
+    let startBtnTxt = `${fcIcon('sparkles')} เริ่มออกกำลังกาย (~${estMin(tk)} นาที)`;
     
     if (tk === 'Z') {
         if (morningM >= 30) {
             if (D.forceFullCardio) {
                 cardioNote = `<div style="margin-top:10px;padding:12px 14px;background:rgba(245,158,11,0.12);border-radius:12px;border:1px solid rgba(245,158,11,0.3);">
-                    <div style="font-weight:700;color:#d97706;font-size:13.5px;">✓ เช้านี้เดินลู่แล้ว ${morningM} นาที • เปิดโหมดเดินเต็มโปรแกรม</div>
+                    <div style="font-weight:700;color:#d97706;font-size:13.5px;">${fcIcon('sparkles')} เช้านี้เดินลู่แล้ว ${morningM} นาที • เปิดโหมดเดินเต็มโปรแกรม</div>
                     <div style="font-size:12px;color:var(--tx);margin-top:4px;">โปรแกรมจะเปิดลู่วิ่งเต็ม 35 นาทีตามความต้องการ</div>
                     <div style="margin-top:6px;"><label style="font-size:12px;color:var(--dim);display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" checked onchange="toggleForceFullCardio(this.checked)" style="width:auto;margin:0;"> ต้องการเดินเต็มโปรแกรม</label></div>
                 </div>`;
-                startBtnTxt = `▶ เริ่มเดินลู่เต็มโปรแกรม (~${estMin(tk)} นาที)`;
+                startBtnTxt = `${fcIcon('sparkles')} เริ่มเดินลู่เต็มโปรแกรม (~${estMin(tk)} นาที)`;
             } else {
                 cardioNote = `<div style="margin-top:10px;padding:12px 14px;background:rgba(16,185,129,0.12);border-radius:12px;border:1px solid rgba(16,185,129,0.3);">
-                    <div style="font-weight:700;color:#059669;font-size:13.5px;display:flex;align-items:center;gap:6px;">✓ เช้านี้เดินลู่แล้ว ${morningM} นาที (ครบเป้าหมาย Zone 2 แล้ว!)</div>
+                    <div style="font-weight:700;color:#059669;font-size:13.5px;display:flex;align-items:center;gap:6px;">${fcIcon('sparkles')} เช้านี้เดินลู่แล้ว ${morningM} นาที (ครบเป้าหมาย Zone 2 แล้ว!)</div>
                     <div style="font-size:12.5px;color:var(--tx);margin-top:4px;line-height:1.5;">ระบบ<b>ตัดเดินลู่ 35 นาทีและเดินวอร์มออกให้อัตโนมัติ</b> ให้คุณฝึกเฉพาะ <b>Core & ยืดเหยียด</b> (~${estMin(tk)} นาที) ร่างกายจะได้ไม่ล้าเกินไป</div>
                     <div style="margin-top:8px;padding-top:8px;border-top:1px dashed rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
                         <label style="font-size:11.5px;color:var(--dim);display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" onchange="toggleForceFullCardio(this.checked)" style="width:auto;margin:0;"> ต้องการเดินลู่เพิ่มเต็ม 35 นาที</label>
-                        <button class="btn sm g" onclick="markCardioDayDone('${tk}')" style="font-size:11px;padding:4px 8px;border-radius:8px;">✓ จบโปรแกรมวันนี้แล้ว</button>
+                        <button class="btn sm g" onclick="markCardioDayDone('${tk}')" style="font-size:11px;padding:4px 8px;border-radius:8px;">${fcIcon('sparkles')} จบโปรแกรมวันนี้แล้ว</button>
                     </div>
                 </div>`;
-                startBtnTxt = `▶ เริ่มฝึก Core & ยืดเหยียด (~${estMin(tk)} นาที)`;
+                startBtnTxt = `${fcIcon('sparkles')} เริ่มฝึก Core & ยืดเหยียด (~${estMin(tk)} นาที)`;
             }
         } else if (morningM > 0) {
             const remM = Math.max(5, 35 - morningM);
             cardioNote = `<div style="margin-top:10px;padding:12px 14px;background:rgba(245,158,11,0.12);border-radius:12px;border:1px solid rgba(245,158,11,0.3);">
-                <div style="font-weight:700;color:#d97706;font-size:13.5px;">✓ เช้านี้เดินลู่แล้ว ${morningM} นาที • เหลืออีก ${remM} นาที</div>
+                <div style="font-weight:700;color:#d97706;font-size:13.5px;">${fcIcon('sparkles')} เช้านี้เดินลู่แล้ว ${morningM} นาที • เหลืออีก ${remM} นาที</div>
                 <div style="font-size:12px;color:var(--tx);margin-top:4px;">ระบบปรับลดเวลาเดินลู่ให้เหลือ <b>${remM} นาที</b> และตัดเดินวอร์มออกให้อัตโนมัติ</div>
             </div>`;
-            startBtnTxt = `▶ เริ่มเดินต่อ ${remM} นาที + Core (~${estMin(tk)} นาที)`;
+            startBtnTxt = `${fcIcon('sparkles')} เริ่มเดินต่อ ${remM} นาที + Core (~${estMin(tk)} นาที)`;
         } else {
             cardioNote = `<div style="margin-top:6px;font-size:12px;color:var(--dim);">${fcIcon('lightbulb')} ยังไม่ได้เดินเช้า • โปรแกรม Zone 2 เดินลู่ 35 นาที + Core</div>`;
         }
     } else if (tk === 'A') {
         if (morningDone) {
             cardioNote = `<div style="margin-top:6px;font-size:12px;color:var(--ok);font-weight:600;display:flex;align-items:center;gap:4px;">
-                ✓ เช้านี้เดินลู่แล้ว ${morningM} นาที • เย็นนี้ยกเวทเน้นๆ (ตัดลู่วิ่งท้ายเวท 15 นาที และเดินวอร์มออกให้อัตโนมัติ)
+                ${fcIcon('sparkles')} เช้านี้เดินลู่แล้ว ${morningM} นาที • เย็นนี้ยกเวทเน้นๆ (ตัดลู่วิ่งท้ายเวท 15 นาที และเดินวอร์มออกให้อัตโนมัติ)
             </div>`;
-            startBtnTxt = `▶ เริ่มยกเวทเน้นๆ (~${estMin(tk)} นาที)`;
+            startBtnTxt = `${fcIcon('sparkles')} เริ่มยกเวทเน้นๆ (~${estMin(tk)} นาที)`;
         } else {
             cardioNote = `<div style="margin-top:6px;font-size:12px;color:var(--dim);">
-                💡 ไม่ได้เดินเช้า • รวมเดินลู่ท้ายเวท 15 นาทีตามโปรแกรมปกติ
+                ${fcIcon('lightbulb')} ไม่ได้เดินเช้า • รวมเดินลู่ท้ายเวท 15 นาทีตามโปรแกรมปกติ
             </div>`;
         }
     } else if (tk === 'R' && morningDone) {
         cardioNote = `<div style="margin-top:6px;font-size:12px;color:var(--ok);font-weight:600;">
-            ✓ เช้านี้เดินลู่แล้ว ${morningM} นาที • ปรับเน้นฮูลาฮูปและยืดเหยียดฟื้นฟูหลัง
+            ${fcIcon('sparkles')} เช้านี้เดินลู่แล้ว ${morningM} นาที • ปรับเน้นฮูลาฮูปและยืดเหยียดฟื้นฟูหลัง
         </div>`;
     }
 
     const isOutdoorActive = !!D.outdoorMode && (['R', 'Z'].includes(tk) || t.warm === 'lite');
     const warmTag = isOutdoorActive 
-        ? '<span class="tag o">🌲 Warm-up สวนสาธารณะ (ท่ายืน 4 นาที)</span>'
+        ? '<span class="tag o"> Warm-up สวนสาธารณะ (ท่ายืน 4 นาที)</span>'
         : ((morningM > 0 && ['Z', 'R', 'A'].includes(tk)) 
             ? '<span class="tag o">Warm-up ยืดข้อต่อ (ไม่มีเดินซ้ำ)</span>' 
             : `<span class="tag o"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="4.22" x2="19.78" y2="5.64"/></svg> Warm-up ${t.warm === 'full' ? '9' : '6'} นาที</span>`);
     const coolTag = isOutdoorActive
-        ? '<span class="tag v">🌲 Cool-down สวนสาธารณะ (ม้านั่ง 4 นาที)</span>'
+        ? '<span class="tag v"> Cool-down สวนสาธารณะ (ม้านั่ง 4 นาที)</span>'
         : ((morningM > 0 && ['Z', 'R', 'A'].includes(tk)) 
             ? '<span class="tag v">Cool-down คลายกล้ามเนื้อ</span>' 
             : '<span class="tag v"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="20" y1="16" x2="16" y2="20"/><line x1="4" y1="8" x2="8" y2="4"/><line x1="20" y1="8" x2="16" y2="4"/><line x1="4" y1="16" x2="8" y2="20"/></svg> Cool-down 8 นาที</span>');
@@ -924,10 +924,10 @@ function render() {
     const outdoorSwitcherHtml = (['R', 'Z'].includes(tk) || t.warm === 'lite') ? `
         <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px; padding:6px 10px; background:var(--card2); border-radius:10px; border:1px solid var(--line);">
             <span style="font-size:12px; font-weight:700; color:var(--tx); display:flex; align-items:center; gap:5px;">
-                ${D.outdoorMode ? '🌲 โหมดเดินสวนสาธารณะ (ท่ายืน/ม้านั่ง ไม่ใช้เสื่อ)' : '🏠 โหมดในบ้าน (ใช้เสื่อโยคะ/พื้น)'}
+                ${D.outdoorMode ? ' โหมดเดินสวนสาธารณะ (ท่ายืน/ม้านั่ง ไม่ใช้เสื่อ)' : ' โหมดในบ้าน (ใช้เสื่อโยคะ/พื้น)'}
             </span>
             <button class="btn sm" onclick="toggleOutdoorMode()" style="width:auto; padding:3px 9px; font-size:11px; border-radius:6px; background:${D.outdoorMode ? 'rgba(16,185,129,0.15)' : 'var(--card)'}; border:1px solid ${D.outdoorMode ? '#10b981' : 'var(--line)'}; color:${D.outdoorMode ? '#059669' : 'var(--dim)'}; cursor:pointer; font-weight:700;">
-                ${D.outdoorMode ? '🌲 สวน (เปิดอยู่)' : '🏠 สลับเป็นสวน'}
+                ${D.outdoorMode ? ' สวน (เปิดอยู่)' : ' สลับเป็นสวน'}
             </button>
         </div>
     ` : '';
@@ -937,10 +937,10 @@ function render() {
     const effectiveDayMode = isShiftDuty && todaySuppMode === 'workout' ? 'shift' : todaySuppMode;
     const isLinkedRestMode = ['rest', 'shift', 'seminar', 'travel'].includes(effectiveDayMode);
     const linkedModeLabels = {
-        rest: '🛋️ วันพัก (Rest Day) — พักกล้ามเนื้อเป็นหลัก',
-        shift: '🏥 วันเข้าเวร — พัก/ฟื้นฟูหลังงานหนัก',
-        seminar: '🎓 วันอบรม — พัก/เดินเบาๆ (เลือกซ้อมในห้องพักได้)',
-        travel: '✈️ วันเดินทาง-เที่ยว — พัก/เดินเที่ยว (เลือกซ้อมในห้องพักได้)'
+        rest: ' วันพัก (Rest Day) — พักกล้ามเนื้อเป็นหลัก',
+        shift: ' วันเข้าเวร — พัก/ฟื้นฟูหลังงานหนัก',
+        seminar: ' วันอบรม — พัก/เดินเบาๆ (เลือกซ้อมในห้องพักได้)',
+        travel: ' วันเดินทาง-เที่ยว — พัก/เดินเที่ยว (เลือกซ้อมในห้องพักได้)'
     };
     const primaryTargetKey = isLinkedRestMode ? 'R' : tk;
     const primaryBtnText = isLinkedRestMode
@@ -948,13 +948,13 @@ function render() {
         : startBtnTxt;
     const linkedRestBannerHtml = isLinkedRestMode ? `
         <div style="margin-top:8px; padding:8px 10px; border-radius:10px; background:rgba(15,23,42,0.55); border:1px solid rgba(255,255,255,0.22); font-size:11.5px; color:#e2e8f0; line-height:1.45;">
-            <div style="font-weight:800; color:#fde68a;">${linkedModeLabels[effectiveDayMode] || '🛋️ โหมดพักฟื้นตัว'}</div>
+            <div style="font-weight:800; color:#fde68a;">${linkedModeLabels[effectiveDayMode] || ' โหมดพักฟื้นตัว'}</div>
             <div style="margin-top:2px; font-size:11px; color:#cbd5e1;">เชื่อมกับหน้าวิตามินอัตโนมัติ (ตารางหลัก: ${t.n}) • อยากขยับตัวกดซ้อมไร้ดัมเบลด้านล่างได้ครับ</div>
         </div>
     ` : '';
     const hotelBtnHtml = isLinkedRestMode ? `
         <button type="button" class="btn sm" style="margin-top:8px; width:100%; background:rgba(16,185,129,0.24); color:#a7f3d0; border:1px solid rgba(16,185,129,0.45); border-radius:99px; font-weight:800;" onclick="startW('T')">
-            🏨 ซ้อมไร้ดัมเบลในห้องพัก (~${estMin('T')} นาที • Full Body Bodyweight)
+            ${fcIcon('building')} ซ้อมไร้ดัมเบลในห้องพัก (~${estMin('T')} นาที • Full Body Bodyweight)
         </button>
     ` : '';
 
@@ -966,26 +966,26 @@ function render() {
         <div class="hw-hero-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <span style="background:rgba(255,255,255,0.18); backdrop-filter:blur(6px); color:#fff; font-size:11px; font-weight:800; padding:4px 10px; border-radius:99px;">วัน${DN[dow]} • ~${estMin(primaryTargetKey)} นาที • ~${(primaryTargetKey === 'Z' && morningM >= 30 && !D.forceFullCardio) ? 140 : W[primaryTargetKey].kcal} kcal</span>
-                ${done ? '<span style="background:#10b981; color:#fff; font-size:11px; font-weight:800; padding:4px 10px; border-radius:99px;">✓ สำเร็จวันนี้</span>' : '<span style="background:rgba(59,130,246,0.35); color:#bfdbfe; font-size:11px; font-weight:800; padding:4px 10px; border-radius:99px;">ภารกิจวันนี้</span>'}
+                ${done ? '<span style="background:#10b981; color:#fff; font-size:11px; font-weight:800; padding:4px 10px; border-radius:99px;"> สำเร็จวันนี้</span>' : '<span style="background:rgba(59,130,246,0.35); color:#bfdbfe; font-size:11px; font-weight:800; padding:4px 10px; border-radius:99px;">ภารกิจวันนี้</span>'}
             </div>
             <h2 style="margin:4px 0 6px; font-size:22px; font-weight:900; color:#ffffff; letter-spacing:-0.4px; display:flex; align-items:center; gap:8px;">
-                <span>${isLinkedRestMode ? '🌿 พักฟื้นฟู / Active Recovery' : `${t.ic} ${t.n}`}</span>
+                <span>${isLinkedRestMode ? ' พักฟื้นฟู / Active Recovery' : `${t.ic} ${t.n}`}</span>
             </h2>
             <div style="margin-top:6px; display:flex; flex-wrap:wrap; gap:6px;">
                 ${warmTag} ${coolTag}
-                ${D.bs ? '<span class="tag b" style="background:rgba(16,185,129,0.25); color:#a7f3d0; border:none;">🛡️ เซฟหลัง McGill Big 3</span>' : ''}
+                ${D.bs ? '<span class="tag b" style="background:rgba(16,185,129,0.25); color:#a7f3d0; border:none;"> เซฟหลัง McGill Big 3</span>' : ''}
             </div>
             ${outdoorSwitcherHtml}
             ${linkedRestBannerHtml}
             ${cardioNote}
             <button type="button" class="hw-cta-pill" onclick="startW('${primaryTargetKey}')">
                 <span>${primaryBtnText}</span>
-                <span class="hw-cta-arrow">➔</span>
+                <span class="hw-cta-arrow">${fcIcon('sparkles')}</span>
             </button>
             ${hotelBtnHtml}
             <div class="g2" style="margin-top:10px;">
-                <button class="btn sm" style="background:rgba(255,255,255,0.15); color:#fef08a; border:1px solid rgba(255,255,255,0.22); border-radius:99px; font-weight:700;" onclick="startMorningCardio()">🌅 ${morningDone ? `เดินลู่เช้า (${morningM} น.) ✓` : 'เดินลู่เช้า Zone 2'}</button>
-                <button class="btn sm" style="background:rgba(255,255,255,0.15); color:#ffffff; border:1px solid rgba(255,255,255,0.22); border-radius:99px; font-weight:700;" onclick="toggleShiftDutyMode()">${isShiftDuty ? "🌙 เข้าเวร/พัก (ON)" : "🏥 โหมดเข้าเวร"}</button>
+                <button class="btn sm" style="background:rgba(255,255,255,0.15); color:#fef08a; border:1px solid rgba(255,255,255,0.22); border-radius:99px; font-weight:700;" onclick="startMorningCardio()">${fcIcon('sunrise')} ${morningDone ? `เดินลู่เช้า (${morningM} น.) ` : 'เดินลู่เช้า Zone 2'}</button>
+                <button class="btn sm" style="background:rgba(255,255,255,0.15); color:#ffffff; border:1px solid rgba(255,255,255,0.22); border-radius:99px; font-weight:700;" onclick="toggleShiftDutyMode()">${isShiftDuty ? " เข้าเวร/พัก (ON)" : " โหมดเข้าเวร"}</button>
             </div>
         </div>
     </div>`;
@@ -1014,14 +1014,14 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
     <div class="card" style="${i === curPh ? 'border-color:var(--acc);margin-bottom:10px;' : 'margin-bottom:8px;'}">
       <div class="row"><h3>${p.n}</h3><span class="tag ${i === curPh ? '' : 'gr'}">${i === curPh ? 'กำลังฝึก • ' : ''}สัปดาห์ ${p.w}</span></div>
       <div class="sub" style="margin-top:6px">${p.d}</div>
-      <div class="sub" style="margin-top:8px;color:var(--acc)">⚙ ${p.v}</div>
+      <div class="sub" style="margin-top:8px;color:var(--acc)">${fcIcon('settings')} ${p.v}</div>
       <div class="sub"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> เป้าลด ${p.tgt}</div></div>`;
     const activePhaseHtml = phases[curPh] ? renderPhaseCard(phases[curPh], curPh) : '';
     const otherPhasesHtml = phases.map((p, i) => i === curPh ? '' : renderPhaseCard(p, i)).join('');
     document.getElementById('phaseList').innerHTML = `
         ${activePhaseHtml}
         <details class="fc-home-collapse">
-            <summary class="fc-collapse-sum"><span>📋 ดูภาพรวมโปรแกรมครบทั้ง 5 เฟส (Phase 1–5)</span><span class="sub" style="margin-left:auto;font-size:11px;font-weight:600;">แตะเพื่อกาง</span></summary>
+            <summary class="fc-collapse-sum"><span>${fcIcon('file-text')} ดูภาพรวมโปรแกรมครบทั้ง 5 เฟส (Phase 1–5)</span><span class="sub" style="margin-left:auto;font-size:11px;font-weight:600;">แตะเพื่อกาง</span></summary>
             ${otherPhasesHtml}
         </details>`;
     document.getElementById('wSel').innerHTML = Object.keys(W).filter(k => !W[k].isExtra).map(k =>
@@ -1042,13 +1042,13 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
        <div class="sub" style="margin-top:2px;font-size:11.5px;">${s.date.slice(5)} • ${s.kcal} kcal${s.total_volume_kg ? ` • ${fcIcon('dumbbell')} ${s.total_volume_kg.toLocaleString()} กก.` : ''}</div>
      </div>
      <button type="button" class="btn sm g" onclick="openWorkoutSummaryModal('${s.id}')" style="width:auto;flex:0 0 auto;white-space:nowrap;font-size:11px;padding:5px 10px;border-radius:8px;display:inline-flex;align-items:center;gap:4px;" title="ดูสรุป & สร้างการ์ดแชร์">
-       <span>📸 การ์ดแชร์</span>
+       <span>${fcIcon('camera')} การ์ดแชร์</span>
      </button>
    </div>`;
     const topLogs = recentSessions.slice(0, 5).map(renderLogRow).join('');
     const olderLogs = recentSessions.slice(5);
     const olderHtml = olderLogs.length ? `<details class="fc-home-collapse" style="margin-top:8px;margin-bottom:0;">
-        <summary class="fc-collapse-sum" style="padding:8px 12px;font-size:12px;"><span>📋 ดูประวัติเพิ่มเติมอีก ${olderLogs.length} รายการ</span></summary>
+        <summary class="fc-collapse-sum" style="padding:8px 12px;font-size:12px;"><span>${fcIcon('file-text')} ดูประวัติเพิ่มเติมอีก ${olderLogs.length} รายการ</span></summary>
         <div>${olderLogs.map(renderLogRow).join('')}</div>
     </details>` : '';
     document.getElementById('log').innerHTML = recentSessions.length ? (topLogs + olderHtml) : '<div class="sub">ยังไม่มีบันทึก</div>';
@@ -1084,7 +1084,7 @@ function setWeeklyDaysTarget(days) {
     save();
     render();
     if (typeof autoSync === 'function') autoSync();
-    if (typeof msg === 'function') msg(`🗓️ ปรับเป้าหมายเป็น <b>${d} วัน/สัปดาห์</b> และอัปเดตตารางฝึกแล้ว`);
+    if (typeof msg === 'function') msg(`${fcIcon('sparkles')}️ ปรับเป้าหมายเป็น <b>${d} วัน/สัปดาห์</b> และอัปเดตตารางฝึกแล้ว`);
 }
 
 function renderChallengesAndBodyFocus() {
@@ -1113,7 +1113,7 @@ function renderChallengesAndBodyFocus() {
     const weeklyCardHtml = `
     <div class="card" style="margin-bottom:14px;border-color:rgba(14,165,233,0.35);">
         <div class="row" style="align-items:center;margin-bottom:6px;">
-            <h2 style="margin:0;font-size:15.5px;">🎯 เป้าหมายรายสัปดาห์ & โปรแกรมตามสรีรวิทยา</h2>
+            <h2 style="margin:0;font-size:15.5px;">${fcIcon('target')} เป้าหมายรายสัปดาห์ & โปรแกรมตามสรีรวิทยา</h2>
             <span class="tag" style="font-weight:800;">${doneWeekCount} / ${targetDays} วัน</span>
         </div>
         <div style="height:6px;background:rgba(148,163,184,0.2);border-radius:999px;overflow:hidden;margin-bottom:10px;">
@@ -1130,7 +1130,7 @@ function renderChallengesAndBodyFocus() {
         </div>
         ${goalProfile ? `<div style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);border-radius:10px;padding:9px 11px;font-size:12px;line-height:1.45;">
             <div style="font-weight:800;color:var(--acc);">${goalProfile.title}</div>
-            <div class="sub" style="margin-top:2px;">⚙️ ${goalProfile.tip}</div>
+            <div class="sub" style="margin-top:2px;"> ${goalProfile.tip}</div>
         </div>` : ''}
     </div>`;
 
@@ -1139,7 +1139,7 @@ function renderChallengesAndBodyFocus() {
         const isCompleted = doneDays >= c.days;
         const nextDay = Math.min(doneDays + 1, c.days);
         const pct = Math.min(100, Math.round((doneDays / c.days) * 100));
-        const btnLabel = isCompleted ? `${fcIcon('trophy')} ครบ ${c.days} วันแล้ว • ฝึกซ้ำ` : `▶ เริ่มวันที่ ${nextDay} / ${c.days}`;
+        const btnLabel = isCompleted ? `${fcIcon('trophy')} ครบ ${c.days} วันแล้ว • ฝึกซ้ำ` : `${fcIcon('sparkles')} เริ่มวันที่ ${nextDay} / ${c.days}`;
         return `
         <div style="min-width:278px;max-width:295px;flex:0 0 auto;scroll-snap-align:start;border-radius:14px;background:${c.bg};color:#fff;padding:14px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.22);display:flex;flex-direction:column;justify-content:space-between;">
             <img src="${c.img}" alt="${c.title}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center;pointer-events:none;">
@@ -1187,17 +1187,17 @@ function renderChallengesAndBodyFocus() {
     ${weeklyEl ? '' : weeklyCardHtml}
     <div class="card">
         <div class="row" style="align-items:center;margin-bottom:8px;">
-            <h2 style="margin:0;">🏆 โปรแกรมเสริม & ชาเลนจ์เฉพาะจุด</h2>
+            <h2 style="margin:0;">${fcIcon('trophy')} โปรแกรมเสริม & ชาเลนจ์เฉพาะจุด</h2>
             <span class="tag">ไม่กระทบตารางหลัก</span>
         </div>
         <div class="sub" style="margin-bottom:12px;">เลือกเล่นเพิ่มวันพัก/หลังเลิกงาน หรือทำต่อเนื่อง 14-30 วัน โดยนับแคลอรีและอัปเดตแผนที่กล้ามเนื้อให้อัตโนมัติ</div>
 
-        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">🔥 คำท้าต่อเนื่อง (Challenges)</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">${fcIcon('flame')} คำท้าต่อเนื่อง (Challenges)</div>
         <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory;">
             ${challengesHtml}
         </div>
 
-        <div style="font-size:13px;font-weight:700;margin:14px 0 8px;">🎯 เน้นเฉพาะจุดแบบเร่งด่วน (10-15 นาที)</div>
+        <div style="font-size:13px;font-weight:700;margin:14px 0 8px;">${fcIcon('target')} เน้นเฉพาะจุดแบบเร่งด่วน (10-15 นาที)</div>
         <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;">
             ${bfTabsHtml}
         </div>
@@ -1207,10 +1207,10 @@ function renderChallengesAndBodyFocus() {
                 <div style="position:absolute;inset:0;background:linear-gradient(90deg, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0.62) 55%, rgba(15,23,42,0.12) 100%);pointer-events:none;"></div>
                 <div style="position:relative;z-index:1;padding-right:100px;">
                     <div style="font-weight:800;font-size:16px;text-shadow:0 1px 4px rgba(0,0,0,0.5);">${activeBf.title}</div>
-                    <div style="font-size:12px;opacity:0.95;margin-top:3px;text-shadow:0 1px 3px rgba(0,0,0,0.5);">${activeBf.sub} • 🔥 ~${bfWorkout?.kcal || 120} kcal</div>
+                    <div style="font-size:12px;opacity:0.95;margin-top:3px;text-shadow:0 1px 3px rgba(0,0,0,0.5);">${activeBf.sub} • ${fcIcon('flame')} ~${bfWorkout?.kcal || 120} kcal</div>
                 </div>
                 <div style="position:relative;z-index:1;margin-top:12px;">
-                    <button type="button" class="btn sm" onclick="startW('${activeBf.wKey}')" style="background:${activeBf.color};border-color:${activeBf.color};color:#fff;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);">▶ เริ่มฝึกเฉพาะจุด</button>
+                    <button type="button" class="btn sm" onclick="startW('${activeBf.wKey}')" style="background:${activeBf.color};border-color:${activeBf.color};color:#fff;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);">${fcIcon('sparkles')} เริ่มฝึกเฉพาะจุด</button>
                 </div>
             </div>
             <div style="padding:10px 12px;">${bfItemsHtml}</div>

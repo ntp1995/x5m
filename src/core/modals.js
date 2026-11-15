@@ -113,13 +113,13 @@ async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
     const html = `
     <div style="text-align:left; font-size:13.5px; line-height:1.5;">
         <div style="background:rgba(27,89,248,0.08); padding:10px 14px; border-radius:12px; margin-bottom:14px; border-left:4px solid var(--acc);">
-            <div style="font-weight:bold; color:var(--acc); font-size:14px;">🎯 ตั้งค่าโปรแกรม & แผนสรีระส่วนตัว</div>
+            <div style="font-weight:bold; color:var(--acc); font-size:14px;">${fcIcon('target')} ตั้งค่าโปรแกรม & แผนสรีระส่วนตัว</div>
             <div style="font-size:12px; color:var(--dim); margin-top:2px;">กรอกข้อมูลร่างกายเพื่อคำนวณ BMR, TDEE, แคลอรี่ และจัดแผนลดน้ำหนักอัตโนมัติ</div>
         </div>
 
         <!-- หมวด 1: ข้อมูลร่างกาย -->
         <div style="font-weight:bold; color:var(--tx); margin-bottom:6px; display:flex; align-items:center; gap:6px;">
-            <span>🧍‍♂️ ข้อมูลสรีระและสุขภาพล่าสุด</span>
+            <span>${fcIcon('sparkles')}‍${fcIcon('sparkles')}️ ข้อมูลสรีระและสุขภาพล่าสุด</span>
         </div>
         <div style="display:flex; gap:8px;">
             <div style="flex:1;">
@@ -182,7 +182,7 @@ async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
 
         <!-- หมวด 2: เป้าหมาย & คอร์ส -->
         <div style="margin-top:14px; border-top:1px solid var(--line); padding-top:10px;">
-            <div style="font-weight:bold; color:var(--tx); margin-bottom:6px;">🎯 วางแผนเป้าหมาย & ระยะเวลาคอร์ส</div>
+            <div style="font-weight:bold; color:var(--tx); margin-bottom:6px;">${fcIcon('target')} วางแผนเป้าหมาย & ระยะเวลาคอร์ส</div>
             <div style="display:flex; gap:8px;">
                 <div style="flex:1;">
                     <label style="font-size:12px; color:var(--dim); font-weight:bold;">น้ำหนักเป้าหมาย (กก.)</label>
@@ -215,9 +215,9 @@ async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
             <div style="margin-top:10px;">
                 <label style="font-size:12px; color:var(--dim); font-weight:700;">1. ลักษณะงาน & กิจวัตรประจำวัน (Occupational NEAT)</label>
                 <select id="bmrWorkType" onchange="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
-                    <option value="sedentary" ${curWorkType === 'sedentary' ? 'selected' : ''}>🪑 นั่งโต๊ะทำงานเป็นหลัก / ขับรถ (Sedentary Desk Job)</option>
-                    <option value="light" ${curWorkType === 'light' ? 'selected' : ''}>👮 เดินตรวจตรา / ยืนบ่อย / กึ่งลงพื้นที่ (Lightly Active - เช่น งานตำรวจ, เดินตรวจเวร)</option>
-                    <option value="active" ${curWorkType === 'active' ? 'selected' : ''}>🏃 ใช้แรงงานหนัก / ลงพื้นที่ภาคสนามตลอดวัน (Highly Active Fieldwork)</option>
+                    <option value="sedentary" ${curWorkType === 'sedentary' ? 'selected' : ''}> นั่งโต๊ะทำงานเป็นหลัก / ขับรถ (Sedentary Desk Job)</option>
+                    <option value="light" ${curWorkType === 'light' ? 'selected' : ''}> เดินตรวจตรา / ยืนบ่อย / กึ่งลงพื้นที่ (Lightly Active - เช่น งานตำรวจ, เดินตรวจเวร)</option>
+                    <option value="active" ${curWorkType === 'active' ? 'selected' : ''}> ใช้แรงงานหนัก / ลงพื้นที่ภาคสนามตลอดวัน (Highly Active Fieldwork)</option>
                 </select>
             </div>
 
@@ -225,10 +225,10 @@ async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
             <div style="margin-top:10px;">
                 <label style="font-size:12px; color:var(--dim); font-weight:700;">2. การออกกำลังกายแบบมีโครงสร้าง (Structured Exercise / EAT)</label>
                 <select id="bmrExerciseType" onchange="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
-                    <option value="moderate" ${curExerciseType === 'moderate' ? 'selected' : ''}>🏋️ ออกกำลังกาย 3-5 วัน/สัปดาห์ (ตามโปรแกรม FitCoach เวท + เดินลู่)</option>
-                    <option value="light" ${curExerciseType === 'light' ? 'selected' : ''}>🧘 เวทเทรนนิ่งเบาๆ 1-3 วัน/สัปดาห์</option>
-                    <option value="heavy" ${curExerciseType === 'heavy' ? 'selected' : ''}>🔥 ออกกำลังกายหนัก 6-7 วัน/สัปดาห์ (เวทหนัก + คาร์ดิโอทุกวัน)</option>
-                    <option value="none" ${curExerciseType === 'none' ? 'selected' : ''}>🛋️ ไม่ออกกำลังกายเลย</option>
+                    <option value="moderate" ${curExerciseType === 'moderate' ? 'selected' : ''}> ออกกำลังกาย 3-5 วัน/สัปดาห์ (ตามโปรแกรม FitCoach เวท + เดินลู่)</option>
+                    <option value="light" ${curExerciseType === 'light' ? 'selected' : ''}> เวทเทรนนิ่งเบาๆ 1-3 วัน/สัปดาห์</option>
+                    <option value="heavy" ${curExerciseType === 'heavy' ? 'selected' : ''}> ออกกำลังกายหนัก 6-7 วัน/สัปดาห์ (เวทหนัก + คาร์ดิโอทุกวัน)</option>
+                    <option value="none" ${curExerciseType === 'none' ? 'selected' : ''}> ไม่ออกกำลังกายเลย</option>
                 </select>
             </div>
 
@@ -239,7 +239,7 @@ async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
                     <input type="number" step="500" min="2000" max="30000" id="bmrStepTarget" value="${curStepTarget}" oninput="window.updateBmrPreview()" style="flex:1; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px; font-weight:bold;">
                     <span style="font-size:13px; color:var(--dim); font-weight:600;">ก้าว/วัน</span>
                 </div>
-                <div style="font-size:11px; color:var(--dim); margin-top:3px;">💡 การเดิน 8,000 - 10,000 ก้าว ช่วยเพิ่มการเผาผลาญ (NEAT) ได้ 200 - 350 kcal/วัน</div>
+                <div style="font-size:11px; color:var(--dim); margin-top:3px;">${fcIcon('lightbulb')} การเดิน 8,000 - 10,000 ก้าว ช่วยเพิ่มการเผาผลาญ (NEAT) ได้ 200 - 350 kcal/วัน</div>
             </div>
         </div>
 
@@ -284,8 +284,8 @@ async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
         const previewEl = document.getElementById('bmrPreviewBox');
         if (previewEl) {
             let safeStatus = lossPerWk <= 0.65 
-                ? '<span style="color:var(--ok);font-weight:bold;">✓ ปลอดภัยสูงสุด ลีนไขมันรักษากล้ามเนื้อ</span>' 
-                : (lossPerWk <= 0.9 ? '<span style="color:var(--warn);font-weight:bold;">⚡ อัตราเร่งปานกลาง ควรทานโปรตีนให้ครบ</span>' : '<span style="color:var(--red);font-weight:bold;">⚠ อัตราลดสูง อาจเสี่ยงสูญเสียมวลกล้ามเนื้อ</span>');
+                ? '<span style="color:var(--ok);font-weight:bold;"> ปลอดภัยสูงสุด ลีนไขมันรักษากล้ามเนื้อ</span>' 
+                : (lossPerWk <= 0.9 ? '<span style="color:var(--warn);font-weight:bold;"> อัตราเร่งปานกลาง ควรทานโปรตีนให้ครบ</span>' : '<span style="color:var(--red);font-weight:bold;"> อัตราลดสูง อาจเสี่ยงสูญเสียมวลกล้ามเนื้อ</span>');
 
             previewEl.innerHTML = `
                 <div style="background:var(--card2); border-radius:12px; padding:12px; border:1px solid var(--line); font-size:13px; line-height:1.6;">
@@ -308,7 +308,7 @@ async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
                     </div>
                     <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:11.5px;">
                         <span style="color:var(--dim);">กิจกรรม & ก้าวเดิน:</span>
-                        <span style="color:var(--tx);">${workType === 'light' ? 'เดินตรวจ/ยืนบ่อย' : (workType === 'sedentary' ? 'นั่งโต๊ะ' : 'ใช้แรงงาน')} + ${exerciseType === 'moderate' ? 'FitCoach 3-5 วัน' : (exerciseType === 'light' ? 'เวท 1-3 วัน' : (exerciseType === 'heavy' ? 'ออกกำลังหนัก' : 'ไม่ออกกำลัง'))} • 👟 ${stepTarget.toLocaleString()} ก้าว</span>
+                        <span style="color:var(--tx);">${workType === 'light' ? 'เดินตรวจ/ยืนบ่อย' : (workType === 'sedentary' ? 'นั่งโต๊ะ' : 'ใช้แรงงาน')} + ${exerciseType === 'moderate' ? 'FitCoach 3-5 วัน' : (exerciseType === 'light' ? 'เวท 1-3 วัน' : (exerciseType === 'heavy' ? 'ออกกำลังหนัก' : 'ไม่ออกกำลัง'))} • ${fcIcon('sparkles')} ${stepTarget.toLocaleString()} ก้าว</span>
                     </div>
                     <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
                         <span style="color:var(--dim);">เป้าหมายพลังงาน:</span>
@@ -325,7 +325,7 @@ async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
 
     setTimeout(() => { if (typeof window.updateBmrPreview === 'function') window.updateBmrPreview(); }, 80);
 
-    const confirmed = await fcConfirm(html, titleOverride || '⚡ คำนวณเป้าหมายและจัดโปรแกรมใหม่');
+    const confirmed = await fcConfirm(html, titleOverride || fcIcon('zap') + ' คำนวณเป้าหมายและจัดโปรแกรมใหม่');
     if (!confirmed) return null;
 
     // Extract values
@@ -399,7 +399,7 @@ async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
     if (!isSilent) {
         setTimeout(() => {
             fcAlert(`
-                <div style="font-size:16px;"><b>🎉 ปรับแต่งโปรแกรมเรียบร้อย!</b></div><br>
+                <div style="font-size:16px;"><b>${fcIcon('trophy')} ปรับแต่งโปรแกรมเรียบร้อย!</b></div><br>
                 ระยะเวลาคอร์ส: <b>${weeksVal} สัปดาห์ (~${(weeksVal/4.33).toFixed(1)} เดือน)</b><br>
                 เป้าหมายน้ำหนัก: <b>${w.toFixed(1)} กก. → ${targetWVal.toFixed(1)} กก.</b> (ลด ${diff.toFixed(1)} กก.)<br>
                 อัตราลดเป้าหมาย: <b>${lossPerWk.toFixed(2)} กก./สัปดาห์ (~${lossPerMonth.toFixed(1)} กก./เดือน)</b><br><br>

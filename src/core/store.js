@@ -123,7 +123,7 @@ function toggleOutdoorMode() {
     save();
     render();
     if (typeof pushToCloud === 'function') pushToCloud();
-    msg(D.outdoorMode ? '🌲 สลับเป็นโหมดเดินสวนสาธารณะ (ไม่ใช้เสื่อโยคะ)' : '🏠 สลับเป็นโหมดในบ้าน (ใช้เสื่อโยคะ)');
+    msg(D.outdoorMode ? fcIcon('trees') + ' สลับเป็นโหมดเดินสวนสาธารณะ (ไม่ใช้เสื่อโยคะ)' : fcIcon('home') + ' สลับเป็นโหมดในบ้าน (ใช้เสื่อโยคะ)');
 }
 
 function fullItems(k) {
@@ -323,10 +323,10 @@ function computeDynamicTDEE(customWeight) {
     }
 
     const days = {
-        rest: makeDayPlan('rest', 'วันพัก (Rest Day)', '🪑', tdeeRest, 'พักฟื้น ฟื้นฟูกล้ามเนื้อและระบบประสาท'),
-        weight: makeDayPlan('weight', 'วันเล่นเวท (Weight Day)', '🏋️', tdeeRest + extraWeightKcal, 'โปรแกรม A / B / C เล่นเวท 45-60 นาที (+ ' + extraWeightKcal + ' kcal)'),
-        cardio: makeDayPlan('cardio', 'วันคาร์ดิโอ (Cardio Day)', '🏃', tdeeRest + extraCardioKcal, 'โปรแกรม Z (Zone 2) หรือ H (HIIT) (+ ' + extraCardioKcal + ' kcal)'),
-        both: makeDayPlan('both', 'วันเวท + คาร์ดิโอ', '⚡', tdeeRest + extraBothKcal, 'เล่นเวทพร้อมคาร์ดิโอเบิร์นเข้มข้น (+ ' + extraBothKcal + ' kcal)')
+        rest: makeDayPlan('rest', 'วันพัก (Rest Day)', '', tdeeRest, 'พักฟื้น ฟื้นฟูกล้ามเนื้อและระบบประสาท'),
+        weight: makeDayPlan('weight', 'วันเล่นเวท (Weight Day)', '', tdeeRest + extraWeightKcal, 'โปรแกรม A / B / C เล่นเวท 45-60 นาที (+ ' + extraWeightKcal + ' kcal)'),
+        cardio: makeDayPlan('cardio', 'วันคาร์ดิโอ (Cardio Day)', '', tdeeRest + extraCardioKcal, 'โปรแกรม Z (Zone 2) หรือ H (HIIT) (+ ' + extraCardioKcal + ' kcal)'),
+        both: makeDayPlan('both', 'วันเวท + คาร์ดิโอ', '', tdeeRest + extraBothKcal, 'เล่นเวทพร้อมคาร์ดิโอเบิร์นเข้มข้น (+ ' + extraBothKcal + ' kcal)')
     };
 
     return {
@@ -421,8 +421,8 @@ function setTodayDayType(typeKey) {
     }
     const curPlan = (computeDynamicTDEE().days[getTodayEffectiveDayType()]);
     if (typeof msg === 'function') {
-        const typeLabel = typeKey === 'auto' ? '⚡ ตรวจจับอัตโนมัติตามตาราง' : curPlan.name;
-        msg(`✓ ปรับเป้าหมายเป็น: ${typeLabel} (${curPlan.targetCal} kcal)`);
+        const typeLabel = typeKey === 'auto' ? ' ตรวจจับอัตโนมัติตามตาราง' : curPlan.name;
+        msg(`${fcIcon('sparkles')} ปรับเป้าหมายเป็น: ${typeLabel} (${curPlan.targetCal} kcal)`);
     }
 }
 
@@ -440,7 +440,7 @@ async function openDayTypeSelectorModal() {
                 <div style="font-size:15px; font-weight:800; color:var(--acc); margin-top:2px;">
                     ${dyn.days[curType]?.icon || ''} ${dyn.days[curType]?.name || ''} 
                     <span style="font-size:11px; font-weight:700; color:var(--tx); background:rgba(255,255,255,0.08); padding:2px 8px; border-radius:99px; margin-left:4px;">
-                        ${isManual ? '📌 เลือกเอง' : '⚡ ตรวจจับตามตาราง'}
+                        ${isManual ? ' เลือกเอง' : ' ตรวจจับตามตาราง'}
                     </span>
                 </div>
                 <div style="font-size:11.5px; color:var(--dim); margin-top:4px;">
@@ -452,8 +452,8 @@ async function openDayTypeSelectorModal() {
                 <!-- Auto option -->
                 <button type="button" class="btn sm" onclick="setTodayDayType('auto'); fcClose();" style="text-align:left; padding:10px 12px; border-radius:10px; border:${!isManual ? '2px solid var(--acc)' : '1px solid var(--line)'}; background:${!isManual ? 'rgba(234,88,12,0.1)' : 'var(--bg)'}; color:var(--tx); cursor:pointer;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:800; font-size:13px; color:var(--acc);">⚡ ตรวจจับตามตารางฝึกอัตโนมัติ (แนะนำ)</span>
-                        ${!isManual ? '<span style="font-size:11px; font-weight:800; color:var(--acc);">✓ ใช้งานอยู่</span>' : ''}
+                        <span style="font-weight:800; font-size:13px; color:var(--acc);">${fcIcon('zap')} ตรวจจับตามตารางฝึกอัตโนมัติ (แนะนำ)</span>
+                        ${!isManual ? '<span style="font-size:11px; font-weight:800; color:var(--acc);"> ใช้งานอยู่</span>' : ''}
                     </div>
                     <div style="font-size:11px; color:var(--dim); margin-top:2px;">ปรับเปลี่ยนแคลอรี่และคาร์บอัตโนมัติตามตารางฝึกของแต่ละวัน</div>
                 </button>
@@ -461,37 +461,37 @@ async function openDayTypeSelectorModal() {
                 <!-- Rest Day -->
                 <button type="button" class="btn sm" onclick="setTodayDayType('rest'); fcClose();" style="text-align:left; padding:10px 12px; border-radius:10px; border:${isManual && curType === 'rest' ? '2px solid var(--acc)' : '1px solid var(--line)'}; background:${isManual && curType === 'rest' ? 'rgba(234,88,12,0.1)' : 'var(--bg)'}; color:var(--tx); cursor:pointer;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:800; font-size:13px;">🪑 วันพัก (Rest Day)</span>
+                        <span style="font-weight:800; font-size:13px;">${fcIcon('sparkles')} วันพัก (Rest Day)</span>
                         <span style="font-weight:800; font-size:13px; color:var(--acc);">${dyn.days.rest.targetCal} kcal</span>
                     </div>
-                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">🍗 P ${dyn.days.rest.pro}g • 🍚 C ${dyn.days.rest.carbs}g • 🥑 F ${dyn.days.rest.fat}g</div>
+                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">${fcIcon('utensils')} P ${dyn.days.rest.pro}g • ${fcIcon('utensils')} C ${dyn.days.rest.carbs}g • ${fcIcon('sparkles')} F ${dyn.days.rest.fat}g</div>
                 </button>
 
                 <!-- Weight Day -->
                 <button type="button" class="btn sm" onclick="setTodayDayType('weight'); fcClose();" style="text-align:left; padding:10px 12px; border-radius:10px; border:${isManual && curType === 'weight' ? '2px solid var(--acc)' : '1px solid var(--line)'}; background:${isManual && curType === 'weight' ? 'rgba(234,88,12,0.1)' : 'var(--bg)'}; color:var(--tx); cursor:pointer;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:800; font-size:13px;">🏋️ วันเล่นเวท (Weight Day)</span>
+                        <span style="font-weight:800; font-size:13px;">${fcIcon('dumbbell')} วันเล่นเวท (Weight Day)</span>
                         <span style="font-weight:800; font-size:13px; color:var(--acc);">${dyn.days.weight.targetCal} kcal</span>
                     </div>
-                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">🍗 P ${dyn.days.weight.pro}g • 🍚 C ${dyn.days.weight.carbs}g • 🥑 F ${dyn.days.weight.fat}g</div>
+                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">${fcIcon('utensils')} P ${dyn.days.weight.pro}g • ${fcIcon('utensils')} C ${dyn.days.weight.carbs}g • ${fcIcon('sparkles')} F ${dyn.days.weight.fat}g</div>
                 </button>
 
                 <!-- Cardio Day -->
                 <button type="button" class="btn sm" onclick="setTodayDayType('cardio'); fcClose();" style="text-align:left; padding:10px 12px; border-radius:10px; border:${isManual && curType === 'cardio' ? '2px solid var(--acc)' : '1px solid var(--line)'}; background:${isManual && curType === 'cardio' ? 'rgba(234,88,12,0.1)' : 'var(--bg)'}; color:var(--tx); cursor:pointer;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:800; font-size:13px;">🏃 วันคาร์ดิโอ (Cardio Day)</span>
+                        <span style="font-weight:800; font-size:13px;">${fcIcon('footprints')} วันคาร์ดิโอ (Cardio Day)</span>
                         <span style="font-weight:800; font-size:13px; color:var(--acc);">${dyn.days.cardio.targetCal} kcal</span>
                     </div>
-                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">🍗 P ${dyn.days.cardio.pro}g • 🍚 C ${dyn.days.cardio.carbs}g • 🥑 F ${dyn.days.cardio.fat}g</div>
+                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">${fcIcon('utensils')} P ${dyn.days.cardio.pro}g • ${fcIcon('utensils')} C ${dyn.days.cardio.carbs}g • ${fcIcon('sparkles')} F ${dyn.days.cardio.fat}g</div>
                 </button>
 
                 <!-- Both -->
                 <button type="button" class="btn sm" onclick="setTodayDayType('both'); fcClose();" style="text-align:left; padding:10px 12px; border-radius:10px; border:${isManual && curType === 'both' ? '2px solid var(--acc)' : '1px solid var(--line)'}; background:${isManual && curType === 'both' ? 'rgba(234,88,12,0.1)' : 'var(--bg)'}; color:var(--tx); cursor:pointer;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:800; font-size:13px;">⚡ วันเวท + คาร์ดิโอ (Both)</span>
+                        <span style="font-weight:800; font-size:13px;">${fcIcon('zap')} วันเวท + คาร์ดิโอ (Both)</span>
                         <span style="font-weight:800; font-size:13px; color:var(--acc);">${dyn.days.both.targetCal} kcal</span>
                     </div>
-                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">🍗 P ${dyn.days.both.pro}g • 🍚 C ${dyn.days.both.carbs}g • 🥑 F ${dyn.days.both.fat}g</div>
+                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">${fcIcon('utensils')} P ${dyn.days.both.pro}g • ${fcIcon('utensils')} C ${dyn.days.both.carbs}g • ${fcIcon('sparkles')} F ${dyn.days.both.fat}g</div>
                 </button>
             </div>
             <div style="text-align:right;">
@@ -499,7 +499,7 @@ async function openDayTypeSelectorModal() {
             </div>
         </div>
     `;
-    fcAlert(html, '⚡ สลับรูปแบบวัน & งบประมาณแคลอรี่');
+    fcAlert(html, fcIcon('zap') + ' สลับรูปแบบวัน & งบประมาณแคลอรี่');
 }
 
 function diagnoseWeightPlateau() {
@@ -554,9 +554,9 @@ function diagnoseWeightPlateau() {
             lossPerWk: Math.round(lossPerWk * 100) / 100,
             message: 'น้ำหนักตัวไม่ขยับลงมานานกว่า 2 สัปดาห์ ร่างกายอาจเริ่มลดอัตราการเผาผลาญ (Metabolic Adaptation) หรือมีความเครียดสะสม/บวมน้ำ',
             prescription: [
-                '🍚 <b>ทำ Refeed Day 1 วัน:</b> ทานแคลอรี่เท่าระดับ TDEE (' + dyn.days.weight.tdee + ' kcal) โดยเพิ่มเฉพาะคาร์โบไฮเดรตที่มีประโยชน์ +60g ถึง +80g เพื่อกระตุ้นฮอร์โมนเลปตินและต่อมไทรอยด์',
-                '🔒 <b>ห้ามลดแคลอรี่ต่ำกว่า BMR (' + dyn.bmr + ' kcal):</b> การตัดอาหารเพิ่มในจุดนี้จะยิ่งทำให้น้ำหนักค้างและสูญเสียกล้ามเนื้อ',
-                '😴 <b>นอนหลับให้ครบ 7-8 ชม.:</b> ลดฮอร์โมน Cortisol ซึ่งเป็นสาเหตุหลักของการบวมน้ำสะสมใต้ผิวหนัง'
+                ' <b>ทำ Refeed Day 1 วัน:</b> ทานแคลอรี่เท่าระดับ TDEE (' + dyn.days.weight.tdee + ' kcal) โดยเพิ่มเฉพาะคาร์โบไฮเดรตที่มีประโยชน์ +60g ถึง +80g เพื่อกระตุ้นฮอร์โมนเลปตินและต่อมไทรอยด์',
+                ' <b>ห้ามลดแคลอรี่ต่ำกว่า BMR (' + dyn.bmr + ' kcal):</b> การตัดอาหารเพิ่มในจุดนี้จะยิ่งทำให้น้ำหนักค้างและสูญเสียกล้ามเนื้อ',
+                ' <b>นอนหลับให้ครบ 7-8 ชม.:</b> ลดฮอร์โมน Cortisol ซึ่งเป็นสาเหตุหลักของการบวมน้ำสะสมใต้ผิวหนัง'
             ]
         };
     }
@@ -572,9 +572,9 @@ function diagnoseWeightPlateau() {
             lossPerWk: Math.round(lossPerWk * 100) / 100,
             message: 'อัตราการลดเฉลี่ย ' + lossPerWk.toFixed(2) + ' kg/สัปดาห์ เสี่ยงต่อการสูญเสียมวลกล้ามเนื้อและน้ำในเซลล์',
             prescription: [
-                '🥩 <b>เพิ่มโปรตีนให้แตะ ' + (dyn.weight * 2.0).toFixed(0) + ' กรัม/วัน:</b> เพื่อตรึงมวลกล้ามเนื้อ',
-                '🍚 <b>เพิ่มคาร์บในวันฝึกซ้อม +30g:</b> เสริมพลังงานและป้องกันกล้ามเนื้อสลายตัว',
-                '💧 <b>ดื่มน้ำให้ได้ ' + (dyn.days.rest.water / 1000).toFixed(1) + ' ลิตร/วัน:</b> รักษาสมดุลเกลือแร่'
+                ' <b>เพิ่มโปรตีนให้แตะ ' + (dyn.weight * 2.0).toFixed(0) + ' กรัม/วัน:</b> เพื่อตรึงมวลกล้ามเนื้อ',
+                ' <b>เพิ่มคาร์บในวันฝึกซ้อม +30g:</b> เสริมพลังงานและป้องกันกล้ามเนื้อสลายตัว',
+                ' <b>ดื่มน้ำให้ได้ ' + (dyn.days.rest.water / 1000).toFixed(1) + ' ลิตร/วัน:</b> รักษาสมดุลเกลือแร่'
             ]
         };
     }
@@ -582,15 +582,15 @@ function diagnoseWeightPlateau() {
     return {
         status: 'optimal',
         title: 'อัตราการลดไขมันอยู่ในเกณฑ์สมบูรณ์แบบ',
-        badge: '✓ ปลอดภัย & รักษากล้ามเนื้อ',
+        badge: fcIcon('sparkles') + ' ปลอดภัย & รักษากล้ามเนื้อ',
         color: '#10b981',
         bg: '#ecfdf5',
         border: '#a7f3d0',
         lossPerWk: Math.round(lossPerWk * 100) / 100,
         message: 'น้ำหนักและสัดส่วนลดลงเฉลี่ย ' + Math.max(0, lossPerWk).toFixed(2) + ' kg/สัปดาห์ ปลอดภัยต่ออัตราการเผาผลาญและไม่เสี่ยงโยโย่',
         prescription: [
-            '🎯 <b>ทำตามแผน Dynamic TDEE ต่อเนื่อง:</b> ทานคาร์บเพิ่มในวันเล่นเวท และลดในวันพัก',
-            '📏 <b>วัดรอบเอวสัปดาห์ละ 1 ครั้ง:</b> ควบคู่กับการชั่งน้ำหนักตอนเช้า'
+            ' <b>ทำตามแผน Dynamic TDEE ต่อเนื่อง:</b> ทานคาร์บเพิ่มในวันเล่นเวท และลดในวันพัก',
+            ' <b>วัดรอบเอวสัปดาห์ละ 1 ครั้ง:</b> ควบคู่กับการชั่งน้ำหนักตอนเช้า'
         ]
     };
 }
@@ -623,7 +623,7 @@ function renderAntiPlateauModal() {
                 ${isCur ? '<br><span style="font-size:10px; background:#0284c7; color:#fff; padding:1px 6px; border-radius:99px;">วันนี้</span>' : ''}
             </td>
             <td><b>${d.tdee}</b></td>
-            <td style="color:#0284c7;"><b>${d.targetCal}</b> ${d.isClamped ? '<span title="ล็อคไม่ให้ต่ำกว่า BMR">🔒</span>' : ''}</td>
+            <td style="color:#0284c7;"><b>${d.targetCal}</b> ${d.isClamped ? '<span title="ล็อคไม่ให้ต่ำกว่า BMR"></span>' : ''}</td>
             <td style="color:#059669;"><b>${d.pro}g</b></td>
             <td style="color:#d97706;"><b>${d.carbs}g</b></td>
             <td style="color:#e11d48;"><b>${d.fat}g</b></td>
@@ -634,7 +634,7 @@ function renderAntiPlateauModal() {
     box.innerHTML = `
         <!-- BMR Safety Floor Banner -->
         <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:16px; padding:12px 14px; margin-bottom:14px; display:flex; align-items:center; gap:12px;">
-            <div style="font-size:28px;">🛡️</div>
+            <div style="font-size:28px;">${fcIcon('shield-check')}</div>
             <div style="flex:1;">
                 <div style="font-size:12.5px; font-weight:800; color:#0369a1;">BMR Safety Floor: ${dyn.bmr} kcal/วัน</div>
                 <div style="font-size:11px; color:#475569; margin-top:2px; line-height:1.4;">
@@ -667,7 +667,7 @@ function renderAntiPlateauModal() {
                 </table>
             </div>
             <div style="font-size:11px; color:#64748b; line-height:1.4; margin-top:6px;">
-                💡 <b>หลักการสมดุล:</b> โปรตีน 2.0g/kg และไขมัน 0.8g/kg คงที่ทุกวัน ส่วน<b>คาร์โบไฮเดรต</b>จะปรับเพิ่มในวันฝึกซ้อมเพื่อให้มีพลังงานยก และลดลงในวันพัก
+                ${fcIcon('lightbulb')} <b>หลักการสมดุล:</b> โปรตีน 2.0g/kg และไขมัน 0.8g/kg คงที่ทุกวัน ส่วน<b>คาร์โบไฮเดรต</b>จะปรับเพิ่มในวันฝึกซ้อมเพื่อให้มีพลังงานยก และลดลงในวันพัก
             </div>
         </div>
 
@@ -682,7 +682,7 @@ function renderAntiPlateauModal() {
             </div>
             ${diag.prescription ? `
             <div style="background:#ffffff; border-radius:12px; padding:10px 12px; border:1px solid rgba(0,0,0,0.06);">
-                <div style="font-size:11px; font-weight:800; color:#0f172a; margin-bottom:4px;">📋 แนวทางปฏิบัติแก้น้ำหนักค้าง (Anti-Plateau Action Plan):</div>
+                <div style="font-size:11px; font-weight:800; color:#0f172a; margin-bottom:4px;"> แนวทางปฏิบัติแก้น้ำหนักค้าง (Anti-Plateau Action Plan):</div>
                 <div style="display:flex; flex-direction:column; gap:6px; font-size:11px; color:#334155; line-height:1.45;">
                     ${diag.prescription.map(p => `<div>• ${p}</div>`).join('')}
                 </div>

@@ -343,7 +343,7 @@ function applyOnboardingPlanToApp() {
 
     closeOnboardingWizard();
     if (typeof msg === 'function') {
-        msg('✓ บันทึกโปรแกรมส่วนบุคคลเรียบร้อย! งบพลังงาน ' + plan.calTarget.toLocaleString() + ' kcal/วัน');
+        msg(fcIcon('sparkles') + ' บันทึกโปรแกรมส่วนบุคคลเรียบร้อย! งบพลังงาน ' + plan.calTarget.toLocaleString() + ' kcal/วัน');
     }
 }
 
@@ -438,9 +438,9 @@ function renderOnboardingStep() {
                 </div>
 
                 <div style="display:flex; justify-content:center; gap:12px; margin-top:8px;">
-                    <button type="button" class="ob-step-pill" onclick="onObYearSelect(${curYr - 1})">▲ ปีก่อนหน้า</button>
+                    <button type="button" class="ob-step-pill" onclick="onObYearSelect(${curYr - 1})">${fcIcon('sparkles')} ปีก่อนหน้า</button>
                     <span style="font-size:14px; font-weight:800; color:#0284c7; display:flex; align-items:center;">อายุ ${obState.age} ปี</span>
-                    <button type="button" class="ob-step-pill" onclick="onObYearSelect(${curYr + 1})">▼ ปีถัดไป</button>
+                    <button type="button" class="ob-step-pill" onclick="onObYearSelect(${curYr + 1})">${fcIcon('sparkles')} ปีถัดไป</button>
                 </div>
             </div>
             <div class="wm-ob-footer">
@@ -598,7 +598,7 @@ function renderOnboardingStep() {
                     <!-- Profile Row -->
                     <div class="wm-analysis-profile-row">
                         <div style="display:flex; align-items:center; gap:8px;">
-                            <span style="font-size:24px;">👤</span>
+                            <span style="font-size:24px;">${fcIcon('user')}</span>
                             <div>
                                 <div style="font-size:11px; color:#64748b; font-weight:700;">อายุ</div>
                                 <div style="font-size:14px; font-weight:900; color:#0f172a;">${obState.age}</div>
@@ -640,7 +640,7 @@ function renderOnboardingStep() {
                     <div style="position:relative; margin-top:20px;">
                         <div class="wm-bmi-pointer" style="left:${bmiPct}%;">
                             <span>${bmi}</span>
-                            <span style="font-size:9px; color:#0284c7;">▼</span>
+                            <span style="font-size:9px; color:#0284c7;">${fcIcon('sparkles')}</span>
                         </div>
                         <div class="wm-bmi-bar-track">
                             <div class="wm-bmi-segment" style="background:#38bdf8;" title="น้ำหนักน้อยเกินไป"></div>
@@ -660,15 +660,15 @@ function renderOnboardingStep() {
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; background:#ffffff; border-radius:14px; padding:12px 14px; border:1px solid #e2e8f0;">
                         <div style="display:flex; flex-direction:column; gap:8px;">
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <span style="font-size:15px;">💡</span>
+                                <span style="font-size:15px;">${fcIcon('lightbulb')}</span>
                                 <span style="font-size:12px; font-weight:700; color:#64748b;">BMI <b>${bmi}</b></span>
                             </div>
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <span style="font-size:15px;">🍃</span>
+                                <span style="font-size:15px;">${fcIcon('sparkles')}</span>
                                 <span style="font-size:12px; font-weight:700; color:#64748b;">BMI ที่ดีต่อสุขภาพ <b>18.5 - 24.9</b></span>
                             </div>
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <span style="font-size:15px;">🩱</span>
+                                <span style="font-size:15px;">${fcIcon('sparkles')}</span>
                                 <span style="font-size:12px; font-weight:700; color:#64748b;">น้ำหนักที่ดีต่อสุขภาพ <b>${normalWeightMin}kg - ${normalWeightMax}kg</b></span>
                             </div>
                         </div>
@@ -777,7 +777,7 @@ function renderOnboardingStep() {
         <div class="wm-ob-wrap">
             ${headerHtml}
             <div class="wm-ob-body">
-                <div style="display:inline-block; font-size:11px; font-weight:800; color:#0284c7; background:#eff6ff; padding:3px 10px; border-radius:99px; border:1px solid #bae6fd; margin-bottom:6px;">🎯 ระยะเวลาโปรแกรม & คาดการณ์บรรลุเป้าหมาย</div>
+                <div style="display:inline-block; font-size:11px; font-weight:800; color:#0284c7; background:#eff6ff; padding:3px 10px; border-radius:99px; border:1px solid #bae6fd; margin-bottom:6px;">${fcIcon('target')} ระยะเวลาโปรแกรม & คาดการณ์บรรลุเป้าหมาย</div>
                 <h1 class="wm-ob-title">คุณต้องการฝึกโปรแกรมนี้กี่สัปดาห์?</h1>
                 <p class="wm-ob-subtitle">เลือกระยะเวลาการฝึกตามจำนวนสัปดาห์เพื่อคำนวณอัตราการเปลี่ยนแปลงรูปร่างอย่างปลอดภัยและยั่งยืน</p>
 
@@ -813,7 +813,7 @@ function renderOnboardingStep() {
                     </div>
                     <div class="wm-week-card ${weeks === 20 ? 'active' : ''}" onclick="setObWeeks(20)">
                         <div style="font-size:15px; font-weight:900; color:#0f172a;">20 สัปดาห์</div>
-                        <div style="font-size:11px; font-weight:800; color:#0284c7; margin-top:2px;">⭐ แนะนำ</div>
+                        <div style="font-size:11px; font-weight:800; color:#0284c7; margin-top:2px;">${fcIcon('star')} แนะนำ</div>
                     </div>
                     <div class="wm-week-card ${weeks === 24 ? 'active' : ''}" onclick="setObWeeks(24)">
                         <div style="font-size:15px; font-weight:900; color:#0f172a;">24 สัปดาห์</div>
@@ -872,7 +872,7 @@ function renderOnboardingStep() {
                             <text x="27" y="16" font-size="9" font-weight="700" fill="#64748b" text-anchor="middle">${monthShort}</text>
                             <text x="27" y="32" font-size="14" font-weight="900" fill="#0f172a" text-anchor="middle">${dayNum}</text>
                             <circle cx="27" cy="46" r="8" fill="#f97316"/>
-                            <text x="27" y="50" font-size="9" fill="#ffffff" text-anchor="middle">⛳</text>
+                            <text x="27" y="50" font-size="9" fill="#ffffff" text-anchor="middle">${fcIcon('sparkles')}</text>
                         </g>
                     </svg>
 
@@ -886,7 +886,7 @@ function renderOnboardingStep() {
                 <!-- Motivation Card -->
                 <div style="margin-top:18px; background:#ffffff; border:1px solid #e2e8f0; border-radius:18px; padding:15px; box-shadow:0 4px 14px rgba(15,23,42,0.03);">
                     <div style="display:flex; align-items:center; gap:8px; font-size:14.5px; font-weight:900; color:#0f172a; margin-bottom:4px;">
-                        <span>🎯</span> เส้นทางวิทยาศาสตร์การกีฬา
+                        <span>${fcIcon('target')}</span> เส้นทางวิทยาศาสตร์การกีฬา
                     </div>
                     <div style="font-size:12.5px; color:#64748b; line-height:1.45;">เรานำจำนวนสัปดาห์ (${weeks} สัปดาห์) ไปคำนวณอัตรา Deficit และสัดส่วนโปรตีนเพื่อคุ้มกันมวลกล้ามเนื้อให้คุณโดยเฉพาะ</div>
                 </div>
@@ -907,7 +907,7 @@ function renderOnboardingStep() {
                 title: 'นั่งโต๊ะทำงานเป็นหลัก',
                 subTitle: 'Sedentary (ตัวคูณ 1.20)',
                 desc: 'นั่งทำงาน นั่งหน้าคอมฯ ขับรถ เคลื่อนไหวน้อย เดินต่ำกว่า 3,000 ก้าวต่อวัน',
-                icon: '🪑',
+                icon: '',
                 color: '#64748b'
             },
             {
@@ -921,7 +921,7 @@ function renderOnboardingStep() {
             {
                 lvl: 3,
                 title: 'เคลื่อนไหวปานกลาง',
-                subTitle: 'Moderately Active (ตัวคูณ 1.50) ⭐ แนะนำ',
+                subTitle: 'Moderately Active (ตัวคูณ 1.50)  แนะนำ',
                 desc: 'ออกกำลังกายสม่ำเสมอ 3-4 วันต่อสัปดาห์ หรือเดินมากกว่า 8,000 ก้าวต่อวัน',
                 icon: fcIcon('footprints'),
                 color: '#10b981'
@@ -954,7 +954,7 @@ function renderOnboardingStep() {
                             <div style="flex:1;">
                                 <div style="display:flex; justify-content:space-between; align-items:center;">
                                     <div style="font-size:15px; font-weight:900; color:#0f172a;">${opt.title}</div>
-                                    ${isAct ? '<span style="font-size:16px; color:#0284c7; font-weight:900;">✓</span>' : ''}
+                                    ${isAct ? '<span style="font-size:16px; color:#0284c7; font-weight:900;"></span>' : ''}
                                 </div>
                                 <div style="font-size:11.5px; font-weight:800; color:${opt.color}; margin-top:1px;">${opt.subTitle}</div>
                                 <div style="font-size:11.5px; color:#64748b; font-weight:600; margin-top:3px; line-height:1.4;">${opt.desc}</div>
@@ -964,12 +964,12 @@ function renderOnboardingStep() {
                 </div>
 
                 <div style="margin-top:18px; padding:14px; border-radius:16px; background:#f8fafc; border:1px solid #e2e8f0;">
-                    <div style="font-size:13.5px; font-weight:900; color:#0f172a; margin-bottom:4px;">🗓️ เป้าหมายออกกำลังกายกี่วัน/สัปดาห์?</div>
+                    <div style="font-size:13.5px; font-weight:900; color:#0f172a; margin-bottom:4px;">${fcIcon('sparkles')}️ เป้าหมายออกกำลังกายกี่วัน/สัปดาห์?</div>
                     <div style="font-size:11.5px; color:#64748b; margin-bottom:10px;">ระบบจะจัดตารางฝึก 7 วันให้เหมาะกับเป้าหมายของคุณอัตโนมัติ</div>
                     <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px;">
                         ${[3, 4, 5, 6].map(d => {
                             const isW = (obState.weeklyDays || 5) === d;
-                            return `<button type="button" onclick="selectObWeeklyDays(${d})" style="padding:10px 6px; border-radius:12px; border:2px solid ${isW ? '#0284c7' : '#cbd5e1'}; background:${isW ? '#eff6ff' : '#fff'}; color:${isW ? '#0284c7' : '#334155'}; font-weight:800; font-size:13px; cursor:pointer;">${d} วัน${d === 5 ? ' ⭐' : ''}</button>`;
+                            return `<button type="button" onclick="selectObWeeklyDays(${d})" style="padding:10px 6px; border-radius:12px; border:2px solid ${isW ? '#0284c7' : '#cbd5e1'}; background:${isW ? '#eff6ff' : '#fff'}; color:${isW ? '#0284c7' : '#334155'}; font-weight:800; font-size:13px; cursor:pointer;">${d} วัน${d === 5 ? ' ' : ''}</button>`;
                         }).join('')}
                     </div>
                 </div>
@@ -988,15 +988,15 @@ function renderOnboardingStep() {
         const goals = [
             {
                 id: 'recomp',
-                title: '⚡ ลดไขมันรักษากล้ามเนื้อ (Body Recomp)',
-                badge: '⭐ แนะนำทางสรีรวิทยา',
+                title: fcIcon('zap') + ' ลดไขมันรักษากล้ามเนื้อ (Body Recomp)',
+                badge: fcIcon('star') + ' แนะนำทางสรีรวิทยา',
                 badgeColor: '#0284c7',
                 badgeBg: '#eff6ff',
                 desc: 'ตัดแคลอรี่ปานกลาง (-300 kcal), โปรตีนสูง 2.0g/kg สลายไขมันสะสมโดยคงมวลกล้ามเนื้อเดิมและคุ้มกันระบบเผาผลาญ'
             },
             {
                 id: 'fatloss',
-                title: '🔥 เน้นลดไขมัน/น้ำหนักเร็ว (Fat Loss Cut)',
+                title: fcIcon('flame') + ' เน้นลดไขมัน/น้ำหนักเร็ว (Fat Loss Cut)',
                 badge: 'Deficit -500 kcal',
                 badgeColor: '#ea580c',
                 badgeBg: '#fff7ed',
@@ -1004,7 +1004,7 @@ function renderOnboardingStep() {
             },
             {
                 id: 'slowcut',
-                title: '🍃 ลดไขมันช้าๆ สบายๆ ยั่งยืน (Slow Cut)',
+                title: fcIcon('sparkles') + ' ลดไขมันช้าๆ สบายๆ ยั่งยืน (Slow Cut)',
                 badge: 'Deficit -200 kcal',
                 badgeColor: '#16a34a',
                 badgeBg: '#f0fdf4',
@@ -1012,7 +1012,7 @@ function renderOnboardingStep() {
             },
             {
                 id: 'bulk',
-                title: '💪 เพิ่มกล้ามเนื้อลีน (Lean Bulk)',
+                title: fcIcon('dumbbell') + ' เพิ่มกล้ามเนื้อลีน (Lean Bulk)',
                 badge: 'Surplus +250 kcal',
                 badgeColor: '#9333ea',
                 badgeBg: '#faf5ff',
@@ -1045,7 +1045,7 @@ function renderOnboardingStep() {
                 <!-- Interactive Live Macro Breakdown Card on the same page -->
                 <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:20px; padding:15px; margin-top:14px; box-shadow:0 4px 14px rgba(15,23,42,0.03);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <div style="font-size:13px; font-weight:900; color:#0f172a;">📊 สัดส่วนสารอาหารเป้าหมาย (Macros Target)</div>
+                        <div style="font-size:13px; font-weight:900; color:#0f172a;">${fcIcon('bar-chart')} สัดส่วนสารอาหารเป้าหมาย (Macros Target)</div>
                         <span style="font-size:11px; font-weight:800; color:#0284c7; background:#eff6ff; padding:2px 8px; border-radius:99px; border:1px solid #bfdbfe;">TDEE: ${plan.tdee.toLocaleString()} kcal</span>
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
@@ -1100,7 +1100,7 @@ function renderOnboardingStep() {
             </div>
             <div class="wm-ob-body">
                 <div style="text-align:center; margin-bottom:12px;">
-                    <div style="display:inline-block; font-size:11px; font-weight:800; color:#0284c7; background:#eff6ff; padding:3px 12px; border-radius:99px; border:1px solid #bae6fd; margin-bottom:6px;">🚀 แผนฝึกพร้อมใช้งาน</div>
+                    <div style="display:inline-block; font-size:11px; font-weight:800; color:#0284c7; background:#eff6ff; padding:3px 12px; border-radius:99px; border:1px solid #bae6fd; margin-bottom:6px;">${fcIcon('zap')} แผนฝึกพร้อมใช้งาน</div>
                     <h1 class="wm-ob-title" style="margin:0 0 6px; font-size:23px;">สรุปโปรแกรมส่วนบุคคล FitCoach</h1>
                     <p style="font-size:12.5px; color:#64748b; margin:0;">แผนโภชนาการและการฝึกซ้อมได้รับการปรับแต่งตามหลักวิทยาศาสตร์การกีฬาเรียบร้อยแล้ว</p>
                 </div>
@@ -1111,7 +1111,7 @@ function renderOnboardingStep() {
                         <div>
                             <div style="font-size:11.5px; font-weight:800; color:#64748b;">เป้าหมายน้ำหนักตัว</div>
                             <div style="font-size:19px; font-weight:900; color:#0f172a; margin-top:2px;">
-                                ${obState.weight.toFixed(1)} ➔ <span style="color:#0284c7;">${obState.targetWeight.toFixed(1)} kg</span>
+                                ${obState.weight.toFixed(1)} ${fcIcon('sparkles')} <span style="color:#0284c7;">${obState.targetWeight.toFixed(1)} kg</span>
                             </div>
                         </div>
                         <div style="text-align:right;">
@@ -1146,7 +1146,7 @@ function renderOnboardingStep() {
                 <!-- Medical Shields & Clinical Protection -->
                 <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:18px; padding:14px 16px;">
                     <div style="font-size:12.5px; font-weight:900; color:#0f172a; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-                        <span>🩺</span> ระบบคุ้มกันทางการแพทย์เฉพาะบุคคล
+                        <span>${fcIcon('stethoscope')}</span> ระบบคุ้มกันทางการแพทย์เฉพาะบุคคล
                     </div>
                     <ul style="margin:0; padding-left:16px; font-size:11.5px; color:#475569; line-height:1.6; display:flex; flex-direction:column; gap:4px;">
                         <li><b>McGill Lower Back Shield:</b> ปรับท่าเวทเทรนนิ่งเพื่อปกป้องกระดูกสันหลังและข้อต่อ</li>
@@ -1156,7 +1156,7 @@ function renderOnboardingStep() {
                 </div>
             </div>
             <div class="wm-ob-footer">
-                <button type="button" class="wm-ob-continue-btn" onclick="applyOnboardingPlanToApp()">บันทึกและเริ่มโปรแกรมส่วนบุคคล 🚀</button>
+                <button type="button" class="wm-ob-continue-btn" onclick="applyOnboardingPlanToApp()">บันทึกและเริ่มโปรแกรมส่วนบุคคล ${fcIcon('zap')}</button>
             </div>
         </div>`;
     }
