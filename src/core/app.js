@@ -1,4 +1,5 @@
 /* FitCoach v3.0 — Application Bootstrap & PWA Auto-Update Lifecycle */
+if (typeof fcPlayLottie === 'function') fcPlayLottie('fcBootLottie', 'boot', { size: 48 });
 render();
 // Hide branded boot splash smoothly once initial UI renders
 setTimeout(() => {
@@ -26,7 +27,7 @@ function showAppUpdateNotification(worker) {
     newWorkerWaiting = worker;
     const toast = document.getElementById('appUpdateToast');
     if (toast) {
-        toast.innerHTML = `<span>✨ มีเวอร์ชันใหม่ (v${APP_VERSION})!</span> <button class="btn sm" onclick="applyAppUpdateNow()" style="padding:4px 10px;font-size:12px;margin:0;">อัปเดตทันที</button>`;
+        toast.innerHTML = `<span>${fcIcon('sparkles')} มีเวอร์ชันใหม่ (v${APP_VERSION})!</span> <button class="btn sm" onclick="applyAppUpdateNow()" style="padding:4px 10px;font-size:12px;margin:0;">อัปเดตทันที</button>`;
         toast.classList.add('on');
     }
 }

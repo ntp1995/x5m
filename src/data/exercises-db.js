@@ -38,6 +38,7 @@ const EX = {
     swing: { img: 'swing.jpg', n: 'Kettlebell Swing', eq: 'เคทเทิลเบล 8 กก.', cue: ['Hip hinge ไม่ใช่ squat — ดีดด้วยสะโพก', 'เคทเทิลเบลลอยถึงระดับอกด้วยแรงสะโพก', 'บีบก้นสุดตอนยืนตรง หลังตรงตลอด', 'ถ้าปวดหลังอยู่ ให้ข้ามไปใช้โหมดหลังปลอดภัย'], yt: 'kettlebell swing hardstyle' },
     thruster: { img: 'thruster.jpg', n: 'DB Thruster', eq: 'เคทเทิลเบล 4 กก.×2', cue: ['ถือน้ำหนักระดับไหล่ → ย่อสควอท', 'ยืนขึ้นแล้วดันเหนือหัวเป็นจังหวะเดียว', 'ท่าเผาผลาญสูงสุดของโปรแกรม'], yt: 'dumbbell thruster form' },
     pushup: { img: 'pushup.jpg', n: 'Push-Up', eq: 'ไม่ใช้อุปกรณ์', cue: ['มือกว้างกว่าไหล่เล็กน้อย ลำตัวตรง บีบก้น', 'ลงจนอกเกือบแตะพื้น', 'หนักเกินให้ยันมือบนเก้าอี้'], yt: 'push up proper form' },
+    bw_squat: { img: 'goblet.jpg', n: 'Bodyweight Squat (สควอทตัวเปล่า)', eq: 'ไม่ใช้อุปกรณ์', cue: ['ยืนเท้ากว้างกว่าไหล่เล็กน้อย ปลายเท้าชี้ออก 15°', 'พับสะโพกและงอเข่าลงช้าๆ ให้ต้นขาขนานพื้น', 'ดันส้นเท้ากลับขึ้น บีบก้นด้านบน', 'ปลอดภัยต่อเข่าและหลังล่าง เหมาะสำหรับฝึกในห้องพัก'], yt: 'bodyweight squat proper form' },
     wheel: { img: 'wheel.jpg', n: 'Ab Wheel Rollout', eq: 'ลูกกลิ้งออกกำลัง', cue: ['คุกเข่าบนผ้าขนหนู เกร็งหน้าท้องก่อนออกตัว', 'กลิ้งออกเท่าที่หลังไม่แอ่นเด็ดขาด', 'ดึงกลับด้วยหน้าท้อง ไม่ใช่แขน'], yt: 'ab wheel rollout beginner' },
     plank: { n: 'Plank', eq: 'ไม่ใช้อุปกรณ์', img: 'plank.jpg', cue: ['ศอกใต้ไหล่ ลำตัวเป็นเส้นตรง', 'บีบก้น+หน้าท้อง สะโพกไม่ตก', 'หายใจสม่ำเสมอ ห้ามกลั้น'], yt: 'plank proper form' },
     mtn: { img: 'mtn.jpg', n: 'Mountain Climber', eq: 'ไม่ใช้อุปกรณ์', cue: ['ท่าแพลงก์มือเหยียด สะโพกไม่ยกสูง', 'ดึงเข่าเข้าอกสลับเร็ว หลังไม่แอ่น'], yt: 'mountain climbers form' },
@@ -153,6 +154,14 @@ const SAFE = { rdl: 'thrust', swing: 'bmarch', wheel: 'w_deadbug', row: 'csrow' 
     R: {
         n: 'Active Recovery', ic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--vio)"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>', warm: 'lite', kcal: 180, items: [
             { e: 'walk', sets: 1, type: 'time', t: 1800, after: 60 }]
+    },
+    T: {
+        n: 'Hotel / Travel Bodyweight (ไร้ดัมเบล)', ic: '🏨', warm: 'lite', kcal: 155, items: [
+            { e: 'bw_squat', sets: 3, type: 'reps', r: '15 ครั้ง', rest: 40, after: 45 },
+            { e: 'pushup', sets: 3, type: 'reps', r: '10-12 ครั้ง', rest: 45, after: 45 },
+            { e: 'bmarch', sets: 3, type: 'reps', r: '10 ครั้ง/ข้าง', rest: 35, after: 45 },
+            { e: 'w_bird', sets: 2, type: 'reps', r: '8 ครั้ง/ข้าง', rest: 30, after: 35 },
+            { e: 'plank', sets: 3, type: 'time', t: 35, rest: 30, after: 0 }]
     },
     /* ---------- EXTRA CHALLENGES (14-30 DAYS) & BODY FOCUS (10-15 MIN) ---------- */
     CH_FATBURN30: {

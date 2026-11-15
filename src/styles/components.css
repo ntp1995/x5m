@@ -63,4 +63,19 @@
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
+@keyframes fcPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.78; }
+}
+.fc-icon {
+    display: inline-block;
+    vertical-align: -0.16em;
+    flex-shrink: 0;
+}
+.fc-icon-spin {
+    animation: fcSpin 1.1s linear infinite;
+}
+.fc-icon-pulse {
+    animation: fcPulse 1.6s ease-in-out infinite;
+}
 

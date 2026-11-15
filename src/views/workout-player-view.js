@@ -241,7 +241,7 @@ function loadStep() {
         document.getElementById('plTime').className = 'tim is-reps';
         document.getElementById('plTime').innerHTML = `<span class="rep-num">${repInfo.num}</span><span class="rep-unit">${repInfo.unit}</span>`;
         const setTxt = s.sets > 1 ? `เซ็ต ${s.set}/${s.sets}` : '';
-        document.getElementById('plSet').innerHTML = `${setTxt ? `${setTxt} • ` : ''}<span style="color:var(--tx);font-weight:700;">⏱️ 00:00</span>`;
+        document.getElementById('plSet').innerHTML = `${setTxt ? `${setTxt} • ` : ''}<span style="color:var(--tx);font-weight:700;">${fcIcon('timer')} 00:00</span>`;
         document.getElementById('arc').setAttribute('stroke', col);
         document.getElementById('arc').style.strokeDashoffset = 0;
     } else if (isW) {
@@ -267,7 +267,7 @@ function loadStep() {
     if (isW) {
         const wInfo = getExerciseWeightInfo(s.e);
         const eqDisplay = wInfo.label || (e && e.eq) || '';
-        const eqText = eqDisplay ? ` • 🏋️ <span style="color:var(--tx);font-weight:700;">${eqDisplay}</span>` : '';
+        const eqText = eqDisplay ? ` • ${fcIcon('dumbbell')} <span style="color:var(--tx);font-weight:700;">${eqDisplay}</span>` : '';
 
         // Progressive Overload Coach Badge
         const pIdx = phIdx();
@@ -276,11 +276,11 @@ function loadStep() {
         let coachHintHtml = '';
         if (baseKg != null) {
             if (isMcGillProtected && ['rdl', 'swing', 'goblet'].includes(s.e)) {
-                coachHintHtml = `<div style="font-size:11px; font-weight:800; color:#0284c7; background:#e0f2fe; padding:2px 8px; border-radius:99px; margin-top:5px; display:inline-flex; align-items:center; gap:4px; border:1px solid #bae6fd;">🛡️ McGill Shield: เซฟหลัง โฟกัสฟอร์ม</div>`;
+                coachHintHtml = `<div style="font-size:11px; font-weight:800; color:#0284c7; background:#e0f2fe; padding:2px 8px; border-radius:99px; margin-top:5px; display:inline-flex; align-items:center; gap:4px; border:1px solid #bae6fd;">${fcIcon('shield-check')} McGill Shield: เซฟหลัง โฟกัสฟอร์ม</div>`;
             } else if (wInfo.isCustom && wInfo.kg > baseKg) {
-                coachHintHtml = `<div style="font-size:11px; font-weight:800; color:#ea580c; background:#fff7ed; padding:2px 8px; border-radius:99px; margin-top:5px; display:inline-flex; align-items:center; gap:4px; border:1px solid #fdba74;">🔥 โค้ช Overload: +${wInfo.kg - baseKg}kg (เหนือเกณฑ์ Phase ${pIdx + 1})</div>`;
+                coachHintHtml = `<div style="font-size:11px; font-weight:800; color:#ea580c; background:#fff7ed; padding:2px 8px; border-radius:99px; margin-top:5px; display:inline-flex; align-items:center; gap:4px; border:1px solid #fdba74;">${fcIcon('flame')} โค้ช Overload: +${wInfo.kg - baseKg}kg (เหนือเกณฑ์ Phase ${pIdx + 1})</div>`;
             } else {
-                coachHintHtml = `<div style="font-size:11px; font-weight:800; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:99px; margin-top:5px; display:inline-flex; align-items:center; gap:4px; border:1px solid #a7f3d0;">⚡ โค้ชแนะนำ: Phase ${pIdx + 1} (${baseKg} กก.)</div>`;
+                coachHintHtml = `<div style="font-size:11px; font-weight:800; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:99px; margin-top:5px; display:inline-flex; align-items:center; gap:4px; border:1px solid #a7f3d0;">${fcIcon('zap')} โค้ชแนะนำ: Phase ${pIdx + 1} (${baseKg} กก.)</div>`;
             }
         }
 
@@ -293,9 +293,9 @@ function loadStep() {
                     <button onclick="adjustLiveSetWeight(1, event)" style="background:none; border:none; color:var(--acc); font-weight:900; font-size:14px; cursor:pointer; padding:0 3px;">+</button>
                 </span>` : eqText;
 
-            targetEl.innerHTML = `<span class="pl-target-pill">🎯 <strong style="font-size:1.15em;">${s.tgt}</strong>${weightStepper}</span>${coachHintHtml ? '<br>' + coachHintHtml : ''}`;
+            targetEl.innerHTML = `<span class="pl-target-pill">${fcIcon('target')} <strong style="font-size:1.15em;">${s.tgt}</strong>${weightStepper}</span>${coachHintHtml ? '<br>' + coachHintHtml : ''}`;
         } else {
-            targetEl.innerHTML = `<span class="pl-target-pill">⏱️ <strong style="font-size:1.15em;">${fmt(s.dur)}</strong>${eqText}</span>${coachHintHtml ? '<br>' + coachHintHtml : ''}`;
+            targetEl.innerHTML = `<span class="pl-target-pill">${fcIcon('timer')} <strong style="font-size:1.15em;">${fmt(s.dur)}</strong>${eqText}</span>${coachHintHtml ? '<br>' + coachHintHtml : ''}`;
         }
         targetEl.style.display = 'block';
     } else {
@@ -364,8 +364,8 @@ function loadStep() {
                             <div class="rest-info-box">
                                 <div class="rest-ex-title">${nextWork.name}</div>
                                 <div class="rest-target-line">🎯 เป้าหมาย: <span class="rest-val-highlight">${nextWork.tgt}</span></div>
-                                ${nextEq ? `<div class="rest-eq-line">🏋️ อุปกรณ์: <span class="rest-val-highlight">${nextEq}</span></div>` : ''}
-                                ${nextCue ? `<div class="rest-cue-hint">💡 <span>${nextCue}</span></div>` : ''}
+                                ${nextEq ? `<div class="rest-eq-line">${fcIcon('dumbbell')} อุปกรณ์: <span class="rest-val-highlight">${nextEq}</span></div>` : ''}
+                                ${nextCue ? `<div class="rest-cue-hint">${fcIcon('lightbulb')} <span>${nextCue}</span></div>` : ''}
                             </div>
                         </div>
                     </div>
@@ -398,7 +398,7 @@ function paint() {
     if (!s) return;
     if (s.k === 'work' && s.type === 'reps') {
         const setTxt = s.sets > 1 ? `เซ็ต ${s.set}/${s.sets}` : '';
-        document.getElementById('plSet').innerHTML = `${setTxt ? `${setTxt} • ` : ''}<span style="color:var(--tx);font-weight:700;">⏱️ ${fmt(up)}</span>`;
+        document.getElementById('plSet').innerHTML = `${setTxt ? `${setTxt} • ` : ''}<span style="color:var(--tx);font-weight:700;">${fcIcon('timer')} ${fmt(up)}</span>`;
         document.getElementById('arc').style.strokeDashoffset = 0;
     } else {
         document.getElementById('plTime').textContent = fmt(left);
@@ -479,7 +479,7 @@ async function logSet(s) {
     const historyW = (D.sets || []).filter(st => st.exercise_key === s.e && st.weight_kg != null).pop()?.weight_kg;
     const defW = historyW ?? wInfo.kg ?? defaultWeightOf(s.e) ?? '';
     const defReps = parseInt(s.tgt) || 12;
-    const eqHint = wInfo.label ? ` • 🏋️ ${wInfo.label}` : (EX[s.e]?.eq ? ` • 🏋️ ${EX[s.e].eq}` : '');
+    const eqHint = wInfo.label ? ` • ${fcIcon('dumbbell')} ${wInfo.label}` : (EX[s.e]?.eq ? ` • ${fcIcon('dumbbell')} ${EX[s.e].eq}` : '');
     
     const promptMsg = `บันทึก: ${s.name} (เซ็ต ${s.set}/${s.sets})\nเป้าหมาย: ${s.tgt}${eqHint}\n\nใส่น้ำหนัก (กก.) หรือ "น้ำหนัก x ครั้ง" เช่น "${defW || '10'} x ${defReps}"`;
     const inputVal = await fcPrompt(promptMsg, defW ? `${defW}` : '', '🏋️ บันทึกน้ำหนัก & จำนวนครั้ง');
@@ -561,12 +561,12 @@ async function finishW() {
         const maxDays = chMeta ? chMeta.days : 30;
         const nextVal = Math.min(maxDays, (D.challenges[chId] || 0) + 1);
         D.challenges[chId] = nextVal;
-        challengeNote = `\n🏆 ชาเลนจ์คืบหน้า: วันที่ ${nextVal}/${maxDays}`;
+        challengeNote = `\n${fcIcon('trophy')} ชาเลนจ์คืบหน้า: วันที่ ${nextVal}/${maxDays}`;
     }
     _sid = ''; save(); render(); autoSync();
     beep(660, 150); setTimeout(() => beep(880, 150), 160); setTimeout(() => beep(1320, 300), 320);
     
-    const volSummary = totalVol > 0 ? `\n🏋️ ยกสะสมรวม (Volume): ${totalVol.toLocaleString()} กก. (${totalReps} ครั้ง)` : '';
+    const volSummary = totalVol > 0 ? `\n${fcIcon('dumbbell')} ยกสะสมรวม (Volume): ${totalVol.toLocaleString()} กก. (${totalReps} ครั้ง)` : '';
     await fcAlert('🏆 จบ ' + W[curK].n + '!\n⏱️ ใช้เวลา ' + fmt(dur) + ' • 🔥 ~' + estKcal + ' kcal' + volSummary + challengeNote + '\n\n🥩 ดื่มเวย์/โปรตีน 35-40 g ภายใน 90 นาที');
 }
 let ac;
@@ -595,7 +595,7 @@ function beep(f, d, type = 'triangle', vol = 0.95) {
 /* ============ WEIGHT PROGRESSION & EVALUATION HELPERS ============ */
 async function evaluateWorkoutWeights(workoutKey, painLevel) {
     if (painLevel >= 5) {
-        await fcAlert(`⚠️ ระบบตรวจพบระดับปวดหลัง (${painLevel}/10)\n\nระบบแนะนำให้เปิด "โหมดหลังปลอดภัย" หรือลดน้ำหนักลง 20-30% ในครั้งถัดไป เพื่อให้กระดูกสันหลังและกล้ามเนื้อพยุงหลังได้ฟื้นตัวเต็มที่`);
+        await fcAlert(`${fcIcon('alert-triangle')} ระบบตรวจพบระดับปวดหลัง (${painLevel}/10)\n\nระบบแนะนำให้เปิด "โหมดหลังปลอดภัย" หรือลดน้ำหนักลง 20-30% ในครั้งถัดไป เพื่อให้กระดูกสันหลังและกล้ามเนื้อพยุงหลังได้ฟื้นตัวเต็มที่`);
         D.cfg.weightFeedback = D.cfg.weightFeedback || {};
         D.cfg.weightFeedback[workoutKey] = { date: iso(), status: 'pain_deload' };
         return 'pain_deload';
@@ -680,7 +680,7 @@ function applySmartOverload(delta) {
     });
     save(); render(); autoSync();
     if (typeof msg === 'function') {
-        msg(delta > 0 ? `🔥 Overload สำเร็จ (+2 กก. ท่าหลัก / +1 กก. ท่าเล็ก)` : `🛡️ Deload เซฟฟอร์มและหลังเรียบร้อย (-2 กก.)`);
+        msg(delta > 0 ? `${fcIcon('flame')} Overload สำเร็จ (+2 กก. ท่าหลัก / +1 กก. ท่าเล็ก)` : `${fcIcon('shield-check')} Deload เซฟฟอร์มและหลังเรียบร้อย (-2 กก.)`);
     }
     return touched;
 }
@@ -861,8 +861,8 @@ function renderWeightProgressionUI() {
             const isLower = isCustom && baseKg != null && wInfo.kg < baseKg;
 
             let tagHtml = `<span class="tag gr" style="font-size:9.5px; padding:1px 6px;">ตาม Phase ${pIdx + 1}</span>`;
-            if (isHigher) tagHtml = `<span style="font-size:9.5px; padding:1px 6px; font-weight:800; background:#fff7ed; color:#ea580c; border:1px solid #fdba74; border-radius:6px;">🔥 Overload (+${wInfo.kg - baseKg}kg)</span>`;
-            else if (isLower) tagHtml = `<span style="font-size:9.5px; padding:1px 6px; font-weight:800; background:#f0fdf4; color:#059669; border:1px solid #bbf7d0; border-radius:6px;">🛡️ เซฟฟอร์ม (-${baseKg - wInfo.kg}kg)</span>`;
+            if (isHigher) tagHtml = `<span style="font-size:9.5px; padding:1px 6px; font-weight:800; background:#fff7ed; color:#ea580c; border:1px solid #fdba74; border-radius:6px;">${fcIcon('flame')} Overload (+${wInfo.kg - baseKg}kg)</span>`;
+            else if (isLower) tagHtml = `<span style="font-size:9.5px; padding:1px 6px; font-weight:800; background:#f0fdf4; color:#059669; border:1px solid #bbf7d0; border-radius:6px;">${fcIcon('shield-check')} เซฟฟอร์ม (-${baseKg - wInfo.kg}kg)</span>`;
 
             itemsHtml += `
                 <div style="background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
@@ -884,7 +884,7 @@ function renderWeightProgressionUI() {
                             <button type="button" onclick="adjustSingleExerciseWeight('${k}', 1)" style="border:none; background:transparent; color:var(--tx); font-weight:800; font-size:13px; padding:3px 6px; cursor:pointer;" title="เพิ่ม 1 กก.">+</button>
                         </div>
                         <button class="btn sm" onclick="editExerciseWeight('${k}')" style="padding:5px 8px; font-size:11.5px;" title="พิมพ์ค่าน้ำหนักเอง">✏️</button>
-                        ${isCustom ? `<button class="btn sm g" onclick="resetExerciseWeight('${k}')" style="padding:5px 7px; font-size:11.5px;" title="คืนค่ามาตรฐานตามโปรแกรม">🔄</button>` : ''}
+                        ${isCustom ? `<button class="btn sm g" onclick="resetExerciseWeight('${k}')" style="padding:5px 7px; font-size:11.5px;" title="คืนค่ามาตรฐานตามโปรแกรม">${fcIcon('refresh-cw')}</button>` : ''}
                     </div>
                 </div>
             `;
@@ -1057,6 +1057,7 @@ function openWorkoutSummaryModal(sessionId) {
         modal.style.display = 'flex';
         setTimeout(() => {
             if (typeof fireConfetti === 'function') fireConfetti(2800, 70);
+            if (typeof fcPlayLottie === 'function') fcPlayLottie('fcDoneLottie', 'celebrate', { size: 54, loop: false });
             if (typeof animateCountUp === 'function') {
                 animateCountUp('wsDurVal', Math.round((session.duration_sec || 0) / 60), 900);
                 animateCountUp('wsKcalVal', session.kcal || 350, 1100, true);
@@ -1224,7 +1225,7 @@ function renderShareCardCanvas() {
     roundRect(ctx, 40, 100, 180, 30, 15);
     ctx.fillStyle = '#34d399';
     ctx.font = '800 12px -apple-system, sans-serif';
-    ctx.fillText('🏆 WORKOUT COMPLETED', 54, 120);
+  ctx.fillText(' WORKOUT COMPLETED', 54, 120);
 
     ctx.fillStyle = '#ffffff';
     ctx.font = '900 32px -apple-system, sans-serif';
@@ -1265,7 +1266,7 @@ function renderShareCardCanvas() {
 
     ctx.fillStyle = '#f8fafc';
     ctx.font = '800 16px -apple-system, sans-serif';
-    ctx.fillText('🧬 แผนผังกล้ามเนื้อที่ถูกกระตุ้น', 64, heatY + 36);
+  ctx.fillText(' แผนผังกล้ามเนื้อที่ถูกกระตุ้น', 64, heatY + 36);
 
     const wk = s.workout_key || 'A';
     const mapping = WORKOUT_MUSCLE_MAPPING[wk] || WORKOUT_MUSCLE_MAPPING['A'];
@@ -1369,7 +1370,7 @@ async function shareCardViaWebShare() {
                 try {
                     await navigator.share({
                         title: `จบการฝึก ${wkName} บน FitCoach!`,
-                        text: `สำเร็จการฝึก ${wkName} เรียบร้อยแล้ว! ⏱️ ${Math.round((s.duration_sec||0)/60)} นาที • 🔥 ${s.kcal||350} kcal`,
+                        text: `สำเร็จการฝึก ${wkName} เรียบร้อยแล้ว! ${fcIcon('timer')} ${Math.round((s.duration_sec||0)/60)} นาที • ${fcIcon('flame')} ${s.kcal||350} kcal`,
                         files: [file]
                     });
                     return;

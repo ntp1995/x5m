@@ -890,7 +890,7 @@ function render() {
             </div>`;
             startBtnTxt = `▶ เริ่มเดินต่อ ${remM} นาที + Core (~${estMin(tk)} นาที)`;
         } else {
-            cardioNote = `<div style="margin-top:6px;font-size:12px;color:var(--dim);">💡 ยังไม่ได้เดินเช้า • โปรแกรม Zone 2 เดินลู่ 35 นาที + Core</div>`;
+            cardioNote = `<div style="margin-top:6px;font-size:12px;color:var(--dim);">${fcIcon('lightbulb')} ยังไม่ได้เดินเช้า • โปรแกรม Zone 2 เดินลู่ 35 นาที + Core</div>`;
         }
     } else if (tk === 'A') {
         if (morningDone) {
@@ -932,32 +932,60 @@ function render() {
         </div>
     ` : '';
 
-    const bgImgMap = { A: 'hero_A.jpg', B: 'hero_B.jpg', C: 'hero_C.jpg', Z: 'hero_Z.jpg', H: 'hero_H.jpg', R: 'hero_R.jpg' };
-    const heroBgImg = bgImgMap[tk] || 'landing_bg.jpg';
+    const todaySuppMode = (typeof getSuppMode === 'function') ? getSuppMode(todayCheck()) : 'workout';
+    const isShiftDuty = (typeof isShiftDutyToday === 'function' && isShiftDutyToday());
+    const effectiveDayMode = isShiftDuty && todaySuppMode === 'workout' ? 'shift' : todaySuppMode;
+    const isLinkedRestMode = ['rest', 'shift', 'seminar', 'travel'].includes(effectiveDayMode);
+    const linkedModeLabels = {
+        rest: '🛋️ วันพัก (Rest Day) — พักกล้ามเนื้อเป็นหลัก',
+        shift: '🏥 วันเข้าเวร — พัก/ฟื้นฟูหลังงานหนัก',
+        seminar: '🎓 วันอบรม — พัก/เดินเบาๆ (เลือกซ้อมในห้องพักได้)',
+        travel: '✈️ วันเดินทาง-เที่ยว — พัก/เดินเที่ยว (เลือกซ้อมในห้องพักได้)'
+    };
+    const primaryTargetKey = isLinkedRestMode ? 'R' : tk;
+    const primaryBtnText = isLinkedRestMode
+        ? `${fcIcon('leaf')} เดินเบาๆ / ยืดฟื้นฟู (~${estMin('R')} นาที)`
+        : startBtnTxt;
+    const linkedRestBannerHtml = isLinkedRestMode ? `
+        <div style="margin-top:8px; padding:8px 10px; border-radius:10px; background:rgba(15,23,42,0.55); border:1px solid rgba(255,255,255,0.22); font-size:11.5px; color:#e2e8f0; line-height:1.45;">
+            <div style="font-weight:800; color:#fde68a;">${linkedModeLabels[effectiveDayMode] || '🛋️ โหมดพักฟื้นตัว'}</div>
+            <div style="margin-top:2px; font-size:11px; color:#cbd5e1;">เชื่อมกับหน้าวิตามินอัตโนมัติ (ตารางหลัก: ${t.n}) • อยากขยับตัวกดซ้อมไร้ดัมเบลด้านล่างได้ครับ</div>
+        </div>
+    ` : '';
+    const hotelBtnHtml = isLinkedRestMode ? `
+        <button type="button" class="btn sm" style="margin-top:8px; width:100%; background:rgba(16,185,129,0.24); color:#a7f3d0; border:1px solid rgba(16,185,129,0.45); border-radius:99px; font-weight:800;" onclick="startW('T')">
+            🏨 ซ้อมไร้ดัมเบลในห้องพัก (~${estMin('T')} นาที • Full Body Bodyweight)
+        </button>
+    ` : '';
+
+    const bgImgMap = { A: 'hero_A.jpg', B: 'hero_B.jpg', C: 'hero_C.jpg', Z: 'hero_Z.jpg', H: 'hero_H.jpg', R: 'hero_R.jpg', T: 'hero_R.jpg' };
+    const heroBgImg = bgImgMap[primaryTargetKey] || 'landing_bg.jpg';
     document.getElementById('todayBox').innerHTML = `
     <div class="hw-hero-card" style="background-image:url('${heroBgImg}');">
         <div class="hw-hero-overlay"></div>
         <div class="hw-hero-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <span style="background:rgba(255,255,255,0.18); backdrop-filter:blur(6px); color:#fff; font-size:11px; font-weight:800; padding:4px 10px; border-radius:99px;">วัน${DN[dow]} • ~${estMin(tk)} นาที • ~${(tk === 'Z' && morningM >= 30 && !D.forceFullCardio) ? 140 : t.kcal} kcal</span>
+                <span style="background:rgba(255,255,255,0.18); backdrop-filter:blur(6px); color:#fff; font-size:11px; font-weight:800; padding:4px 10px; border-radius:99px;">วัน${DN[dow]} • ~${estMin(primaryTargetKey)} นาที • ~${(primaryTargetKey === 'Z' && morningM >= 30 && !D.forceFullCardio) ? 140 : W[primaryTargetKey].kcal} kcal</span>
                 ${done ? '<span style="background:#10b981; color:#fff; font-size:11px; font-weight:800; padding:4px 10px; border-radius:99px;">✓ สำเร็จวันนี้</span>' : '<span style="background:rgba(59,130,246,0.35); color:#bfdbfe; font-size:11px; font-weight:800; padding:4px 10px; border-radius:99px;">ภารกิจวันนี้</span>'}
             </div>
             <h2 style="margin:4px 0 6px; font-size:22px; font-weight:900; color:#ffffff; letter-spacing:-0.4px; display:flex; align-items:center; gap:8px;">
-                <span>${t.ic} ${t.n}</span>
+                <span>${isLinkedRestMode ? '🌿 พักฟื้นฟู / Active Recovery' : `${t.ic} ${t.n}`}</span>
             </h2>
             <div style="margin-top:6px; display:flex; flex-wrap:wrap; gap:6px;">
                 ${warmTag} ${coolTag}
                 ${D.bs ? '<span class="tag b" style="background:rgba(16,185,129,0.25); color:#a7f3d0; border:none;">🛡️ เซฟหลัง McGill Big 3</span>' : ''}
             </div>
             ${outdoorSwitcherHtml}
+            ${linkedRestBannerHtml}
             ${cardioNote}
-            <button type="button" class="hw-cta-pill" onclick="startW('${tk}')">
-                <span>${startBtnTxt}</span>
+            <button type="button" class="hw-cta-pill" onclick="startW('${primaryTargetKey}')">
+                <span>${primaryBtnText}</span>
                 <span class="hw-cta-arrow">➔</span>
             </button>
+            ${hotelBtnHtml}
             <div class="g2" style="margin-top:10px;">
                 <button class="btn sm" style="background:rgba(255,255,255,0.15); color:#fef08a; border:1px solid rgba(255,255,255,0.22); border-radius:99px; font-weight:700;" onclick="startMorningCardio()">🌅 ${morningDone ? `เดินลู่เช้า (${morningM} น.) ✓` : 'เดินลู่เช้า Zone 2'}</button>
-                <button class="btn sm" style="background:rgba(255,255,255,0.15); color:#ffffff; border:1px solid rgba(255,255,255,0.22); border-radius:99px; font-weight:700;" onclick="toggleShiftDutyMode()">${typeof isShiftDutyToday === "function" && isShiftDutyToday() ? "🌙 เข้าเวร/พัก (ON)" : "🏥 โหมดเข้าเวร"}</button>
+                <button class="btn sm" style="background:rgba(255,255,255,0.15); color:#ffffff; border:1px solid rgba(255,255,255,0.22); border-radius:99px; font-weight:700;" onclick="toggleShiftDutyMode()">${isShiftDuty ? "🌙 เข้าเวร/พัก (ON)" : "🏥 โหมดเข้าเวร"}</button>
             </div>
         </div>
     </div>`;
@@ -1011,7 +1039,7 @@ ${hasShift ? `<button class="qbtn" onclick="resetScheduleShift()" style="backgro
     const renderLogRow = (s) => `<div class="row" style="padding:8px 0;border-bottom:1px solid var(--line);align-items:center;justify-content:space-between;gap:8px;">
      <div style="flex:1;min-width:0;">
        <div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${W[s.workout_key] ? W[s.workout_key].ic : '•'} ${s.workout_name}</div>
-       <div class="sub" style="margin-top:2px;font-size:11.5px;">${s.date.slice(5)} • ${s.kcal} kcal${s.total_volume_kg ? ` • 🏋️ ${s.total_volume_kg.toLocaleString()} กก.` : ''}</div>
+       <div class="sub" style="margin-top:2px;font-size:11.5px;">${s.date.slice(5)} • ${s.kcal} kcal${s.total_volume_kg ? ` • ${fcIcon('dumbbell')} ${s.total_volume_kg.toLocaleString()} กก.` : ''}</div>
      </div>
      <button type="button" class="btn sm g" onclick="openWorkoutSummaryModal('${s.id}')" style="width:auto;flex:0 0 auto;white-space:nowrap;font-size:11px;padding:5px 10px;border-radius:8px;display:inline-flex;align-items:center;gap:4px;" title="ดูสรุป & สร้างการ์ดแชร์">
        <span>📸 การ์ดแชร์</span>
@@ -1111,7 +1139,7 @@ function renderChallengesAndBodyFocus() {
         const isCompleted = doneDays >= c.days;
         const nextDay = Math.min(doneDays + 1, c.days);
         const pct = Math.min(100, Math.round((doneDays / c.days) * 100));
-        const btnLabel = isCompleted ? `🏆 ครบ ${c.days} วันแล้ว • ฝึกซ้ำ` : `▶ เริ่มวันที่ ${nextDay} / ${c.days}`;
+        const btnLabel = isCompleted ? `${fcIcon('trophy')} ครบ ${c.days} วันแล้ว • ฝึกซ้ำ` : `▶ เริ่มวันที่ ${nextDay} / ${c.days}`;
         return `
         <div style="min-width:278px;max-width:295px;flex:0 0 auto;scroll-snap-align:start;border-radius:14px;background:${c.bg};color:#fff;padding:14px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.22);display:flex;flex-direction:column;justify-content:space-between;">
             <img src="${c.img}" alt="${c.title}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center;pointer-events:none;">

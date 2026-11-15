@@ -915,7 +915,7 @@ function renderOnboardingStep() {
                 title: 'ขยับร่างกายเบาๆ',
                 subTitle: 'Lightly Active (ตัวคูณ 1.35)',
                 desc: 'เดินตรวจเวร ยืนบ่อย ทำงานบ้าน ก้าวเดินระหว่างวัน 4,000 - 6,000 ก้าว',
-                icon: '🚶',
+                icon: fcIcon('footprints'),
                 color: '#0284c7'
             },
             {
@@ -923,7 +923,7 @@ function renderOnboardingStep() {
                 title: 'เคลื่อนไหวปานกลาง',
                 subTitle: 'Moderately Active (ตัวคูณ 1.50) ⭐ แนะนำ',
                 desc: 'ออกกำลังกายสม่ำเสมอ 3-4 วันต่อสัปดาห์ หรือเดินมากกว่า 8,000 ก้าวต่อวัน',
-                icon: '🏃',
+                icon: fcIcon('footprints'),
                 color: '#10b981'
             },
             {
@@ -931,7 +931,7 @@ function renderOnboardingStep() {
                 title: 'เคลื่อนไหวมาก / ลุยเวร',
                 subTitle: 'Very Active (ตัวคูณ 1.65)',
                 desc: 'ทำงานใช้แรงหนัก ซ้อมกีฬาเข้มข้น 5-6 วันต่อสัปดาห์ หรือเข้าเวรลุยภาคสนามต่อเนื่อง',
-                icon: '⚡',
+                icon: fcIcon('zap'),
                 color: '#f97316'
             }
         ];

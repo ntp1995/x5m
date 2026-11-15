@@ -10,6 +10,7 @@ const ASSETS_TO_CACHE = [
   './src/styles/components.css',
   './src/styles/views-workout.css',
   './src/styles/views-v3.css',
+  './src/core/icons.js',
   './src/core/modals.js',
   './src/data/exercises-db.js',
   './src/core/store.js',

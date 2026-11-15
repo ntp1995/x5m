@@ -331,7 +331,7 @@ async function quickAdd(type) {
         <div style="text-align:left; font-size:14px; max-height:220px; overflow-y:auto; margin-bottom:10px; border:1px solid var(--line); border-radius:8px; padding:4px;">
             ${allFoods.map((f, i) => `<div onclick="document.getElementById('fcInput').value='${f.c}'; document.getElementById('fcOk').click();" style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid var(--line); cursor:pointer;">
                 <span>${f.n}</span>
-                <span style="color:var(--acc); font-weight:bold;">${f.c} ${i < (D.cfg.myFoods?.length||0) ? `<button onclick="removeCustomFood(${i}, event)" style="margin-left:8px; background:none; border:none; color:var(--red); font-size:12px; cursor:pointer; padding:0;">❌</button>` : ''}</span>
+                <span style="color:var(--acc); font-weight:bold;">${f.c} ${i < (D.cfg.myFoods?.length||0) ? `<button onclick="removeCustomFood(${i}, event)" style="margin-left:8px; background:none; border:none; color:var(--red); font-size:12px; cursor:pointer; padding:0;">${fcIcon('x')}</button>` : ''}</span>
             </div>`).join('')}
         </div><div style="font-size:12px; color:var(--dim); text-align:left;">หรือพิมพ์ตัวเลข (kcal) ด้วยตัวเอง:</div>`;
         
@@ -547,7 +547,7 @@ async function testGeminiKey(keyType = 'primary') {
         if (statusBox) {
             statusBox.style.display = 'block';
             statusBox.className = 'ai-key-status-box warn';
-            statusBox.innerHTML = `⚠️ กรุณากรอก <b>${keyType === 'backup' ? 'Gemini API Key สำรอง' : 'Gemini API Key หลัก'}</b> ก่อนทำการทดสอบ`;
+            statusBox.innerHTML = `${fcIcon('alert-triangle')} กรุณากรอก <b>${keyType === 'backup' ? 'Gemini API Key สำรอง' : 'Gemini API Key หลัก'}</b> ก่อนทำการทดสอบ`;
         }
         return;
     }
@@ -943,7 +943,9 @@ function mergeCloudData(cloud) {
                     steps: mergedSteps > 0 ? mergedSteps : (c.steps ?? ex.steps ?? null),
                     meals: mergedMeals,
                     supps: { ...(ex.supps || {}), ...(c.supps || {}) },
+                    suppMode: isCloudNewer ? (c.suppMode ?? ex.suppMode ?? (c.suppShiftMode ? 'shift' : 'workout')) : (ex.suppMode ?? c.suppMode ?? (ex.suppShiftMode ? 'shift' : 'workout')),
                     suppShiftMode: isCloudNewer ? (c.suppShiftMode ?? ex.suppShiftMode ?? false) : (ex.suppShiftMode ?? c.suppShiftMode ?? false),
+                    suppOmadMode: isCloudNewer ? (c.suppOmadMode ?? ex.suppOmadMode ?? false) : (ex.suppOmadMode ?? c.suppOmadMode ?? false),
                     updatedAt: Math.max(ex.updatedAt || 0, c.updatedAt || 0)
                 });
             }
@@ -1819,10 +1821,10 @@ async function syncGoogleFitData(silent = false) {
 
         if (!silent) {
             const summaryParts = [];
-            if (fetchedSteps > 0) summaryParts.push(`🏃 ${fetchedSteps.toLocaleString()} ก้าว (Garmin)`);
-            if (fetchedWeight != null) summaryParts.push(`⚖️ ${rec.w} กก. (Zepp Life)`);
-            if (fetchedBf != null) summaryParts.push(`🧬 ไขมัน ${rec.bf}%`);
-            if (fetchedRhr != null) summaryParts.push(`💓 RHR ${rec.hrv} bpm`);
+            if (fetchedSteps > 0) summaryParts.push(`${fcIcon('footprints')} ${fetchedSteps.toLocaleString()} ก้าว (Garmin)`);
+            if (fetchedWeight != null) summaryParts.push(`${fcIcon('scale')} ${rec.w} กก. (Zepp Life)`);
+            if (fetchedBf != null) summaryParts.push(`${fcIcon('activity')} ไขมัน ${rec.bf}%`);
+            if (fetchedRhr != null) summaryParts.push(`${fcIcon('heart-pulse')} RHR ${rec.hrv} bpm`);
 
             const msgText = summaryParts.length > 0 
                 ? `✓ ซิงก์สำเร็จ!\n\n${summaryParts.join('\n')}` 

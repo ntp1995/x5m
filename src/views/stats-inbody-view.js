@@ -569,10 +569,10 @@ function renderCameraThumbnailsTray() {
     if (count === 0) {
         tray.innerHTML = `
             <div class="fc-cam-thumb-empty" onclick="captureCameraPhoto()">
-                <span>📷 ถ่ายรูปที่ 1</span>
+                <span>${typeof fcIcon === 'function' ? fcIcon('camera') : ''} ถ่ายรูปที่ 1</span>
             </div>
             <div style="font-size:11.5px; color:#94a3b8; font-weight:600; margin-left:6px;">
-                กดชัตเตอร์ ⚪ เพื่อถ่าย หรือเลือกจากอัลบั้ม 🖼️
+                กดชัตเตอร์เพื่อถ่าย หรือเลือกจากอัลบั้ม
             </div>
         `;
         return;
@@ -820,7 +820,7 @@ async function processMultiImageAIFood(imagesArray = [], textNote = '') {
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
                             <span style="font-size:11.5px; font-weight:800; color:var(--acc);">📸 วิเคราะห์รวมจาก ${imagesArray.length} ภาพ</span>
-                            ${textNote ? `<span style="font-size:11px; color:#475569; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px;">📝 ${textNote}</span>` : ''}
+                            ${textNote ? `<span style="font-size:11px; color:#475569; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px;">${fcIcon('file-text')} ${textNote}</span>` : ''}
                         </div>
                     </div>
                 `;
@@ -1102,7 +1102,7 @@ function updateWeeklyCadenceStatus() {
     const daysAgo = Math.max(0, Math.floor((todayMs - lastMs) / 864e5));
 
     if (daysAgo >= 7) {
-        badge.textContent = `🔔 ถึงรอบวัดแล้ว (${daysAgo} วันก่อน)`;
+        badge.textContent = `${fcIcon('bell')} ถึงรอบวัดแล้ว (${daysAgo} วันก่อน)`;
         badge.style.background = '#fef3c7';
         badge.style.color = '#b45309';
     } else {
@@ -1617,7 +1617,7 @@ async function openMeasureHistoryModal() {
         </div>
     `;
 
-    fcConfirm(html, `📋 ประวัติ ${info.name}`);
+    fcConfirm(html, `${fcIcon('file-text')} ประวัติ ${info.name}`);
 }
 
 async function editSpecificMeasurement(partKey, dateStr, currentVal) {

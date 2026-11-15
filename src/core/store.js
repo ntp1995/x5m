@@ -547,7 +547,7 @@ function diagnoseWeightPlateau() {
         return {
             status: 'plateau',
             title: 'ตรวจพบสัญญาณน้ำหนักค้าง (Plateau)',
-            badge: '⚠️ น้ำหนักคงที่ > 2 สัปดาห์',
+            badge: fcIcon('alert-triangle') + ' น้ำหนักคงที่ > 2 สัปดาห์',
             color: '#ea580c',
             bg: '#fff7ed',
             border: '#fdba74',
@@ -565,7 +565,7 @@ function diagnoseWeightPlateau() {
         return {
             status: 'rapid',
             title: 'น้ำหนักลดเร็วเกินเกณฑ์มาตรฐาน',
-            badge: '⚡ ลดเร็ว > 1 กก./สัปดาห์',
+            badge: fcIcon('zap') + ' ลดเร็ว > 1 กก./สัปดาห์',
             color: '#f59e0b',
             bg: '#fefce8',
             border: '#fef08a',

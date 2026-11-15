@@ -7,7 +7,7 @@ const IF_METABOLIC_STAGES = [
     {
         num: 1,
         minH: 0, maxH: 4,
-        icon: '💧↓',
+        icon: fcIcon('droplets') + '↓',
         title: 'ระยะที่ 1: น้ำตาลและอินซูลินเริ่มลดระดับ (0 - 4 ชม.)',
         shortTitle: 'น้ำตาลและอินซูลินเริ่มลดระดับ',
         badge: 'ย่อยอาหาร & น้ำตาลลด',
@@ -21,7 +21,7 @@ const IF_METABOLIC_STAGES = [
     {
         num: 2,
         minH: 4, maxH: 8,
-        icon: '💧↑',
+        icon: fcIcon('droplets') + '↑',
         title: 'ระยะที่ 2: อินซูลินลดต่ำ & ตับหยุดเก็บไขมันใหม่ (4 - 8 ชม.)',
         shortTitle: 'อินซูลินลดต่ำ & หยุดสะสมไขมัน',
         badge: 'อินซูลินต่ำ & หยุดเก็บไขมัน',
@@ -35,7 +35,7 @@ const IF_METABOLIC_STAGES = [
     {
         num: 3,
         minH: 8, maxH: 12,
-        icon: '🔥',
+        icon: fcIcon('flame'),
         title: 'ระยะที่ 3: พร่องไกลโคเจน & สลายไขมันพอกตับ (8 - 12 ชม.)',
         shortTitle: 'พร่องไกลโคเจน & สลายไขมันพอกตับ',
         badge: 'สลายไขมันพอกตับ',
@@ -49,7 +49,7 @@ const IF_METABOLIC_STAGES = [
     {
         num: 4,
         minH: 12, maxH: 16,
-        icon: '🚀',
+        icon: fcIcon('zap'),
         title: 'ระยะที่ 4: เผาผลาญไขมันช่องท้อง & ไตรกลีเซอไรด์สูงสุด (12 - 16 ชม.)',
         shortTitle: 'เผาผลาญไขมันช่องท้อง & ไตรกลีเซอไรด์',
         badge: 'เบิร์นไขมันช่องท้อง & ไตรกลีเซอไรด์ (นาทีทอง)',
@@ -63,7 +63,7 @@ const IF_METABOLIC_STAGES = [
     {
         num: 5,
         minH: 16, maxH: 99,
-        icon: '🧬',
+        icon: fcIcon('activity'),
         title: 'ระยะที่ 5: Ketosis & Autophagy ฟื้นฟูระดับเซลล์เต็มรูปแบบ (16+ ชม.)',
         shortTitle: 'Ketosis & Autophagy ฟื้นฟูระดับเซลล์',
         badge: 'Autophagy ฟื้นฟูเซลล์สมบูรณ์',

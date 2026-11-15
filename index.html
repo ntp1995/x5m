@@ -26,6 +26,7 @@
 <body>
     <!-- Branded Animated Boot Splash -->
     <div id="fcBootSplash" class="fc-boot-splash" aria-hidden="true">
+        <div id="fcBootLottie" style="margin-bottom:8px;"></div>
         <div class="fc-boot-logo">fitcoach<span>.</span></div>
         <div class="fc-boot-bar"><i></i></div>
         <div style="font-size:12px; color:#64748b; font-weight:700;">กำลังเตรียมข้อมูลสุขภาพของคุณ...</div>
@@ -66,14 +67,14 @@
                         <span id="cloudSyncDot" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10b981;"></span>
                         <span id="cloudSyncTxt" style="color:var(--tx);">ซิงก์แล้ว</span>
                     </div>
-                    <button type="button" class="v3-sync-btn" onclick="go('sync')" title="ตั้งค่า & ซิงก์คลาวด์">⚙️ ซิงก์</button>
+                    <button type="button" class="v3-sync-btn" onclick="go('sync')" title="ตั้งค่า & ซิงก์คลาวด์"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> ซิงก์</button>
                     <div id="userHeaderBadge" onclick="go('sync')" style="cursor:pointer; display:none;"></div>
                 </div>
             </div>
             <div class="v3-subbar">
                 <div class="sub" id="hsub" style="display:none;"></div>
                 <div class="v3-meta-chips" style="margin-left:auto;">
-                    <button type="button" onclick="openOnboardingWizard(1)" title="ประเมินสุขภาพ & จัดโปรแกรม" style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:800; padding:4px 9px; border-radius:99px; background:linear-gradient(135deg,#eff6ff,#ecfdf5); border:1px solid #bfdbfe; color:#1d4ed8; white-space:nowrap;">🧬 ประเมินแผน</button>
+                    <button type="button" onclick="openOnboardingWizard(1)" title="ประเมินสุขภาพ & จัดโปรแกรม" style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:800; padding:4px 9px; border-radius:99px; background:linear-gradient(135deg,#eff6ff,#ecfdf5); border:1px solid #bfdbfe; color:#1d4ed8; white-space:nowrap;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg> ประเมินแผน</button>
                     <div class="tag" id="phaseTag" style="font-weight:800; background:rgba(37,99,235,0.12); color:#2563eb; border:none; white-space:nowrap;">Phase 1</div>
                     <span class="sub" id="wkTxt" style="font-size:11px; font-weight:800; background:#ffffff; padding:4px 9px; border-radius:99px; border:1px solid var(--line); white-space:nowrap;"></span>
                 </div>
@@ -99,7 +100,7 @@
 
             <!-- COLLAPSIBLE SECONDARY HOME CARDS -->
             <details class="fc-home-collapse">
-                <summary class="fc-collapse-sum"><span>⚖️ ชั่งน้ำหนัก & องค์ประกอบร่างกาย</span><span class="sub" style="margin-left:auto;font-size:11px;font-weight:600;">แตะเพื่อกาง</span></summary>
+                <summary class="fc-collapse-sum"><span><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg> ชั่งน้ำหนัก & องค์ประกอบร่างกาย</span><span class="sub" style="margin-left:auto;font-size:11px;font-weight:600;">แตะเพื่อกาง</span></summary>
                 <!-- CARD 2: ⚖️ BODY COMPOSITION BENTO CARD -->
                 <div class="card" id="bodyCompCard" style="margin-bottom:12px;">
                 <div class="row" style="align-items:center; margin-bottom:10px;">
@@ -141,11 +142,11 @@
                         <div style="font-size:15px; font-weight:800; color:var(--tx); margin-top:2px;" id="sMuscle">–</div>
                     </div>
                     <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:8px 4px;">
-                        <div style="font-size:10px; color:var(--dim); font-weight:700;">💓 HRV</div>
+                        <div style="font-size:10px; color:var(--dim); font-weight:700;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg> HRV</div>
                         <div style="font-size:15px; font-weight:800; color:var(--tx); margin-top:2px;" id="sHRV">–</div>
                     </div>
                     <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:8px 4px;">
-                        <div style="font-size:10px; color:var(--dim); font-weight:700;">🛡️ ปวดหลัง</div>
+                        <div style="font-size:10px; color:var(--dim); font-weight:700;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg> ปวดหลัง</div>
                         <div style="font-size:15px; font-weight:800; color:var(--tx); margin-top:2px;" id="sPain">–</div>
                     </div>
                 </div>
@@ -153,7 +154,7 @@
                 <!-- Streak badge and timestamp footer -->
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px dashed var(--line); font-size:11.5px;">
                     <span id="lastWeighTxt" style="color:var(--dim);">ยังไม่เคยชั่ง</span>
-                    <span id="bodyStreakBadge" class="streak-badge">🔥 1 วันติด</span>
+                    <span id="bodyStreakBadge" class="streak-badge"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> 1 วันติด</span>
                 </div>
                 <!-- Hidden sync icon for script compatibility -->
                 <span id="sSync" style="display:none;"></span>
@@ -167,7 +168,7 @@
             </details>
 
             <details class="fc-home-collapse">
-                <summary class="fc-collapse-sum"><span>📅 ตารางฝึกสัปดาห์นี้ & Back-Safe</span><span class="sub" style="margin-left:auto;font-size:11px;font-weight:600;">แตะเพื่อกาง</span></summary>
+                <summary class="fc-collapse-sum"><span><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg> ตารางฝึกสัปดาห์นี้ & Back-Safe</span><span class="sub" style="margin-left:auto;font-size:11px;font-weight:600;">แตะเพื่อกาง</span></summary>
                 <!-- CARD 5: 📅 WEEKLY SCHEDULE & TRAINING CYCLE -->
                 <div class="card" style="margin-bottom:12px;">
                 <div class="row" style="align-items:center; margin-bottom:10px;">
@@ -190,7 +191,7 @@
             </details>
 
             <details class="fc-home-collapse">
-                <summary class="fc-collapse-sum"><span>📈 สรุป 7 วัน & โซนหัวใจ</span><span class="sub" style="margin-left:auto;font-size:11px;font-weight:600;">แตะเพื่อกาง</span></summary>
+                <summary class="fc-collapse-sum"><span><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> สรุป 7 วัน & โซนหัวใจ</span><span class="sub" style="margin-left:auto;font-size:11px;font-weight:600;">แตะเพื่อกาง</span></summary>
                 <!-- CARD 6: 📈 7-DAY PERFORMANCE & RECOVERY SUMMARY -->
                 <div class="card" id="weeklySummaryCard" style="margin-bottom:12px; background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px;"></div>
 
@@ -233,9 +234,9 @@
 
             <!-- Segmented Sub-Tabs for Program Page -->
             <div class="wm-body-segmented-tabs" style="margin-bottom:14px;">
-                <button type="button" class="wm-body-seg-btn active" id="tabProgPlan" onclick="switchProgSubTab('plan')">📅 ตารางหลัก</button>
-                <button type="button" class="wm-body-seg-btn" id="tabProgExtra" onclick="switchProgSubTab('extra')">🏆 ชาเลนจ์ & เฉพาะจุด</button>
-                <button type="button" class="wm-body-seg-btn" id="tabProgRecovery" onclick="switchProgSubTab('recovery')">🧬 ฟื้นฟู & น้ำหนัก</button>
+                <button type="button" class="wm-body-seg-btn active" id="tabProgPlan" onclick="switchProgSubTab('plan')"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg> ตารางหลัก</button>
+                <button type="button" class="wm-body-seg-btn" id="tabProgExtra" onclick="switchProgSubTab('extra')"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg> ชาเลนจ์ & เฉพาะจุด</button>
+                <button type="button" class="wm-body-seg-btn" id="tabProgRecovery" onclick="switchProgSubTab('recovery')"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg> ฟื้นฟู & น้ำหนัก</button>
             </div>
 
             <!-- SUB-TAB 1: ตารางหลัก -->
@@ -260,12 +261,12 @@
                 <div class="card" style="margin-top:16px;">
                     <div class="row" style="align-items:center;">
                         <div>
-                            <h3 style="font-size:16px;">🏋️ น้ำหนักอุปกรณ์ตามโปรแกรม 5 เฟส</h3>
+                            <h3 style="font-size:16px;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg> น้ำหนักอุปกรณ์ตามโปรแกรม 5 เฟส</h3>
                             <div class="sub" style="margin-top:2px;" id="weightProgPhaseLabel">จัดน้ำหนักตามสัปดาห์ & ปรับแต่งยืดหยุ่น</div>
                         </div>
                         <div style="display:flex;gap:6px;">
-                            <button class="btn sm g" onclick="showWeightTableModal()" style="font-size:12px;padding:6px 10px;">📊 ตาราง 5 เฟส</button>
-                            <button class="btn sm g" onclick="resetAllWeightsToProgram()" style="font-size:12px;padding:6px 8px;" title="รีเซ็ตทุกท่ากลับเป็นค่ามาตรฐาน">🔄 รีเซ็ต</button>
+                            <button class="btn sm g" onclick="showWeightTableModal()" style="font-size:12px;padding:6px 10px;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg> ตาราง 5 เฟส</button>
+                            <button class="btn sm g" onclick="resetAllWeightsToProgram()" style="font-size:12px;padding:6px 8px;" title="รีเซ็ตทุกท่ากลับเป็นค่ามาตรฐาน"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> รีเซ็ต</button>
                         </div>
                     </div>
                     <div id="weightProgressionList" style="margin-top:12px;display:grid;gap:8px;"></div>
@@ -335,7 +336,7 @@
                 <!-- Card 2.5: Anti-Plateau & Dynamic TDEE Protocol Card (skill.md) -->
                 <div class="wm-body-card wm-insight-card" style="background:#eff6ff; border-color:#bfdbfe; cursor:pointer;" onclick="openAntiPlateauModal()">
                     <div class="wm-insight-content">
-                        <div class="wm-insight-title" style="color:#0369a1;">🛡️ แผนป้องกันโยโย่ & Dynamic TDEE 4 รูปแบบวัน</div>
+                        <div class="wm-insight-title" style="color:#0369a1;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg> แผนป้องกันโยโย่ & Dynamic TDEE 4 รูปแบบวัน</div>
                         <div style="font-size:11px; color:#475569; margin-top:2px; margin-bottom:8px;">คำนวณพลังงานผันแปรตามวันพัก/เวท/คาร์ดิโอ พร้อมตรวจจับน้ำหนักค้าง</div>
                         <button type="button" class="wm-insight-btn" style="background:#0284c7; color:#fff;" onclick="openAntiPlateauModal()">ดูตาราง & วินิจฉัย</button>
                     </div>
@@ -350,7 +351,7 @@
                         <div style="font-size:17px; font-weight:800; color:var(--tx); display:flex; align-items:center; gap:6px;">
                             น้ำหนัก <span style="font-size:14px; opacity:0.5;">›</span>
                         </div>
-                        <button class="btn sm" onclick="openWeeklyReportModal()" style="font-size:11.5px; padding:4px 10px; background:linear-gradient(135deg, var(--acc) 0%, #d97706 100%); color:#fff; font-weight:700; border-radius:8px; cursor:pointer;">📊 AI สรุปสัปดาห์</button>
+                        <button class="btn sm" onclick="openWeeklyReportModal()" style="font-size:11.5px; padding:4px 10px; background:linear-gradient(135deg, var(--acc) 0%, #d97706 100%); color:#fff; font-weight:700; border-radius:8px; cursor:pointer;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg> AI สรุปสัปดาห์</button>
                     </div>
                     <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--dim); margin-top:6px; flex-wrap:wrap;">
                         <span>เฉลี่ย: <b id="wmAvgWeightVal" style="color:var(--tx)">78.0 kg</b></span>
@@ -436,7 +437,7 @@
             <div id="bodyCircumferenceSection" style="display:none;">
                 <!-- Weekly Cadence Notice Banner -->
                 <div class="wm-body-cadence-banner">
-                    <div style="font-size:20px;">💡</div>
+                    <div style="font-size:20px;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg></div>
                     <div style="flex:1;">
                         <div style="font-weight:800; font-size:13.5px; color:var(--tx);">แนะนำวัดสัดส่วนสัปดาห์ละ 1 ครั้ง</div>
                         <div style="font-size:12px; color:var(--dim); margin-top:2px;">
@@ -505,7 +506,7 @@
             <!-- AI Settings -->
             <div class="card" style="border:1.5px solid #bfdbfe; box-shadow:0 4px 14px rgba(37,99,235,0.06);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <h3 style="margin:0; font-size:16px; font-weight:800; color:#0f172a;">🤖 ตั้งค่า AI (Gemini API Key)</h3>
+                    <h3 style="margin:0; font-size:16px; font-weight:800; color:#0f172a;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> ตั้งค่า AI (Gemini API Key)</h3>
                     <span style="font-size:10.5px; font-weight:800; background:#eff6ff; color:#2563eb; padding:3px 8px; border-radius:99px; border:1px solid #bfdbfe;">Google AI</span>
                 </div>
                 <div class="sub" style="margin-bottom:12px; font-size:12px; color:#64748b; line-height:1.5;">ใช้สำหรับสแกนอาหารด้วยภาพ วิเคราะห์สารอาหาร และประเมินสมดุลตับอัตโนมัติ (คีย์จะถูกบันทึกในเครื่องและซิงก์กับ Firebase)</div>
@@ -524,11 +525,11 @@
                         </div>
                         <input id="aiKeyBackup" placeholder="วางคีย์สำรอง (ถ้ามี)..." type="password" style="width:100%; box-sizing:border-box; font-family:monospace; font-size:13px; padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:var(--bg); color:var(--tx);">
                     </div>
-                    <button class="btn sm" onclick="saveCfg()" style="margin-top:4px; padding:11px; font-size:13px; font-weight:800; background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; border:none; border-radius:10px; box-shadow:0 3px 8px rgba(37,99,235,0.25); cursor:pointer;">💾 บันทึกคีย์ลง Firebase Cloud</button>
+                    <button class="btn sm" onclick="saveCfg()" style="margin-top:4px; padding:11px; font-size:13px; font-weight:800; background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; border:none; border-radius:10px; box-shadow:0 3px 8px rgba(37,99,235,0.25); cursor:pointer;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg> บันทึกคีย์ลง Firebase Cloud</button>
                     
                     <div style="display:flex; gap:8px; margin-top:2px;">
-                        <button type="button" class="btn sm" onclick="testGeminiKey('primary')" style="flex:1; padding:9px 6px; font-size:12px; font-weight:800; background:#f1f5f9; color:#1e293b; border:1px solid #cbd5e1; border-radius:10px; cursor:pointer;">⚡ ทดสอบคีย์หลัก</button>
-                        <button type="button" class="btn sm" onclick="testGeminiKey('backup')" style="flex:1; padding:9px 6px; font-size:12px; font-weight:800; background:#f1f5f9; color:#1e293b; border:1px solid #cbd5e1; border-radius:10px; cursor:pointer;">⚡ ทดสอบคีย์สำรอง</button>
+                        <button type="button" class="btn sm" onclick="testGeminiKey('primary')" style="flex:1; padding:9px 6px; font-size:12px; font-weight:800; background:#f1f5f9; color:#1e293b; border:1px solid #cbd5e1; border-radius:10px; cursor:pointer;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> ทดสอบคีย์หลัก</button>
+                        <button type="button" class="btn sm" onclick="testGeminiKey('backup')" style="flex:1; padding:9px 6px; font-size:12px; font-weight:800; background:#f1f5f9; color:#1e293b; border:1px solid #cbd5e1; border-radius:10px; cursor:pointer;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> ทดสอบคีย์สำรอง</button>
                     </div>
 
                     <!-- Test Result Notification Box -->
@@ -543,7 +544,7 @@
             <div class="card">
                 <div class="row" style="align-items:center;">
                     <div>
-                        <h3 style="font-size:15px;display:flex;align-items:center;gap:6px;">🔊 ระดับเสียงเตือน & เสียงโค้ชไทย</h3>
+                        <h3 style="font-size:15px;display:flex;align-items:center;gap:6px;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg> ระดับเสียงเตือน & เสียงโค้ชไทย</h3>
                         <div class="sub" style="margin-top:2px;">ปรับเร่งความดังระดับสูงสุด 100% พร้อมคลื่นเสียงตัดเสียงรบกวน</div>
                     </div>
                     <button class="btn sm" onclick="testAudioVolume()" style="font-size:12px;padding:6px 12px;background:rgba(139,92,246,0.15);color:var(--vio);border:1px solid rgba(139,92,246,0.3);font-weight:700;">▶ ทดสอบเสียง</button>
@@ -565,7 +566,7 @@
                             <div style="font-size:13.5px;font-weight:700;">เวอร์ชันแอป & แคชเครื่อง</div>
                             <div class="sub" style="font-size:11.5px;" id="appVersionTxt">เวอร์ชัน 2.4.5 (PWA ติดตั้งแล้ว)</div>
                         </div>
-                        <button class="btn sm" onclick="forceAppUpdate()" style="font-size:12px;padding:6px 12px;background:rgba(14,165,233,0.15);color:var(--acc);border:1px solid rgba(14,165,233,0.3);">🔄 ตรวจหา & อัปเดตทันที</button>
+                        <button class="btn sm" onclick="forceAppUpdate()" style="font-size:12px;padding:6px 12px;background:rgba(14,165,233,0.15);color:var(--acc);border:1px solid rgba(14,165,233,0.3);"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> ตรวจหา & อัปเดตทันที</button>
                     </div>
                 </div>
             </div>
@@ -580,7 +581,7 @@
                 <span id="plPhase" class="tag">WARM-UP</span>
                 <span id="plProg">1/1</span>
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <button id="plVoiceBtn" onclick="toggleVoiceCoach()" style="background:none;border:none;font-size:16px;cursor:pointer;padding:2px 4px;" title="เปิด/ปิดเสียงโค้ช">🔊</button>
+                    <button id="plVoiceBtn" onclick="toggleVoiceCoach()" style="background:none;border:none;font-size:16px;cursor:pointer;padding:2px 4px;" title="เปิด/ปิดเสียงโค้ช"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
                     <button onclick="quitW()" style="background:0;border:0;color:var(--red);font-size:13px;font-weight:700;font-family:inherit">ออก ✕</button>
                 </div>
             </div>
@@ -625,7 +626,7 @@
                     <h1 style="margin:0; font-size:22px; font-weight:900; color:#0f172a; letter-spacing:-0.5px;">การอดอาหาร</h1>
                     <span class="v3-pro-pill">👑 PRO</span>
                 </div>
-                <button type="button" class="wm-if-history-btn" onclick="openIfHistoryModal()" title="ประวัติการอดอาหาร">📋</button>
+                <button type="button" class="wm-if-history-btn" onclick="openIfHistoryModal()" title="ประวัติการอดอาหาร"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></button>
             </div>
             
             <!-- WiseMeal Main Fasting Hero Card -->
@@ -643,15 +644,15 @@
 
                     <!-- 5 Milestone Beads aligned dead-center ON the 98px radius arc -->
                     <!-- Bead 1: 135° (0h Start) -->
-                    <div id="ifBead1" class="wm-if-bead" style="left:55.7px; top:194.3px; cursor:pointer;" onclick="openIfStageDetailModal(1)" title="ระยะที่ 1: น้ำตาลและอินซูลินเริ่มลด">💧↓</div>
+                    <div id="ifBead1" class="wm-if-bead" style="left:55.7px; top:194.3px; cursor:pointer;" onclick="openIfStageDetailModal(1)" title="ระยะที่ 1: น้ำตาลและอินซูลินเริ่มลด"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>↓</div>
                     <!-- Bead 2: 202.5° (4h) -->
-                    <div id="ifBead2" class="wm-if-bead" style="left:34.5px; top:87.5px; cursor:pointer;" onclick="openIfStageDetailModal(2)" title="ระยะที่ 2: ตับหยุดเก็บไขมันใหม่">💧↑</div>
+                    <div id="ifBead2" class="wm-if-bead" style="left:34.5px; top:87.5px; cursor:pointer;" onclick="openIfStageDetailModal(2)" title="ระยะที่ 2: ตับหยุดเก็บไขมันใหม่"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>↑</div>
                     <!-- Bead 3: 270° (8h Top) -->
-                    <div id="ifBead3" class="wm-if-bead" style="left:125px; top:27px; cursor:pointer;" onclick="openIfStageDetailModal(3)" title="ระยะที่ 3: สลายไขมันพอกตับ & ไขมันช่องท้อง">🔥</div>
+                    <div id="ifBead3" class="wm-if-bead" style="left:125px; top:27px; cursor:pointer;" onclick="openIfStageDetailModal(3)" title="ระยะที่ 3: สลายไขมันพอกตับ & ไขมันช่องท้อง"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></div>
                     <!-- Bead 4: 337.5° (12h) -->
-                    <div id="ifBead4" class="wm-if-bead" style="left:215.5px; top:87.5px; cursor:pointer;" onclick="openIfStageDetailModal(4)" title="ระยะที่ 4: เผาผลาญไขมันช่องท้อง & ไตรกลีเซอไรด์">🚀</div>
+                    <div id="ifBead4" class="wm-if-bead" style="left:215.5px; top:87.5px; cursor:pointer;" onclick="openIfStageDetailModal(4)" title="ระยะที่ 4: เผาผลาญไขมันช่องท้อง & ไตรกลีเซอไรด์"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></div>
                     <!-- Bead 5: 45° (16h Goal) -->
-                    <div id="ifBead5" class="wm-if-bead" style="left:194.3px; top:194.3px; cursor:pointer;" onclick="openIfStageDetailModal(5)" title="ระยะที่ 5: ฟื้นฟูระดับเซลล์สมบูรณ์">🧬</div>
+                    <div id="ifBead5" class="wm-if-bead" style="left:194.3px; top:194.3px; cursor:pointer;" onclick="openIfStageDetailModal(5)" title="ระยะที่ 5: ฟื้นฟูระดับเซลล์สมบูรณ์"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg></div>
 
                     <!-- Dial Center Info -->
                     <div class="wm-if-dial-center">
@@ -699,7 +700,7 @@
                 <!-- Announcement Pill -->
                 <div class="wm-if-notice-pill" onclick="openIfNoticeModal()" title="ดูข้อควรระวังและประกาศสำคัญ">
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="font-size:18px;">💡</span>
+                        <span style="font-size:18px;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg></span>
                         <span style="font-size:13.5px; font-weight:800; color:#0f172a;">ประกาศสำคัญ</span>
                     </div>
                     <span style="font-size:18px; font-weight:700; color:#94a3b8;">›</span>
@@ -793,14 +794,14 @@
             <div style="text-align:center; padding:10px 0 16px;">
                 <!-- 3D Clock & Fork Illustration -->
                 <div style="width:72px; height:72px; border-radius:50%; background:#eff6ff; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:36px; box-shadow:0 6px 16px rgba(2,132,199,0.15);">
-                    ⏰🍽️
+                    <svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
                 </div>
                 <h3 style="margin:0 0 14px; font-size:18px; font-weight:900; color:#0f172a;">การอดอาหารไม่เหมาะกับทุกคน</h3>
 
                 <!-- Cream Advisory Box with 7 Contraindications -->
                 <div style="background:#fffbeb; border:1px solid #fef08a; border-radius:18px; padding:16px 18px; text-align:left; font-size:13px; line-height:1.6; color:#78350f;">
                     <div style="font-weight:900; font-size:14px; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-                        <span>💡</span> หลีกเลี่ยงหากคุณ:
+                        <span><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg></span> หลีกเลี่ยงหากคุณ:
                     </div>
                     <ul style="margin:0; padding-left:18px; display:flex; flex-direction:column; gap:4px;">
                         <li>กำลังตั้งครรภ์หรือให้นมบุตร</li>
@@ -886,13 +887,13 @@
                     <div class="fc-cam-corner bottom-right"></div>
                 </div>
                 <div id="fcCamPlaceholder" class="fc-cam-placeholder" style="display:none;">
-                    <div style="font-size:36px; margin-bottom:8px;">📷</div>
+                    <div style="font-size:36px; margin-bottom:8px;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></div>
                     <div style="font-size:14px; font-weight:700; color:#fff;">ไม่สามารถเปิดกล้องได้</div>
                     <div style="font-size:11.5px; color:#94a3b8; margin:6px 0 14px; max-width:260px;">อาจเกิดจากยังไม่ได้อนุญาตสิทธิ์ หรือเปิดจากเบราว์เซอร์ที่ไม่มีกล้อง</div>
                     <button type="button" class="btn sm" onclick="triggerCameraGallery()" style="background:#2563eb; color:#fff; padding:8px 16px; border-radius:99px; font-weight:700; cursor:pointer;">🖼️ เลือกรูปจากอัลบั้มแทน</button>
                 </div>
                 <div class="fc-cam-tip-banner">
-                    <span>✨ ถ่ายได้หลายภาพ (จานหลัก, เครื่องเคียง, ฉลาก)</span>
+                    <span><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg> ถ่ายได้หลายภาพ (จานหลัก, เครื่องเคียง, ฉลาก)</span>
                 </div>
             </div>
 
@@ -902,7 +903,7 @@
             <!-- Food Description & Portion Note Input Bar -->
             <div class="fc-cam-note-wrap">
                 <div class="fc-cam-note-bar">
-                    <span style="font-size:14px;">📝</span>
+                    <span style="font-size:14px;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
                     <input id="cameraFoodNote" type="text" placeholder="ระบุรายละเอียด เช่น ไม่เอาหนัง ข้าวครึ่งจาน น้ำจิ้ม 2 ช้อน..." autocomplete="off">
                 </div>
             </div>
@@ -923,7 +924,7 @@
 
                 <!-- Analyze Action Button -->
                 <button type="button" id="fcCamAnalyzeBtn" class="fc-cam-analyze-btn" onclick="submitMultiImageFoodScan()" title="ส่งวิเคราะห์">
-                    <div style="font-size:13.5px; font-weight:900;">⚡ วิเคราะห์</div>
+                    <div style="font-size:13.5px; font-weight:900;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> วิเคราะห์</div>
                     <div id="fcCamAnalyzeCount" style="font-size:10px; opacity:0.85; font-weight:700;">(0 รูป)</div>
                 </button>
             </div>
@@ -960,7 +961,8 @@
             
             <!-- Celebration Header -->
             <div class="fc-summary-celebrate-header">
-                <div class="fc-summary-badge">🏆 WORKOUT COMPLETED!</div>
+                <div id="fcDoneLottie" style="margin:0 auto 4px;"></div>
+                <div class="fc-summary-badge"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg> WORKOUT COMPLETED!</div>
                 <h2 class="fc-summary-title" id="wsWorkoutTitle">Workout A — อก & หน้าแขน</h2>
                 <div class="fc-summary-sub" id="wsDateSub">วันเสาร์ที่ 14 พ.ย. • สำเร็จครบทุกเซ็ต</div>
             </div>
@@ -968,19 +970,19 @@
             <!-- Bento Grid Stats -->
             <div class="fc-summary-bento">
                 <div class="fc-summary-bento-card">
-                    <div class="fc-summary-bento-label">⏱️ ระยะเวลาฝึก</div>
+                    <div class="fc-summary-bento-label"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/></svg> ระยะเวลาฝึก</div>
                     <div><span class="fc-summary-bento-val" id="wsDurVal">48</span><span class="fc-summary-bento-unit">นาที</span></div>
                 </div>
                 <div class="fc-summary-bento-card">
-                    <div class="fc-summary-bento-label">🔥 เผาผลาญ</div>
+                    <div class="fc-summary-bento-label"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> เผาผลาญ</div>
                     <div><span class="fc-summary-bento-val" id="wsKcalVal" style="color:#f59e0b;">385</span><span class="fc-summary-bento-unit">kcal</span></div>
                 </div>
                 <div class="fc-summary-bento-card">
-                    <div class="fc-summary-bento-label">🏋️ น้ำหนักสะสม (Volume)</div>
+                    <div class="fc-summary-bento-label"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg> น้ำหนักสะสม (Volume)</div>
                     <div><span class="fc-summary-bento-val" id="wsVolVal" style="color:#38bdf8;">4,820</span><span class="fc-summary-bento-unit">กก.</span></div>
                 </div>
                 <div class="fc-summary-bento-card">
-                    <div class="fc-summary-bento-label">🎯 เซ็ตที่ผ่าน</div>
+                    <div class="fc-summary-bento-label"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> เซ็ตที่ผ่าน</div>
                     <div><span class="fc-summary-bento-val" id="wsSetsVal" style="color:#10b981;">16 / 16</span><span class="fc-summary-bento-unit">เซ็ต</span></div>
                 </div>
             </div>
@@ -988,7 +990,7 @@
             <!-- Muscle Heatmap Visual -->
             <div class="fc-summary-heat-card">
                 <div class="fc-summary-heat-title">
-                    <span>🧬 แผนผังกล้ามเนื้อที่ถูกกระตุ้น (Muscle Activation)</span>
+                    <span><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg> แผนผังกล้ามเนื้อที่ถูกกระตุ้น (Muscle Activation)</span>
                     <span style="font-size:11px; color:#34d399; font-weight:700;">GymWork Heatmap</span>
                 </div>
                 <div style="display:flex; justify-content:center; align-items:center; gap:16px;">
@@ -1001,7 +1003,7 @@
             <!-- 1-Tap Quick RPE & Back Pain Check -->
             <div class="fc-summary-rpe-card">
                 <div style="font-size:13px; font-weight:800; color:#f1f5f9; margin-bottom:8px;">
-                    💪 ความเหนื่อยล้าหลังฝึก (RPE Rating)
+                    <svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg> ความเหนื่อยล้าหลังฝึก (RPE Rating)
                 </div>
                 <div class="fc-rpe-btn-group" id="wsRpeBtnGroup">
                     <button type="button" class="fc-rpe-btn" onclick="setSummaryRpe(5)">5 สบาย</button>
@@ -1013,7 +1015,7 @@
                 </div>
 
                 <div style="font-size:13px; font-weight:800; color:#f1f5f9; margin-top:14px; margin-bottom:8px;">
-                    🛡️ อาการปวดหลัง (McGill Shield Check)
+                    <svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg> อาการปวดหลัง (McGill Shield Check)
                 </div>
                 <div class="fc-rpe-btn-group" id="wsPainBtnGroup">
                     <button type="button" class="fc-rpe-btn active" onclick="setSummaryPain(0)">0 ไม่ปวด</button>
@@ -1026,7 +1028,7 @@
             <!-- Personalized AI Recovery Tip -->
             <div class="fc-summary-recovery-tip">
                 <div style="font-size:12.5px; font-weight:800; color:#60a5fa; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-                    <span>🤖 คำแนะนำฟื้นฟูร่างกายเฉพาะคุณ (AI Recovery Tip)</span>
+                    <span><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> คำแนะนำฟื้นฟูร่างกายเฉพาะคุณ (AI Recovery Tip)</span>
                 </div>
                 <div id="wsRecoveryTipText" style="font-size:12px; color:#e2e8f0; line-height:1.5;">
                     🥩 ดื่มเวย์โปรตีน 35-40g ภายใน 60-90 นาที และดื่มน้ำเพิ่มอีก 500ml เพื่อชดเชยเหงื่อที่เสียไป
@@ -1035,7 +1037,7 @@
 
             <!-- Share Card Canvas Generator -->
             <div class="fc-share-canvas-container">
-                <div style="font-size:13.5px; font-weight:800; color:#ffffff; margin-bottom:6px;">📸 การ์ดสรุปผลสไตล์นักกีฬา</div>
+                <div style="font-size:13.5px; font-weight:800; color:#ffffff; margin-bottom:6px;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> การ์ดสรุปผลสไตล์นักกีฬา</div>
                 <div style="font-size:12px; color:#94a3b8; margin-bottom:10px;">สร้างรูปภาพบันทึกลงอัลบั้มหรือแชร์ตรงลง IG Story / LINE</div>
                 
                 <div class="fc-share-ratio-toggle">
@@ -1049,10 +1051,10 @@
 
                 <div style="display:flex; gap:8px; margin-top:14px;">
                     <button type="button" class="btn" onclick="downloadShareCardPng()" style="flex:1; background:#1e293b; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:99px; font-weight:800; font-size:13px; padding:10px;">
-                        💾 บันทึกรูปภาพ (PNG)
+                        <svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg> บันทึกรูปภาพ (PNG)
                     </button>
                     <button type="button" class="btn" onclick="shareCardViaWebShare()" style="flex:1; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#fff; border:none; border-radius:99px; font-weight:800; font-size:13px; padding:10px;">
-                        🚀 แชร์ลงโซเชียล
+                        <svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> แชร์ลงโซเชียล
                     </button>
                 </div>
             </div>
@@ -1129,7 +1131,7 @@
             <div id="wmPushPermissionCard" style="background:linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(5,150,105,0.06) 100%); border:1.5px solid rgba(16,185,129,0.25); border-radius:14px; padding:12px 14px; margin-bottom:14px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <div style="font-size:13.5px; font-weight:800; color:var(--tx); display:flex; align-items:center; gap:6px;">
-                        <span>🔔 สถานะการแจ้งเตือนบนมือถือ</span>
+                        <span><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> สถานะการแจ้งเตือนบนมือถือ</span>
                     </div>
                     <span id="pushStatusBadge" style="font-size:11px; font-weight:800; padding:2px 8px; border-radius:99px; background:#e2e8f0; color:#475569;">รอตรวจสอบ...</span>
                 </div>
@@ -1138,10 +1140,10 @@
                 </div>
                 <div style="display:flex; gap:8px;">
                     <button type="button" id="btnRequestPushPerm" class="btn sm" onclick="requestPushNotificationPermission()" style="flex:1; font-size:12px; font-weight:700; padding:8px 10px; border-radius:8px; background:#10b981; color:#fff; border:none; display:flex; align-items:center; justify-content:center; gap:4px;">
-                        <span>🔔 เปิดรับการแจ้งเตือน</span>
+                        <span><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> เปิดรับการแจ้งเตือน</span>
                     </button>
                     <button type="button" class="btn sm g" onclick="sendTestNotificationNow()" style="font-size:12px; font-weight:700; padding:8px 10px; border-radius:8px;" title="ทดสอบยิงแจ้งเตือนทันที">
-                        <span>⚡ ทดสอบส่งทันที</span>
+                        <span><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> ทดสอบส่งทันที</span>
                     </button>
                 </div>
             </div>
@@ -1204,14 +1206,14 @@
             <div style="background:var(--card2); border-radius:14px; padding:16px; margin-bottom:16px; border:1px solid var(--line);">
                 <div style="display:grid; gap:12px;">
                     <div style="display:flex; gap:10px; align-items:flex-start;">
-                        <span style="font-size:20px;">⏰</span>
+                        <span style="font-size:20px;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
                         <div>
                             <div style="font-weight:800; font-size:13.5px; color:var(--tx);">1. ชั่งเวลาเดิมทุกเช้า</div>
                             <div style="font-size:12px; color:var(--dim); margin-top:2px;">ชั่งทันทีหลังตื่นนอนและปัสสาวะแล้ว ก่อนดื่มน้ำหรือทานอาหาร เพื่อตัดความผันผวนจากน้ำและอาหารตกค้าง</div>
                         </div>
                     </div>
                     <div style="display:flex; gap:10px; align-items:flex-start;">
-                        <span style="font-size:20px;">📉</span>
+                        <span style="font-size:20px;"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span>
                         <div>
                             <div style="font-weight:800; font-size:13.5px; color:var(--tx);">2. ดูแนวโน้ม 7 วัน แทนการดูวันเดียว</div>
                             <div style="font-size:12px; color:var(--dim); margin-top:2px;">น้ำหนักตัวขึ้นลงได้ 1-2 กก. ต่อวันจากโซเดียมและไกลโคเจน ให้ดูค่าเฉลี่ยรายสัปดาห์เพื่อประเมินผลจริง</div>
@@ -1240,7 +1242,7 @@
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
                 <div>
                     <h3 style="margin:0; font-size:17.5px; font-weight:900; color:var(--tx); display:flex; align-items:center; gap:6px;">
-                        <span>🛡️</span> Anti-Plateau & Dynamic TDEE
+                        <span><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span> Anti-Plateau & Dynamic TDEE
                     </h3>
                     <div style="font-size:11px; color:var(--dim); margin-top:2px;">พลังงานผันแปรตามกิจกรรม 4 รูปแบบ & ป้องกันน้ำหนักค้าง</div>
                 </div>
@@ -1266,7 +1268,7 @@
         <div class="fc-ai-scan-card" style="position:relative;">
             <button type="button" onclick="hideAiScanAnimation();" style="position:absolute; top:12px; right:12px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25); color:#fff; width:28px; height:28px; border-radius:50%; font-size:13px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:10;" title="ยกเลิกการสแกน">✕</button>
             <div style="font-size:12px; font-weight:800; color:#34d399; letter-spacing:1px; margin-bottom:8px;">
-                ⚡ GEMINI AI VISION SCANNER
+                <svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> GEMINI AI VISION SCANNER
             </div>
             
             <!-- Scanning Thumbnail with Holographic Laser Line -->
@@ -1288,7 +1290,7 @@
 
             <!-- Dynamic Status Step Text -->
             <div id="fcAiScanStatusText" style="font-size:13.5px; font-weight:700; color:#f1f5f9; min-height:22px; margin-top:8px;">
-                📸 กำลังจัดเตรียมภาพถ่ายและรายละเอียด...
+                <svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> กำลังจัดเตรียมภาพถ่ายและรายละเอียด...
             </div>
             <div style="font-size:11.5px; color:#94a3b8; margin-top:6px;">
                 คำนวณสารอาหารลึกถึงกรัม + ประเมินสมดุลตับอัตโนมัติ
@@ -1300,6 +1302,8 @@
     <canvas id="fcConfettiCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:99999; display:none;"></canvas>
 
     <!-- FitCoach v3.4 Modular JavaScript Architecture -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie_light.min.js" defer></script>
+    <script src="src/core/icons.js?v=3.4.0"></script>
     <script src="src/core/modals.js?v=3.4.0"></script>
     <script src="src/data/exercises-db.js?v=3.4.0"></script>
     <script src="src/core/store.js?v=3.4.0"></script>

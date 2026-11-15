@@ -320,7 +320,7 @@ async function resetAllData() {
     }
     
     setTimeout(() => {
-        fcAlert(`<div style="font-size:16px;"><b>✨ ล้างข้อมูลและเริ่มต้นใหม่จากศูนย์เรียบร้อย!</b></div><br>น้ำหนักตั้งต้น: <b>${w}</b> กก.<br>เป้าหมายพลังงาน: <b>${targetCal}</b> kcal/วัน<br>เป้าหมายโปรตีน: <b>${targetPro}</b> g/วัน`);
+        fcAlert(`<div style="font-size:16px;"><b>${fcIcon('sparkles')} ล้างข้อมูลและเริ่มต้นใหม่จากศูนย์เรียบร้อย!</b></div><br>น้ำหนักตั้งต้น: <b>${w}</b> กก.<br>เป้าหมายพลังงาน: <b>${targetCal}</b> kcal/วัน<br>เป้าหมายโปรตีน: <b>${targetPro}</b> g/วัน`);
     }, 300);
 }
 
@@ -339,7 +339,7 @@ const IF_PLANS_CATALOG = [
         goal: 12, eat: 12,
         name: '12:12',
         desc: 'จังหวะเริ่มต้นที่สมดุล',
-        icon: '🥗',
+        icon: fcIcon('utensils'),
         clockColor: '#67e8f9',
         bowlColor: '#ccfbf1'
     },
@@ -355,7 +355,7 @@ const IF_PLANS_CATALOG = [
         goal: 16, eat: 8,
         name: '16:8',
         desc: 'แผนเริ่มต้นที่เหมาะกับมือใหม่',
-        icon: '🥣',
+        icon: fcIcon('utensils'),
         clockColor: '#38bdf8',
         bowlColor: '#e0f2fe'
     },
