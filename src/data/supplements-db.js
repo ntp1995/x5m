@@ -620,7 +620,8 @@ function getTodaySuppRecord() {
             cal: 0, protein: 0, carbs: 0, fat: 0, sugar: 0, sodium: 0, water: 0,
             meals: [],
             supps: {},
-            suppShiftMode: false
+            suppShiftMode: false,
+            suppOmadMode: false
         };
         D.checks.push(rec);
     }
@@ -632,6 +633,7 @@ function getSuppProgressStats(rec) {
     const r = rec || todayCheck() || {};
     const supps = r.supps || {};
     const isShift = !!r.suppShiftMode;
+    const isOmad = !!r.suppOmadMode;
     const activeSlots = getActiveSuppSlots();
     let totalReq = 0;
     let doneReq = 0;
@@ -640,6 +642,7 @@ function getSuppProgressStats(rec) {
     activeSlots.forEach(slot => {
         slot.items.forEach(item => {
             if (isShift && item.skipOnShift) return;
+            if (isOmad && item.id === 'supp_lunch_bcomplex') return;
             if (item.optional) {
                 if (supps[item.id]) optionalDone++;
                 return;
@@ -650,7 +653,7 @@ function getSuppProgressStats(rec) {
     });
 
     const pct = totalReq > 0 ? Math.min(100, Math.round((doneReq / totalReq) * 100)) : 0;
-    return { totalReq, doneReq, optionalDone, pct, isShift };
+    return { totalReq, doneReq, optionalDone, pct, isShift, isOmad };
 }
 
 function toggleSuppItem(itemId) {
@@ -701,14 +704,30 @@ function toggleStandbySpecialUse(holdId) {
 function toggleSuppSlotAll(slotId) {
     const rec = getTodaySuppRecord();
     const isShift = !!rec.suppShiftMode;
+    const isOmad = !!rec.suppOmadMode;
     const activeSlots = getActiveSuppSlots();
     const slot = activeSlots.find(s => s.id === slotId);
     if (!slot) return;
 
-    const activeItems = slot.items.filter(it => !(isShift && it.skipOnShift) && !(isShift && it.shiftMoveToLunch && slotId === 'slot_morning') && !it.optional);
-    if (slotId === 'slot_lunch' && isShift) {
+    const omadMoveIds = ['supp_lunch_acv', 'supp_lunch_vitc', 'supp_lunch_asta', 'supp_lunch_fishoil'];
+    const activeItems = slot.items.filter(it =>
+        !(isShift && it.skipOnShift) &&
+        !(isShift && it.shiftMoveToLunch && slotId === 'slot_morning') &&
+        !(isOmad && slotId === 'slot_lunch') &&
+        !it.optional
+    );
+    if (slotId === 'slot_lunch' && isShift && !isOmad) {
         const movedItems = activeSlots[0].items.filter(x => x.shiftMoveToLunch);
         activeItems.push(...movedItems);
+    }
+    if (slotId === 'slot_dinner' && isOmad) {
+        const lunchSlot = activeSlots.find(s => s.id === 'slot_lunch');
+        if (lunchSlot) {
+            activeItems.push(...lunchSlot.items.filter(x => omadMoveIds.includes(x.id) && !x.optional));
+        }
+        if (isShift) {
+            activeItems.push(...activeSlots[0].items.filter(x => x.shiftMoveToLunch));
+        }
     }
     const allChecked = activeItems.every(it => !!rec.supps[it.id]);
     const targetState = !allChecked;
@@ -747,15 +766,28 @@ function toggleSuppShiftMode() {
         : '🏃‍♂️ สลับกลับเป็นโหมดวันออกกำลังกายปกติ');
 }
 
+function toggleSuppOmadMode() {
+    const rec = getTodaySuppRecord();
+    rec.suppOmadMode = !rec.suppOmadMode;
+    rec.updatedAt = Date.now();
+    save();
+    render();
+    if (typeof pushToCloud === 'function') pushToCloud();
+    msg(rec.suppOmadMode
+        ? '🍽️ เปิดโหมดทานมื้อเดียว (OMAD): ย้ายวิตามินมื้อเที่ยงไปมื้อเย็น และงด B Complex เพื่อไม่ให้กวนเวลานอน'
+        : '🍽️ ปิดโหมดทานมื้อเดียว: กลับสู่ตารางอาหารเสริม 2 มื้อปกติ');
+}
+
 function checkAllSuppsToday(markDone) {
     const rec = getTodaySuppRecord();
     const isShift = !!rec.suppShiftMode;
+    const isOmad = !!rec.suppOmadMode;
     const activeSlots = getActiveSuppSlots();
     const inv = ensureSuppInventory();
 
     activeSlots.forEach(slot => {
         slot.items.forEach(it => {
-            if (isShift && it.skipOnShift) {
+            if ((isShift && it.skipOnShift) || (isOmad && it.id === 'supp_lunch_bcomplex')) {
                 rec.supps[it.id] = false;
                 return;
             }
@@ -1301,6 +1333,8 @@ function renderSupplementsUI() {
     const stats = getSuppProgressStats(tc);
     const supps = tc.supps || {};
     const isShift = stats.isShift;
+    const isOmad = stats.isOmad;
+    const omadMoveIds = ['supp_lunch_acv', 'supp_lunch_vitc', 'supp_lunch_asta', 'supp_lunch_fishoil'];
     const activeSlots = getActiveSuppSlots();
     const pausedItems = getPausedSuppItems();
     const inv = ensureSuppInventory();
@@ -1344,6 +1378,7 @@ function renderSupplementsUI() {
                 <div style="font-size:12px; color:var(--tx); flex:1;">
                     <span style="font-weight:800; color:${curSlot.color};">${curSlot.icon} ช่วงเวลานี้:</span> ${curSlot.title.split(' (')[0]}
                     ${isShift ? ' <span style="font-size:10.5px; color:#d97706; font-weight:700;">(🏥 โหมดวันเข้าเวร/งดซ้อม)</span>' : ''}
+                    ${isOmad ? ' <span style="font-size:10.5px; color:#7c3aed; font-weight:700;">(🍽️ OMAD มื้อเย็นเดียว)</span>' : ''}
                 </div>
                 <button class="btn sm" onclick="go('supp')" style="width:auto; flex:0 0 auto; padding:6px 12px; font-size:11.5px; background:var(--acc); color:#fff; font-weight:800; border-radius:8px; cursor:pointer;">
                     💊 เปิดตารางเช็กชื่อ ❯
@@ -1357,21 +1392,24 @@ function renderSupplementsUI() {
     if (!pageEl) return;
 
     const renderItemRow = (it, extraBadgeHtml = '') => {
-        const isSkipped = isShift && it.skipOnShift;
-        const isMovedOut = isShift && it.shiftMoveToLunch && !extraBadgeHtml;
+        const isSkipped = (isShift && it.skipOnShift) || (isOmad && it.id === 'supp_lunch_bcomplex');
+        const isMovedOut = (isShift && it.shiftMoveToLunch && !extraBadgeHtml) || (isOmad && omadMoveIds.includes(it.id) && !extraBadgeHtml);
         const isDone = !!supps[it.id];
         const itemStock = it.id === 'supp_night_probio'
             ? D.cfg.probioticStock
             : (it.stock != null ? it.stock : null);
 
         if (isSkipped) {
+            const skipReason = (isOmad && it.id === 'supp_lunch_bcomplex')
+                ? 'งดทาน (OMAD หลัง 18:00 น. กันนอนไม่หลับ)'
+                : 'งดทาน (วันเข้าเวร/ไม่ได้ออกกำลังกาย)';
             return `
                 <div style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border-radius:10px; background:var(--card2); border:1px dashed var(--line); opacity:0.65; margin-bottom:8px;">
                     <div style="font-size:16px; line-height:1.2; margin-top:2px;">⏸️</div>
                     <div style="flex:1;">
                         <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; flex-wrap:wrap;">
                             <span style="font-weight:800; font-size:13.5px; color:var(--dim); text-decoration:line-through;">${it.name} (${it.dose})</span>
-                            <span style="background:rgba(245,158,11,0.15); color:#d97706; font-size:10px; font-weight:800; padding:1px 6px; border-radius:6px;">งดทาน (วันเข้าเวร/ไม่ได้ออกกำลังกาย)</span>
+                            <span style="background:rgba(245,158,11,0.15); color:#d97706; font-size:10px; font-weight:800; padding:1px 6px; border-radius:6px;">${skipReason}</span>
                         </div>
                         <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">${it.benefit}</div>
                     </div>
@@ -1483,7 +1521,7 @@ function renderSupplementsUI() {
         } else {
             slot.items.forEach(it => {
                 slotItemsHtml += renderItemRow(it);
-                if (slot.id === 'slot_lunch' && it.id === 'supp_lunch_acv' && isShift) {
+                if (slot.id === 'slot_lunch' && it.id === 'supp_lunch_acv' && isShift && !isOmad) {
                     const movedList = activeSlots[0].items.filter(x => x.shiftMoveToLunch);
                     movedList.forEach(meditaItem => {
                         slotItemsHtml += renderItemRow(
@@ -1493,16 +1531,54 @@ function renderSupplementsUI() {
                     });
                 }
             });
+            if (slot.id === 'slot_dinner' && isOmad) {
+                const lunchSlot = activeSlots.find(s => s.id === 'slot_lunch');
+                if (lunchSlot) {
+                    lunchSlot.items.filter(x => omadMoveIds.includes(x.id)).forEach(lItem => {
+                        const isAcv = lItem.id === 'supp_lunch_acv';
+                        slotItemsHtml += renderItemRow(
+                            {
+                                ...lItem,
+                                timing: isAcv ? 'ก่อนมื้อเย็น 15–20 นาที (ย้ายจากมื้อเที่ยง)' : 'หลังมื้อเย็นทันที (ย้ายจากมื้อเที่ยง)',
+                                timingTag: isAcv ? '🍽️ ก่อนมื้อเย็น' : '🌙 หลังมื้อเย็น'
+                            },
+                            '<span style="background:rgba(124,58,237,0.14); color:#7c3aed; font-size:10px; font-weight:800; padding:1px 6px; border-radius:6px;">🍽️ ย้ายจากมื้อเที่ยง (OMAD)</span>'
+                        );
+                    });
+                }
+                if (isShift) {
+                    activeSlots[0].items.filter(x => x.shiftMoveToLunch).forEach(meditaItem => {
+                        slotItemsHtml += renderItemRow(
+                            { ...meditaItem, timing: 'ก่อนมื้อเย็น 15–20 นาที (ย้ายมาจากช่วงเช้า)', timingTag: '🍽️ ก่อนมื้อเย็น' },
+                            '<span style="background:rgba(124,58,237,0.14); color:#7c3aed; font-size:10px; font-weight:800; padding:1px 6px; border-radius:6px;">🍽️ OMAD + เข้าเวร</span>'
+                        );
+                    });
+                }
+            }
         }
 
         if (!slotItemsHtml) {
             slotItemsHtml = `<div style="text-align:center; padding:10px; font-size:12px; color:var(--dim); background:var(--card2); border-radius:8px;">ไม่มีรายการที่เปิดทานในช่วงเวลานี้</div>`;
         }
 
-        const reqItems = slot.items.filter(it => !(isShift && it.skipOnShift) && !(isShift && it.shiftMoveToLunch && slot.id === 'slot_morning') && !it.optional);
-        if (slot.id === 'slot_lunch' && isShift) {
+        const reqItems = slot.items.filter(it =>
+            !(isShift && it.skipOnShift) &&
+            !(isShift && it.shiftMoveToLunch && slot.id === 'slot_morning') &&
+            !(isOmad && slot.id === 'slot_lunch') &&
+            !it.optional
+        );
+        if (slot.id === 'slot_lunch' && isShift && !isOmad) {
             const movedList = activeSlots[0].items.filter(x => x.shiftMoveToLunch);
             reqItems.push(...movedList);
+        }
+        if (slot.id === 'slot_dinner' && isOmad) {
+            const lunchSlot = activeSlots.find(s => s.id === 'slot_lunch');
+            if (lunchSlot) {
+                reqItems.push(...lunchSlot.items.filter(x => omadMoveIds.includes(x.id) && !x.optional));
+            }
+            if (isShift) {
+                reqItems.push(...activeSlots[0].items.filter(x => x.shiftMoveToLunch));
+            }
         }
         const slotDoneCount = reqItems.filter(it => !!supps[it.id]).length;
         const slotAllDone = reqItems.length > 0 && slotDoneCount === reqItems.length;
@@ -1717,6 +1793,21 @@ function renderSupplementsUI() {
                 </div>
                 <button type="button" class="btn sm" onclick="toggleSuppShiftMode()" style="width:auto; flex:0 0 auto; padding:7px 11px; font-size:11.5px; font-weight:800; border-radius:8px; background:${isShift ? '#f59e0b' : '#2563eb'}; color:#fff; border:none; cursor:pointer; box-shadow:0 2px 6px rgba(37,99,235,0.2);">
                     ${isShift ? '🏥 วันเข้าเวร ⇄' : 'สลับวันเข้าเวร ⇄'}
+                </button>
+            </div>
+
+            <!-- 1-Tap OMAD (1 Meal Dinner Only) Switcher -->
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:8px; background:${isOmad ? '#f5f3ff' : '#f8fafd'}; border:1px solid ${isOmad ? '#ddd6fe' : '#e2e8f0'}; border-radius:12px; padding:10px 12px;">
+                <div style="flex:1;">
+                    <div style="font-size:12.5px; font-weight:900; color:${isOmad ? '#6d28d9' : '#0f172a'};">
+                        ${isOmad ? '🍽️ โหมดทานมื้อเย็นมื้อเดียว (OMAD เปิดอยู่)' : '🍽️ วันนี้ทานแค่มื้อเย็นมื้อเดียว (OMAD)?'}
+                    </div>
+                    <div style="font-size:11px; color:#475569; font-weight:600; margin-top:2px; line-height:1.4;">
+                        ${isOmad ? 'ย้าย ACV, Triple C, Astaxanthin, Fish Oil มามื้อเย็น และงด B Complex กันนอนไม่หลับ' : 'กดสลับเพื่อรวมวิตามินมื้อเที่ยงไปมื้อเย็นอัตโนมัติ (เว้นแคลเซียมห่าง Zinc ก่อนนอน ≥ 2 ชม.)'}
+                    </div>
+                </div>
+                <button type="button" class="btn sm" onclick="toggleSuppOmadMode()" style="width:auto; flex:0 0 auto; padding:7px 11px; font-size:11.5px; font-weight:800; border-radius:8px; background:${isOmad ? '#7c3aed' : '#475569'}; color:#fff; border:none; cursor:pointer; box-shadow:0 2px 6px rgba(124,58,237,0.2);">
+                    ${isOmad ? '🍽️ OMAD เปิด ⇄' : 'เปิดโหมด OMAD ⇄'}
                 </button>
             </div>
         </div>
