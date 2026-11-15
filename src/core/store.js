@@ -128,10 +128,13 @@ function toggleOutdoorMode() {
 
 function fullItems(k) {
     const w = W[k];
-    const isOutdoor = !!D.outdoorMode && (['R', 'Z'].includes(k) || w.warm === 'lite');
-    let warm = w.warm === 'none' ? [] : (isOutdoor ? WARM_OUTDOOR : (w.warm === 'full' ? WARM_FULL : WARM_LITE)).map(x => ({ ...x, ph: 'warm' }));
+    const suppMode = (typeof getSuppMode === 'function' && typeof todayCheck === 'function') ? getSuppMode(todayCheck()) : 'workout';
+    const isTravelOrSeminar = ['seminar', 'travel'].includes(suppMode);
+    const isOutdoor = (!!D.outdoorMode || isTravelOrSeminar) && (['R', 'Z'].includes(k) || w.warm === 'lite');
+    const isNoEquipWarmCool = isOutdoor || k === 'T';
+    let warm = w.warm === 'none' ? [] : (isNoEquipWarmCool ? WARM_OUTDOOR : (w.warm === 'full' ? WARM_FULL : WARM_LITE)).map(x => ({ ...x, ph: 'warm' }));
     let items = w.items.map(x => ({ ...x }));
-    let cool = w.cool === 'none' ? [] : (isOutdoor ? COOL_OUTDOOR : COOL).map(x => ({ ...x, ph: 'cool' }));
+    let cool = w.cool === 'none' ? [] : (isNoEquipWarmCool ? COOL_OUTDOOR : COOL).map(x => ({ ...x, ph: 'cool' }));
     const morningM = getMorningCardioMinutesToday();
 
     // Adapt main workout sets/rest/cardio to physiological goal (recomp / cut / slow_cut / lean_bulk)

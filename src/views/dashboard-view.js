@@ -909,16 +909,18 @@ function render() {
         </div>`;
     }
 
-    const isOutdoorActive = !!D.outdoorMode && (['R', 'Z'].includes(tk) || t.warm === 'lite');
-    const warmTag = isOutdoorActive 
-        ? '<span class="tag o"> Warm-up สวนสาธารณะ (ท่ายืน 4 นาที)</span>'
-        : ((morningM > 0 && ['Z', 'R', 'A'].includes(tk)) 
-            ? '<span class="tag o">Warm-up ยืดข้อต่อ (ไม่มีเดินซ้ำ)</span>' 
+    const _tsMode = (typeof getSuppMode === 'function') ? getSuppMode(todayCheck()) : 'workout';
+    const isTravelOrSeminar = ['seminar', 'travel'].includes(_tsMode);
+    const isOutdoorActive = (!!D.outdoorMode || isTravelOrSeminar) && (['R', 'Z', 'T'].includes(tk) || t.warm === 'lite');
+    const warmTag = isOutdoorActive
+        ? `<span class="tag o">${isTravelOrSeminar && !D.outdoorMode ? 'Warm-up ไร้อุปกรณ์ (ท่ายืน 4 นาที)' : 'Warm-up สวนสาธารณะ (ท่ายืน 4 นาที)'}</span>`
+        : ((morningM > 0 && ['Z', 'R', 'A'].includes(tk))
+            ? '<span class="tag o">Warm-up ยืดข้อต่อ (ไม่มีเดินซ้ำ)</span>'
             : `<span class="tag o"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="4.22" x2="19.78" y2="5.64"/></svg> Warm-up ${t.warm === 'full' ? '9' : '6'} นาที</span>`);
     const coolTag = isOutdoorActive
-        ? '<span class="tag v"> Cool-down สวนสาธารณะ (ม้านั่ง 4 นาที)</span>'
-        : ((morningM > 0 && ['Z', 'R', 'A'].includes(tk)) 
-            ? '<span class="tag v">Cool-down คลายกล้ามเนื้อ</span>' 
+        ? `<span class="tag v">${isTravelOrSeminar && !D.outdoorMode ? 'Cool-down ไร้อุปกรณ์ (4 นาที)' : 'Cool-down สวนสาธารณะ (ม้านั่ง 4 นาที)'}</span>`
+        : ((morningM > 0 && ['Z', 'R', 'A'].includes(tk))
+            ? '<span class="tag v">Cool-down คลายกล้ามเนื้อ</span>'
             : '<span class="tag v"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="20" y1="16" x2="16" y2="20"/><line x1="4" y1="8" x2="8" y2="4"/><line x1="20" y1="8" x2="16" y2="4"/><line x1="4" y1="16" x2="8" y2="20"/></svg> Cool-down 8 นาที</span>');
 
     const outdoorSwitcherHtml = (['R', 'Z'].includes(tk) || t.warm === 'lite') ? `
