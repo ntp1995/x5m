@@ -404,14 +404,33 @@ function endFastingSession(endTimeMs, durationHours) {
 }
 window.endFastingSession = endFastingSession;
 
+function getMealTimeMs(m) {
+    if (!m) return 0;
+    if (m.ts) return Number(m.ts) || 0;
+    if (m.time) {
+        const match = String(m.time).match(/(\d{1,2})[:.](\d{2})/);
+        if (match) {
+            const d = new Date();
+            d.setHours(parseInt(match[1], 10), parseInt(match[2], 10), 0, 0);
+            return d.getTime();
+        }
+    }
+    return 0;
+}
+
+function getMealsDuringFast(tc, startMs) {
+    if (!tc || !tc.meals || !startMs) return [];
+    return tc.meals.filter(m => {
+        if ((Number(m.cal) || 0) <= 0) return false;
+        return getMealTimeMs(m) > (startMs + 60000);
+    });
+}
+
 function endFastingFromLoggedMeal() {
     const tc = typeof todayCheck === 'function' ? todayCheck() : null;
-    const mealsToday = (tc && tc.meals) ? tc.meals.filter(m => (Number(m.cal) || 0) > 0) : [];
-    if (mealsToday.length > 0 && mealsToday[0].time) {
-        const parts = mealsToday[0].time.split(':');
-        const mealDate = new Date();
-        mealDate.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10), 0, 0);
-        const endMs = mealDate.getTime();
+    const mealsDuring = getMealsDuringFast(tc, D.if && D.if.start);
+    if (mealsDuring.length > 0) {
+        const endMs = getMealTimeMs(mealsDuring[0]) || Date.now();
         const dur = (D.if && D.if.start) ? Math.max(0, (endMs - D.if.start) / 3600000) : 0;
         endFastingSession(endMs, dur);
     } else {
@@ -423,24 +442,21 @@ window.endFastingFromLoggedMeal = endFastingFromLoggedMeal;
 async function toggleIF() {
     if (D.if.start) {
         const tc = typeof todayCheck === 'function' ? todayCheck() : null;
-        const mealsToday = (tc && tc.meals) ? tc.meals.filter(m => (Number(m.cal) || 0) > 0) : [];
+        const mealsDuring = getMealsDuringFast(tc, D.if.start);
         let promptMsg = 'สิ้นสุดการทำ IF รอบนี้ (เริ่มช่วงเวลากินอาหาร) ใช่หรือไม่?';
         let customEndTime = Date.now();
         let customDuration = (Date.now() - D.if.start) / 3600000;
 
-        if (mealsToday.length > 0 && mealsToday[0].time) {
-            const mParts = mealsToday[0].time.split(':');
-            if (mParts.length === 2) {
-                const mealDate = new Date();
-                mealDate.setHours(parseInt(mParts[0], 10), parseInt(mParts[1], 10), 0, 0);
-                if (mealDate.getTime() > D.if.start && mealDate.getTime() <= Date.now()) {
-                    const durH = (mealDate.getTime() - D.if.start) / 3600000;
-                    const h = Math.floor(durH);
-                    const m = Math.floor((durH % 1) * 60);
-                    promptMsg = `ตรวจพบว่าเริ่มทานอาหารมื้อแรก (${mealsToday[0].name}) เวลา ${mealsToday[0].time} น.<br><br>ต้องการ <b>สิ้นสุดการอดอาหารที่เวลา ${mealsToday[0].time} น.</b> (ทำได้ ${h} ชม. ${m} นาที) และเริ่มช่วงเวลากินอาหาร ใช่หรือไม่?`;
-                    customEndTime = mealDate.getTime();
-                    customDuration = durH;
-                }
+        if (mealsDuring.length > 0) {
+            const firstDuring = mealsDuring[0];
+            const mealMs = getMealTimeMs(firstDuring);
+            if (mealMs > D.if.start && mealMs <= Date.now()) {
+                const durH = (mealMs - D.if.start) / 3600000;
+                const h = Math.floor(durH);
+                const m = Math.floor((durH % 1) * 60);
+                promptMsg = `ตรวจพบว่าเริ่มทานอาหารมื้อแรก (${firstDuring.name}) เวลา ${firstDuring.time || ''} น.<br><br>ต้องการ <b>สิ้นสุดการอดอาหารที่เวลา ${firstDuring.time || ''} น.</b> (ทำได้ ${h} ชม. ${m} นาที) และเริ่มช่วงเวลากินอาหาร ใช่หรือไม่?`;
+                customEndTime = mealMs;
+                customDuration = durH;
             }
         }
 
@@ -724,27 +740,21 @@ function updateIFUI() {
         if (toggleBtn) {
             toggleBtn.classList.add('is-fasting');
             toggleBtn.style.background = '';
-            if (btnIcon) btnIcon.textContent = '';
+            if (btnIcon) btnIcon.innerHTML = fcIcon('pause-circle', { size: 16 });
             if (btnText) btnText.textContent = 'สิ้นสุดการอดอาหาร';
         }
 
         // 5 Milestone Beads on Dial
         updateIfBeads(elapsedHours);
 
-        // Check if user has already eaten meals today during active fasting
+        // Check if user has eaten meals AFTER the current fasting session started
         const conflictBanner = document.getElementById('ifMealConflictBanner');
         const tc = (typeof todayCheck === 'function') ? todayCheck() : null;
-        const mealsToday = (tc && tc.meals) ? tc.meals.filter(m => (Number(m.cal) || 0) > 0) : [];
+        const mealsDuringFast = getMealsDuringFast(tc, D.if.start);
         if (conflictBanner) {
-            if (mealsToday.length > 0) {
-                const fMeal = mealsToday[0];
-                let mTimeMs = Date.now();
-                if (fMeal.time && fMeal.time.includes(':')) {
-                    const p = fMeal.time.split(':');
-                    const mDate = new Date();
-                    mDate.setHours(parseInt(p[0], 10), parseInt(p[1], 10), 0, 0);
-                    mTimeMs = mDate.getTime();
-                }
+            if (mealsDuringFast.length > 0) {
+                const fMeal = mealsDuringFast[0];
+                const mTimeMs = getMealTimeMs(fMeal) || Date.now();
                 const actualFastH = Math.max(0, (mTimeMs - D.if.start) / 3600000);
                 const fh = Math.floor(actualFastH);
                 const fm = Math.floor((actualFastH % 1) * 60);
@@ -753,18 +763,18 @@ function updateIFUI() {
                 conflictBanner.style.display = 'block';
                 conflictBanner.innerHTML = `
                     <div style="background:rgba(239,68,68,0.08); border:1.5px solid #ef4444; border-radius:14px; padding:12px 14px; text-align:left; box-shadow:0 4px 12px rgba(239,68,68,0.1);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-                            <div style="flex:1;">
-                                <div style="font-size:13px; font-weight:800; color:#dc2626; display:flex; align-items:center; gap:6px;">
-                                    <span>${fcIcon('alert-triangle')} ตรวจพบการทานอาหารแล้ว</span>
+                        <div style="display:flex; flex-direction:column; gap:10px;">
+                            <div>
+                                <div style="font-size:13px; font-weight:800; color:#dc2626; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                    <span>${fcIcon('alert-triangle')} ตรวจพบการทานอาหารระหว่างอด</span>
                                     <span class="tag" style="background:#fee2e2; color:#b91c1c; font-size:10px; padding:1px 6px;">${fMeal.time || ''}</span>
                                 </div>
-                                <div style="font-size:11.5px; color:#475569; margin-top:3px; line-height:1.4;">
+                                <div style="font-size:12px; color:#475569; margin-top:4px; line-height:1.45;">
                                     บันทึก <b>${fMeal.name}</b> (${fMeal.cal} kcal) แล้ว — สภาวะ Fasting สิ้นสุดลงทางสรีรวิทยา
                                 </div>
                             </div>
-                            <button type="button" class="btn sm" onclick="endFastingFromLoggedMeal()" style="background:#dc2626; color:#fff; border:none; border-radius:8px; font-size:11.5px; font-weight:800; padding:8px 12px; cursor:pointer; white-space:nowrap; box-shadow:0 2px 8px rgba(220,38,38,0.25);">
-                                ${fcIcon('sparkles')} ตัดรอบ Fast (${durText})
+                            <button type="button" class="btn sm" onclick="endFastingFromLoggedMeal()" style="width:100%; background:#dc2626; color:#fff; border:none; border-radius:10px; font-size:12px; font-weight:800; padding:9px 12px; cursor:pointer; box-shadow:0 2px 8px rgba(220,38,38,0.25);">
+                                ${fcIcon('zap')} ตัดรอบ Fast (${durText})
                             </button>
                         </div>
                     </div>
