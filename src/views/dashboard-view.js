@@ -470,7 +470,7 @@ function render() {
                     <div style="font-size:11px; color:#64748b; margin-top:2px;">เป้าหมาย ${stepTarget.toLocaleString()}</div>
                     <div style="display:inline-block; margin-top:6px; font-size:10px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:99px;">${extraStepCal > 0 ? `+${extraStepCal} kcal โบนัส` : `${stepPct}% ของเป้า`}</div>
                 </div>
-                <div style="width:50px; height:50px; border-radius:16px; background:linear-gradient(135deg,#fef3c7,#fde68a); display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:0 4px 10px rgba(245,158,11,0.18);">${fcIcon('sparkles')}</div>
+                <div style="width:50px; height:50px; border-radius:16px; background:linear-gradient(135deg,#fef3c7,#fde68a); display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:0 4px 10px rgba(245,158,11,0.18);">${fcIcon('footprints', { size: 24, color: '#b45309' })}</div>
             </div>
         </div>`;
     }

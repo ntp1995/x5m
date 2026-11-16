@@ -1467,8 +1467,12 @@ function closeBodySettingsModal() {
 
 function toggleBodySetting(key, enabled) {
     if (!D.cfg) D.cfg = {};
-    D.cfg[key] = enabled;
+    D.cfg[key] = !!enabled;
     save();
+    if (typeof msg === 'function') {
+        const label = key === 'weightReminder' ? 'เตือนบันทึกน้ำหนัก (07:00)' : (key === 'measureReminder' ? 'เตือนวัดสัดส่วน (วันอาทิตย์)' : key);
+        msg(`${fcIcon(enabled ? 'bell' : 'check-circle')} ${enabled ? 'เปิด' : 'ปิด'}${label}แล้ว`);
+    }
 }
 
 function setBodyUnit(type, unit) {

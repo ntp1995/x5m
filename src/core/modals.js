@@ -1,5 +1,5 @@
 ﻿/* FitCoach v3.0 — Core Modals & App Version */
-const APP_VERSION = '3.4.2';
+const APP_VERSION = '3.4.5';
 const DEMO_BYPASS_AUTH = false; // Set to false for Production Google Login gate
 
 /* ============ CUSTOM MODALS ============ */
@@ -78,28 +78,36 @@ window.fcPrompt = (desc, defVal, title) => fcShow('prompt', title || 'ระบ�
 window.fcChoice = (title, desc, choices) => fcShowChoiceModal(title, desc, choices);
 
 async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
-    if (!isSilent && typeof openOnboardingWizard === 'function') {
-        openOnboardingWizard(1, isProgramSetup ? 'register' : 'recalibrate');
+    if (isProgramSetup && !isSilent && typeof openOnboardingWizard === 'function') {
+        openOnboardingWizard(1, 'register');
         return;
     }
     const lastCheck = D.checks[D.checks.length - 1] || {};
-    const lastW = lastCheck.w || 77.3;
+    const lastW = lastCheck.w || 77.1;
     const bio = D.cfg.biometrics || {};
+    const bioD = D.bio || {};
     const saved = D.cfg.bmrInfo || {};
 
     const curW = lastW;
     const curH = bio.height || saved.height || 168;
     const curAge = bio.age || saved.age || 31;
     const curGender = bio.gender || saved.gender || 'M';
-    const curBF = bio.bf || lastCheck.bf || 25.9;
-    const curMuscle = bio.muscle || 54.3;
-    const curVisceral = bio.visceral || 11;
-    const curWater = bio.water || 50.7;
-    const curBone = bio.bone || 2.91;
-    const curRHR = bio.rhr || 45;
-    const curVO2 = bio.vo2max || 45;
-    const curHRV = bio.hrv || 73;
-    const curBMRCustom = bio.bmrCustom || 1630;
+    const curBF = bio.bf ?? lastCheck.bf ?? 26.0;
+    const curMuscle = bio.muscle ?? lastCheck.muscle ?? 54.1;
+    const curVisceral = bio.visceral ?? bioD.visceralFat ?? 11;
+    const curWater = bio.water ?? bioD.waterPct ?? 50.7;
+    const curBone = bio.bone ?? bioD.boneMass ?? 2.90;
+    const curProteinPct = bio.proteinPct ?? bioD.proteinPct ?? 19.4;
+    const curBodyAge = bio.bodyAge ?? bioD.bodyAge ?? 34;
+    const curIdealW = bio.idealWeight ?? bioD.idealWeight ?? 61.6;
+    const curBodyScore = bio.bodyScore ?? bioD.bodyScore ?? 63;
+    const curRHR = bio.rhr ?? bioD.rhr ?? 45;
+    const curVO2 = bio.vo2max ?? bioD.vo2max ?? 45;
+    const curHRV = bio.hrv ?? bioD.hrv ?? 73;
+    const curSleepScore = bio.sleepScore ?? bioD.sleepScore ?? 80;
+    const curBodyBattery = bio.bodyBattery ?? bioD.bodyBattery ?? 75;
+    const curStress = bio.stress ?? bioD.stress ?? 28;
+    const curBMRCustom = bio.bmrCustom || 1627;
     const targetW = D.cfg.targetWeight || 68.0;
     const courseWeeks = D.cfg.courseWeeks || 20;
     const curGoalType = saved.goalType || 'recomp';
@@ -154,29 +162,81 @@ async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
             </div>
         </div>
 
-        <div style="display:flex; gap:8px; margin-top:8px;">
+        <!-- หมวด 1B: เครื่องชั่ง Mi Scale 2 -->
+        <div style="font-weight:bold; color:var(--tx); margin-top:12px; margin-bottom:6px; display:flex; align-items:center; gap:6px; font-size:12.5px;">
+            <span>${fcIcon('scale')} ข้อมูลจากเครื่องชั่ง Mi Body Composition Scale 2</span>
+        </div>
+        <div style="display:flex; gap:8px;">
             <div style="flex:1;">
-                <label style="font-size:12px; color:var(--dim);">BMR เครื่องชั่ง (kcal)</label>
-                <input type="number" id="bmrCustom" value="${curBMRCustom}" oninput="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                <label style="font-size:11.5px; color:var(--dim);">BMR เครื่องชั่ง (kcal)</label>
+                <input type="number" id="bmrCustom" value="${curBMRCustom}" oninput="window.updateBmrPreview()" style="width:100%; margin-top:3px; padding:7px 9px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px; font-weight:700;">
             </div>
             <div style="flex:1;">
-                <label style="font-size:12px; color:var(--dim);">ไขมันช่องท้อง</label>
-                <input type="number" id="bmrVisceral" value="${curVisceral}" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                <label style="font-size:11.5px; color:var(--dim);">โปรตีน (%)</label>
+                <input type="number" step="0.1" id="bmrProteinPct" value="${curProteinPct}" style="width:100%; margin-top:3px; padding:7px 9px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
             </div>
             <div style="flex:1;">
-                <label style="font-size:12px; color:var(--dim);">ชีพจรพัก (RHR bpm)</label>
-                <input type="number" id="bmrRHR" value="${curRHR}" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                <label style="font-size:11.5px; color:var(--dim);">มวลกระดูก (กก.)</label>
+                <input type="number" step="0.01" id="bmrBone" value="${curBone}" style="width:100%; margin-top:3px; padding:7px 9px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
             </div>
         </div>
 
         <div style="display:flex; gap:8px; margin-top:8px;">
             <div style="flex:1;">
-                <label style="font-size:12px; color:var(--dim);">VO2 Max</label>
-                <input type="number" id="bmrVO2" value="${curVO2}" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                <label style="font-size:11.5px; color:var(--dim);">น้ำในร่างกาย (%)</label>
+                <input type="number" step="0.1" id="bmrWater" value="${curWater}" style="width:100%; margin-top:3px; padding:7px 9px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
             </div>
             <div style="flex:1;">
-                <label style="font-size:12px; color:var(--dim);">HRV เฉลี่ย (ms)</label>
-                <input type="number" id="bmrHRV" value="${curHRV}" style="width:100%; margin-top:3px; padding:8px 10px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px;">
+                <label style="font-size:11.5px; color:var(--dim);">ไขมันช่องท้อง</label>
+                <input type="number" id="bmrVisceral" value="${curVisceral}" style="width:100%; margin-top:3px; padding:7px 9px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
+            </div>
+            <div style="flex:1;">
+                <label style="font-size:11.5px; color:var(--dim);">อายุร่างกาย (ปี)</label>
+                <input type="number" id="bmrBodyAge" value="${curBodyAge}" style="width:100%; margin-top:3px; padding:7px 9px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
+            </div>
+        </div>
+
+        <div style="display:flex; gap:8px; margin-top:8px;">
+            <div style="flex:1;">
+                <label style="font-size:11.5px; color:var(--dim);">น้ำหนักเหมาะสม (กก.)</label>
+                <input type="number" step="0.1" id="bmrIdealW" value="${curIdealW}" style="width:100%; margin-top:3px; padding:7px 9px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
+            </div>
+            <div style="flex:1;">
+                <label style="font-size:11.5px; color:var(--dim);">คะแนนร่างกาย</label>
+                <input type="number" id="bmrBodyScore" value="${curBodyScore}" style="width:100%; margin-top:3px; padding:7px 9px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
+            </div>
+        </div>
+
+        <!-- หมวด 1C: นาฬิกา Garmin Forerunner 165 -->
+        <div style="font-weight:bold; color:var(--tx); margin-top:12px; margin-bottom:6px; display:flex; align-items:center; gap:6px; font-size:12.5px;">
+            <span>${fcIcon('activity')} ข้อมูลจากนาฬิกา Garmin Forerunner 165</span>
+        </div>
+        <div style="display:flex; gap:8px;">
+            <div style="flex:1;">
+                <label style="font-size:11.5px; color:var(--dim);">ชีพจรพัก (RHR)</label>
+                <input type="number" id="bmrRHR" value="${curRHR}" style="width:100%; margin-top:3px; padding:7px 9px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
+            </div>
+            <div style="flex:1;">
+                <label style="font-size:11.5px; color:var(--dim);">VO2 Max</label>
+                <input type="number" id="bmrVO2" value="${curVO2}" style="width:100%; margin-top:3px; padding:7px 9px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
+            </div>
+            <div style="flex:1;">
+                <label style="font-size:11.5px; color:var(--dim);">HRV (ms)</label>
+                <input type="number" id="bmrHRV" value="${curHRV}" style="width:100%; margin-top:3px; padding:7px 9px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
+            </div>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+            <div style="flex:1;">
+                <label style="font-size:11.5px; color:var(--dim);">Sleep Score</label>
+                <input type="number" id="bmrSleepScore" value="${curSleepScore}" style="width:100%; margin-top:3px; padding:7px 9px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
+            </div>
+            <div style="flex:1;">
+                <label style="font-size:11.5px; color:var(--dim);">Body Battery</label>
+                <input type="number" id="bmrBodyBattery" value="${curBodyBattery}" style="width:100%; margin-top:3px; padding:7px 9px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
+            </div>
+            <div style="flex:1;">
+                <label style="font-size:11.5px; color:var(--dim);">ความเครียด (Stress)</label>
+                <input type="number" id="bmrStress" value="${curStress}" style="width:100%; margin-top:3px; padding:7px 9px; border-radius:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:13.5px;">
             </div>
         </div>
 
@@ -343,10 +403,19 @@ async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
     const bfVal = parseFloat(document.getElementById('bmrBF')?.value) || curBF;
     const muscleVal = parseFloat(document.getElementById('bmrMuscle')?.value) || curMuscle;
     const customBmrVal = parseFloat(document.getElementById('bmrCustom')?.value) || curBMRCustom;
+    const proteinPctVal = parseFloat(document.getElementById('bmrProteinPct')?.value) || curProteinPct;
+    const boneVal = parseFloat(document.getElementById('bmrBone')?.value) || curBone;
+    const waterVal = parseFloat(document.getElementById('bmrWater')?.value) || curWater;
     const visceralVal = parseInt(document.getElementById('bmrVisceral')?.value) || curVisceral;
+    const bodyAgeVal = parseInt(document.getElementById('bmrBodyAge')?.value) || curBodyAge;
+    const idealWVal = parseFloat(document.getElementById('bmrIdealW')?.value) || curIdealW;
+    const bodyScoreVal = parseInt(document.getElementById('bmrBodyScore')?.value) || curBodyScore;
     const rhrVal = parseInt(document.getElementById('bmrRHR')?.value) || curRHR;
     const vo2Val = parseInt(document.getElementById('bmrVO2')?.value) || curVO2;
     const hrvVal = parseInt(document.getElementById('bmrHRV')?.value) || curHRV;
+    const sleepScoreVal = parseInt(document.getElementById('bmrSleepScore')?.value) || curSleepScore;
+    const bodyBatteryVal = parseInt(document.getElementById('bmrBodyBattery')?.value) || curBodyBattery;
+    const stressVal = parseInt(document.getElementById('bmrStress')?.value) || curStress;
 
     // Calculations
     let bmr = customBmrVal > 1000 ? customBmrVal : (10 * w + 6.25 * h - 5 * age + (gender === 'M' ? 5 : -161));
@@ -377,11 +446,28 @@ async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
     D.cfg.exerciseType = exerciseType;
     D.cfg.stepTarget = stepTarget;
     D.cfg.bmrInfo = { gender, age, height: h, workType, exerciseType, stepTarget, activity: act, goalType };
-    D.cfg.biometrics = { 
-        gender, age, height: h, bf: bfVal, muscle: muscleVal, 
-        visceral: visceralVal, rhr: rhrVal, vo2max: vo2Val, hrv: hrvVal, 
-        bmrCustom: customBmrVal 
+    D.cfg.biometrics = {
+        gender, age, height: h, bf: bfVal, muscle: muscleVal,
+        proteinPct: proteinPctVal, bone: boneVal, water: waterVal,
+        visceral: visceralVal, bodyAge: bodyAgeVal, idealWeight: idealWVal, bodyScore: bodyScoreVal,
+        rhr: rhrVal, vo2max: vo2Val, hrv: hrvVal,
+        sleepScore: sleepScoreVal, bodyBattery: bodyBatteryVal, stress: stressVal,
+        bmrCustom: customBmrVal
     };
+    if (!D.bio) D.bio = {};
+    D.bio.visceralFat = visceralVal;
+    D.bio.boneMass = boneVal;
+    D.bio.proteinPct = proteinPctVal;
+    D.bio.waterPct = waterVal;
+    D.bio.bodyAge = bodyAgeVal;
+    D.bio.idealWeight = idealWVal;
+    D.bio.bodyScore = bodyScoreVal;
+    D.bio.rhr = rhrVal;
+    D.bio.vo2max = vo2Val;
+    D.bio.hrv = hrvVal;
+    D.bio.sleepScore = sleepScoreVal;
+    D.bio.bodyBattery = bodyBatteryVal;
+    D.bio.stress = stressVal;
 
     const targetFat = Math.round((targetCal * 0.25) / 9);
     const targetCarbs = Math.max(50, Math.round((targetCal - (targetPro * 4) - (targetFat * 9)) / 4));

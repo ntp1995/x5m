@@ -35,13 +35,22 @@ let obState = {
     targetDay: 31,
     activityLevel: 1, // 1: sedentary, 2: light, 3: moderate, 4: very active
     quizAnswer: 1,
-    bf: 25.9,
-    muscle: 54.3,
+    bf: 26.0,
+    muscle: 54.1,
+    proteinPct: 19.4,
+    bone: 2.90,
+    water: 50.7,
     visceral: 11,
-    bmrCustom: 1630,
+    bodyAge: 34,
+    idealWeight: 61.6,
+    bodyScore: 63,
+    bmrCustom: 1627,
     rhr: 45,
     vo2max: 45,
     hrv: 73,
+    sleepScore: 80,
+    bodyBattery: 75,
+    stress: 28,
     courseWeeks: 20,
     goalType: 'recomp',
     workType: 'light',
@@ -69,13 +78,23 @@ function initOnboardingDraftFromStore() {
     const actMap = { sedentary: 1, light: 2, moderate: 3, active: 4, very_active: 4 };
     obState.activityLevel = actMap[D && D.cfg && D.cfg.workType] || 3;
 
-    obState.bf = Number(bio.bf || lastCheck.bf || 25.9);
-    obState.muscle = Number(bio.muscle || 54.3);
-    obState.visceral = Number(bio.visceral || 11);
-    obState.rhr = Number(bio.rhr || 45);
-    obState.vo2max = Number(bio.vo2max || 45);
-    obState.hrv = Number(bio.hrv || 73);
-    obState.bmrCustom = Number(bio.bmrCustom || 1630);
+    const bioD = (D && D.bio) ? D.bio : {};
+    obState.bf = Number(bio.bf ?? lastCheck.bf ?? 26.0);
+    obState.muscle = Number(bio.muscle ?? lastCheck.muscle ?? 54.1);
+    obState.proteinPct = Number(bio.proteinPct ?? bioD.proteinPct ?? 19.4);
+    obState.bone = Number(bio.bone ?? bioD.boneMass ?? 2.90);
+    obState.water = Number(bio.water ?? bioD.waterPct ?? 50.7);
+    obState.visceral = Number(bio.visceral ?? bioD.visceralFat ?? 11);
+    obState.bodyAge = Number(bio.bodyAge ?? bioD.bodyAge ?? 34);
+    obState.idealWeight = Number(bio.idealWeight ?? bioD.idealWeight ?? 61.6);
+    obState.bodyScore = Number(bio.bodyScore ?? bioD.bodyScore ?? 63);
+    obState.rhr = Number(bio.rhr ?? bioD.rhr ?? 45);
+    obState.vo2max = Number(bio.vo2max ?? bioD.vo2max ?? 45);
+    obState.hrv = Number(bio.hrv ?? bioD.hrv ?? 73);
+    obState.sleepScore = Number(bio.sleepScore ?? bioD.sleepScore ?? 80);
+    obState.bodyBattery = Number(bio.bodyBattery ?? bioD.bodyBattery ?? 75);
+    obState.stress = Number(bio.stress ?? bioD.stress ?? 28);
+    obState.bmrCustom = Number(bio.bmrCustom || 1627);
     obState.stepTarget = Number((D && D.cfg && D.cfg.stepTarget) || saved.stepTarget || 8000);
     obState.ifGoal = Number((D && D.if && D.if.goal) || 16);
     obState.outdoorMode = Boolean(D && D.outdoorMode);
@@ -116,6 +135,11 @@ function goObStep(step, subStep = '') {
 function setObField(key, val) {
     obState[key] = val;
     renderOnboardingStep();
+}
+
+function setObBioNum(key, rawVal) {
+    const v = parseFloat(rawVal);
+    if (!isNaN(v)) obState[key] = v;
 }
 
 function setObHeightUnit(u) {
@@ -212,8 +236,10 @@ function computeOnboardingPlan() {
     const actMults = { 1: 1.20, 2: 1.35, 3: 1.50, 4: 1.65 };
     const act = actMults[obState.activityLevel] || 1.35;
 
-    // Clinical Mifflin-St Jeor Formula
-    const bmr = (10 * w) + (6.25 * h) - (5 * age) + (gender === 'M' ? 5 : -161);
+    // Prefer Mi Scale 2 measured BMR when provided (>1000 kcal), fallback to Mifflin-St Jeor
+    const customBmr = Number(obState.bmrCustom) || 0;
+    const mifflinBmr = (10 * w) + (6.25 * h) - (5 * age) + (gender === 'M' ? 5 : -161);
+    const bmr = customBmr > 1000 ? customBmr : mifflinBmr;
     const tdee = Math.round(bmr * act);
 
     const diffKg = Math.max(0, w - targetW);
@@ -315,12 +341,64 @@ function applyOnboardingPlanToApp() {
         weight: obState.weight,
         bf: obState.bf,
         muscle: obState.muscle,
+        proteinPct: obState.proteinPct,
+        bone: obState.bone,
+        water: obState.water,
         visceral: obState.visceral,
+        bodyAge: obState.bodyAge,
+        idealWeight: obState.idealWeight,
+        bodyScore: obState.bodyScore,
         rhr: obState.rhr,
         vo2max: obState.vo2max,
         hrv: obState.hrv,
-        bmrCustom: plan.bmr
+        sleepScore: obState.sleepScore,
+        bodyBattery: obState.bodyBattery,
+        stress: obState.stress,
+        bmrCustom: obState.bmrCustom > 1000 ? obState.bmrCustom : plan.bmr
     };
+
+    if (!D.bio) D.bio = {};
+    D.bio.visceralFat = obState.visceral;
+    D.bio.boneMass = obState.bone;
+    D.bio.proteinPct = obState.proteinPct;
+    D.bio.waterPct = obState.water;
+    D.bio.bodyAge = obState.bodyAge;
+    D.bio.idealWeight = obState.idealWeight;
+    D.bio.bodyScore = obState.bodyScore;
+    D.bio.rhr = obState.rhr;
+    D.bio.vo2max = obState.vo2max;
+    D.bio.hrv = obState.hrv;
+    D.bio.sleepScore = obState.sleepScore;
+    D.bio.bodyBattery = obState.bodyBattery;
+    D.bio.stress = obState.stress;
+
+    // Save dated biometric snapshot for historical tracking (Mi Scale 2 + Garmin Forerunner 165)
+    if (!Array.isArray(D.bioHistory)) D.bioHistory = [];
+    const todayIso = (typeof iso === 'function') ? iso() : new Date().toISOString().slice(0, 10);
+    const bioSnap = {
+        d: todayIso,
+        weight: obState.weight,
+        bf: obState.bf,
+        muscle: obState.muscle,
+        proteinPct: obState.proteinPct,
+        bone: obState.bone,
+        water: obState.water,
+        visceral: obState.visceral,
+        bodyAge: obState.bodyAge,
+        bodyScore: obState.bodyScore,
+        bmrCustom: obState.bmrCustom > 1000 ? obState.bmrCustom : plan.bmr,
+        rhr: obState.rhr,
+        vo2max: obState.vo2max,
+        hrv: obState.hrv,
+        sleepScore: obState.sleepScore,
+        bodyBattery: obState.bodyBattery,
+        stress: obState.stress,
+        updatedAt: Date.now()
+    };
+    const exBioIdx = D.bioHistory.findIndex(x => x && x.d === todayIso);
+    if (exBioIdx >= 0) D.bioHistory[exBioIdx] = bioSnap;
+    else D.bioHistory.push(bioSnap);
+    if (D.bioHistory.length > 90) D.bioHistory = D.bioHistory.slice(-90);
 
     D.cfg.onboardingDone = true;
 
@@ -347,8 +425,11 @@ function applyOnboardingPlanToApp() {
     }
 }
 
-function calcBMR() {
-    openOnboardingWizard(4, 'recalibrate');
+function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
+    if (isSilent && typeof window._legacyCalcBMR === 'function') {
+        return window._legacyCalcBMR(titleOverride, isSilent, isProgramSetup);
+    }
+    openOnboardingWizard(isProgramSetup ? 1 : 4, isProgramSetup ? 'register' : 'recalibrate');
 }
 
 /* ============================================================================
@@ -554,6 +635,83 @@ function renderOnboardingStep() {
                     <button type="button" class="ob-step-pill" onclick="onObWeightDrag('weight', ${obState.weight + 0.1})">+0.1</button>
                     <button type="button" class="ob-step-pill" onclick="onObWeightDrag('weight', ${obState.weight + 0.5})">+0.5 kg</button>
                 </div>
+
+                <!-- Mi Scale 2 & Garmin Forerunner 165 Biometric Card -->
+                <details ${isRecal ? 'open' : ''} style="margin-top:16px; background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:12px 14px; text-align:left; box-shadow:0 2px 8px rgba(15,23,42,0.04);">
+                    <summary style="cursor:pointer; font-size:13px; font-weight:800; color:#0f172a; display:flex; align-items:center; justify-content:space-between; list-style:none;">
+                        <span style="display:flex; align-items:center; gap:6px;">${fcIcon('scale')} ค่าจากเครื่องชั่ง Mi Scale 2 & Garmin 165</span>
+                        <span style="font-size:11px; color:#0284c7; font-weight:700;">อัปเดตสถิติ ${fcIcon('chevron-down')}</span>
+                    </summary>
+                    <div style="margin-top:12px; display:grid; gap:10px;">
+                        <div style="font-size:11.5px; font-weight:800; color:#0284c7; border-bottom:1px solid #f1f5f9; padding-bottom:4px;">${fcIcon('scale')} Mi Body Composition Scale 2</div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+                            <div>
+                                <label style="font-size:10.5px; color:#64748b; font-weight:700;">BMR เครื่องชั่ง (kcal)</label>
+                                <input type="number" value="${obState.bmrCustom}" oninput="setObBioNum('bmrCustom', this.value)" style="width:100%; margin-top:2px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-weight:800; color:#0f172a; box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:10.5px; color:#64748b; font-weight:700;">ไขมัน (%BF)</label>
+                                <input type="number" step="0.1" value="${obState.bf}" oninput="setObBioNum('bf', this.value)" style="width:100%; margin-top:2px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:10.5px; color:#64748b; font-weight:700;">กล้ามเนื้อ (kg)</label>
+                                <input type="number" step="0.1" value="${obState.muscle}" oninput="setObBioNum('muscle', this.value)" style="width:100%; margin-top:2px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:10.5px; color:#64748b; font-weight:700;">โปรตีน (%)</label>
+                                <input type="number" step="0.1" value="${obState.proteinPct}" oninput="setObBioNum('proteinPct', this.value)" style="width:100%; margin-top:2px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:10.5px; color:#64748b; font-weight:700;">มวลกระดูก (kg)</label>
+                                <input type="number" step="0.01" value="${obState.bone}" oninput="setObBioNum('bone', this.value)" style="width:100%; margin-top:2px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:10.5px; color:#64748b; font-weight:700;">น้ำ (%)</label>
+                                <input type="number" step="0.1" value="${obState.water}" oninput="setObBioNum('water', this.value)" style="width:100%; margin-top:2px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:10.5px; color:#64748b; font-weight:700;">ไขมันช่องท้อง</label>
+                                <input type="number" value="${obState.visceral}" oninput="setObBioNum('visceral', this.value)" style="width:100%; margin-top:2px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:10.5px; color:#64748b; font-weight:700;">อายุร่างกาย (ปี)</label>
+                                <input type="number" value="${obState.bodyAge}" oninput="setObBioNum('bodyAge', this.value)" style="width:100%; margin-top:2px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:10.5px; color:#64748b; font-weight:700;">คะแนนร่างกาย</label>
+                                <input type="number" value="${obState.bodyScore}" oninput="setObBioNum('bodyScore', this.value)" style="width:100%; margin-top:2px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box;">
+                            </div>
+                        </div>
+
+                        <div style="font-size:11.5px; font-weight:800; color:#059669; border-bottom:1px solid #f1f5f9; padding-bottom:4px; margin-top:4px;">${fcIcon('activity')} Garmin Forerunner 165</div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+                            <div>
+                                <label style="font-size:10.5px; color:#64748b; font-weight:700;">RHR (bpm)</label>
+                                <input type="number" value="${obState.rhr}" oninput="setObBioNum('rhr', this.value)" style="width:100%; margin-top:2px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:10.5px; color:#64748b; font-weight:700;">VO2 Max</label>
+                                <input type="number" value="${obState.vo2max}" oninput="setObBioNum('vo2max', this.value)" style="width:100%; margin-top:2px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:10.5px; color:#64748b; font-weight:700;">HRV (ms)</label>
+                                <input type="number" value="${obState.hrv}" oninput="setObBioNum('hrv', this.value)" style="width:100%; margin-top:2px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:10.5px; color:#64748b; font-weight:700;">Sleep Score</label>
+                                <input type="number" value="${obState.sleepScore}" oninput="setObBioNum('sleepScore', this.value)" style="width:100%; margin-top:2px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:10.5px; color:#64748b; font-weight:700;">Body Battery</label>
+                                <input type="number" value="${obState.bodyBattery}" oninput="setObBioNum('bodyBattery', this.value)" style="width:100%; margin-top:2px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:10.5px; color:#64748b; font-weight:700;">Stress เฉลี่ย</label>
+                                <input type="number" value="${obState.stress}" oninput="setObBioNum('stress', this.value)" style="width:100%; margin-top:2px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box;">
+                            </div>
+                        </div>
+                    </div>
+                </details>
             </div>
             <div class="wm-ob-footer">
                 <button type="button" class="wm-ob-continue-btn" onclick="goObStep(4, 'analysis')">ดำเนินการต่อ</button>
@@ -674,6 +832,38 @@ function renderOnboardingStep() {
                         </div>
                         <div style="width:82px; height:106px; flex-shrink:0; background-color:#f4f7fb; background-image:url('bmi_spritesheet.jpg'); background-size:400% 100%; background-position:${bmiTier.spritePos} 50%; background-repeat:no-repeat; border-radius:12px; border:1px solid #e2e8f0;" title="${bmiTier.label} (BMI ${bmi})"></div>
                     </div>
+
+                    <!-- Mi Scale 2 & Garmin Forerunner 165 Summary + Delta -->
+                    ${(() => {
+                        const hist = (D && Array.isArray(D.bioHistory)) ? D.bioHistory : [];
+                        const todayStr = (typeof iso === 'function') ? iso() : '';
+                        const prev = [...hist].reverse().find(x => x && x.d !== todayStr) || null;
+                        const fmtDelta = (cur, old, unit, lowerBetter = false) => {
+                            if (old == null || isNaN(old)) return '';
+                            const d = Number((cur - old).toFixed(2));
+                            if (d === 0) return '<span style="color:#64748b;font-size:10px;"> (คงที่)</span>';
+                            const good = lowerBetter ? d < 0 : d > 0;
+                            const clr = good ? '#059669' : '#f59e0b';
+                            return `<span style="color:${clr};font-size:10px;font-weight:800;"> (${d > 0 ? '+' : ''}${d}${unit})</span>`;
+                        };
+                        return `
+                        <div style="margin-top:12px; padding:10px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; font-size:11.5px; line-height:1.55;">
+                            <div style="font-weight:800; color:#0f172a; margin-bottom:6px; display:flex; justify-content:space-between;">
+                                <span>${fcIcon('scale')} สถิติ Mi Scale 2 & Garmin 165</span>
+                                <span style="color:#64748b; font-size:10.5px;">${prev ? 'เทียบจาก ' + prev.d : 'บันทึกสถิติวันนี้'}</span>
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px 10px;">
+                                <div>BMR เครื่องชั่ง: <b>${Math.round(obState.bmrCustom)} kcal</b></div>
+                                <div>ไขมัน (%BF): <b>${obState.bf}%</b>${fmtDelta(obState.bf, prev?.bf, '%', true)}</div>
+                                <div>กล้ามเนื้อ: <b>${obState.muscle} kg</b>${fmtDelta(obState.muscle, prev?.muscle, 'kg')}</div>
+                                <div>โปรตีน: <b>${obState.proteinPct}%</b>${fmtDelta(obState.proteinPct, prev?.proteinPct, '%')}</div>
+                                <div>มวลกระดูก: <b>${Number(obState.bone).toFixed(2)} kg</b>${fmtDelta(obState.bone, prev?.bone, 'kg')}</div>
+                                <div>น้ำ / Visceral: <b>${obState.water}%</b> / <b>${obState.visceral}</b></div>
+                                <div>RHR / VO2: <b>${obState.rhr} bpm</b> / <b>${obState.vo2max}</b></div>
+                                <div>HRV / Battery: <b>${obState.hrv} ms</b> / <b>${obState.bodyBattery}</b></div>
+                            </div>
+                        </div>`;
+                    })()}
                 </div>
             </div>
             <div class="wm-ob-footer">

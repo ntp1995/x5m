@@ -1758,7 +1758,7 @@ function renderSupplementsUI() {
         <div class="card" style="margin-bottom:12px; border:1.5px solid rgba(239,68,68,0.3); background:rgba(239,68,68,0.03);">
             <div style="margin-bottom:8px;">
                 <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                    <span style="font-size:17px;">${fcIcon('sparkles')}</span>
+                    <span style="font-size:17px;">${fcIcon('pause-circle')}</span>
                     <h3 style="margin:0; font-size:15px; font-weight:900; color:#dc2626;">INVENTORY: STANDBY / HOLD (กองหนุน)</h3>
                 </div>
                 <div style="font-size:11.5px; color:#b91c1c; font-weight:700; margin-top:2px;">

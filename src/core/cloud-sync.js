@@ -929,6 +929,12 @@ function mergeCloudData(cloud) {
         if (Array.isArray(cloud.sets)) {
             D.sets = JSON.parse(JSON.stringify(cloud.sets));
         }
+        if (cloud.bio && typeof cloud.bio === 'object') {
+            D.bio = { ...(D.bio || {}), ...JSON.parse(JSON.stringify(cloud.bio)) };
+        }
+        if (Array.isArray(cloud.bioHistory)) {
+            D.bioHistory = JSON.parse(JSON.stringify(cloud.bioHistory));
+        }
         if (cloud.cfg) {
             D.cfg = { ...(D.cfg || {}), ...cloud.cfg };
             if (D.cfg.calTarget) CAL_TARGET = D.cfg.calTarget;
@@ -1098,6 +1104,20 @@ function mergeCloudData(cloud) {
     (D.sets || []).forEach(st => setMap.set(st.id, st));
     (cloud.sets || []).forEach(st => setMap.set(st.id, st));
     D.sets = [...setMap.values()];
+
+    if (cloud.bio && typeof cloud.bio === 'object') {
+        D.bio = { ...cloud.bio, ...(D.bio || {}) };
+    }
+    if (Array.isArray(cloud.bioHistory)) {
+        const bioHistMap = new Map();
+        cloud.bioHistory.forEach(b => { if (b && b.d) bioHistMap.set(b.d, { ...b }); });
+        (D.bioHistory || []).forEach(b => {
+            if (!b || !b.d) return;
+            const ex = bioHistMap.get(b.d);
+            if (!ex || (b.updatedAt || 0) >= (ex.updatedAt || 0)) bioHistMap.set(b.d, { ...b });
+        });
+        D.bioHistory = [...bioHistMap.values()].sort((a, b) => a.d.localeCompare(b.d)).slice(-90);
+    }
 
     if (cloud.cfg) {
         D.cfg = { ...(D.cfg || {}), ...cloud.cfg };
@@ -1509,6 +1529,8 @@ async function pushToCloud(forceInitial, triggerAction = 'save') {
             checks: D.checks || [],
             sessions: D.sessions || [],
             sets: D.sets || [],
+            bio: D.bio || {},
+            bioHistory: D.bioHistory || [],
             if: D.if || { goal: 16, start: null },
             cfg: {
                 ...(D.cfg || {})
