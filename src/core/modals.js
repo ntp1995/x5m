@@ -1,5 +1,5 @@
-/* FitCoach v3.0 — Core Modals & App Version */
-const APP_VERSION = '3.4.0';
+﻿/* FitCoach v3.0 — Core Modals & App Version */
+const APP_VERSION = '3.4.2';
 const DEMO_BYPASS_AUTH = false; // Set to false for Production Google Login gate
 
 /* ============ CUSTOM MODALS ============ */

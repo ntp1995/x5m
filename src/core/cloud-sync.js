@@ -489,7 +489,9 @@ const firebaseConfig = {
     appId: "1:829215967374:web:02f87a90452a65a61361df"
 };
 
-let fbApp = null, fbAuth = null, fbDb = null;
+let fbApp = (typeof window !== 'undefined' && window.fbApp) ? window.fbApp : null;
+let fbAuth = (typeof window !== 'undefined' && window.fbAuth) ? window.fbAuth : null;
+let fbDb = (typeof window !== 'undefined' && window.fbDb) ? window.fbDb : null;
 let currentUser = null, fbUnsubscribe = null;
 let isSyncing = false;
 
@@ -498,12 +500,110 @@ try {
         fbApp = firebase.initializeApp(firebaseConfig);
         fbAuth = firebase.auth();
         fbDb = firebase.firestore();
-        fbDb.enablePersistence({ synchronizeTabs: true }).catch(err => {
-            console.warn("Firestore offline persistence:", err.code);
-        });
+        if (fbDb && typeof fbDb.enablePersistence === 'function') {
+            fbDb.enablePersistence({ synchronizeTabs: true }).catch(err => {
+                console.warn("Firestore offline persistence:", err.code);
+            });
+        }
     }
 } catch (e) {
     console.error("Firebase init error:", e);
+}
+
+/* ============ HYDRATION LIFECYCLE & DEVICE TRACKING ============ */
+if (typeof window !== 'undefined') {
+    if (!window.__fcCloudHydrationState) window.__fcCloudHydrationState = 'IDLE';
+}
+
+function isDeviceHydratedForUser(uid) {
+    if (!uid) return false;
+    const isHydratedState = (typeof window !== 'undefined' && window.__fcCloudHydrationState === 'HYDRATED');
+    let hydratedUid = null;
+    try {
+        hydratedUid = localStorage.getItem('fc_hydrated_uid');
+    } catch(e) {}
+    return (isHydratedState || (typeof window !== 'undefined' && window.__fcDeviceHydrated === true)) && hydratedUid === uid;
+}
+
+function markDeviceHydrated(uid) {
+    if (!uid) return;
+    if (typeof window !== 'undefined') {
+        window.__fcCloudHydrationState = 'HYDRATED';
+        window.__fcDeviceHydrated = true;
+        window.__fcInitialCloudSyncDone = true;
+    }
+    try {
+        localStorage.setItem('fc_hydrated_uid', uid);
+    } catch(e) {}
+}
+
+function setHydrationState(state) {
+    if (typeof window !== 'undefined') {
+        window.__fcCloudHydrationState = state;
+        if (state === 'HYDRATED') {
+            window.__fcDeviceHydrated = true;
+            window.__fcInitialCloudSyncDone = true;
+        } else if (state === 'HYDRATING' || state === 'IDLE') {
+            window.__fcDeviceHydrated = false;
+        }
+    }
+}
+
+function isLocalDummyState() {
+    if (!D || !D.checks || D.checks.length === 0) return true;
+    if (D.checks.length === 1 && D.checks[0].w === 77.3 && D.checks[0].bf === 25.9 && (!D.checks[0].meals || D.checks[0].meals.length === 0)) {
+        return true;
+    }
+    return false;
+}
+
+function getOrCreateDeviceId() {
+    try {
+        let id = localStorage.getItem('fc_device_id');
+        if (!id) {
+            if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+                id = 'dev_' + crypto.randomUUID();
+            } else {
+                id = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+            }
+            localStorage.setItem('fc_device_id', id);
+        }
+        return id;
+    } catch (e) {
+        if (typeof window !== 'undefined') {
+            if (!window._fcMemDeviceId) {
+                window._fcMemDeviceId = 'dev_mem_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+            }
+            return window._fcMemDeviceId;
+        }
+        return 'dev_unknown';
+    }
+}
+
+function getDevicePlatform() {
+    if (typeof navigator === 'undefined') return 'Unknown';
+    const ua = navigator.userAgent || '';
+    if (/iPad/i.test(ua) || (typeof document !== 'undefined' && /Macintosh/i.test(ua) && 'ontouchend' in document)) return 'iPad';
+    if (/iPhone/i.test(ua)) return 'iPhone';
+    if (/Android/i.test(ua)) return 'Android';
+    if (/Macintosh|Mac OS X/i.test(ua)) return 'Mac';
+    if (/Windows/i.test(ua)) return 'Windows PC';
+    if (/Linux/i.test(ua)) return 'Linux';
+    return 'Web Browser';
+}
+
+function getDeviceMetadata(triggerAction) {
+    const devId = getOrCreateDeviceId();
+    const platform = getDevicePlatform();
+    return {
+        id: devId,
+        platform: platform,
+        appVersion: typeof APP_VERSION !== 'undefined' ? APP_VERSION : '3.5.0',
+        userAgent: (typeof navigator !== 'undefined' && navigator.userAgent ? navigator.userAgent.slice(0, 160) : 'Browser'),
+        lastSyncTimestamp: Date.now(),
+        lastSyncAt: new Date().toISOString(),
+        lastAction: triggerAction || 'sync'
+    };
 }
 
 function msg(t) {
@@ -727,6 +827,7 @@ function renderAuthUI() {
                 <button class="btn sm" onclick="syncNow()">⇅ ซิงก์ตอนนี้</button>
                 <button class="btn g sm" onclick="logoutGoogle()">ออกจากระบบ</button>
             </div>
+            <button type="button" class="btn sm" onclick="openCloudBackupsModal()" style="margin-top:8px; width:100%; font-size:12px; background:var(--card2); border:1px solid var(--line); color:var(--tx);">⏱ ดูจุดสำรองข้อมูลคลาวด์</button>
         `;
         if (userBadge) {
             userBadge.innerHTML = `<img src="${photo}" style="width:28px; height:28px; border-radius:50%; border:2px solid var(--acc); object-fit:cover; display:block;" title="${name}">`;
@@ -787,6 +888,10 @@ async function logoutGoogle() {
     const ok = await fcConfirm('ต้องการออกจากระบบ Google หรือไม่? (ข้อมูลในเครื่องจะยังอยู่)');
     if (!ok) return;
     if (fbUnsubscribe) { fbUnsubscribe(); fbUnsubscribe = null; }
+    setHydrationState('IDLE');
+    try {
+        localStorage.removeItem('fc_hydrated_uid');
+    } catch(e) {}
     await fbAuth.signOut();
     currentUser = null;
     updateAuthGateState(null);
@@ -800,7 +905,9 @@ function mergeCloudData(cloud) {
     // ================= CLOUD-FIRST ARCHITECTURE =================
     // When user opens on another device without pending local offline changes (fc_dirty !== '1'):
     // Cloud is 100% AUTHORITATIVE MASTER. LocalStorage never contaminates Cloud!
-    const isDirty = localStorage.getItem('fc_dirty') === '1';
+    const isDummy = typeof isLocalDummyState === 'function' ? isLocalDummyState() : false;
+    const isHydrated = currentUser ? isDeviceHydratedForUser(currentUser.uid) : true;
+    const isDirty = (localStorage.getItem('fc_dirty') === '1') && !isDummy && isHydrated;
 
     if (!isDirty) {
         // 100% PURE CLOUD-FIRST ADOPTION
@@ -867,6 +974,7 @@ function mergeCloudData(cloud) {
 
         try {
             localStorage.setItem('fit', JSON.stringify(D));
+            localStorage.removeItem('fc_dirty');
         } catch (e) {}
         render();
         updateIFUI();
@@ -1023,8 +1131,7 @@ function mergeCloudData(cloud) {
     }
     render();
     updateIFUI();
-    // Since this device had offline changes, push the merged result to Cloud and clear dirty flag
-    pushToCloud();
+    // Cloud adoption and offline merge are strictly read-only; NEVER push back to cloud inside mergeCloudData
 }
 
 function deepCleanForFirestore(val) {
@@ -1111,13 +1218,253 @@ if (typeof window !== 'undefined') {
     window.addEventListener('offline', () => updateCloudSyncPill());
 }
 
-async function pushToCloud(forceInitial) {
+/* ============ FIREBASE PRE-WRITE BACKUPS & RECOVERY ENGINE ============ */
+async function createPreWriteBackupSnapshot(userDocRef, cloudData, triggerAction, devMeta) {
+    try {
+        if (!userDocRef || !cloudData) return null;
+        const checksCount = Array.isArray(cloudData.checks) ? cloudData.checks.length : 0;
+        const sessionsCount = Array.isArray(cloudData.sessions) ? cloudData.sessions.length : 0;
+        if (checksCount === 0 && sessionsCount === 0) return null;
+
+        const devId = (devMeta && devMeta.id) ? devMeta.id : getOrCreateDeviceId();
+        const platform = (devMeta && devMeta.platform) ? devMeta.platform : getDevicePlatform();
+        const snapId = 'snap_' + Date.now() + '_' + devId.slice(-6);
+        const backupRef = userDocRef.collection('backups').doc(snapId);
+
+        let totalMeals = 0;
+        (cloudData.checks || []).forEach(c => {
+            if (Array.isArray(c.meals)) totalMeals += c.meals.length;
+        });
+
+        const snapshot = {
+            id: snapId,
+            uid: currentUser ? currentUser.uid : (cloudData.uid || 'unknown'),
+            createdTimestamp: Date.now(),
+            createdIso: new Date().toISOString(),
+            triggerAction: triggerAction || 'pre_write_backup',
+            triggerDeviceId: devId,
+            triggerDevicePlatform: platform,
+            summary: {
+                checksCount: checksCount,
+                totalMeals: totalMeals,
+                sessionsCount: sessionsCount,
+                setsCount: Array.isArray(cloudData.sets) ? cloudData.sets.length : 0,
+                savedFoodsCount: Array.isArray(cloudData.cfg?.savedFoods) ? cloudData.cfg.savedFoods.length : 0,
+                previousUpdatedAt: cloudData.updatedAt || null,
+                previousDeviceId: cloudData.lastDeviceId || null
+            },
+            data: deepCleanForFirestore(cloudData)
+        };
+
+        await backupRef.set(snapshot);
+        await pruneOldBackups(userDocRef);
+        return snapId;
+    } catch (e) {
+        console.warn('[Backup] Snapshot creation error:', e);
+        return null;
+    }
+}
+
+async function pruneOldBackups(userDocRef) {
+    try {
+        if (!userDocRef) return;
+        const backupsCol = userDocRef.collection('backups');
+        let snaps = null;
+        if (typeof backupsCol.orderBy === 'function') {
+            try {
+                snaps = await backupsCol.orderBy('createdTimestamp', 'desc').limit(25).get();
+            } catch (e) {
+                snaps = await backupsCol.get();
+            }
+        } else {
+            snaps = await backupsCol.get();
+        }
+
+        if (snaps && snaps.docs && snaps.docs.length > 15) {
+            const docs = [...snaps.docs].sort((a, b) => {
+                const aData = typeof a.data === 'function' ? a.data() : a.data;
+                const bData = typeof b.data === 'function' ? b.data() : b.data;
+                return (bData?.createdTimestamp || 0) - (aData?.createdTimestamp || 0);
+            });
+            const docsToDelete = docs.slice(15);
+            if (fbDb && typeof fbDb.batch === 'function') {
+                const batch = fbDb.batch();
+                docsToDelete.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+            } else {
+                for (const doc of docsToDelete) {
+                    if (doc.ref && typeof doc.ref.delete === 'function') {
+                        await doc.ref.delete();
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('[Backup] Pruning warning:', e);
+    }
+}
+
+async function restoreFromCloudBackup(backupId) {
+    if (!currentUser || !fbDb) {
+        if (typeof fcAlert === 'function') fcAlert('กรุณาเข้าสู่ระบบ Google ก่อนทำการกู้คืน');
+        return false;
+    }
+    const confirmFn = typeof fcConfirm === 'function' ? fcConfirm : () => Promise.resolve(true);
+    const confirmed = await confirmFn('ต้องการกู้คืนข้อมูลจากจุดสำรองนี้ใช่หรือไม่?\n\nข้อมูลปัจจุบันในเครื่องและคลาวด์จะถูกแทนที่ด้วยข้อมูลจากจุดสำรองนี้');
+    if (!confirmed) return false;
+
+    try {
+        msg('กำลังกู้คืนข้อมูลจากคลาวด์...');
+        const userDocRef = fbDb.collection('users').doc(currentUser.uid);
+        const snapDoc = await userDocRef.collection('backups').doc(backupId).get();
+        if (!snapDoc.exists) {
+            if (typeof fcAlert === 'function') fcAlert('ไม่พบจุดสำรองข้อมูลที่เลือก');
+            return false;
+        }
+
+        const snapVal = typeof snapDoc.data === 'function' ? snapDoc.data() : snapDoc.data;
+        const backupData = snapVal ? snapVal.data : null;
+        if (!backupData) {
+            if (typeof fcAlert === 'function') fcAlert('ข้อมูลในจุดสำรองไม่สมบูรณ์');
+            return false;
+        }
+
+        try {
+            localStorage.removeItem('fc_dirty');
+        } catch (e) {}
+
+        if (backupData.start) D.start = backupData.start;
+        if (backupData.bs !== undefined) D.bs = !!backupData.bs;
+        if (backupData.schOffs !== undefined) {
+            D.schOffs = backupData.schOffs;
+            D.schOffsUpdatedAt = backupData.schOffsUpdatedAt || 0;
+        }
+        if (backupData.forceFullCardio !== undefined) D.forceFullCardio = !!backupData.forceFullCardio;
+        if (backupData.morningCardio !== undefined) D.morningCardio = backupData.morningCardio;
+        if (Array.isArray(backupData.checks)) {
+            D.checks = JSON.parse(JSON.stringify(backupData.checks));
+        }
+        if (Array.isArray(backupData.sessions)) {
+            D.sessions = JSON.parse(JSON.stringify(backupData.sessions));
+        }
+        if (Array.isArray(backupData.sets)) {
+            D.sets = JSON.parse(JSON.stringify(backupData.sets));
+        }
+        if (backupData.cfg) {
+            D.cfg = { ...(D.cfg || {}), ...backupData.cfg };
+        }
+        if (backupData.if) {
+            D.if = JSON.parse(JSON.stringify(backupData.if));
+        }
+
+        try {
+            localStorage.setItem('fit', JSON.stringify(D));
+        } catch (e) {}
+
+        markDeviceHydrated(currentUser.uid);
+        await pushToCloud(true, 'restore_from_backup');
+        if (typeof render === 'function') render();
+        if (typeof updateIFUI === 'function') updateIFUI();
+        if (typeof fcAlert === 'function') {
+            fcAlert((typeof fcIcon === 'function' ? fcIcon('check-circle') : '✓') + ' กู้คืนข้อมูลสำเร็จเรียบร้อยแล้ว!');
+        }
+        return true;
+    } catch (e) {
+        console.error('Restore error:', e);
+        if (typeof fcAlert === 'function') fcAlert('กู้คืนไม่สำเร็จ: ' + e.message);
+        return false;
+    }
+}
+
+async function openCloudBackupsModal() {
+    if (!currentUser || !fbDb) {
+        if (typeof fcAlert === 'function') fcAlert('กรุณาเข้าสู่ระบบ Google ก่อนดูจุดสำรองข้อมูล');
+        return;
+    }
+    msg('กำลังโหลดจุดสำรองข้อมูล...');
+    try {
+        const userDocRef = fbDb.collection('users').doc(currentUser.uid);
+        const backupsCol = userDocRef.collection('backups');
+        let snap = null;
+        if (typeof backupsCol.orderBy === 'function') {
+            try {
+                snap = await backupsCol.orderBy('createdTimestamp', 'desc').limit(15).get();
+            } catch (e) {
+                snap = await backupsCol.get();
+            }
+        } else {
+            snap = await backupsCol.get();
+        }
+
+        const docs = snap && snap.docs ? [...snap.docs] : [];
+        docs.sort((a, b) => {
+            const aD = typeof a.data === 'function' ? a.data() : a.data;
+            const bD = typeof b.data === 'function' ? b.data() : b.data;
+            return (bD?.createdTimestamp || 0) - (aD?.createdTimestamp || 0);
+        });
+
+        let listHtml = '';
+        if (docs.length === 0) {
+            listHtml = '<div style="text-align:center; padding:30px 10px; color:var(--dim); font-size:13px;">ยังไม่มีจุดสำรองข้อมูล (ระบบจะสร้างสำรองอัตโนมัติก่อนเขียนข้อมูลทุกครั้ง)</div>';
+        } else {
+            listHtml = '<div style="display:flex; flex-direction:column; gap:10px; max-height:360px; overflow-y:auto; padding-right:4px;">';
+            docs.forEach(d => {
+                const b = typeof d.data === 'function' ? d.data() : d.data;
+                const dTime = b.createdIso ? new Date(b.createdIso).toLocaleString('th-TH') : 'ไม่ระบุเวลา';
+                const meals = b.summary?.totalMeals ?? 0;
+                const checks = b.summary?.checksCount ?? 0;
+                const platform = b.triggerDevicePlatform || 'Unknown';
+                const action = b.triggerAction || 'update';
+                const snapId = b.id || d.id;
+                listHtml += `
+                    <div style="background:var(--card2, #f8fafc); border:1px solid var(--line, #e2e8f0); border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                        <div style="min-width:0; flex:1;">
+                            <div style="font-weight:700; font-size:13px; color:var(--tx);">${dTime}</div>
+                            <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">
+                                ${platform} • เหตุการณ์: ${action}
+                            </div>
+                            <div style="font-size:11px; color:#10b981; font-weight:600; margin-top:3px;">
+                                อาหาร ${meals} มื้อ • ข้อมูลชั่งน้ำหนัก ${checks} วัน
+                            </div>
+                        </div>
+                        <button type="button" class="btn sm" onclick="fcClose(); restoreFromCloudBackup('${snapId}')" style="white-space:nowrap; padding:6px 12px; font-size:12px;">กู้คืน</button>
+                    </div>
+                `;
+            });
+            listHtml += '</div>';
+        }
+
+        const m = document.getElementById('fcModal');
+        const t = document.getElementById('fcTitle');
+        const d = document.getElementById('fcDesc');
+        const inpBox = document.getElementById('fcInputContainer');
+        const okBtn = document.getElementById('fcOk');
+        const cancelBtn = document.getElementById('fcCancel');
+        if (t) t.innerHTML = '⏱ จุดสำรองข้อมูลคลาวด์อัตโนมัติ';
+        if (inpBox) inpBox.style.display = 'none';
+        if (okBtn) okBtn.style.display = 'none';
+        if (cancelBtn) cancelBtn.textContent = 'ปิด';
+        if (d) d.innerHTML = listHtml;
+        if (m) m.classList.add('on');
+    } catch (err) {
+        console.error('Backups modal error:', err);
+        if (typeof fcAlert === 'function') fcAlert('ไม่สามารถโหลดรายการสำรองข้อมูลได้: ' + err.message);
+    }
+}
+
+/* ============ HARDENED CLOUD SYNC & OVERWRITE PREVENTION ============ */
+async function pushToCloud(forceInitial, triggerAction = 'save') {
+    if (typeof forceInitial === 'string') {
+        triggerAction = forceInitial;
+        forceInitial = false;
+    }
     if (!currentUser || !fbDb) {
         updateCloudSyncPill();
         return false;
     }
-    // Never overwrite Firestore from a brand-new/unhydrated device before initial Cloud Sync finishes
-    if (!forceInitial && !window.__fcInitialCloudSyncDone) {
+    // STRICT HYDRATION GUARD: Block push from unhydrated device
+    if (!forceInitial && !isDeviceHydratedForUser(currentUser.uid)) {
+        console.warn('[Sync Guard] Blocked pushToCloud: device is not hydrated from cloud for user', currentUser.uid);
         return false;
     }
     if (isSyncing) {
@@ -1126,8 +1473,31 @@ async function pushToCloud(forceInitial) {
     }
     isSyncing = true;
     updateCloudSyncPill('syncing');
+
     try {
         const userDocRef = fbDb.collection('users').doc(currentUser.uid);
+        const devMeta = getDeviceMetadata(triggerAction);
+
+        let existingDevices = {};
+        const cloudSnap = await userDocRef.get();
+        if (cloudSnap.exists) {
+            const cloudData = (typeof cloudSnap.data === 'function' ? cloudSnap.data() : cloudSnap.data) || {};
+            existingDevices = cloudData.devices || {};
+
+            // Shrinkage check: If cloud has more checks than local and local wasn't forced
+            const cloudChecksCount = Array.isArray(cloudData.checks) ? cloudData.checks.length : 0;
+            const localChecksCount = Array.isArray(D.checks) ? D.checks.length : 0;
+            if (!forceInitial && cloudChecksCount > 1 && localChecksCount < cloudChecksCount) {
+                console.warn(`[Sync Guard] Potential data loss detected: Cloud has ${cloudChecksCount} checks, local has ${localChecksCount}. Merging cloud first!`);
+                mergeCloudData(cloudData);
+            }
+
+            // Create pre-write backup snapshot
+            if (cloudChecksCount > 0 || (Array.isArray(cloudData.sessions) && cloudData.sessions.length > 0)) {
+                await createPreWriteBackupSnapshot(userDocRef, cloudData, triggerAction, devMeta);
+            }
+        }
+
         const rawPayload = {
             start: D.start || iso(),
             bs: !!D.bs,
@@ -1143,14 +1513,20 @@ async function pushToCloud(forceInitial) {
             cfg: {
                 ...(D.cfg || {})
             },
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
+            lastSyncTimestamp: devMeta.lastSyncTimestamp,
+            lastSyncAt: devMeta.lastSyncAt,
+            lastDeviceId: devMeta.id,
+            lastDevicePlatform: devMeta.platform,
+            devices: {
+                ...existingDevices,
+                [devMeta.id]: devMeta
+            }
         };
 
-        // Deep scrub all undefined values (guarantees NO field is ever undefined)
         const cleanPayload = deepCleanForFirestore(rawPayload);
-
         await userDocRef.set(cleanPayload, { merge: true });
-        localStorage.removeItem('fc_dirty'); // Unsynced local changes are safely written to Cloud
+        localStorage.removeItem('fc_dirty');
         const timeStr = typeof formatThaiTime === 'function' ? formatThaiTime(new Date()) : new Date().toLocaleTimeString('th-TH');
         lastCloudSyncTime = timeStr;
         updateCloudSyncPill('synced');
@@ -1169,7 +1545,7 @@ async function pushToCloud(forceInitial) {
         isSyncing = false;
         if (isSyncPending) {
             isSyncPending = false;
-            setTimeout(() => pushToCloud(), 150);
+            setTimeout(() => pushToCloud(false, 'pending_queue'), 150);
         }
     }
 }
@@ -1177,6 +1553,7 @@ async function pushToCloud(forceInitial) {
 let syncDebounceTimer = null;
 function autoSync() {
     if (!currentUser || !fbDb) return;
+    if (!isDeviceHydratedForUser(currentUser.uid)) return;
     clearTimeout(syncDebounceTimer);
     syncDebounceTimer = setTimeout(() => {
         pushToCloud();
@@ -1186,7 +1563,7 @@ function autoSync() {
 async function syncNow() {
     if (!currentUser) return fcAlert('กรุณาเข้าสู่ระบบ Google ก่อนทำการซิงก์');
     msg('<span style="color:var(--warn);font-weight:600;">' + fcIcon('clock') + ' กำลังซิงก์ข้อมูล...</span>');
-    const ok = await pushToCloud();
+    const ok = await pushToCloud(false, 'manual_sync_button');
     if (ok) {
         fcAlert(fcIcon('cloud') + ' ซิงก์ข้อมูลขึ้น Google Cloud เรียบร้อยแล้ว!');
     } else {
@@ -1212,11 +1589,11 @@ if (fbAuth) {
     }
 
     fbAuth.onAuthStateChanged(async (user) => {
-        window.__fcInitialCloudSyncDone = false;
         currentUser = user;
         updateAuthGateState(user);
         renderAuthUI();
         if (user) {
+            setHydrationState('HYDRATING');
             msg('กำลังเชื่อมต่อฐานข้อมูล...');
             try {
                 localStorage.setItem('fc_has_auth', '1');
@@ -1224,13 +1601,12 @@ if (fbAuth) {
                 const docSnap = await userDocRef.get();
                 if (docSnap.exists) {
                     mergeCloudData(docSnap.data());
-                    window.__fcInitialCloudSyncDone = true;
+                    markDeviceHydrated(user.uid);
                     // CLOUD-FIRST: NEVER pushToCloud() on startup! Cloud is already master.
                 } else {
-                    window.__fcInitialCloudSyncDone = true;
-                    // Only brand-new users without a Firestore doc push initial baseline
-                    await pushToCloud(true);
-                    msg(fcIcon('cloud') + ' สร้างฐานข้อมูล Cloud ใหม่เรียบร้อย');
+                    // Brand-new users without a Firestore doc: mark hydrated but DO NOT push default/empty state to Firestore!
+                    markDeviceHydrated(user.uid);
+                    msg(fcIcon('cloud') + ' บัญชีใหม่พร้อมใช้งาน (จะซิงก์เมื่อบันทึกข้อมูล)');
                 }
                 if (typeof openOnboardingWizard === 'function' && D && D.cfg && !D.cfg.onboardingDone && (!D.checks || D.checks.length === 0)) {
                     openOnboardingWizard(1);
@@ -1243,6 +1619,7 @@ if (fbAuth) {
                     }
                 });
             } catch (err) {
+                setHydrationState('ERROR');
                 console.error("Auth state handling error:", err);
                 if (err.code === 'permission-denied' || (err.message && err.message.includes('permission'))) {
                     msg(fcIcon('alert-triangle') + ' ยังไม่ได้ตั้งค่า Rules ใน Firestore: ไปที่ Firebase Console > Firestore Database > Rules');
@@ -1251,6 +1628,7 @@ if (fbAuth) {
                 }
             }
         } else {
+            setHydrationState('IDLE');
             if (fbUnsubscribe) { fbUnsubscribe(); fbUnsubscribe = null; }
         }
     });

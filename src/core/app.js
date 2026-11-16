@@ -8,7 +8,7 @@ setTimeout(() => {
     // Only auto-open Onboarding if user is past the auth gate AND initial Cloud Sync has finished
     // (prevents showing fresh Onboarding on a new device like iPad before Firestore data loads)
     const pastAuthGate = !document.body.classList.contains('auth-required');
-    const cloudReady = (typeof fbAuth === 'undefined' || !fbAuth || window.__fcInitialCloudSyncDone);
+    const cloudReady = (typeof fbAuth === 'undefined' || !fbAuth || window.__fcInitialCloudSyncDone || window.__fcCloudHydrationState === 'HYDRATED');
     if (pastAuthGate && cloudReady && typeof openOnboardingWizard === 'function' && D && D.cfg && !D.cfg.onboardingDone && (!D.checks || D.checks.length === 0)) {
         openOnboardingWizard(1);
     }

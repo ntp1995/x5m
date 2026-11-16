@@ -1070,7 +1070,5 @@ function save() {
     } catch (e) {
         console.warn('localStorage save error:', e);
     }
-    if (typeof autoSync === 'function') {
-        autoSync();
-    }
+    // DECOUPLED: save() only persists to localStorage; pushes to cloud occur via explicit user actions after hydration
 }

@@ -116,6 +116,13 @@ let WATER_TARGET = D.cfg.waterTarget || 2700;
     }
 });
 
+function isLocalDummyState() {
+    if (!D || !D.checks || D.checks.length === 0) return true;
+    if (D.checks.length === 1 && D.checks[0].w === 77.3 && D.checks[0].bf === 25.9 && (!D.checks[0].meals || D.checks[0].meals.length === 0)) {
+        return true;
+    }
+    return false;
+}
 
 /* ============ BUILD FULL SESSION ============ */
 function toggleOutdoorMode() {
