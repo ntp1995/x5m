@@ -16,11 +16,11 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
     <!-- FitCoach v3.0 Modular Stylesheets -->
-    <link rel="stylesheet" href="src/styles/tokens.css?v=3.4.5">
-    <link rel="stylesheet" href="src/styles/layout.css?v=3.4.5">
-    <link rel="stylesheet" href="src/styles/components.css?v=3.4.5">
-    <link rel="stylesheet" href="src/styles/views-workout.css?v=3.4.5">
-    <link rel="stylesheet" href="src/styles/views-v3.css?v=3.4.5">
+    <link rel="stylesheet" href="src/styles/tokens.css?v=3.4.8">
+    <link rel="stylesheet" href="src/styles/layout.css?v=3.4.8">
+    <link rel="stylesheet" href="src/styles/components.css?v=3.4.8">
+    <link rel="stylesheet" href="src/styles/views-workout.css?v=3.4.8">
+    <link rel="stylesheet" href="src/styles/views-v3.css?v=3.4.8">
 </head>
 
 <body>
@@ -63,6 +63,10 @@
                     <span class="v3-pro-pill"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/></svg> PRO</span>
                 </div>
                 <div class="v3-top-actions">
+                    <button type="button" id="fcAlertBellBtn" onclick="openSystemAlertsModal()" style="position:relative; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:99px; background:#ffffff; border:1px solid var(--line); color:var(--tx); box-shadow:0 1px 3px rgba(15,23,42,0.04);" title="ศูนย์แจ้งเตือนระบบ">
+                        <svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                        <span id="fcAlertBadge" style="display:none; position:absolute; top:-4px; right:-4px; min-width:16px; height:16px; padding:0 4px; border-radius:99px; background:#ef4444; color:#fff; font-size:10px; font-weight:900; line-height:16px; text-align:center; border:1.5px solid #fff;">0</span>
+                    </button>
                     <div id="cloudSyncPill" onclick="handleCloudSyncPillClick()" style="cursor:pointer; display:flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:99px; background:#ffffff; border:1px solid var(--line); white-space:nowrap; box-shadow:0 1px 3px rgba(15,23,42,0.04);" title="สถานะ Cloud First Sync แตะเพื่อซิงก์">
                         <span id="cloudSyncDot" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10b981;"></span>
                         <span id="cloudSyncTxt" style="color:var(--tx);">ซิงก์แล้ว</span>
@@ -82,6 +86,9 @@
 
             <!-- 7-Day Interactive Calendar Strip (WiseMeal Style) -->
             <div id="v3WeekCalendarStrip" class="wm-cal-strip"></div>
+
+            <!-- HOME SYSTEM ALERT CENTER (Top 1-2 Urgent Alerts, Collapsible) -->
+            <div id="homeSystemAlertsMount" style="margin-bottom:12px;"></div>
 
             <!-- HERO 1:  WISEMEAL DAILY CALORIE SPHERE & 3 MACRO RINGS -->
             <div class="card" id="dailyNutritionCard" style="margin-bottom:14px;"></div>
@@ -1235,6 +1242,27 @@
         </div>
     </div>
 
+    <!-- ================= BOTTOM SHEET: SYSTEM ALERTS MODAL ================= -->
+    <div id="fcSystemAlertsModal" class="wm-if-sheet-backdrop" style="display:none;" onclick="if(event.target===this)closeSystemAlertsModal()">
+        <div class="wm-if-sheet" style="max-height:85vh; overflow-y:auto;">
+            <div class="wm-if-sheet-bar"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:10px; background:#fef2f2; color:#ef4444;">
+                        <svg class="fc-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                    </span>
+                    <div>
+                        <h3 style="margin:0; font-size:17px; font-weight:900; color:var(--tx);">ศูนย์แจ้งเตือนระบบ</h3>
+                        <div style="font-size:11.5px; color:var(--dim);">สรุปสถานะสำคัญจากทุกระบบในแอป</div>
+                    </div>
+                </div>
+                <button type="button" class="wm-if-sheet-close" onclick="closeSystemAlertsModal()" title="ปิด"><svg class="fc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+            </div>
+            <div id="fcSystemAlertsList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;"></div>
+            <button type="button" class="wm-primary-green-btn" onclick="closeSystemAlertsModal()">ปิดหน้าต่าง</button>
+        </div>
+    </div>
+
     <!-- ================= BOTTOM SHEET: ANTI-PLATEAU & DYNAMIC TDEE MODAL (skill.md) ================= -->
     <div id="antiPlateauModal" class="wm-if-sheet-backdrop" style="display:none;" onclick="if(event.target===this)closeAntiPlateauModal()">
         <div class="wm-if-sheet" style="max-height:88vh; overflow-y:auto;">
@@ -1303,22 +1331,22 @@
 
     <!-- FitCoach v3.4 Modular JavaScript Architecture -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie_light.min.js" defer></script>
-    <script src="src/core/icons.js?v=3.4.5"></script>
-    <script src="src/core/modals.js?v=3.4.5"></script>
-    <script src="src/data/exercises-db.js?v=3.4.5"></script>
-    <script src="src/core/store.js?v=3.4.5"></script>
-    <script src="src/data/thai-foods-db.js?v=3.4.5"></script>
-    <script src="src/data/supplements-db.js?v=3.4.5"></script>
-    <script src="src/views/dashboard-view.js?v=3.4.5"></script>
-    <script src="src/views/workout-player-view.js?v=3.4.5"></script>
-    <script src="src/views/stats-inbody-view.js?v=3.4.5"></script>
-    <script src="src/core/cloud-sync.js?v=3.4.5"></script>
-    <script src="src/core/router.js?v=3.4.5"></script>
-    <script src="src/components/quick-action-sheet.js?v=3.4.5"></script>
-    <script src="src/components/muscle-heatmap.js?v=3.4.5"></script>
-    <script src="src/components/inbody-radar.js?v=3.4.5"></script>
-    <script src="src/components/fasting-stages.js?v=3.4.5"></script>
-    <script src="src/components/onboarding-wizard.js?v=3.4.5"></script>
-    <script src="src/core/app.js?v=3.4.5"></script>
+    <script src="src/core/icons.js?v=3.4.8"></script>
+    <script src="src/core/modals.js?v=3.4.8"></script>
+    <script src="src/data/exercises-db.js?v=3.4.8"></script>
+    <script src="src/core/store.js?v=3.4.8"></script>
+    <script src="src/data/thai-foods-db.js?v=3.4.8"></script>
+    <script src="src/data/supplements-db.js?v=3.4.8"></script>
+    <script src="src/views/dashboard-view.js?v=3.4.8"></script>
+    <script src="src/views/workout-player-view.js?v=3.4.8"></script>
+    <script src="src/views/stats-inbody-view.js?v=3.4.8"></script>
+    <script src="src/core/cloud-sync.js?v=3.4.8"></script>
+    <script src="src/core/router.js?v=3.4.8"></script>
+    <script src="src/components/quick-action-sheet.js?v=3.4.8"></script>
+    <script src="src/components/muscle-heatmap.js?v=3.4.8"></script>
+    <script src="src/components/inbody-radar.js?v=3.4.8"></script>
+    <script src="src/components/fasting-stages.js?v=3.4.8"></script>
+    <script src="src/components/onboarding-wizard.js?v=3.4.8"></script>
+    <script src="src/core/app.js?v=3.4.8"></script>
 </body>
 </html>

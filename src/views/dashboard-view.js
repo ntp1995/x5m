@@ -397,6 +397,9 @@ function render() {
     if (typeof syncDailyTargetsWithDayType === 'function') {
         syncDailyTargetsWithDayType();
     }
+    if (typeof renderHomeAlertsUI === 'function') {
+        renderHomeAlertsUI();
+    }
     const todayType = (typeof getTodayEffectiveDayType === 'function') ? getTodayEffectiveDayType() : 'rest';
     const dynData = (typeof computeDynamicTDEE === 'function') ? computeDynamicTDEE(curWeight) : null;
     const curDayPlan = (dynData && dynData.days && dynData.days[todayType]) ? dynData.days[todayType] : null;
@@ -640,10 +643,23 @@ function render() {
             <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:8px; font-size:11px; color:#94a3b8;">
                 ${dayModeBadge}
                 <span style="background:rgba(255,255,255,0.08); padding:2px 7px; border-radius:6px; white-space:nowrap;">ตาราง: <b style="color:#e2e8f0;">${curWkName}</b></span>
-                <span style="background:rgba(255,255,255,0.08); padding:2px 7px; border-radius:6px; white-space:nowrap;">เป้า <b style="color:#f97316;">${effectiveCalTarget}</b> kcal <span style="color:#38bdf8; font-weight:700;">(-${dynData ? dynData.deficit : 300})</span></span>
+                <span style="background:rgba(255,255,255,0.08); padding:2px 7px; border-radius:6px; white-space:nowrap;">เป้า <b style="color:#f97316;">${effectiveCalTarget}</b> kcal <span style="color:#38bdf8; font-weight:700;">${dynData && dynData.plateauRefeed && dynData.plateauRefeed.isRefeedActive ? '(Refeed TDEE)' : `(-${dynData ? dynData.deficit : 300})`}</span></span>
                 <span style="background:rgba(255,255,255,0.08); padding:2px 7px; border-radius:6px; white-space:nowrap;">คาร์บ <b style="color:#60a5fa;">${effectiveCarbsTarget}g</b></span>
             </div>
         </div>
+
+        ${(dynData && dynData.plateauRefeed && dynData.plateauRefeed.isPlateau) ? `
+        <div onclick="openAntiPlateauModal()" style="margin-bottom:12px; padding:9px 12px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:8px; background:${dynData.plateauRefeed.isRefeedActive ? '#fff7ed' : '#eff6ff'}; border:1.5px solid ${dynData.plateauRefeed.isRefeedActive ? '#fdba74' : '#bfdbfe'};">
+            <div style="font-size:11.5px; font-weight:800; color:${dynData.plateauRefeed.isRefeedActive ? '#c2410c' : '#0369a1'}; line-height:1.35;">
+                ${fcIcon(dynData.plateauRefeed.isRefeedActive ? 'zap' : 'shield-check')}
+                ${dynData.plateauRefeed.isRefeedActive
+                    ? `Auto-Refeed Day (${dynData.plateauRefeed.refeedDayNum}/2): ปรับเป้าเท่า TDEE + เพิ่มคาร์บแก้ Plateau`
+                    : (dynData.plateauRefeed.inCooldown
+                        ? `โหมดแก้น้ำหนักค้าง: กลับสู่ Deficit ปกติ (พัก Refeed ถึง ${dynData.plateauRefeed.cooldownUntil})`
+                        : 'ตรวจพบน้ำหนักค้าง > 2 สัปดาห์ — แตะดูแผน Anti-Plateau')}
+            </div>
+            <span style="font-size:11px; font-weight:800; color:#0284c7; white-space:nowrap;">ดูแผน ${fcIcon('chevron-right', { size: 13 })}</span>
+        </div>` : ''}
 
         <!-- WiseMeal 2-Column Hero: Liquid Calorie Sphere (Left) + 3 Macro Rings (Right) -->
         <div class="wm-budget-grid" style="margin-bottom:12px;">
@@ -845,7 +861,7 @@ function render() {
             </div>
         </div>
         <div style="margin-top:8px; font-size:11.5px; color:var(--dim); line-height:1.4;">
-            ${fcIcon('lightbulb')} <b>คำแนะนำโค้ช:</b> ${remPro > 50 ? 'วันนี้โปรตีนยังขาดค่อนข้างเยอะ แนะนำมื้อถัดไปเน้น อกไก่, ลาบคั่วไก่, หรือไข่ขาวต้ม' : (remCal < 200 ? 'พลังงานวันนี้ใกล้แตะเป้าแล้ว มื้อเย็นเน้นผักต้มน้ำพริกหนุ่มหรือซุปใส' : 'สัดส่วนอาหารและพลังงานอยู่ในเกณฑ์ยอดเยี่ยม รักษาความต่อเนื่องไว้ครับ!')}
+            ${fcIcon('lightbulb')} <b>คำแนะนำโค้ช:</b> ${(dynData && dynData.plateauRefeed && dynData.plateauRefeed.isRefeedActive) ? `วันนี้ระบบเปิด <b>Auto-Refeed Day (${dynData.plateauRefeed.refeedDayNum}/2)</b> ให้อัตโนมัติ เน้นทานคาร์บเชิงซ้อน (ข้าวไรซ์เบอร์รี่/มันหวาน/ข้าวโอ๊ต) ให้ถึง ${effectiveCarbsTarget}g เพื่อกระตุ้นฮอร์โมนเลปตินแก้ Plateau ครับ!` : (remPro > 50 ? 'วันนี้โปรตีนยังขาดค่อนข้างเยอะ แนะนำมื้อถัดไปเน้น อกไก่, ลาบคั่วไก่, หรือไข่ขาวต้ม' : (remCal < 200 ? 'พลังงานวันนี้ใกล้แตะเป้าแล้ว มื้อเย็นเน้นผักต้มน้ำพริกหนุ่มหรือซุปใส' : 'สัดส่วนอาหารและพลังงานอยู่ในเกณฑ์ยอดเยี่ยม รักษาความต่อเนื่องไว้ครับ!'))}
         </div>`;
     }
 

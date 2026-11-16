@@ -259,44 +259,164 @@ function getAiUsageToday() {
    Anti-YoYo & Plateau Protocol with 4 Dynamic Day Types
    ============================================================================ */
 
+function detectPlateauRaw() {
+    if (!D || !D.checks || D.checks.length < 2) {
+        return { isPlateau: false, totalDays: 0, totalLoss: 0, lossPerWk: 0, status: 'initial' };
+    }
+    const sorted = [...D.checks].filter(c => c.w > 0).sort((a, b) => a.d.localeCompare(b.d));
+    if (sorted.length < 2) {
+        return { isPlateau: false, totalDays: 0, totalLoss: 0, lossPerWk: 0, status: 'initial' };
+    }
+    const latest = sorted[sorted.length - 1];
+    const todayMs = new Date(latest.d).getTime();
+    let twoWeeksAgoCheck = sorted[0];
+    for (let i = sorted.length - 2; i >= 0; i--) {
+        const diffDays = Math.round((todayMs - new Date(sorted[i].d).getTime()) / 864e5);
+        if (diffDays >= 12 && diffDays <= 24) {
+            twoWeeksAgoCheck = sorted[i];
+            break;
+        }
+    }
+    const totalDays = Math.max(1, Math.round((todayMs - new Date(twoWeeksAgoCheck.d).getTime()) / 864e5));
+    const totalLoss = twoWeeksAgoCheck.w - latest.w;
+    const lossPerWk = (totalLoss / totalDays) * 7;
+    const isPlateau = totalDays >= 10 && totalLoss <= 0.2;
+    return {
+        isPlateau,
+        totalDays,
+        totalLoss,
+        lossPerWk,
+        status: isPlateau ? 'plateau' : (lossPerWk > 1.0 ? 'rapid' : 'optimal')
+    };
+}
+
+function getAutoPlateauRefeedState(rawPlateau) {
+    const todayIso = iso();
+    if (!D || !D.cfg) return { isPlateau: false, isRefeedActive: false, inCooldown: false, refeedDayNum: 0, cooldownUntil: null };
+    if (!D.cfg.plateauRefeed || typeof D.cfg.plateauRefeed !== 'object') {
+        D.cfg.plateauRefeed = { activeDates: [], cooldownUntil: null, disabledDate: null };
+    }
+    const pr = D.cfg.plateauRefeed;
+    if (!Array.isArray(pr.activeDates)) pr.activeDates = [];
+
+    if (!rawPlateau || !rawPlateau.isPlateau) {
+        // Weight started moving again! Clear active refeed cycle so next plateau starts fresh
+        if (pr.activeDates.length > 0 || pr.cooldownUntil) {
+            pr.activeDates = [];
+            pr.cooldownUntil = null;
+        }
+        return { isPlateau: false, isRefeedActive: false, inCooldown: false, refeedDayNum: 0, cooldownUntil: null };
+    }
+
+    // User manually disabled refeed for today
+    if (pr.disabledDate === todayIso) {
+        return { isPlateau: true, isRefeedActive: false, inCooldown: false, refeedDayNum: 0, cooldownUntil: pr.cooldownUntil, manuallyPaused: true };
+    }
+
+    // Check if in 5-day post-refeed cooldown
+    if (pr.cooldownUntil && todayIso <= pr.cooldownUntil) {
+        return { isPlateau: true, isRefeedActive: false, inCooldown: true, refeedDayNum: 0, cooldownUntil: pr.cooldownUntil };
+    }
+
+    // Cooldown expired -> reset old activeDates to allow a new 2-day refeed cycle
+    if (pr.cooldownUntil && todayIso > pr.cooldownUntil) {
+        pr.activeDates = [];
+        pr.cooldownUntil = null;
+    }
+
+    // Activate today if < 2 days used in this cycle
+    if (!pr.activeDates.includes(todayIso)) {
+        if (pr.activeDates.length < 2) {
+            pr.activeDates.push(todayIso);
+            if (pr.activeDates.length >= 2) {
+                const dObj = new Date(todayIso + 'T00:00:00');
+                dObj.setDate(dObj.getDate() + 5);
+                pr.cooldownUntil = iso(dObj);
+            }
+            try { localStorage.setItem('fit', JSON.stringify(D)); } catch (e) {}
+        }
+    }
+
+    const idx = pr.activeDates.indexOf(todayIso);
+    const isRefeedActive = idx >= 0;
+    return {
+        isPlateau: true,
+        isRefeedActive,
+        inCooldown: !isRefeedActive && !!pr.cooldownUntil,
+        refeedDayNum: isRefeedActive ? (idx + 1) : 0,
+        cooldownUntil: pr.cooldownUntil || null
+    };
+}
+
+function toggleTodayRefeedOverride() {
+    if (!D || !D.cfg) return;
+    if (!D.cfg.plateauRefeed) D.cfg.plateauRefeed = { activeDates: [], cooldownUntil: null, disabledDate: null };
+    const todayIso = iso();
+    const pr = D.cfg.plateauRefeed;
+    if (pr.disabledDate === todayIso) {
+        pr.disabledDate = null;
+        if (!pr.activeDates.includes(todayIso) && pr.activeDates.length < 2) {
+            pr.activeDates.push(todayIso);
+        }
+    } else {
+        pr.disabledDate = todayIso;
+        pr.activeDates = pr.activeDates.filter(d => d !== todayIso);
+    }
+    if (typeof save === 'function') save();
+    if (typeof render === 'function') render();
+    if (typeof renderAntiPlateauModal === 'function') renderAntiPlateauModal();
+}
+
 function computeDynamicTDEE(customWeight) {
     const lastCheck = (D && D.checks && D.checks.length) ? (D.checks[D.checks.length - 1] || {}) : {};
     const bio = (D && D.cfg && D.cfg.biometrics) ? D.cfg.biometrics : {};
     const saved = (D && D.cfg && D.cfg.bmrInfo) ? D.cfg.bmrInfo : {};
 
-    const w = Math.max(40, Number(customWeight || lastCheck.w || bio.weight || saved.weight || 78.0));
+    const w = Math.max(40, Number(customWeight || lastCheck.w || bio.weight || saved.weight || 77.1));
     const h = Math.max(130, Number(bio.height || saved.height || 168.0));
     const age = Math.max(15, Number(bio.age || saved.age || 31));
     const gender = bio.gender || saved.gender || 'M';
 
-    // NEAT Factor from skill.md:
-    // Sedentary: 1.20 | Lightly Active: 1.35 | Moderately Active: 1.50
-    const wType = (D && D.cfg && D.cfg.workType) || 'light';
-    let neat = 1.35;
-    if (wType === 'sedentary') neat = 1.20;
-    else if (wType === 'active' || wType === 'moderate') neat = 1.50;
+    // NEAT Factor unified with Onboarding Wizard (1.20 / 1.35 / 1.50 / 1.65)
+    const wType = (D && D.cfg && D.cfg.workType) || (saved && saved.workType) || 'light';
+    const actLevel = Number((saved && saved.activityLevel) || 0);
+    const actMultMap = { 1: 1.20, 2: 1.35, 3: 1.50, 4: 1.65 };
+    let neat = actMultMap[actLevel] || 1.35;
+    if (!actMultMap[actLevel]) {
+        if (wType === 'sedentary') neat = 1.20;
+        else if (wType === 'moderate') neat = 1.50;
+        else if (wType === 'active' || wType === 'very_active') neat = 1.65;
+    }
 
-    // 1. BMR (Mifflin-St Jeor Equation)
-    const bmr = (10 * w) + (6.25 * h) - (5 * age) + (gender === 'M' ? 5 : -161);
+    // 1. BMR: Auto-calculated daily via Katch-McArdle (using latest weight & latest %BF), fallback to Mifflin-St Jeor
+    const latestBf = Number((lastCheck && lastCheck.bf > 0) ? lastCheck.bf : (bio.bf || 0));
+    let bmr = (10 * w) + (6.25 * h) - (5 * age) + (gender === 'M' ? 5 : -161);
+    let bmrSource = 'Mifflin-St Jeor';
+    if (latestBf > 3 && latestBf < 65) {
+        const lbm = w * (1 - (latestBf / 100));
+        bmr = 370 + (21.6 * lbm);
+        bmrSource = `Katch-McArdle (LBM ${lbm.toFixed(1)}kg)`;
+    }
 
     // 2. Base TDEE (Rest Day)
     const tdeeRest = Math.round(bmr * neat);
 
     // 3. Exercise Energy additions from skill.md
-    // Weight Training (45-60 min): w * 3.5 (~200 - 250 kcal)
-    // Cardio (30-45 min): w * 4.0 (~250 - 300 kcal)
     const extraWeightKcal = Math.round(w * 3.5);
     const extraCardioKcal = Math.round(w * 4.0);
     const extraBothKcal = extraWeightKcal + extraCardioKcal;
 
-    // 4. Goal & Deficit / Surplus (Sports Science Standard: -300 kcal/day)
-    // Preserves lean muscle mass & bone matrix (target 2.89kg), prevents metabolic adaptation / yoyo
+    // 4. Goal & Deficit / Surplus + Auto-Refeed on Plateau
     const goalType = (D && D.cfg && D.cfg.goalType) || (saved && saved.goalType) || 'recomp';
-    let deficit = 300; 
-    if (goalType === 'maintain') deficit = 0;
-    else if (goalType === 'bulk') deficit = -200; // Surplus +200 kcal
-    else if (goalType === 'fastcut') deficit = 500;
-    else if (goalType === 'slowcut') deficit = 200;
+    let baseDeficit = 300;
+    if (goalType === 'maintain') baseDeficit = 0;
+    else if (goalType === 'bulk') baseDeficit = -200;
+    else if (goalType === 'fastcut') baseDeficit = 500;
+    else if (goalType === 'slowcut') baseDeficit = 200;
+
+    const rawPlateau = detectPlateauRaw();
+    const plateauRefeed = getAutoPlateauRefeedState(rawPlateau);
+    const deficit = plateauRefeed.isRefeedActive ? 0 : baseDeficit;
 
     // 5. Fixed Protein & Fat per kg from skill.md
     const proGrams = Math.round(w * 2.0); // 2.0 g/kg
@@ -306,7 +426,6 @@ function computeDynamicTDEE(customWeight) {
     function makeDayPlan(typeKey, name, icon, tdeeVal, extraDesc) {
         let rawTarget = tdeeVal - deficit;
         let isClamped = false;
-        // Safety Guardrail from sports physiology: Target_Calories ห้ามต่ำกว่า BMR เด็ดขาด
         if (rawTarget < bmr) {
             rawTarget = Math.round(bmr);
             isClamped = true;
@@ -328,15 +447,16 @@ function computeDynamicTDEE(customWeight) {
             fat: fatGrams,
             water: waterMl,
             isClamped,
+            isRefeed: plateauRefeed.isRefeedActive,
             extraDesc
         };
     }
 
     const days = {
-        rest: makeDayPlan('rest', 'วันพัก (Rest Day)', '', tdeeRest, 'พักฟื้น ฟื้นฟูกล้ามเนื้อและระบบประสาท'),
-        weight: makeDayPlan('weight', 'วันเล่นเวท (Weight Day)', '', tdeeRest + extraWeightKcal, 'โปรแกรม A / B / C เล่นเวท 45-60 นาที (+ ' + extraWeightKcal + ' kcal)'),
-        cardio: makeDayPlan('cardio', 'วันคาร์ดิโอ (Cardio Day)', '', tdeeRest + extraCardioKcal, 'โปรแกรม Z (Zone 2) หรือ H (HIIT) (+ ' + extraCardioKcal + ' kcal)'),
-        both: makeDayPlan('both', 'วันเวท + คาร์ดิโอ', '', tdeeRest + extraBothKcal, 'เล่นเวทพร้อมคาร์ดิโอเบิร์นเข้มข้น (+ ' + extraBothKcal + ' kcal)')
+        rest: makeDayPlan('rest', 'วันพัก (Rest Day)', fcIcon('bed'), tdeeRest, 'พักฟื้น ฟื้นฟูกล้ามเนื้อและระบบประสาท'),
+        weight: makeDayPlan('weight', 'วันเล่นเวท (Weight Day)', fcIcon('dumbbell'), tdeeRest + extraWeightKcal, 'โปรแกรม A / B / C เล่นเวท 45-60 นาที (+ ' + extraWeightKcal + ' kcal)'),
+        cardio: makeDayPlan('cardio', 'วันคาร์ดิโอ (Cardio Day)', fcIcon('flame'), tdeeRest + extraCardioKcal, 'โปรแกรม Z (Zone 2) หรือ H (HIIT) (+ ' + extraCardioKcal + ' kcal)'),
+        both: makeDayPlan('both', 'วันเวท + คาร์ดิโอ', fcIcon('zap'), tdeeRest + extraBothKcal, 'เล่นเวทพร้อมคาร์ดิโอเบิร์นเข้มข้น (+ ' + extraBothKcal + ' kcal)')
     };
 
     return {
@@ -345,10 +465,13 @@ function computeDynamicTDEE(customWeight) {
         age,
         gender,
         bmr: Math.round(bmr),
+        bmrSource,
         neat,
         wType,
         goalType,
         deficit,
+        baseDeficit,
+        plateauRefeed,
         days
     };
 }
@@ -646,12 +769,35 @@ function renderAntiPlateauModal() {
         <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:16px; padding:12px 14px; margin-bottom:14px; display:flex; align-items:center; gap:12px;">
             <div style="font-size:28px;">${fcIcon('shield-check')}</div>
             <div style="flex:1;">
-                <div style="font-size:12.5px; font-weight:800; color:#0369a1;">BMR Safety Floor: ${dyn.bmr} kcal/วัน</div>
+                <div style="font-size:12.5px; font-weight:800; color:#0369a1;">BMR Safety Floor: ${dyn.bmr} kcal/วัน (${dyn.bmrSource || 'สูตรมาตรฐาน'})</div>
                 <div style="font-size:11px; color:#475569; margin-top:2px; line-height:1.4;">
                     ระบบล็อคไม่ให้เป้าหมายต่ำกว่า BMR เด็ดขาด เพื่อป้องกันระบบเผาผลาญพัง และอาการโยโย่เอฟเฟกต์ 100%
                 </div>
             </div>
         </div>
+
+        ${dyn.plateauRefeed && dyn.plateauRefeed.isPlateau ? `
+        <!-- Active Auto-Refeed Status Banner -->
+        <div style="background:${dyn.plateauRefeed.isRefeedActive ? '#fff7ed' : '#f0fdf4'}; border:1.5px solid ${dyn.plateauRefeed.isRefeedActive ? '#fb923c' : '#86efac'}; border-radius:16px; padding:12px 14px; margin-bottom:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+                <div style="font-size:12.5px; font-weight:900; color:${dyn.plateauRefeed.isRefeedActive ? '#c2410c' : '#15803d'};">
+                    ${fcIcon(dyn.plateauRefeed.isRefeedActive ? 'zap' : 'clock')}
+                    ${dyn.plateauRefeed.isRefeedActive
+                        ? `โหมด Auto-Refeed Day กำลังทำงาน (วันที่ ${dyn.plateauRefeed.refeedDayNum}/2)`
+                        : (dyn.plateauRefeed.inCooldown
+                            ? `พักหลัง Refeed กลับสู่ Deficit ปกติ (ถึง ${dyn.plateauRefeed.cooldownUntil})`
+                            : 'โหมด Auto-Refeed ถูกปิดชั่วคราวสำหรับวันนี้')}
+                </div>
+                <button type="button" class="btn sm" onclick="toggleTodayRefeedOverride()" style="width:auto; padding:4px 10px; font-size:11px; border-radius:99px; background:#fff; border:1px solid #cbd5e1; color:#0f172a; font-weight:800;">
+                    ${dyn.plateauRefeed.isRefeedActive ? 'กลับสู่ Deficit ปกติ' : 'เปิด Refeed วันนี้'}
+                </button>
+            </div>
+            <div style="font-size:11px; color:#475569; margin-top:4px; line-height:1.4;">
+                ${dyn.plateauRefeed.isRefeedActive
+                    ? 'ระบบปรับเป้าพลังงานวันนี้เท่ากับ TDEE (Deficit 0 kcal) และเพิ่มคาร์บให้อัตโนมัติเพื่อกระตุ้นเลปติน จากนั้นจะพัก 5 วัน'
+                    : 'ทำตามเป้า Deficit ปกติต่อเนื่องเพื่อให้ไขมันทยอยลดลงหลังกระตุ้นการเผาผลาญ'}
+            </div>
+        </div>` : ''}
 
         <!-- 4 Day Types Comparison Table -->
         <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:18px; padding:12px; margin-bottom:14px; box-shadow:0 2px 8px rgba(15,23,42,0.03);">
@@ -705,6 +851,309 @@ window.openDayTypeSelectorModal = openDayTypeSelectorModal;
 window.syncDailyTargetsWithDayType = syncDailyTargetsWithDayType;
 window.getTodayEffectiveDayType = getTodayEffectiveDayType;
 window.setTodayDayType = setTodayDayType;
+
+/* ============ HOME SYSTEM ALERT CENTER (6-SYSTEM AGGREGATOR) ============ */
+function buildSystemAlerts() {
+    const alerts = [];
+    if (typeof D === 'undefined' || !D) return alerts;
+
+    const todayIso = iso();
+    const tc = (D.checks || []).find(x => x && x.d === todayIso) || null;
+    const dyn = computeDynamicTDEE();
+    const pr = dyn.plateauRefeed || {};
+    const thaiHour = (() => {
+        try {
+            return parseInt(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Bangkok', hour: '2-digit', hour12: false }).format(new Date()), 10);
+        } catch (e) { return new Date().getHours(); }
+    })();
+
+    // 1. Plateau / Auto-Refeed / Rapid Loss
+    const rawP = detectPlateauRaw();
+    if (rawP.isPlateau) {
+        alerts.push({
+            id: 'plateau',
+            level: 'critical',
+            severity: 1,
+            icon: pr.isRefeedActive ? 'zap' : 'alert-triangle',
+            title: pr.isRefeedActive
+                ? `Auto-Refeed Day (${pr.refeedDayNum}/2): แก้น้ำหนักค้าง`
+                : 'ตรวจพบน้ำหนักค้าง (Plateau > 2 สัปดาห์)',
+            desc: pr.isRefeedActive
+                ? `ระบบดันเป้าพลังงานวันนี้เท่า TDEE และเพิ่มคาร์บให้อัตโนมัติเพื่อกระตุ้นเลปติน`
+                : (pr.inCooldown
+                    ? `อยู่ในช่วงพักหลัง Refeed (ถึง ${pr.cooldownUntil}) เพื่อกลับสู่โหมดลดไขมัน`
+                    : 'น้ำหนักตัวไม่ขยับลง > 10-14 วัน แตะเพื่อดูแผน Anti-Plateau Action Plan'),
+            actionLabel: 'ดูแผนแก้น้ำหนักค้าง',
+            actionJs: "closeSystemAlertsModal(); openAntiPlateauModal();"
+        });
+    } else if (rawP.status === 'rapid') {
+        alerts.push({
+            id: 'rapid_loss',
+            level: 'warning',
+            severity: 2,
+            icon: 'zap',
+            title: `น้ำหนักลดเร็วเกินเกณฑ์ (${rawP.lossPerWk.toFixed(2)} กก./สัปดาห์)`,
+            desc: 'ควรทานโปรตีนให้ถึงเป้าเพื่อป้องกันการสูญเสียมวลกล้ามเนื้อ',
+            actionLabel: 'ดูรายละเอียด',
+            actionJs: "closeSystemAlertsModal(); openAntiPlateauModal();"
+        });
+    }
+
+    // 2. Lower Back Health (Back-Safe) & Garmin Recovery
+    const recentPain = (D.checks || []).filter(c => c && c.pain != null).slice(-3);
+    const avgPain = recentPain.length ? (recentPain.reduce((s, c) => s + Number(c.pain || 0), 0) / recentPain.length) : 0;
+    if (D.bs || avgPain >= 4) {
+        alerts.push({
+            id: 'back_safe',
+            level: 'critical',
+            severity: 1,
+            icon: 'shield-alert',
+            title: D.bs ? 'เปิดโหมด Back-Safe เซฟหลังล่างอยู่' : `เฝ้าระวังอาการตึงหลังล่าง (${avgPain.toFixed(1)}/10)`,
+            desc: 'แนะนำเน้นท่า McGill Big 3 (Bird Dog / Side Plank) และเลี่ยงท่าก้มพับหลังหนัก',
+            actionLabel: 'ดูตารางฝึก',
+            actionJs: "closeSystemAlertsModal(); go('plan');"
+        });
+    }
+    const bio = D.bio || (D.cfg && D.cfg.biometrics) || {};
+    if ((bio.bodyBattery > 0 && bio.bodyBattery < 40) || (bio.sleepScore > 0 && bio.sleepScore < 60)) {
+        alerts.push({
+            id: 'garmin_recovery',
+            level: 'warning',
+            severity: 2,
+            icon: 'activity',
+            title: `การฟื้นตัวต่ำ (Garmin Battery ${bio.bodyBattery || '-'} / Sleep ${bio.sleepScore || '-'})`,
+            desc: 'ร่างกายอาจล้าสะสม แนะนำลดความเข้มข้นหรือเน้นเดิน Zone 2 + นอนให้ครบ 7-8 ชม.',
+            actionLabel: 'อัปเดตค่า Garmin',
+            actionJs: "closeSystemAlertsModal(); openOnboardingWizard(4, 'recalibrate');"
+        });
+    }
+
+    // 3. Cloud Sync Pending
+    try {
+        if (localStorage.getItem('fc_dirty') === '1' && typeof currentUser !== 'undefined' && currentUser) {
+            alerts.push({
+                id: 'cloud_dirty',
+                level: 'warning',
+                severity: 2,
+                icon: 'cloud',
+                title: 'มีข้อมูลใหม่ในเครื่องรอซิงก์ขึ้น Cloud',
+                desc: 'แตะซิงก์ทันทีเพื่อสำรองข้อมูลและให้ iPad/เครื่องอื่นเห็นข้อมูลล่าสุดตรงกัน',
+                actionLabel: 'ซิงก์เลย',
+                actionJs: "closeSystemAlertsModal(); if(typeof syncNow==='function') syncNow();"
+            });
+        }
+    } catch (e) {}
+
+    // 4. Morning Weigh-in & Sunday Circumference Reminder
+    const weighedList = (D.checks || []).filter(c => c && c.w > 0).sort((a, b) => a.d.localeCompare(b.d));
+    const lastWeigh = weighedList.length ? weighedList[weighedList.length - 1] : null;
+    const daysSinceWeigh = lastWeigh ? Math.round((new Date(todayIso) - new Date(lastWeigh.d)) / 864e5) : 99;
+    if ((!D.cfg || D.cfg.weightReminder !== false) && daysSinceWeigh >= 2) {
+        alerts.push({
+            id: 'weigh_remind',
+            level: 'warning',
+            severity: 3,
+            icon: 'scale',
+            title: lastWeigh ? `ยังไม่ได้ชั่งน้ำหนักมา ${daysSinceWeigh} วันแล้ว` : 'ยังไม่มีบันทึกน้ำหนักตั้งต้น',
+            desc: 'ชั่งน้ำหนักตอนเช้าหลังเข้าห้องน้ำช่วยให้ระบบคำนวณ Plateau & Dynamic TDEE แม่นยำขึ้น',
+            actionLabel: '+ ชั่งเช้านี้',
+            actionJs: "closeSystemAlertsModal(); openMorningWeighInModal();"
+        });
+    }
+    if ((!D.cfg || D.cfg.measureReminder !== false) && getThaiDayOfWeek() === 0) {
+        const hasMeasToday = D.cfg && D.cfg.lastMeasureDate === todayIso;
+        if (!hasMeasToday) {
+            alerts.push({
+                id: 'measure_sunday',
+                level: 'info',
+                severity: 4,
+                icon: 'ruler',
+                title: 'วันอาทิตย์: ถึงรอบวัดสัดส่วน (รอบเอว/สะโพก)',
+                desc: 'วัดสัดส่วนสัปดาห์ละ 1 ครั้ง เพื่อดูการลดไขมันควบคู่กับน้ำหนักตัว',
+                actionLabel: 'วัดสัดส่วน',
+                actionJs: "closeSystemAlertsModal(); if(typeof openMeasureTapeModal==='function') openMeasureTapeModal();"
+            });
+        }
+    }
+
+    // 5. Supplements Low Stock
+    try {
+        const supps = (typeof getSupplementsList === 'function') ? getSupplementsList() : ((D.cfg && Array.isArray(D.cfg.supplements)) ? D.cfg.supplements : []);
+        const lowSupps = supps.filter(s => s && s.status !== 'hold' && s.stock != null && Number(s.stock) <= 5);
+        if (lowSupps.length > 0) {
+            alerts.push({
+                id: 'supp_low',
+                level: 'warning',
+                severity: 3,
+                icon: 'package',
+                title: `อาหารเสริมใกล้หมดสต็อก (${lowSupps.length} รายการ)`,
+                desc: lowSupps.slice(0, 3).map(s => `${s.name} (เหลือ ${s.stock})`).join(', '),
+                actionLabel: 'เช็กสต็อก',
+                actionJs: "closeSystemAlertsModal(); go('supps');"
+            });
+        }
+    } catch (e) {}
+
+    // 6. Late-Day Protein / Water Deficit
+    if (thaiHour >= 16) {
+        const proToday = tc ? (Number(tc.protein) || 0) : 0;
+        const watToday = tc ? (Number(tc.water) || 0) : 0;
+        const proTgt = (dyn.days && dyn.days[getTodayEffectiveDayType()]) ? dyn.days[getTodayEffectiveDayType()].pro : (typeof PROTEIN_TARGET !== 'undefined' ? PROTEIN_TARGET : 150);
+        const watTgt = (typeof WATER_TARGET !== 'undefined' ? WATER_TARGET : 2700);
+        if (proToday < proTgt * 0.5) {
+            alerts.push({
+                id: 'low_protein',
+                level: 'info',
+                severity: 4,
+                icon: 'drumstick',
+                title: `โปรตีนวันนี้ยังขาดอีกมาก (${proToday}/${proTgt}g)`,
+                desc: 'ช่วงเย็นแล้ว ควรเสริมโปรตีนคุณภาพดีเพื่อรักษากล้ามเนื้อและกระตุ้นการฟื้นฟู',
+                actionLabel: 'บันทึกอาหาร',
+                actionJs: "closeSystemAlertsModal(); if(typeof openFoodLogModal==='function') openFoodLogModal();"
+            });
+        }
+        if (watToday < watTgt * 0.5) {
+            alerts.push({
+                id: 'low_water',
+                level: 'info',
+                severity: 5,
+                icon: 'droplets',
+                title: `น้ำดื่มวันนี้ยังน้อย (${watToday.toLocaleString()}/${watTgt.toLocaleString()} ml)`,
+                desc: 'จิบน้ำเพิ่มให้ถึงเป้าเพื่อลดอาการบวมน้ำและช่วยการเผาผลาญ',
+                actionLabel: '+ บวกน้ำ',
+                actionJs: "closeSystemAlertsModal(); if(typeof openWaterLogModal==='function') openWaterLogModal();"
+            });
+        }
+    }
+
+    return alerts.sort((a, b) => a.severity - b.severity);
+}
+
+function toggleHomeAlertsCollapse() {
+    const todayIso = iso();
+    try {
+        const cur = sessionStorage.getItem('fc_alerts_collapsed') === todayIso;
+        if (cur) sessionStorage.removeItem('fc_alerts_collapsed');
+        else sessionStorage.setItem('fc_alerts_collapsed', todayIso);
+    } catch (e) {}
+    renderHomeAlertsUI();
+}
+
+function openSystemAlertsModal() {
+    const modal = document.getElementById('fcSystemAlertsModal');
+    const listEl = document.getElementById('fcSystemAlertsList');
+    if (!modal || !listEl) return;
+    const alerts = buildSystemAlerts();
+    if (alerts.length === 0) {
+        listEl.innerHTML = `
+            <div style="text-align:center; padding:24px 12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:14px; color:#15803d;">
+                <div style="font-size:26px; margin-bottom:6px;">${fcIcon('check-circle', { size: 28 })}</div>
+                <div style="font-weight:800; font-size:14px;">ทุกระบบปกติสมบูรณ์!</div>
+                <div style="font-size:12px; color:#475569; margin-top:4px;">ไม่มีรายการแจ้งเตือนค้างในขณะนี้</div>
+            </div>`;
+    } else {
+        listEl.innerHTML = alerts.map(a => {
+            const st = a.level === 'critical'
+                ? { bg: '#fff7ed', border: '#fdba74', title: '#c2410c', iconBg: '#ffedd5' }
+                : (a.level === 'warning'
+                    ? { bg: '#fefce8', border: '#fde047', title: '#a16207', iconBg: '#fef9c3' }
+                    : { bg: '#eff6ff', border: '#bfdbfe', title: '#1d4ed8', iconBg: '#dbeafe' });
+            return `
+            <div style="background:${st.bg}; border:1.5px solid ${st.border}; border-radius:14px; padding:11px 12px; display:flex; align-items:flex-start; gap:10px;">
+                <div style="width:32px; height:32px; border-radius:10px; background:${st.iconBg}; color:${st.title}; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    ${fcIcon(a.icon, { size: 17 })}
+                </div>
+                <div style="flex:1; min-width:0;">
+                    <div style="font-size:13px; font-weight:800; color:${st.title}; line-height:1.35;">${a.title}</div>
+                    <div style="font-size:11.5px; color:#475569; margin-top:2px; line-height:1.4;">${a.desc}</div>
+                    ${a.actionLabel ? `<button type="button" onclick="${a.actionJs}" style="margin-top:7px; padding:4px 10px; font-size:11px; font-weight:800; border-radius:99px; border:1px solid ${st.border}; background:#ffffff; color:${st.title}; cursor:pointer;">${a.actionLabel} →</button>` : ''}
+                </div>
+            </div>`;
+        }).join('');
+    }
+    modal.style.display = 'flex';
+}
+
+function closeSystemAlertsModal() {
+    const modal = document.getElementById('fcSystemAlertsModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function renderHomeAlertsUI() {
+    const alerts = buildSystemAlerts();
+    const badge = document.getElementById('fcAlertBadge');
+    const bellBtn = document.getElementById('fcAlertBellBtn');
+    if (badge) {
+        if (alerts.length > 0) {
+            badge.textContent = alerts.length > 9 ? '9+' : String(alerts.length);
+            badge.style.display = 'inline-block';
+            badge.style.background = alerts.some(a => a.level === 'critical') ? '#ef4444' : '#f59e0b';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+    if (bellBtn) {
+        bellBtn.style.borderColor = alerts.some(a => a.level === 'critical') ? '#fca5a5' : 'var(--line)';
+    }
+
+    const mount = document.getElementById('homeSystemAlertsMount');
+    if (!mount) return;
+    if (alerts.length === 0) {
+        mount.innerHTML = '';
+        return;
+    }
+
+    let isCollapsed = false;
+    try { isCollapsed = sessionStorage.getItem('fc_alerts_collapsed') === iso(); } catch (e) {}
+
+    if (isCollapsed) {
+        mount.innerHTML = `
+        <div onclick="toggleHomeAlertsCollapse()" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between; padding:7px 12px; border-radius:12px; background:#f8fafc; border:1px solid var(--line); font-size:11.5px; font-weight:700; color:var(--dim);">
+            <span>${fcIcon('bell', { size: 13 })} แจ้งเตือนระบบ (${alerts.length} รายการ)</span>
+            <span style="color:#0284c7;">แสดง ${fcIcon('chevron-down', { size: 13 })}</span>
+        </div>`;
+        return;
+    }
+
+    const topAlerts = alerts.slice(0, 2);
+    mount.innerHTML = `
+    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:16px; padding:10px 12px; box-shadow:0 2px 8px rgba(15,23,42,0.04);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div style="font-size:12px; font-weight:900; color:#0f172a; display:flex; align-items:center; gap:5px;">
+                <span style="color:#ef4444;">${fcIcon('bell', { size: 14 })}</span>
+                <span>แจ้งเตือนสำคัญ (${alerts.length})</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                ${alerts.length > 2 ? `<button type="button" onclick="openSystemAlertsModal()" style="background:none; border:none; padding:0; font-size:11px; font-weight:800; color:#0284c7; cursor:pointer;">ดูทั้งหมด (${alerts.length})</button>` : ''}
+                <button type="button" onclick="toggleHomeAlertsCollapse()" style="background:none; border:none; padding:0; font-size:11px; font-weight:700; color:#64748b; cursor:pointer;">ซ่อน</button>
+            </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+            ${topAlerts.map(a => {
+                const clr = a.level === 'critical' ? '#c2410c' : (a.level === 'warning' ? '#a16207' : '#1d4ed8');
+                const bg = a.level === 'critical' ? '#fff7ed' : (a.level === 'warning' ? '#fefce8' : '#eff6ff');
+                const bd = a.level === 'critical' ? '#fdba74' : (a.level === 'warning' ? '#fde047' : '#bfdbfe');
+                return `
+                <div onclick="${a.actionJs}" style="cursor:pointer; background:${bg}; border:1px solid ${bd}; border-radius:11px; padding:8px 10px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                    <div style="display:flex; align-items:center; gap:8px; min-width:0; flex:1;">
+                        <span style="color:${clr}; flex-shrink:0;">${fcIcon(a.icon, { size: 15 })}</span>
+                        <div style="min-width:0;">
+                            <div style="font-size:12px; font-weight:800; color:${clr}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${a.title}</div>
+                            <div style="font-size:10.5px; color:#475569; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${a.desc}</div>
+                        </div>
+                    </div>
+                    <span style="font-size:10.5px; font-weight:800; color:${clr}; white-space:nowrap; background:#fff; padding:3px 8px; border-radius:99px; border:1px solid ${bd};">${a.actionLabel}</span>
+                </div>`;
+            }).join('')}
+        </div>
+    </div>`;
+}
+
+window.buildSystemAlerts = buildSystemAlerts;
+window.openSystemAlertsModal = openSystemAlertsModal;
+window.closeSystemAlertsModal = closeSystemAlertsModal;
+window.toggleHomeAlertsCollapse = toggleHomeAlertsCollapse;
+window.renderHomeAlertsUI = renderHomeAlertsUI;
 
 
 

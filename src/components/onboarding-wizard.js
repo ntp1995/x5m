@@ -236,10 +236,10 @@ function computeOnboardingPlan() {
     const actMults = { 1: 1.20, 2: 1.35, 3: 1.50, 4: 1.65 };
     const act = actMults[obState.activityLevel] || 1.35;
 
-    // Prefer Mi Scale 2 measured BMR when provided (>1000 kcal), fallback to Mifflin-St Jeor
-    const customBmr = Number(obState.bmrCustom) || 0;
+    // Auto-calculate BMR via Katch-McArdle (LBM = weight * (1 - BF%)), fallback to Mifflin-St Jeor
+    const bfVal = Number(obState.bf) || 0;
     const mifflinBmr = (10 * w) + (6.25 * h) - (5 * age) + (gender === 'M' ? 5 : -161);
-    const bmr = customBmr > 1000 ? customBmr : mifflinBmr;
+    const bmr = (bfVal > 3 && bfVal < 65) ? (370 + (21.6 * w * (1 - (bfVal / 100)))) : mifflinBmr;
     const tdee = Math.round(bmr * act);
 
     const diffKg = Math.max(0, w - targetW);
@@ -853,7 +853,8 @@ function renderOnboardingStep() {
                                 <span style="color:#64748b; font-size:10.5px;">${prev ? 'เทียบจาก ' + prev.d : 'บันทึกสถิติวันนี้'}</span>
                             </div>
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px 10px;">
-                                <div>BMR เครื่องชั่ง: <b>${Math.round(obState.bmrCustom)} kcal</b></div>
+                                <div>BMR สูตร (Katch-McArdle): <b>${Math.round(computeOnboardingPlan().bmr)} kcal</b></div>
+                                <div>BMR เครื่องชั่ง (อ้างอิง): <b>${Math.round(obState.bmrCustom)} kcal</b></div>
                                 <div>ไขมัน (%BF): <b>${obState.bf}%</b>${fmtDelta(obState.bf, prev?.bf, '%', true)}</div>
                                 <div>กล้ามเนื้อ: <b>${obState.muscle} kg</b>${fmtDelta(obState.muscle, prev?.muscle, 'kg')}</div>
                                 <div>โปรตีน: <b>${obState.proteinPct}%</b>${fmtDelta(obState.proteinPct, prev?.proteinPct, '%')}</div>
@@ -1097,7 +1098,7 @@ function renderOnboardingStep() {
                 title: 'นั่งโต๊ะทำงานเป็นหลัก',
                 subTitle: 'Sedentary (ตัวคูณ 1.20)',
                 desc: 'นั่งทำงาน นั่งหน้าคอมฯ ขับรถ เคลื่อนไหวน้อย เดินต่ำกว่า 3,000 ก้าวต่อวัน',
-                icon: '',
+                icon: fcIcon('laptop', { size: 22, color: '#64748b' }),
                 color: '#64748b'
             },
             {
@@ -1105,15 +1106,15 @@ function renderOnboardingStep() {
                 title: 'ขยับร่างกายเบาๆ',
                 subTitle: 'Lightly Active (ตัวคูณ 1.35)',
                 desc: 'เดินตรวจเวร ยืนบ่อย ทำงานบ้าน ก้าวเดินระหว่างวัน 4,000 - 6,000 ก้าว',
-                icon: fcIcon('footprints'),
+                icon: fcIcon('footprints', { size: 22, color: '#0284c7' }),
                 color: '#0284c7'
             },
             {
                 lvl: 3,
                 title: 'เคลื่อนไหวปานกลาง',
-                subTitle: 'Moderately Active (ตัวคูณ 1.50)  แนะนำ',
+                subTitle: `Moderately Active (ตัวคูณ 1.50) • ${fcIcon('star', { size: 12 })} แนะนำ`,
                 desc: 'ออกกำลังกายสม่ำเสมอ 3-4 วันต่อสัปดาห์ หรือเดินมากกว่า 8,000 ก้าวต่อวัน',
-                icon: fcIcon('footprints'),
+                icon: fcIcon('activity', { size: 22, color: '#10b981' }),
                 color: '#10b981'
             },
             {
@@ -1121,7 +1122,7 @@ function renderOnboardingStep() {
                 title: 'เคลื่อนไหวมาก / ลุยเวร',
                 subTitle: 'Very Active (ตัวคูณ 1.65)',
                 desc: 'ทำงานใช้แรงหนัก ซ้อมกีฬาเข้มข้น 5-6 วันต่อสัปดาห์ หรือเข้าเวรลุยภาคสนามต่อเนื่อง',
-                icon: fcIcon('zap'),
+                icon: fcIcon('zap', { size: 22, color: '#f97316' }),
                 color: '#f97316'
             }
         ];
@@ -1144,7 +1145,7 @@ function renderOnboardingStep() {
                             <div style="flex:1;">
                                 <div style="display:flex; justify-content:space-between; align-items:center;">
                                     <div style="font-size:15px; font-weight:900; color:#0f172a;">${opt.title}</div>
-                                    ${isAct ? '<span style="font-size:16px; color:#0284c7; font-weight:900;"></span>' : ''}
+                                    ${isAct ? `<span style="color:#0284c7; display:inline-flex; align-items:center;">${fcIcon('check-circle', { size: 18 })}</span>` : ''}
                                 </div>
                                 <div style="font-size:11.5px; font-weight:800; color:${opt.color}; margin-top:1px;">${opt.subTitle}</div>
                                 <div style="font-size:11.5px; color:#64748b; font-weight:600; margin-top:3px; line-height:1.4;">${opt.desc}</div>
