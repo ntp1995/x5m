@@ -1065,9 +1065,8 @@ const WEIGH_WARN_DAYS = 2;
 function save() {
     try {
         localStorage.setItem('fit', JSON.stringify(D));
-        if (currentUser && fbDb) {
-            localStorage.setItem('fc_dirty', '1');
-        }
+        // Always mark dirty when user mutates data (even before auth resolves) so Cloud Sync merges instead of overwriting
+        localStorage.setItem('fc_dirty', '1');
     } catch (e) {
         console.warn('localStorage save error:', e);
     }

@@ -5,7 +5,11 @@ render();
 setTimeout(() => {
     const sp = document.getElementById('fcBootSplash');
     if (sp) sp.classList.add('hide');
-    if (typeof openOnboardingWizard === 'function' && D && D.cfg && !D.cfg.onboardingDone) {
+    // Only auto-open Onboarding if user is past the auth gate AND initial Cloud Sync has finished
+    // (prevents showing fresh Onboarding on a new device like iPad before Firestore data loads)
+    const pastAuthGate = !document.body.classList.contains('auth-required');
+    const cloudReady = (typeof fbAuth === 'undefined' || !fbAuth || window.__fcInitialCloudSyncDone);
+    if (pastAuthGate && cloudReady && typeof openOnboardingWizard === 'function' && D && D.cfg && !D.cfg.onboardingDone && (!D.checks || D.checks.length === 0)) {
         openOnboardingWizard(1);
     }
 }, 480);

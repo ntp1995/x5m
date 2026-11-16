@@ -832,6 +832,11 @@ function mergeCloudData(cloud) {
             if (D.cfg.sodiumTarget) SODIUM_TARGET = D.cfg.sodiumTarget;
             if (D.cfg.waterTarget) WATER_TARGET = D.cfg.waterTarget <= 50 ? D.cfg.waterTarget * 250 : D.cfg.waterTarget;
         }
+        // Existing cloud account with history has already onboarded
+        if ((D.checks && D.checks.length > 0) || (D.sessions && D.sessions.length > 0)) {
+            if (!D.cfg) D.cfg = {};
+            D.cfg.onboardingDone = true;
+        }
         if (cloud.if) {
             D.if = JSON.parse(JSON.stringify(cloud.if));
         }
@@ -1106,9 +1111,13 @@ if (typeof window !== 'undefined') {
     window.addEventListener('offline', () => updateCloudSyncPill());
 }
 
-async function pushToCloud() {
+async function pushToCloud(forceInitial) {
     if (!currentUser || !fbDb) {
         updateCloudSyncPill();
+        return false;
+    }
+    // Never overwrite Firestore from a brand-new/unhydrated device before initial Cloud Sync finishes
+    if (!forceInitial && !window.__fcInitialCloudSyncDone) {
         return false;
     }
     if (isSyncing) {
@@ -1203,6 +1212,7 @@ if (fbAuth) {
     }
 
     fbAuth.onAuthStateChanged(async (user) => {
+        window.__fcInitialCloudSyncDone = false;
         currentUser = user;
         updateAuthGateState(user);
         renderAuthUI();
@@ -1214,11 +1224,16 @@ if (fbAuth) {
                 const docSnap = await userDocRef.get();
                 if (docSnap.exists) {
                     mergeCloudData(docSnap.data());
+                    window.__fcInitialCloudSyncDone = true;
                     // CLOUD-FIRST: NEVER pushToCloud() on startup! Cloud is already master.
                 } else {
+                    window.__fcInitialCloudSyncDone = true;
                     // Only brand-new users without a Firestore doc push initial baseline
-                    await pushToCloud();
+                    await pushToCloud(true);
                     msg(fcIcon('cloud') + ' สร้างฐานข้อมูล Cloud ใหม่เรียบร้อย');
+                }
+                if (typeof openOnboardingWizard === 'function' && D && D.cfg && !D.cfg.onboardingDone && (!D.checks || D.checks.length === 0)) {
+                    openOnboardingWizard(1);
                 }
 
                 if (fbUnsubscribe) fbUnsubscribe();
