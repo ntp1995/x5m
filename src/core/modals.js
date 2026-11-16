@@ -119,7 +119,7 @@ async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
 
         <!-- หมวด 1: ข้อมูลร่างกาย -->
         <div style="font-weight:bold; color:var(--tx); margin-bottom:6px; display:flex; align-items:center; gap:6px;">
-            <span>${fcIcon('sparkles')}‍${fcIcon('sparkles')}️ ข้อมูลสรีระและสุขภาพล่าสุด</span>
+            <span>${fcIcon('heart-pulse')} ข้อมูลสรีระและสุขภาพล่าสุด</span>
         </div>
         <div style="display:flex; gap:8px;">
             <div style="flex:1;">
@@ -308,7 +308,7 @@ async function calcBMR(titleOverride, isSilent, isProgramSetup = false) {
                     </div>
                     <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:11.5px;">
                         <span style="color:var(--dim);">กิจกรรม & ก้าวเดิน:</span>
-                        <span style="color:var(--tx);">${workType === 'light' ? 'เดินตรวจ/ยืนบ่อย' : (workType === 'sedentary' ? 'นั่งโต๊ะ' : 'ใช้แรงงาน')} + ${exerciseType === 'moderate' ? 'FitCoach 3-5 วัน' : (exerciseType === 'light' ? 'เวท 1-3 วัน' : (exerciseType === 'heavy' ? 'ออกกำลังหนัก' : 'ไม่ออกกำลัง'))} • ${fcIcon('sparkles')} ${stepTarget.toLocaleString()} ก้าว</span>
+                        <span style="color:var(--tx);">${workType === 'light' ? 'เดินตรวจ/ยืนบ่อย' : (workType === 'sedentary' ? 'นั่งโต๊ะ' : 'ใช้แรงงาน')} + ${exerciseType === 'moderate' ? 'FitCoach 3-5 วัน' : (exerciseType === 'light' ? 'เวท 1-3 วัน' : (exerciseType === 'heavy' ? 'ออกกำลังหนัก' : 'ไม่ออกกำลัง'))} • ${fcIcon('footprints')} ${stepTarget.toLocaleString()} ก้าว</span>
                     </div>
                     <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
                         <span style="color:var(--dim);">เป้าหมายพลังงาน:</span>

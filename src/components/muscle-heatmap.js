@@ -141,9 +141,9 @@ function renderMuscleRecoveryWidget() {
 
         <!-- Legend -->
         <div style="display:flex; justify-content:center; gap:12px; font-size:11px; color:var(--dim); margin-top:8px;">
-            <span><b style="color:#10b981;">${fcIcon('sparkles')}</b> พร้อมฝึก (90-100%)</span>
-            <span><b style="color:#f59e0b;">${fcIcon('sparkles')}</b> กำลังฟื้นตัว (65-85%)</span>
-            <span><b style="color:#f43f5e;">${fcIcon('sparkles')}</b> พักซ่อมแซม (&lt;65%)</span>
+            <span><b style="color:#10b981;">${fcIcon('dot')}</b> พร้อมฝึก (90-100%)</span>
+            <span><b style="color:#f59e0b;">${fcIcon('dot')}</b> กำลังฟื้นตัว (65-85%)</span>
+            <span><b style="color:#f43f5e;">${fcIcon('dot')}</b> พักซ่อมแซม (&lt;65%)</span>
         </div>
 
         <!-- Muscle Pill Selector -->

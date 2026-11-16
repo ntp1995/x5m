@@ -425,7 +425,7 @@ function setTodayDayType(typeKey) {
     const curPlan = (computeDynamicTDEE().days[getTodayEffectiveDayType()]);
     if (typeof msg === 'function') {
         const typeLabel = typeKey === 'auto' ? ' ตรวจจับอัตโนมัติตามตาราง' : curPlan.name;
-        msg(`${fcIcon('sparkles')} ปรับเป้าหมายเป็น: ${typeLabel} (${curPlan.targetCal} kcal)`);
+        msg(`${fcIcon('target')} ปรับเป้าหมายเป็น: ${typeLabel} (${curPlan.targetCal} kcal)`);
     }
 }
 
@@ -464,10 +464,10 @@ async function openDayTypeSelectorModal() {
                 <!-- Rest Day -->
                 <button type="button" class="btn sm" onclick="setTodayDayType('rest'); fcClose();" style="text-align:left; padding:10px 12px; border-radius:10px; border:${isManual && curType === 'rest' ? '2px solid var(--acc)' : '1px solid var(--line)'}; background:${isManual && curType === 'rest' ? 'rgba(234,88,12,0.1)' : 'var(--bg)'}; color:var(--tx); cursor:pointer;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:800; font-size:13px;">${fcIcon('sparkles')} วันพัก (Rest Day)</span>
+                        <span style="font-weight:800; font-size:13px;">${fcIcon('bed')} วันพัก (Rest Day)</span>
                         <span style="font-weight:800; font-size:13px; color:var(--acc);">${dyn.days.rest.targetCal} kcal</span>
                     </div>
-                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">${fcIcon('utensils')} P ${dyn.days.rest.pro}g • ${fcIcon('utensils')} C ${dyn.days.rest.carbs}g • ${fcIcon('sparkles')} F ${dyn.days.rest.fat}g</div>
+                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">${fcIcon('drumstick')} P ${dyn.days.rest.pro}g • ${fcIcon('wheat')} C ${dyn.days.rest.carbs}g • ${fcIcon('droplet')} F ${dyn.days.rest.fat}g</div>
                 </button>
 
                 <!-- Weight Day -->
@@ -476,7 +476,7 @@ async function openDayTypeSelectorModal() {
                         <span style="font-weight:800; font-size:13px;">${fcIcon('dumbbell')} วันเล่นเวท (Weight Day)</span>
                         <span style="font-weight:800; font-size:13px; color:var(--acc);">${dyn.days.weight.targetCal} kcal</span>
                     </div>
-                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">${fcIcon('utensils')} P ${dyn.days.weight.pro}g • ${fcIcon('utensils')} C ${dyn.days.weight.carbs}g • ${fcIcon('sparkles')} F ${dyn.days.weight.fat}g</div>
+                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">${fcIcon('drumstick')} P ${dyn.days.weight.pro}g • ${fcIcon('wheat')} C ${dyn.days.weight.carbs}g • ${fcIcon('droplet')} F ${dyn.days.weight.fat}g</div>
                 </button>
 
                 <!-- Cardio Day -->
@@ -485,7 +485,7 @@ async function openDayTypeSelectorModal() {
                         <span style="font-weight:800; font-size:13px;">${fcIcon('footprints')} วันคาร์ดิโอ (Cardio Day)</span>
                         <span style="font-weight:800; font-size:13px; color:var(--acc);">${dyn.days.cardio.targetCal} kcal</span>
                     </div>
-                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">${fcIcon('utensils')} P ${dyn.days.cardio.pro}g • ${fcIcon('utensils')} C ${dyn.days.cardio.carbs}g • ${fcIcon('sparkles')} F ${dyn.days.cardio.fat}g</div>
+                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">${fcIcon('drumstick')} P ${dyn.days.cardio.pro}g • ${fcIcon('wheat')} C ${dyn.days.cardio.carbs}g • ${fcIcon('droplet')} F ${dyn.days.cardio.fat}g</div>
                 </button>
 
                 <!-- Both -->
@@ -494,7 +494,7 @@ async function openDayTypeSelectorModal() {
                         <span style="font-weight:800; font-size:13px;">${fcIcon('zap')} วันเวท + คาร์ดิโอ (Both)</span>
                         <span style="font-weight:800; font-size:13px; color:var(--acc);">${dyn.days.both.targetCal} kcal</span>
                     </div>
-                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">${fcIcon('utensils')} P ${dyn.days.both.pro}g • ${fcIcon('utensils')} C ${dyn.days.both.carbs}g • ${fcIcon('sparkles')} F ${dyn.days.both.fat}g</div>
+                    <div style="font-size:11px; color:var(--dim); margin-top:2px;">${fcIcon('drumstick')} P ${dyn.days.both.pro}g • ${fcIcon('wheat')} C ${dyn.days.both.carbs}g • ${fcIcon('droplet')} F ${dyn.days.both.fat}g</div>
                 </button>
             </div>
             <div style="text-align:right;">
@@ -585,7 +585,7 @@ function diagnoseWeightPlateau() {
     return {
         status: 'optimal',
         title: 'อัตราการลดไขมันอยู่ในเกณฑ์สมบูรณ์แบบ',
-        badge: fcIcon('sparkles') + ' ปลอดภัย & รักษากล้ามเนื้อ',
+        badge: fcIcon('shield-check') + ' ปลอดภัย & รักษากล้ามเนื้อ',
         color: '#10b981',
         bg: '#ecfdf5',
         border: '#a7f3d0',

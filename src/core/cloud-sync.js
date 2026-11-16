@@ -79,7 +79,7 @@ async function addNewCustomFavoriteFood() {
     setTimeout(() => {
         openAddMealModal();
         setFoodCategoryFilter('fav');
-        fcAlert(fcIcon('sparkles') + ' เพิ่มเมนู "' + name + '" ลงในคลังคลาวด์เรียบร้อยแล้ว!');
+        fcAlert(fcIcon('check-circle') + ' เพิ่มเมนู "' + name + '" ลงในคลังคลาวด์เรียบร้อยแล้ว!');
     }, 300);
 }
 
@@ -91,7 +91,7 @@ async function deleteFavoriteFood(id, event) {
     save();
     if (currentUser && fbDb) pushToCloud();
     filterFoodListUI();
-    msg(fcIcon('sparkles') + ' ลบเมนูออกจากคลังเรียบร้อยแล้ว');
+    msg(fcIcon('trash') + ' ลบเมนูออกจากคลังเรียบร้อยแล้ว');
 }
 
 function quickLogSavedFood(id) {
@@ -108,7 +108,7 @@ function quickLogSavedFood(id) {
     };
     addMealToToday(mType, food.name, food.portion, food.cal, food.pro, food.carbs, food.fat, food.sugar || 0, food.sodium || 0, extraMeta);
     fcClose();
-    msg(fcIcon('sparkles') + ' บันทึก "' + food.name + '" ลงในมื้อแล้ว');
+    msg(fcIcon('check-circle') + ' บันทึก "' + food.name + '" ลงในมื้อแล้ว');
 }
 
 window.saveAIFoodAsFavorite = function(name, cal, event) {
@@ -195,16 +195,16 @@ function openWaterLogModal() {
                 ${fcIcon('flame')} <b>+350 ml</b><br><span style="font-size:10.5px; color:var(--dim);">แก้วมัค / กระป๋อง</span>
             </button>
             <button class="btn sm" onclick="addWaterMl(500)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center; border-radius:12px;">
-                ${fcIcon('sparkles')} <b>+500 ml</b><br><span style="font-size:10.5px; color:var(--dim);">ขวดน้ำเล็กมาตรฐาน</span>
+                ${fcIcon('droplets')} <b>+500 ml</b><br><span style="font-size:10.5px; color:var(--dim);">ขวดน้ำเล็กมาตรฐาน</span>
             </button>
             <button class="btn sm" onclick="addWaterMl(600)" style="padding:10px 8px; font-size:12.5px; background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.3); color:var(--vio); text-align:center; border-radius:12px;">
                 ${fcIcon('droplets')} <b>+600 ml</b><br><span style="font-size:10.5px; color:var(--dim);">แก้ว Tyeso / ขวด 600</span>
             </button>
             <button class="btn sm" onclick="addWaterMl(750)" style="padding:10px 8px; font-size:12.5px; background:var(--card2); border:1px solid var(--line); color:var(--tx); text-align:center; border-radius:12px;">
-                ${fcIcon('sparkles')} <b>+750 ml</b><br><span style="font-size:10.5px; color:var(--dim);">กระบอกน้ำสปอร์ต</span>
+                ${fcIcon('droplets')} <b>+750 ml</b><br><span style="font-size:10.5px; color:var(--dim);">กระบอกน้ำสปอร์ต</span>
             </button>
             <button class="btn sm" onclick="addWaterMl(1000)" style="padding:10px 8px; font-size:12.5px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:#059669; text-align:center; border-radius:12px;">
-                ${fcIcon('sparkles')} <b>+1,000 ml (1L)</b><br><span style="font-size:10.5px; color:var(--dim);">ขวดลิตร / Yeti ใหญ่</span>
+                ${fcIcon('droplets')} <b>+1,000 ml (1L)</b><br><span style="font-size:10.5px; color:var(--dim);">ขวดลิตร / Yeti ใหญ่</span>
             </button>
         </div>
 
@@ -239,7 +239,7 @@ function openWaterLogModal() {
         </div>` : ''}
 
         <div style="margin-top:14px; text-align:center;">
-            <button type="button" onclick="fcClose()" style="background:var(--card2); border:1px solid var(--line); color:var(--dim); font-size:13px; font-weight:700; padding:9px 24px; border-radius:99px; cursor:pointer; width:100%;">${fcIcon('sparkles')} ปิดหน้าต่าง</button>
+            <button type="button" onclick="fcClose()" style="background:var(--card2); border:1px solid var(--line); color:var(--dim); font-size:13px; font-weight:700; padding:9px 24px; border-radius:99px; cursor:pointer; width:100%;">${fcIcon('x')} ปิดหน้าต่าง</button>
         </div>
     `;
 
@@ -269,7 +269,7 @@ function addWaterMl(ml) {
         pushToCloud();
     }
     fcClose();
-    msg(fcIcon('sparkles') + ' ดื่มน้ำเพิ่ม +' + ml.toLocaleString() + ' ml แล้ว (รวมวันนี้: ' + rec.water.toLocaleString() + ' ml)');
+    msg(fcIcon('droplets') + ' ดื่มน้ำเพิ่ม +' + ml.toLocaleString() + ' ml แล้ว (รวมวันนี้: ' + rec.water.toLocaleString() + ' ml)');
 }
 
 function subtractWaterMl(ml) {
@@ -282,7 +282,7 @@ function subtractWaterMl(ml) {
             pushToCloud();
         }
         fcClose();
-        msg(fcIcon('sparkles') + ' หักลบน้ำดื่ม -' + ml + ' ml แล้ว (เหลือ: ' + rec.water.toLocaleString() + ' ml)');
+        msg(fcIcon('droplets') + ' หักลบน้ำดื่ม -' + ml + ' ml แล้ว (เหลือ: ' + rec.water.toLocaleString() + ' ml)');
     }
 }
 
@@ -296,7 +296,7 @@ function setWaterTotal(val) {
             pushToCloud();
         }
         fcClose();
-        msg(fcIcon('sparkles') + ' ปรับค่าน้ำดื่มเป็น ' + val + ' ml แล้ว');
+        msg(fcIcon('droplets') + ' ปรับค่าน้ำดื่มเป็น ' + val + ' ml แล้ว');
     }
 }
 
@@ -532,7 +532,7 @@ function saveCfg() {
         save();
         autoSync();
         renderAiQuotaWidget();
-        fcAlert(fcIcon('sparkles') + ' บันทึก Gemini API Key ลงเครื่องและซิงก์เข้า Firebase เรียบร้อยแล้ว!');
+        fcAlert(fcIcon('check-circle') + ' บันทึก Gemini API Key ลงเครื่องและซิงก์เข้า Firebase เรียบร้อยแล้ว!');
     }
 }
 
@@ -720,7 +720,7 @@ function renderAuthUI() {
                 </div>
             </div>
             <div style="margin-top:12px; padding:9px 12px; background:rgba(16,185,129,0.12); border-radius:10px; display:flex; align-items:center; gap:8px; font-size:13px; color:#059669; font-weight:600;">
-                <span style="font-size:16px; line-height:1;">${fcIcon('sparkles')}</span> เชื่อมต่อ Google สำเร็จแล้ว
+                <span style="font-size:16px; line-height:1;">${fcIcon('check-circle')}</span> เชื่อมต่อ Google สำเร็จแล้ว
             </div>
             <div class="sub" id="syncMsg" style="margin-top:8px; font-size:12px;">ซิงก์ข้อมูลอัตโนมัติ</div>
             <div class="g2" style="margin-top:12px;">
@@ -743,7 +743,7 @@ function renderAuthUI() {
             <div class="sub" id="syncMsg" style="margin-top:12px; font-size:12.5px; text-align:center;">ยังไม่ได้เชื่อมต่อบัญชี</div>
         `;
         if (userBadge) {
-            userBadge.innerHTML = `<span style="font-size:11px; font-weight:700; padding:3px 8px; border-radius:99px; background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe; display:inline-flex; align-items:center; gap:3px;">${fcIcon('sparkles')} ล็อกอิน</span>`;
+            userBadge.innerHTML = `<span style="font-size:11px; font-weight:700; padding:3px 8px; border-radius:99px; background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe; display:inline-flex; align-items:center; gap:3px;">${fcIcon('user')} ล็อกอิน</span>`;
             userBadge.style.display = 'inline-flex';
         }
     }
@@ -869,7 +869,7 @@ function mergeCloudData(cloud) {
         const timeStr = typeof formatThaiTime === 'function' ? formatThaiTime(new Date()) : new Date().toLocaleTimeString('th-TH');
         lastCloudSyncTime = timeStr;
         updateCloudSyncPill('synced');
-        msg('<span style="color:#10b981;font-weight:600;">' + fcIcon('sparkles') + ' โหลดข้อมูลคลาวด์ล่าสุดเรียบร้อย (' + timeStr + ' น.)</span>');
+        msg('<span style="color:#10b981;font-weight:600;">' + fcIcon('cloud') + ' โหลดข้อมูลคลาวด์ล่าสุดเรียบร้อย (' + timeStr + ' น.)</span>');
         return;
     }
 
@@ -1095,7 +1095,7 @@ async function handleCloudSyncPillClick() {
     if (ok) {
         lastCloudSyncTime = typeof formatThaiTime === 'function' ? formatThaiTime(new Date()) : new Date().toLocaleTimeString('th-TH');
         updateCloudSyncPill('synced');
-        msg(fcIcon('sparkles') + ' ซิงก์คลาวด์สำเร็จ (' + lastCloudSyncTime + ' น.)');
+        msg(fcIcon('cloud') + ' ซิงก์คลาวด์สำเร็จ (' + lastCloudSyncTime + ' น.)');
     } else {
         updateCloudSyncPill('dirty');
     }
@@ -1145,7 +1145,7 @@ async function pushToCloud() {
         const timeStr = typeof formatThaiTime === 'function' ? formatThaiTime(new Date()) : new Date().toLocaleTimeString('th-TH');
         lastCloudSyncTime = timeStr;
         updateCloudSyncPill('synced');
-        msg(`<span style="color:#10b981;font-weight:600;">${fcIcon('sparkles')} ซิงก์สมบูรณ์เวลา ${timeStr} น.</span>`);
+        msg(`<span style="color:#10b981;font-weight:600;">${fcIcon('cloud')} ซิงก์สมบูรณ์เวลา ${timeStr} น.</span>`);
         return true;
     } catch (err) {
         console.error("Cloud push error:", err);
@@ -1179,7 +1179,7 @@ async function syncNow() {
     msg('<span style="color:var(--warn);font-weight:600;">' + fcIcon('clock') + ' กำลังซิงก์ข้อมูล...</span>');
     const ok = await pushToCloud();
     if (ok) {
-        fcAlert(fcIcon('sparkles') + ' ซิงก์ข้อมูลขึ้น Google Cloud เรียบร้อยแล้ว!');
+        fcAlert(fcIcon('cloud') + ' ซิงก์ข้อมูลขึ้น Google Cloud เรียบร้อยแล้ว!');
     } else {
         fcAlert(fcIcon('alert-triangle') + ' ซิงก์ไม่สำเร็จ กรุณาดูรายละเอียดที่ข้อความแจ้งเตือนสีแดงด้านล่างปุ่ม');
     }
@@ -1218,7 +1218,7 @@ if (fbAuth) {
                 } else {
                     // Only brand-new users without a Firestore doc push initial baseline
                     await pushToCloud();
-                    msg(fcIcon('sparkles') + ' สร้างฐานข้อมูล Cloud ใหม่เรียบร้อย');
+                    msg(fcIcon('cloud') + ' สร้างฐานข้อมูล Cloud ใหม่เรียบร้อย');
                 }
 
                 if (fbUnsubscribe) fbUnsubscribe();
@@ -1307,7 +1307,7 @@ async function requestPushNotificationPermission() {
         if (perm === 'granted') {
             await initFcmPushMessaging();
             if (typeof fcAlert === 'function') {
-                fcAlert(fcIcon('sparkles') + ' เปิดรับการแจ้งเตือนสำเร็จ! ระบบพร้อมเตือนชั่งน้ำหนักและสัดส่วนทุกเช้าครับ');
+                fcAlert(fcIcon('bell') + ' เปิดรับการแจ้งเตือนสำเร็จ! ระบบพร้อมเตือนชั่งน้ำหนักและสัดส่วนทุกเช้าครับ');
             }
         } else if (perm === 'denied') {
             if (typeof fcAlert === 'function') {
@@ -1416,7 +1416,7 @@ async function sendTestNotificationNow() {
             ]
         });
 
-        if (typeof msg === 'function') msg(fcIcon('sparkles') + ' ส่งการแจ้งเตือนทดสอบเข้ามือถือเรียบร้อยแล้ว');
+        if (typeof msg === 'function') msg(fcIcon('bell') + ' ส่งการแจ้งเตือนทดสอบเข้ามือถือเรียบร้อยแล้ว');
     } catch (err) {
         console.warn('Test notification error:', err);
         // Fallback for environments without ServiceWorker showNotification
@@ -1575,7 +1575,7 @@ function renderWearablesSyncUI() {
                     ไขมัน: <b style="color:var(--tx);">${curBf}%</b>
                 </div>
                 <div style="font-size:10px; color:#10b981; font-weight:700; margin-top:4px;">
-                    ${fcIcon('sparkles')} Xiaomi Scale Sync
+                    ${fcIcon('scale')} Xiaomi Scale Sync
                 </div>
             </div>
         </div>
@@ -1654,7 +1654,7 @@ async function connectGoogleFit() {
         await syncGoogleFitData(false);
 
         if (typeof fcAlert === 'function') {
-            fcAlert(fcIcon('sparkles') + ' เชื่อมต่อ Google Fit สำเร็จ! ระบบจะดึงก้าวเดินจาก Garmin และน้ำหนักจาก Zepp Life อัตโนมัติครับ');
+            fcAlert(fcIcon('activity') + ' เชื่อมต่อ Google Fit สำเร็จ! ระบบจะดึงก้าวเดินจาก Garmin และน้ำหนักจาก Zepp Life อัตโนมัติครับ');
         }
     } catch (err) {
         console.error('Google Fit connect error:', err);
@@ -1687,12 +1687,12 @@ async function syncGoogleFitData(silent = false) {
         if (!silent) {
             fcAlert(`
                 <div style="text-align:left; font-size:13.5px; line-height:1.5;">
-                    <div style="font-size:16px; font-weight:900; color:#d97706; margin-bottom:8px;">${fcIcon('sparkles')} สิทธิ์ Google Fit หมดอายุ</div>
+                    <div style="font-size:16px; font-weight:900; color:#d97706; margin-bottom:8px;">${fcIcon('alert-triangle')} สิทธิ์ Google Fit หมดอายุ</div>
                     <div style="background:var(--card2); border-radius:10px; padding:10px 12px; margin-bottom:10px; border:1px solid var(--line);">
                         Google กำหนดให้ Access Token หมดอายุทุก 60 นาที เพื่อความปลอดภัยของข้อมูลสุขภาพ Garmin & Zepp Life
                     </div>
                     <div style="margin-bottom:14px;">กรุณากดปุ่มสีส้มด้านล่างเพื่อต่ออายุสิทธิ์เข้าถึง Google Fit ครับ</div>
-                    <button type="button" class="btn sm" onclick="fcClose(); connectGoogleFit();" style="background:#f59e0b; color:#fff; font-weight:800; padding:10px; border-radius:8px;">${fcIcon('sparkles')} แตะเพื่อต่ออายุเดี๋ยวนี้</button>
+                    <button type="button" class="btn sm" onclick="fcClose(); connectGoogleFit();" style="background:#f59e0b; color:#fff; font-weight:800; padding:10px; border-radius:8px;">${fcIcon('refresh-cw')} แตะเพื่อต่ออายุเดี๋ยวนี้</button>
                 </div>
             `);
         }
@@ -1742,11 +1742,11 @@ async function syncGoogleFitData(silent = false) {
                 if (!silent) {
                     fcAlert(`
                         <div style="text-align:left; font-size:13.5px; line-height:1.5;">
-                            <div style="font-size:16px; font-weight:900; color:#d97706; margin-bottom:8px;">${fcIcon('sparkles')} เซสชัน Google Fit หมดอายุ</div>
+                            <div style="font-size:16px; font-weight:900; color:#d97706; margin-bottom:8px;">${fcIcon('alert-triangle')} เซสชัน Google Fit หมดอายุ</div>
                             <div style="background:var(--card2); border-radius:10px; padding:10px 12px; margin-bottom:10px; border:1px solid var(--line);">
                                 โทเคน Google มีอายุ 60 นาที กรุณากดปุ่มด้านล่างเพื่อเชื่อมต่อใหม่ ระบบจะดึงก้าวเดินจาก Garmin ทันที
                             </div>
-                            <button type="button" class="btn sm" onclick="fcClose(); connectGoogleFit();" style="background:#f59e0b; color:#fff; font-weight:800; padding:10px; border-radius:8px;">${fcIcon('sparkles')} แตะเพื่อต่ออายุ Google Fit ทันที</button>
+                            <button type="button" class="btn sm" onclick="fcClose(); connectGoogleFit();" style="background:#f59e0b; color:#fff; font-weight:800; padding:10px; border-radius:8px;">${fcIcon('refresh-cw')} แตะเพื่อต่ออายุ Google Fit ทันที</button>
                         </div>
                     `);
                 }
@@ -1827,7 +1827,7 @@ async function syncGoogleFitData(silent = false) {
             if (fetchedRhr != null) summaryParts.push(`${fcIcon('heart-pulse')} RHR ${rec.hrv} bpm`);
 
             const msgText = summaryParts.length > 0 
-                ? `${fcIcon('sparkles')} ซิงก์สำเร็จ!\n\n${summaryParts.join('\n')}` 
+                ? `${fcIcon('check-circle')} ซิงก์สำเร็จ!\n\n${summaryParts.join('\n')}` 
                 : ' ตรวจสอบข้อมูลล่าสุดเรียบร้อยแล้ว (ไม่มีข้อมูลใหม่)';
             if (typeof fcAlert === 'function') fcAlert(msgText);
         }

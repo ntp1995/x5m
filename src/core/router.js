@@ -215,7 +215,7 @@ async function shiftSchedule(days = 1) {
     const dow = (actualD - (D.schOffs || 0) + 7) % 7;
     const activeSched = (typeof getActiveSchedule === 'function') ? getActiveSchedule() : SCHED;
     const targetWk = W[activeSched[dow]];
-    msg(fcIcon('sparkles') + ' เลื่อนชดเชยแล้ว ' + fcIcon('sparkles') + ' วันนี้เป็น: <b>' + (targetWk ? targetWk.n : 'ตารางใหม่') + '</b>');
+    msg(fcIcon('calendar') + ' เลื่อนชดเชยแล้ว •' + ' วันนี้เป็น: <b>' + (targetWk ? targetWk.n : 'ตารางใหม่') + '</b>');
 }
 
 async function resetScheduleShift() {
@@ -226,7 +226,7 @@ async function resetScheduleShift() {
     if (currentUser && fbDb) {
         await pushToCloud();
     }
-    msg(fcIcon('sparkles') + ' คืนค่าตารางปกติเรียบร้อยแล้ว');
+    msg(fcIcon('rotate-ccw') + ' คืนค่าตารางปกติเรียบร้อยแล้ว');
 }
 
 async function resetProgram() {
@@ -320,7 +320,7 @@ async function resetAllData() {
     }
     
     setTimeout(() => {
-        fcAlert(`<div style="font-size:16px;"><b>${fcIcon('sparkles')} ล้างข้อมูลและเริ่มต้นใหม่จากศูนย์เรียบร้อย!</b></div><br>น้ำหนักตั้งต้น: <b>${w}</b> กก.<br>เป้าหมายพลังงาน: <b>${targetCal}</b> kcal/วัน<br>เป้าหมายโปรตีน: <b>${targetPro}</b> g/วัน`);
+        fcAlert(`<div style="font-size:16px;"><b>${fcIcon('rotate-ccw')} ล้างข้อมูลและเริ่มต้นใหม่จากศูนย์เรียบร้อย!</b></div><br>น้ำหนักตั้งต้น: <b>${w}</b> กก.<br>เป้าหมายพลังงาน: <b>${targetCal}</b> kcal/วัน<br>เป้าหมายโปรตีน: <b>${targetPro}</b> g/วัน`);
     }, 300);
 }
 
@@ -383,7 +383,7 @@ function setIFGoal(hrs) {
     save();
     updateIFUI();
     if (currentUser && fbDb) pushToCloud();
-    if (typeof msg === 'function') msg(fcIcon('sparkles') + ' ตั้งค่าเป้าหมาย IF เป็น ' + hrs + ':8 แล้ว');
+    if (typeof msg === 'function') msg(fcIcon('timer') + ' ตั้งค่าเป้าหมาย IF เป็น ' + hrs + ':8 แล้ว');
 }
 
 function endFastingSession(endTimeMs, durationHours) {
@@ -399,7 +399,7 @@ function endFastingSession(endTimeMs, durationHours) {
     if (currentUser && fbDb) pushToCloud();
     const h = Math.floor(dur);
     const m = Math.floor((dur % 1) * 60);
-    if (typeof msg === 'function') msg(`${fcIcon('sparkles')} สิ้นสุดการอดอาหาร (${h} ชม. ${m} นาที) เริ่มช่วงเวลารับประทานอาหาร`);
+    if (typeof msg === 'function') msg(`${fcIcon('utensils')} สิ้นสุดการอดอาหาร (${h} ชม. ${m} นาที) เริ่มช่วงเวลารับประทานอาหาร`);
     updateIFUI();
 }
 window.endFastingSession = endFastingSession;
@@ -460,7 +460,7 @@ async function toggleIF() {
             }
         }
 
-        if (await fcConfirm(promptMsg, fcIcon('sparkles') + ' สิ้นสุดการอดอาหาร')) {
+        if (await fcConfirm(promptMsg, fcIcon('utensils') + ' สิ้นสุดการอดอาหาร')) {
             endFastingSession(customEndTime, customDuration);
         }
     } else {
@@ -473,7 +473,7 @@ async function toggleIF() {
         }
         save();
         if (currentUser && fbDb) pushToCloud();
-        if (typeof msg === 'function') msg(fcIcon('sparkles') + ' เริ่มต้นจับเวลาการอดอาหารแล้ว');
+        if (typeof msg === 'function') msg(fcIcon('timer') + ' เริ่มต้นจับเวลาการอดอาหารแล้ว');
         updateIFUI();
     }
 }
@@ -585,7 +585,7 @@ function saveIfRollerTime() {
     updateIFUI();
     if (currentUser && fbDb) pushToCloud();
     closeIfModal('ifTimeModalSheet');
-    if (typeof msg === 'function') msg(fcIcon('sparkles') + ' บันทึกเวลาเริ่มอดอาหารเป็น ' + formatThaiTime(targetDate) + ' น.');
+    if (typeof msg === 'function') msg(fcIcon('clock') + ' บันทึกเวลาเริ่มอดอาหารเป็น ' + formatThaiTime(targetDate) + ' น.');
 }
 
 function openIfNoticeModal() {

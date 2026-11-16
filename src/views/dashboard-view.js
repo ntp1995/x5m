@@ -110,7 +110,7 @@ function openWeeklyReportModal() {
 
                 <!-- Box 2: Protein & Nutrition -->
                 <div style="background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:10px;">
-                    <div style="font-size:11px; color:var(--dim); font-weight:700;">${fcIcon('utensils')} โปรตีนเฉลี่ย</div>
+                    <div style="font-size:11px; color:var(--dim); font-weight:700;">${fcIcon('drumstick')} โปรตีนเฉลี่ย</div>
                     <div style="font-size:18px; font-weight:900; color:var(--acc2); margin-top:2px;">
                         ${data.avgPro} <span style="font-size:12px; font-weight:600; color:var(--dim);">/ ${PROTEIN_TARGET}g</span>
                     </div>
@@ -510,13 +510,13 @@ function render() {
                 <div style="display:flex; align-items:center; justify-content:space-between; background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:12.5px;">
                     <div style="flex:1; padding-right:8px;">
                         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                            <button type="button" onclick="editMealItem('${tc.d}', ${idx})" style="background:transparent; border:none; padding:0; cursor:pointer; font-weight:700; color:var(--acc); font-size:11.5px; display:inline-flex; align-items:center; gap:2px;" title="แตะเพื่อเปลี่ยนมื้อหรือแก้ไข">${typeLabel} ${fcIcon('sparkles')}</button>
+                            <button type="button" onclick="editMealItem('${tc.d}', ${idx})" style="background:transparent; border:none; padding:0; cursor:pointer; font-weight:700; color:var(--acc); font-size:11.5px; display:inline-flex; align-items:center; gap:2px;" title="แตะเพื่อเปลี่ยนมื้อหรือแก้ไข">${typeLabel} ${fcIcon('pencil')}</button>
                             <span style="color:var(--dim); font-size:11px;">${m.time || ''}</span>
                             <span style="background:${mHealth.gradeColor}20; color:${mHealth.gradeColor}; border:1px solid ${mHealth.gradeColor}55; font-weight:800; font-size:9.5px; padding:1px 6px; border-radius:6px;">เกรด ${mHealth.nutriGrade} • สุขภาพ ${mHealth.healthScore}/10 • อิ่ม ${mHealth.satietyScore}/10</span>
                         </div>
                         <div style="font-weight:700; color:var(--tx); margin-top:2px;">${m.name} ${m.portion ? '<span style="color:var(--dim);font-weight:400;font-size:11.5px;">(' + m.portion + ')</span>' : ''}</div>
                         <div style="font-size:11px; color:var(--dim); margin-top:2px;">
-                            ${fcIcon('utensils')} ${m.pro || 0}g • ${fcIcon('utensils')} ${m.carbs || 0}g • ${fcIcon('sparkles')} ${m.fat || 0}g${(mHealth.fiber > 0) ? ' • <span style="color:#10b981;font-weight:600;"> ' + mHealth.fiber + 'g</span>' : ''}${(m.sugar != null && m.sugar > 0) ? ' • <span style="color:#ec4899;font-weight:600;"> ' + m.sugar + 'g</span>' : ''}${(m.sodium != null && m.sodium > 0) ? ' • <span style="color:#8b5cf6;font-weight:600;"> ' + m.sodium + 'mg</span>' : ''}
+                            ${fcIcon('drumstick')} ${m.pro || 0}g • ${fcIcon('wheat')} ${m.carbs || 0}g • ${fcIcon('droplet')} ${m.fat || 0}g${(mHealth.fiber > 0) ? ' • <span style="color:#10b981;font-weight:600;"> ' + mHealth.fiber + 'g</span>' : ''}${(m.sugar != null && m.sugar > 0) ? ' • <span style="color:#ec4899;font-weight:600;"> ' + m.sugar + 'g</span>' : ''}${(m.sodium != null && m.sodium > 0) ? ' • <span style="color:#8b5cf6;font-weight:600;"> ' + m.sodium + 'mg</span>' : ''}
                         </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:6px;">
@@ -621,7 +621,7 @@ function render() {
             </div>
             <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
                 <button type="button" onclick="openAntiPlateauModal()" style="padding:5px 10px; font-size:11px; border-radius:99px; border:1px solid #bae6fd; background:#eff6ff; color:#0284c7; font-weight:800; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" title="ดูตารางวิเคราะห์ 4 รูปแบบวัน & แผนแก้น้ำหนักค้าง">${fcIcon('shield-check')} Anti-YoYo</button>
-                <button type="button" onclick="calcBMR()" style="padding:5px 10px; font-size:11px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" title="ปรับเป้าหมายพลังงาน BMR/TDEE">${fcIcon('sparkles')} ปรับเป้า</button>
+                <button type="button" onclick="calcBMR()" style="padding:5px 10px; font-size:11px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" title="ปรับเป้าหมายพลังงาน BMR/TDEE">${fcIcon('sliders')} ปรับเป้า</button>
                 <button type="button" onclick="editDailyTracker()" style="padding:5px 10px; font-size:11px; border-radius:99px; border:1px solid var(--line); background:#f8fafd; color:#475569; font-weight:700; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" title="แก้ไขแคลอรี่/น้ำ">${fcIcon('pencil')} แก้ไข</button>
             </div>
         </div>
@@ -633,7 +633,7 @@ function render() {
                 <div style="min-width:0; flex:1; font-size:13.5px; font-weight:900; color:#fff; line-height:1.3;">
                     ${curDayPlan ? curDayPlan.icon : ''} วันนี้: ${curDayShortName}
                 </div>
-                <button type="button" onclick="openDayTypeSelectorModal()" style="flex:0 0 auto; width:auto; font-size:11px; padding:5px 10px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); color:#fff; border-radius:8px; white-space:nowrap; font-weight:700; cursor:pointer;" title="แตะเพื่อสลับรูปแบบวันหรือคืนค่าตรวจจับอัตโนมัติ">สลับโหมด ${fcIcon('sparkles')}</button>
+                <button type="button" onclick="openDayTypeSelectorModal()" style="flex:0 0 auto; width:auto; font-size:11px; padding:5px 10px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); color:#fff; border-radius:8px; white-space:nowrap; font-weight:700; cursor:pointer;" title="แตะเพื่อสลับรูปแบบวันหรือคืนค่าตรวจจับอัตโนมัติ">สลับโหมด ${fcIcon('refresh-cw')}</button>
             </div>
             
             <!-- Bottom Row: Auto/Manual Pill + Clean Metrics Bar (wraps cleanly on narrow screens) -->
@@ -681,7 +681,7 @@ function render() {
                             <circle cx="22" cy="22" r="18" fill="none" stroke="#e2e8f0" stroke-width="4"/>
                             <circle cx="22" cy="22" r="18" fill="none" stroke="${carbsRingColor}" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="${Math.max(0, 113 - (113 * carbsPct) / 100)}"/>
                         </svg>
-                        <span>${fcIcon('sparkles')}</span>
+                        <span>${fcIcon('wheat')}</span>
                     </div>
                 </div>
 
@@ -699,7 +699,7 @@ function render() {
                             <circle cx="22" cy="22" r="18" fill="none" stroke="#e2e8f0" stroke-width="4"/>
                             <circle cx="22" cy="22" r="18" fill="none" stroke="${proRingColor}" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="${Math.max(0, 113 - (113 * proPct) / 100)}"/>
                         </svg>
-                        <span>${fcIcon('utensils')}</span>
+                        <span>${fcIcon('drumstick')}</span>
                     </div>
                 </div>
 
@@ -717,12 +717,12 @@ function render() {
                             <circle cx="22" cy="22" r="18" fill="none" stroke="#e2e8f0" stroke-width="4"/>
                             <circle cx="22" cy="22" r="18" fill="none" stroke="${fatRingColor}" stroke-width="4" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="${Math.max(0, 113 - (113 * fatPct) / 100)}"/>
                         </svg>
-                        <span>${fcIcon('sparkles')}</span>
+                        <span>${fcIcon('droplet')}</span>
                     </div>
                 </div>
             </div>
         </div>
-                        <span>${fcIcon('sparkles')}</span>
+                        <span>${fcIcon('droplet')}</span>
                     </div>
                 </div>
             </div>
@@ -740,9 +740,9 @@ function render() {
                 <div style="width:${fatRatio}%; background:#10b981;" title="ไขมัน ${fatRatio}%"></div>
             </div>
             <div style="display:flex; justify-content:space-between; font-size:10.5px; color:var(--dim);">
-                <span style="color:var(--acc2); font-weight:700;">${fcIcon('utensils')} P ${proRatio}%</span>
-                <span style="color:#3b82f6; font-weight:700;">${fcIcon('utensils')} C ${carbsRatio}%</span>
-                <span style="color:#10b981; font-weight:700;">${fcIcon('sparkles')} F ${fatRatio}%</span>
+                <span style="color:var(--acc2); font-weight:700;">${fcIcon('drumstick')} P ${proRatio}%</span>
+                <span style="color:#3b82f6; font-weight:700;">${fcIcon('wheat')} C ${carbsRatio}%</span>
+                <span style="color:#10b981; font-weight:700;">${fcIcon('droplet')} F ${fatRatio}%</span>
             </div>
         </div>
 
@@ -752,7 +752,7 @@ function render() {
             <div style="background:var(--card2); border:1px solid ${sugarBorderColor}; border-radius:10px; padding:8px 10px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
                     <span style="font-size:11.5px; font-weight:800; color:var(--tx); display:flex; align-items:center; gap:4px;">
-                        <span>${fcIcon('sparkles')} น้ำตาล</span>
+                        <span>${fcIcon('candy')} น้ำตาล</span>
                     </span>
                     <span style="font-size:10px; font-weight:700; color:${sugarStatusColor};">${sugarStatusText}</span>
                 </div>
@@ -767,7 +767,7 @@ function render() {
             <div style="background:var(--card2); border:1px solid ${sodiumBorderColor}; border-radius:10px; padding:8px 10px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
                     <span style="font-size:11.5px; font-weight:800; color:var(--tx); display:flex; align-items:center; gap:4px;">
-                        <span>${fcIcon('sparkles')} โซเดียม</span>
+                        <span>${fcIcon('flask-conical')} โซเดียม</span>
                     </span>
                     <span style="font-size:10px; font-weight:700; color:${sodiumStatusColor};">${sodiumStatusText}</span>
                 </div>
@@ -832,7 +832,7 @@ function render() {
             <div style="font-weight:800; font-size:13.5px; color:var(--tx); display:flex; align-items:center; gap:6px;">
                 <span>${fcIcon('trending-up')} สรุปภาพรวมรอบ 7 วัน (Weekly Overview)</span>
             </div>
-            <button class="btn sm" onclick="openWeeklyReportModal()" style="font-size:11px; padding:3px 8px; background:var(--acc); color:#fff; font-weight:700; border-radius:6px; cursor:pointer;">${fcIcon('bar-chart')} ดูรายงานผู้บริหาร ${fcIcon('sparkles')}</button>
+            <button class="btn sm" onclick="openWeeklyReportModal()" style="font-size:11px; padding:3px 8px; background:var(--acc); color:#fff; font-weight:700; border-radius:6px; cursor:pointer;">${fcIcon('bar-chart')} ดูรายงานผู้บริหาร ${fcIcon('chevron-right')}</button>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:12px;">
             <div style="background:var(--card); padding:8px 10px; border-radius:8px; border:1px solid var(--line);">
@@ -860,44 +860,44 @@ function render() {
     const done = D.sessions.some(s => s.date === iso() && (s.workout_key !== 'M' || (['Z', 'R'].includes(tk) && (s.duration_sec >= 1800 || morningM >= 30))));
     
     let cardioNote = '';
-    let startBtnTxt = `${fcIcon('sparkles')} เริ่มออกกำลังกาย (~${estMin(tk)} นาที)`;
+    let startBtnTxt = `${fcIcon('play')} เริ่มออกกำลังกาย (~${estMin(tk)} นาที)`;
     
     if (tk === 'Z') {
         if (morningM >= 30) {
             if (D.forceFullCardio) {
                 cardioNote = `<div style="margin-top:10px;padding:12px 14px;background:rgba(245,158,11,0.12);border-radius:12px;border:1px solid rgba(245,158,11,0.3);">
-                    <div style="font-weight:700;color:#d97706;font-size:13.5px;">${fcIcon('sparkles')} เช้านี้เดินลู่แล้ว ${morningM} นาที • เปิดโหมดเดินเต็มโปรแกรม</div>
+                    <div style="font-weight:700;color:#d97706;font-size:13.5px;">${fcIcon('footprints')} เช้านี้เดินลู่แล้ว ${morningM} นาที • เปิดโหมดเดินเต็มโปรแกรม</div>
                     <div style="font-size:12px;color:var(--tx);margin-top:4px;">โปรแกรมจะเปิดลู่วิ่งเต็ม 35 นาทีตามความต้องการ</div>
                     <div style="margin-top:6px;"><label style="font-size:12px;color:var(--dim);display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" checked onchange="toggleForceFullCardio(this.checked)" style="width:auto;margin:0;"> ต้องการเดินเต็มโปรแกรม</label></div>
                 </div>`;
-                startBtnTxt = `${fcIcon('sparkles')} เริ่มเดินลู่เต็มโปรแกรม (~${estMin(tk)} นาที)`;
+                startBtnTxt = `${fcIcon('play')} เริ่มเดินลู่เต็มโปรแกรม (~${estMin(tk)} นาที)`;
             } else {
                 cardioNote = `<div style="margin-top:10px;padding:12px 14px;background:rgba(16,185,129,0.12);border-radius:12px;border:1px solid rgba(16,185,129,0.3);">
-                    <div style="font-weight:700;color:#059669;font-size:13.5px;display:flex;align-items:center;gap:6px;">${fcIcon('sparkles')} เช้านี้เดินลู่แล้ว ${morningM} นาที (ครบเป้าหมาย Zone 2 แล้ว!)</div>
+                    <div style="font-weight:700;color:#059669;font-size:13.5px;display:flex;align-items:center;gap:6px;">${fcIcon('footprints')} เช้านี้เดินลู่แล้ว ${morningM} นาที (ครบเป้าหมาย Zone 2 แล้ว!)</div>
                     <div style="font-size:12.5px;color:var(--tx);margin-top:4px;line-height:1.5;">ระบบ<b>ตัดเดินลู่ 35 นาทีและเดินวอร์มออกให้อัตโนมัติ</b> ให้คุณฝึกเฉพาะ <b>Core & ยืดเหยียด</b> (~${estMin(tk)} นาที) ร่างกายจะได้ไม่ล้าเกินไป</div>
                     <div style="margin-top:8px;padding-top:8px;border-top:1px dashed rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
                         <label style="font-size:11.5px;color:var(--dim);display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" onchange="toggleForceFullCardio(this.checked)" style="width:auto;margin:0;"> ต้องการเดินลู่เพิ่มเต็ม 35 นาที</label>
-                        <button class="btn sm g" onclick="markCardioDayDone('${tk}')" style="font-size:11px;padding:4px 8px;border-radius:8px;">${fcIcon('sparkles')} จบโปรแกรมวันนี้แล้ว</button>
+                        <button class="btn sm g" onclick="markCardioDayDone('${tk}')" style="font-size:11px;padding:4px 8px;border-radius:8px;">${fcIcon('check-circle')} จบโปรแกรมวันนี้แล้ว</button>
                     </div>
                 </div>`;
-                startBtnTxt = `${fcIcon('sparkles')} เริ่มฝึก Core & ยืดเหยียด (~${estMin(tk)} นาที)`;
+                startBtnTxt = `${fcIcon('play')} เริ่มฝึก Core & ยืดเหยียด (~${estMin(tk)} นาที)`;
             }
         } else if (morningM > 0) {
             const remM = Math.max(5, 35 - morningM);
             cardioNote = `<div style="margin-top:10px;padding:12px 14px;background:rgba(245,158,11,0.12);border-radius:12px;border:1px solid rgba(245,158,11,0.3);">
-                <div style="font-weight:700;color:#d97706;font-size:13.5px;">${fcIcon('sparkles')} เช้านี้เดินลู่แล้ว ${morningM} นาที • เหลืออีก ${remM} นาที</div>
+                <div style="font-weight:700;color:#d97706;font-size:13.5px;">${fcIcon('footprints')} เช้านี้เดินลู่แล้ว ${morningM} นาที • เหลืออีก ${remM} นาที</div>
                 <div style="font-size:12px;color:var(--tx);margin-top:4px;">ระบบปรับลดเวลาเดินลู่ให้เหลือ <b>${remM} นาที</b> และตัดเดินวอร์มออกให้อัตโนมัติ</div>
             </div>`;
-            startBtnTxt = `${fcIcon('sparkles')} เริ่มเดินต่อ ${remM} นาที + Core (~${estMin(tk)} นาที)`;
+            startBtnTxt = `${fcIcon('play')} เริ่มเดินต่อ ${remM} นาที + Core (~${estMin(tk)} นาที)`;
         } else {
             cardioNote = `<div style="margin-top:6px;font-size:12px;color:var(--dim);">${fcIcon('lightbulb')} ยังไม่ได้เดินเช้า • โปรแกรม Zone 2 เดินลู่ 35 นาที + Core</div>`;
         }
     } else if (tk === 'A') {
         if (morningDone) {
             cardioNote = `<div style="margin-top:6px;font-size:12px;color:var(--ok);font-weight:600;display:flex;align-items:center;gap:4px;">
-                ${fcIcon('sparkles')} เช้านี้เดินลู่แล้ว ${morningM} นาที • เย็นนี้ยกเวทเน้นๆ (ตัดลู่วิ่งท้ายเวท 15 นาที และเดินวอร์มออกให้อัตโนมัติ)
+                ${fcIcon('footprints')} เช้านี้เดินลู่แล้ว ${morningM} นาที • เย็นนี้ยกเวทเน้นๆ (ตัดลู่วิ่งท้ายเวท 15 นาที และเดินวอร์มออกให้อัตโนมัติ)
             </div>`;
-            startBtnTxt = `${fcIcon('sparkles')} เริ่มยกเวทเน้นๆ (~${estMin(tk)} นาที)`;
+            startBtnTxt = `${fcIcon('dumbbell')} เริ่มยกเวทเน้นๆ (~${estMin(tk)} นาที)`;
         } else {
             cardioNote = `<div style="margin-top:6px;font-size:12px;color:var(--dim);">
                 ${fcIcon('lightbulb')} ไม่ได้เดินเช้า • รวมเดินลู่ท้ายเวท 15 นาทีตามโปรแกรมปกติ
@@ -905,7 +905,7 @@ function render() {
         }
     } else if (tk === 'R' && morningDone) {
         cardioNote = `<div style="margin-top:6px;font-size:12px;color:var(--ok);font-weight:600;">
-            ${fcIcon('sparkles')} เช้านี้เดินลู่แล้ว ${morningM} นาที • ปรับเน้นฮูลาฮูปและยืดเหยียดฟื้นฟูหลัง
+            ${fcIcon('footprints')} เช้านี้เดินลู่แล้ว ${morningM} นาที • ปรับเน้นฮูลาฮูปและยืดเหยียดฟื้นฟูหลัง
         </div>`;
     }
 
@@ -982,7 +982,7 @@ function render() {
             ${cardioNote}
             <button type="button" class="hw-cta-pill" onclick="startW('${primaryTargetKey}')">
                 <span>${primaryBtnText}</span>
-                <span class="hw-cta-arrow">${fcIcon('sparkles')}</span>
+                <span class="hw-cta-arrow">${fcIcon('arrow-right')}</span>
             </button>
             ${hotelBtnHtml}
             <div class="g2" style="margin-top:10px;">
@@ -1086,7 +1086,7 @@ function setWeeklyDaysTarget(days) {
     save();
     render();
     if (typeof autoSync === 'function') autoSync();
-    if (typeof msg === 'function') msg(`${fcIcon('sparkles')}️ ปรับเป้าหมายเป็น <b>${d} วัน/สัปดาห์</b> และอัปเดตตารางฝึกแล้ว`);
+    if (typeof msg === 'function') msg(`${fcIcon('target')} ปรับเป้าหมายเป็น <b>${d} วัน/สัปดาห์</b> และอัปเดตตารางฝึกแล้ว`);
 }
 
 function renderChallengesAndBodyFocus() {
@@ -1141,7 +1141,7 @@ function renderChallengesAndBodyFocus() {
         const isCompleted = doneDays >= c.days;
         const nextDay = Math.min(doneDays + 1, c.days);
         const pct = Math.min(100, Math.round((doneDays / c.days) * 100));
-        const btnLabel = isCompleted ? `${fcIcon('trophy')} ครบ ${c.days} วันแล้ว • ฝึกซ้ำ` : `${fcIcon('sparkles')} เริ่มวันที่ ${nextDay} / ${c.days}`;
+        const btnLabel = isCompleted ? `${fcIcon('trophy')} ครบ ${c.days} วันแล้ว • ฝึกซ้ำ` : `${fcIcon('play')} เริ่มวันที่ ${nextDay} / ${c.days}`;
         return `
         <div style="min-width:278px;max-width:295px;flex:0 0 auto;scroll-snap-align:start;border-radius:14px;background:${c.bg};color:#fff;padding:14px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.22);display:flex;flex-direction:column;justify-content:space-between;">
             <img src="${c.img}" alt="${c.title}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center;pointer-events:none;">
@@ -1212,7 +1212,7 @@ function renderChallengesAndBodyFocus() {
                     <div style="font-size:12px;opacity:0.95;margin-top:3px;text-shadow:0 1px 3px rgba(0,0,0,0.5);">${activeBf.sub} • ${fcIcon('flame')} ~${bfWorkout?.kcal || 120} kcal</div>
                 </div>
                 <div style="position:relative;z-index:1;margin-top:12px;">
-                    <button type="button" class="btn sm" onclick="startW('${activeBf.wKey}')" style="background:${activeBf.color};border-color:${activeBf.color};color:#fff;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);">${fcIcon('sparkles')} เริ่มฝึกเฉพาะจุด</button>
+                    <button type="button" class="btn sm" onclick="startW('${activeBf.wKey}')" style="background:${activeBf.color};border-color:${activeBf.color};color:#fff;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);">${fcIcon('play')} เริ่มฝึกเฉพาะจุด</button>
                 </div>
             </div>
             <div style="padding:10px 12px;">${bfItemsHtml}</div>

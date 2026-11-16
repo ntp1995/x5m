@@ -619,13 +619,13 @@ async function evaluateWorkoutWeights(workoutKey, painLevel) {
         const adjust = await fcConfirm('ต้องการให้ระบบปรับเพิ่มน้ำหนัก (+2 กก.) สำหรับท่าหลักในเซสชันนี้อัตโนมัติเลยไหม?\n(สามารถปรับแต่งเองได้ในแท็บโปรแกรม)', fcIcon('zap') + ' ปรับเพิ่มน้ำหนักก้าวหน้า');
         if (adjust) {
             const changed = autoAdjustWorkoutWeights(workoutKey, +2);
-            await fcAlert(`${fcIcon('sparkles')} ปรับเพิ่มน้ำหนัก (+2 กก.) เรียบร้อยแล้ว:\n\n• ${changed.join('\n• ')}\n\nในครั้งถัดไประบบจะแนะนำน้ำหนักใหม่นี้โดยอัตโนมัติ`);
+            await fcAlert(`${fcIcon('trending-up')} ปรับเพิ่มน้ำหนัก (+2 กก.) เรียบร้อยแล้ว:\n\n• ${changed.join('\n• ')}\n\nในครั้งถัดไประบบจะแนะนำน้ำหนักใหม่นี้โดยอัตโนมัติ`);
         }
     } else if (choice === 'heavy') {
         const adjust = await fcConfirm('ต้องการให้ระบบปรับลดน้ำหนัก (-2 กก.) เพื่อเซฟฟอร์มและหลังในเซสชันถัดไปไหม?\n(สามารถปรับแต่งเองได้ในแท็บโปรแกรม)', fcIcon('shield-check') + ' ปรับลดน้ำหนักเซฟหลัง');
         if (adjust) {
             const changed = autoAdjustWorkoutWeights(workoutKey, -2);
-            await fcAlert(`${fcIcon('sparkles')} ปรับลดน้ำหนัก (-2 กก.) เรียบร้อยแล้ว:\n\n• ${changed.join('\n• ')}\n\nในครั้งถัดไประบบจะใช้น้ำหนักที่ปรับลดนี้เพื่อฟื้นฟูฟอร์ม`);
+            await fcAlert(`${fcIcon('sliders')} ปรับลดน้ำหนัก (-2 กก.) เรียบร้อยแล้ว:\n\n• ${changed.join('\n• ')}\n\nในครั้งถัดไประบบจะใช้น้ำหนักที่ปรับลดนี้เพื่อฟื้นฟูฟอร์ม`);
         }
     }
 
@@ -696,7 +696,7 @@ function applyPhaseProgressionWeights(phaseIndex) {
     });
     save(); render(); autoSync();
     if (typeof msg === 'function') {
-        msg(`${fcIcon('sparkles')} อัปเดตน้ำหนักทุกท่าตามเกณฑ์มาตรฐาน Phase ${pIdx + 1} เรียบร้อยแล้ว`);
+        msg(`${fcIcon('check-circle')} อัปเดตน้ำหนักทุกท่าตามเกณฑ์มาตรฐาน Phase ${pIdx + 1} เรียบร้อยแล้ว`);
     }
 }
 
@@ -708,7 +708,7 @@ function adjustSingleExerciseWeight(k, delta) {
     D.cfg.weights[k] = newKg;
     save(); render(); autoSync();
     if (typeof msg === 'function') {
-        msg(`${fcIcon('sparkles')} ${EX[k]?.n || k}: ${newKg} กก.`);
+        msg(`${fcIcon('dumbbell')} ${EX[k]?.n || k}: ${newKg} กก.`);
     }
 }
 
@@ -732,14 +732,14 @@ async function editExerciseWeight(k) {
     D.cfg.weights = D.cfg.weights || {};
     D.cfg.weights[k] = val;
     save(); render(); autoSync();
-    await fcAlert(`${fcIcon('sparkles')} บันทึกน้ำหนัก ${e.n} เป็น ${val} ${unitLabel} เรียบร้อยแล้ว!`);
+    await fcAlert(`${fcIcon('check-circle')} บันทึกน้ำหนัก ${e.n} เป็น ${val} ${unitLabel} เรียบร้อยแล้ว!`);
 }
 
 function resetExerciseWeight(k) {
     if (D.cfg && D.cfg.weights && D.cfg.weights[k] != null) {
         delete D.cfg.weights[k];
         save(); render(); autoSync();
-        msg(`${fcIcon('sparkles')} คืนค่าน้ำหนัก ${EX[k]?.n || k} ตามโปรแกรมมาตรฐานแล้ว`);
+        msg(`${fcIcon('rotate-ccw')} คืนค่าน้ำหนัก ${EX[k]?.n || k} ตามโปรแกรมมาตรฐานแล้ว`);
     }
 }
 
@@ -747,7 +747,7 @@ async function resetAllWeightsToProgram() {
     if (await fcConfirm('ต้องการรีเซ็ตน้ำหนักอุปกรณ์ทุกท่ากลับไปใช้ค่ามาตรฐานตามโปรแกรม 5 เฟสหรือไม่?', fcIcon('refresh-cw') + ' คืนค่าน้ำหนักมาตรฐาน')) {
         if (D.cfg) D.cfg.weights = {};
         save(); render(); autoSync();
-        await fcAlert(fcIcon('sparkles') + ' รีเซ็ตน้ำหนักทุกท่ากลับเป็นค่ามาตรฐานตามสัปดาห์และเฟสของโปรแกรมแล้ว');
+        await fcAlert(fcIcon('rotate-ccw') + ' รีเซ็ตน้ำหนักทุกท่ากลับเป็นค่ามาตรฐานตามสัปดาห์และเฟสของโปรแกรมแล้ว');
     }
 }
 
@@ -920,19 +920,19 @@ const WORKOUT_MUSCLE_MAPPING = {
         name: 'อก ไหล่หน้า และหลังแขน (Push Day)',
         muscles: ['chest', 'shoulders', 'triceps', 'core'],
         labels: ['อก (Chest) 95%', 'ไหล่ (Delts) 85%', 'หลังแขน (Triceps) 80%', 'แกนกลาง (Core) 70%'],
-        tip: fcIcon('utensils') + ' เน้นโปรตีน 35-40g ภายใน 60 นาที และยืดเหยียดเปิดหน้าอกคลายความตึง'
+        tip: fcIcon('drumstick') + ' เน้นโปรตีน 35-40g ภายใน 60 นาที และยืดเหยียดเปิดหน้าอกคลายความตึง'
     },
     'B': {
         name: 'หลัง บ่า และหน้าแขน (Pull Day)',
         muscles: ['upper_back', 'biceps', 'core'],
         labels: ['หลังบน/ปีก (Lats) 95%', 'หน้าแขน (Biceps) 85%', 'บ่า (Traps) 80%', 'แกนกลาง (Core) 65%'],
-        tip: fcIcon('utensils') + ' ทานโปรตีนเสริม และทำท่ายืดแขวนบาร์ (Dead Hang) 30 วินาที คลายแรงกดกระดูกสันหลัง'
+        tip: fcIcon('drumstick') + ' ทานโปรตีนเสริม และทำท่ายืดแขวนบาร์ (Dead Hang) 30 วินาที คลายแรงกดกระดูกสันหลัง'
     },
     'C': {
         name: 'ขา ก้น และแกนกลางลำตัว (Leg Day)',
         muscles: ['quads', 'glutes_hams', 'core', 'lower_back'],
         labels: ['ต้นขาหน้า (Quads) 95%', 'ก้น/ขาหลัง (Glutes/Hams) 90%', 'แกนกลาง (Core) 80%', 'หลังล่าง 65%'],
-        tip: fcIcon('sparkles') + ' ยืด Hamstring และโฟมโรลเลอร์คลายกล้ามเนื้อขา พร้อมดื่มน้ำชดเชยเหงื่อ 600-800 ml'
+        tip: fcIcon('activity') + ' ยืด Hamstring และโฟมโรลเลอร์คลายกล้ามเนื้อขา พร้อมดื่มน้ำชดเชยเหงื่อ 600-800 ml'
     },
     'Z': {
         name: 'Zone 2 คาร์ดิโอ & หน้าท้อง',
@@ -962,7 +962,7 @@ const WORKOUT_MUSCLE_MAPPING = {
         name: 'ชาเลนจ์ 28 วัน — ปั้นท่อนบน & ซิกแพค',
         muscles: ['chest', 'upper_back', 'shoulders', 'biceps', 'triceps', 'core'],
         labels: ['อก & หลังบน 95%', 'ไหล่ & แขน 85%', 'แกนกลาง 80%'],
-        tip: fcIcon('utensils') + ' เติมโปรตีนหลังฝึก และยืดเหยียดหน้าอก-หัวไหล่ 30 วินาทีเพื่อป้องกันอาการไหล่ห่อ'
+        tip: fcIcon('drumstick') + ' เติมโปรตีนหลังฝึก และยืดเหยียดหน้าอก-หัวไหล่ 30 วินาทีเพื่อป้องกันอาการไหล่ห่อ'
     },
     'CH_POSTURE28': {
         name: 'ชาเลนจ์ 28 วัน — ยืดเหยียดจัดระเบียบหลัง & บุคลิกภาพ',
@@ -986,7 +986,7 @@ const WORKOUT_MUSCLE_MAPPING = {
         name: 'เน้นเฉพาะจุด — ขา & ก้นกระชับ',
         muscles: ['quads', 'glutes_hams', 'core'],
         labels: ['ต้นขาหน้า (Quads) 95%', 'ก้น/ขาหลัง (Glutes/Hams) 95%', 'แกนกลาง 75%'],
-        tip: fcIcon('sparkles') + ' ดันส้นเท้าขึ้นและบีบก้นทุกครั้งที่ยืนสุด ช่วยกระชับช่วงล่างและกระตุ้นการเผาผลาญสูง'
+        tip: fcIcon('flame') + ' ดันส้นเท้าขึ้นและบีบก้นทุกครั้งที่ยืนสุด ช่วยกระชับช่วงล่างและกระตุ้นการเผาผลาญสูง'
     },
     'BF_STRETCH': {
         name: 'เน้นเฉพาะจุด — ยืดเหยียดหลัง & คลายปวด',
@@ -1353,7 +1353,7 @@ function downloadShareCardPng() {
     link.download = `fitcoach-workout-${d}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
-    if (typeof msg === 'function') msg(fcIcon('sparkles') + ' บันทึกรูปภาพการ์ดแชร์เรียบร้อยแล้ว');
+    if (typeof msg === 'function') msg(fcIcon('image') + ' บันทึกรูปภาพการ์ดแชร์เรียบร้อยแล้ว');
 }
 
 async function shareCardViaWebShare() {

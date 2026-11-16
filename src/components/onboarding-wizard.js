@@ -343,7 +343,7 @@ function applyOnboardingPlanToApp() {
 
     closeOnboardingWizard();
     if (typeof msg === 'function') {
-        msg(fcIcon('sparkles') + ' บันทึกโปรแกรมส่วนบุคคลเรียบร้อย! งบพลังงาน ' + plan.calTarget.toLocaleString() + ' kcal/วัน');
+        msg(fcIcon('check-circle') + ' บันทึกโปรแกรมส่วนบุคคลเรียบร้อย! งบพลังงาน ' + plan.calTarget.toLocaleString() + ' kcal/วัน');
     }
 }
 
@@ -438,9 +438,9 @@ function renderOnboardingStep() {
                 </div>
 
                 <div style="display:flex; justify-content:center; gap:12px; margin-top:8px;">
-                    <button type="button" class="ob-step-pill" onclick="onObYearSelect(${curYr - 1})">${fcIcon('sparkles')} ปีก่อนหน้า</button>
+                    <button type="button" class="ob-step-pill" onclick="onObYearSelect(${curYr - 1})">${fcIcon('chevron-left')} ปีก่อนหน้า</button>
                     <span style="font-size:14px; font-weight:800; color:#0284c7; display:flex; align-items:center;">อายุ ${obState.age} ปี</span>
-                    <button type="button" class="ob-step-pill" onclick="onObYearSelect(${curYr + 1})">${fcIcon('sparkles')} ปีถัดไป</button>
+                    <button type="button" class="ob-step-pill" onclick="onObYearSelect(${curYr + 1})">${fcIcon('chevron-right')} ปีถัดไป</button>
                 </div>
             </div>
             <div class="wm-ob-footer">
@@ -640,7 +640,7 @@ function renderOnboardingStep() {
                     <div style="position:relative; margin-top:20px;">
                         <div class="wm-bmi-pointer" style="left:${bmiPct}%;">
                             <span>${bmi}</span>
-                            <span style="font-size:9px; color:#0284c7;">${fcIcon('sparkles')}</span>
+                            <span style="font-size:9px; color:#0284c7;">${fcIcon('chevron-down')}</span>
                         </div>
                         <div class="wm-bmi-bar-track">
                             <div class="wm-bmi-segment" style="background:#38bdf8;" title="น้ำหนักน้อยเกินไป"></div>
@@ -664,11 +664,11 @@ function renderOnboardingStep() {
                                 <span style="font-size:12px; font-weight:700; color:#64748b;">BMI <b>${bmi}</b></span>
                             </div>
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <span style="font-size:15px;">${fcIcon('sparkles')}</span>
+                                <span style="font-size:15px;">${fcIcon('heart-pulse')}</span>
                                 <span style="font-size:12px; font-weight:700; color:#64748b;">BMI ที่ดีต่อสุขภาพ <b>18.5 - 24.9</b></span>
                             </div>
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <span style="font-size:15px;">${fcIcon('sparkles')}</span>
+                                <span style="font-size:15px;">${fcIcon('scale')}</span>
                                 <span style="font-size:12px; font-weight:700; color:#64748b;">น้ำหนักที่ดีต่อสุขภาพ <b>${normalWeightMin}kg - ${normalWeightMax}kg</b></span>
                             </div>
                         </div>
@@ -872,7 +872,7 @@ function renderOnboardingStep() {
                             <text x="27" y="16" font-size="9" font-weight="700" fill="#64748b" text-anchor="middle">${monthShort}</text>
                             <text x="27" y="32" font-size="14" font-weight="900" fill="#0f172a" text-anchor="middle">${dayNum}</text>
                             <circle cx="27" cy="46" r="8" fill="#f97316"/>
-                            <text x="27" y="50" font-size="9" fill="#ffffff" text-anchor="middle">${fcIcon('sparkles')}</text>
+                            <text x="27" y="50" font-size="9" fill="#ffffff" text-anchor="middle">✓</text>
                         </g>
                     </svg>
 
@@ -964,7 +964,7 @@ function renderOnboardingStep() {
                 </div>
 
                 <div style="margin-top:18px; padding:14px; border-radius:16px; background:#f8fafc; border:1px solid #e2e8f0;">
-                    <div style="font-size:13.5px; font-weight:900; color:#0f172a; margin-bottom:4px;">${fcIcon('sparkles')}️ เป้าหมายออกกำลังกายกี่วัน/สัปดาห์?</div>
+                    <div style="font-size:13.5px; font-weight:900; color:#0f172a; margin-bottom:4px;">${fcIcon('calendar')} เป้าหมายออกกำลังกายกี่วัน/สัปดาห์?</div>
                     <div style="font-size:11.5px; color:#64748b; margin-bottom:10px;">ระบบจะจัดตารางฝึก 7 วันให้เหมาะกับเป้าหมายของคุณอัตโนมัติ</div>
                     <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px;">
                         ${[3, 4, 5, 6].map(d => {
@@ -1004,7 +1004,7 @@ function renderOnboardingStep() {
             },
             {
                 id: 'slowcut',
-                title: fcIcon('sparkles') + ' ลดไขมันช้าๆ สบายๆ ยั่งยืน (Slow Cut)',
+                title: fcIcon('leaf') + ' ลดไขมันช้าๆ สบายๆ ยั่งยืน (Slow Cut)',
                 badge: 'Deficit -200 kcal',
                 badgeColor: '#16a34a',
                 badgeBg: '#f0fdf4',
@@ -1111,7 +1111,7 @@ function renderOnboardingStep() {
                         <div>
                             <div style="font-size:11.5px; font-weight:800; color:#64748b;">เป้าหมายน้ำหนักตัว</div>
                             <div style="font-size:19px; font-weight:900; color:#0f172a; margin-top:2px;">
-                                ${obState.weight.toFixed(1)} ${fcIcon('sparkles')} <span style="color:#0284c7;">${obState.targetWeight.toFixed(1)} kg</span>
+                                ${obState.weight.toFixed(1)} ${fcIcon('arrow-right')} <span style="color:#0284c7;">${obState.targetWeight.toFixed(1)} kg</span>
                             </div>
                         </div>
                         <div style="text-align:right;">

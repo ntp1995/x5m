@@ -40,7 +40,7 @@ async function logDailySteps(targetDate) {
 
     save();
     render();
-    msg(fcIcon('sparkles') + ' บันทึก ' + nSteps.toLocaleString() + ' ก้าวเรียบร้อย');
+    msg(fcIcon('footprints') + ' บันทึก ' + nSteps.toLocaleString() + ' ก้าวเรียบร้อย');
 }
 
 /* ============ MORNING WEIGH-IN & BODY COMPOSITION MODAL ============ */
@@ -82,13 +82,13 @@ async function openMorningWeighInModal(targetDate) {
                         <input type="number" id="mWeighHRV" value="${hrv}" placeholder="เว้นว่างได้" style="width:100%; font-size:14px; padding:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
                     </div>
                     <div>
-                        <label style="display:block; font-weight:700; font-size:12px; color:var(--dim); margin-bottom:4px;">${fcIcon('sparkles')} อาการปวดหลัง (0-10)</label>
+                        <label style="display:block; font-weight:700; font-size:12px; color:var(--dim); margin-bottom:4px;">${fcIcon('activity')} อาการปวดหลัง (0-10)</label>
                         <input type="number" min="0" max="10" id="mWeighPain" value="${pain}" placeholder="0 = ไม่ปวดเลย" style="width:100%; font-size:14px; padding:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
                     </div>
                 </div>
 
                 <div style="margin-top:10px;">
-                    <label style="display:block; font-weight:700; font-size:12px; color:var(--dim); margin-bottom:4px;">${fcIcon('sparkles')} จำนวนก้าวเดินวันนี้ (Steps)</label>
+                    <label style="display:block; font-weight:700; font-size:12px; color:var(--dim); margin-bottom:4px;">${fcIcon('footprints')} จำนวนก้าวเดินวันนี้ (Steps)</label>
                     <input type="number" step="100" id="mWeighSteps" value="${rec?.steps != null ? rec.steps : ''}" placeholder="เช่น 8500 (เว้นว่างได้)" style="width:100%; font-size:14px; padding:8px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
                 </div>
             </div>
@@ -160,7 +160,7 @@ async function openMorningWeighInModal(targetDate) {
     } else if (typeof autoSync === 'function') {
         autoSync();
     }
-    msg(fcIcon('sparkles') + ' บันทึกน้ำหนัก & สัดส่วนเช้านี้เรียบร้อยแล้ว!');
+    msg(fcIcon('check-circle') + ' บันทึกน้ำหนัก & สัดส่วนเช้านี้เรียบร้อยแล้ว!');
 }
 
 async function editDailyTracker(targetDate) {
@@ -182,26 +182,26 @@ async function editDailyTracker(targetDate) {
                 <input type="number" id="edCal" value="${cal}" style="width:100%; font-size:15px; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
             </div>
             <div>
-                <label style="display:block;font-weight:bold;font-size:12px;color:var(--acc2);">${fcIcon('utensils')} โปรตีน (g)</label>
+                <label style="display:block;font-weight:bold;font-size:12px;color:var(--acc2);">${fcIcon('drumstick')} โปรตีน (g)</label>
                 <input type="number" id="edPro" value="${pro}" style="width:100%; font-size:15px; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
             </div>
             <div>
-                <label style="display:block;font-weight:bold;font-size:12px;color:#3b82f6;">${fcIcon('utensils')} คาร์บ (g)</label>
+                <label style="display:block;font-weight:bold;font-size:12px;color:#3b82f6;">${fcIcon('wheat')} คาร์บ (g)</label>
                 <input type="number" id="edCarbs" value="${carbs}" style="width:100%; font-size:15px; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
             </div>
             <div>
-                <label style="display:block;font-weight:bold;font-size:12px;color:#10b981;">${fcIcon('sparkles')} ไขมัน (g)</label>
+                <label style="display:block;font-weight:bold;font-size:12px;color:#10b981;">${fcIcon('droplet')} ไขมัน (g)</label>
                 <input type="number" id="edFat" value="${fat}" style="width:100%; font-size:15px; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
             </div>
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
             <div>
-                <label style="display:block;font-weight:bold;font-size:12px;color:#ec4899;">${fcIcon('sparkles')} น้ำตาล (g)</label>
+                <label style="display:block;font-weight:bold;font-size:12px;color:#ec4899;">${fcIcon('candy')} น้ำตาล (g)</label>
                 <input type="number" id="edSugar" value="${rec?.sugar || 0}" style="width:100%; font-size:14px; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
             </div>
             <div>
-                <label style="display:block;font-weight:bold;font-size:12px;color:#8b5cf6;">${fcIcon('sparkles')} โซเดียม (mg)</label>
+                <label style="display:block;font-weight:bold;font-size:12px;color:#8b5cf6;">${fcIcon('flask-conical')} โซเดียม (mg)</label>
                 <input type="number" id="edSodium" value="${rec?.sodium || 0}" style="width:100%; font-size:14px; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
             </div>
         </div>
@@ -212,7 +212,7 @@ async function editDailyTracker(targetDate) {
                 <input type="number" id="edWat" value="${wat}" style="width:100%; font-size:14px; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
             </div>
             <div>
-                <label style="display:block;font-weight:bold;font-size:12px;color:var(--acc);">${fcIcon('sparkles')} ก้าวเดิน (ก้าว)</label>
+                <label style="display:block;font-weight:bold;font-size:12px;color:var(--acc);">${fcIcon('footprints')} ก้าวเดิน (ก้าว)</label>
                 <input type="number" id="edSteps" value="${rec?.steps != null ? rec.steps : ''}" placeholder="เช่น 8500" style="width:100%; font-size:14px; padding:8px; margin-top:2px; background:var(--bg); border:1px solid var(--line); color:var(--tx); border-radius:8px; box-sizing:border-box;">
             </div>
         </div>
@@ -391,7 +391,7 @@ function addCheck() {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
-    fcAlert(fcIcon('sparkles') + ' บันทึกเช็กอินประจำวันเรียบร้อยแล้ว!');
+    fcAlert(fcIcon('check-circle') + ' บันทึกเช็กอินประจำวันเรียบร้อยแล้ว!');
 }
 
 /* ============ FULL-SCREEN CAMERA SCANNER & MULTI-IMAGE ENGINE (v3.4.1) ============ */
@@ -583,7 +583,7 @@ function renderCameraThumbnailsTray() {
         html += `
             <div class="fc-cam-thumb">
                 <img src="${src}" alt="Dish ${idx+1}">
-                <button type="button" class="fc-cam-thumb-del" onclick="deleteCameraImage(${idx})" title="ลบภาพ">${fcIcon('sparkles')}</button>
+                <button type="button" class="fc-cam-thumb-del" onclick="deleteCameraImage(${idx})" title="ลบภาพ">${fcIcon('x')}</button>
             </div>
         `;
     });
@@ -885,7 +885,7 @@ async function processMultiImageAIFood(imagesArray = [], textNote = '') {
                     <div style="display:flex; gap:5px; margin-bottom:12px;">
                         <button type="button" class="btn sm" onclick="applyAiPortion(0.5, 'ทานครึ่งเดียว 50%')" style="flex:1; padding:6px 2px; font-size:11px; background:var(--card2); border:1px solid var(--line); color:var(--tx); font-weight:700; border-radius:8px;">½ ครึ่งเดียว</button>
                         <button type="button" class="btn sm" onclick="applyAiPortion(0.75, 'ทาน 3 ใน 4 (75%)')" style="flex:1; padding:6px 2px; font-size:11px; background:var(--card2); border:1px solid var(--line); color:var(--tx); font-weight:700; border-radius:8px;">¾ 75%</button>
-                        <button type="button" class="btn sm" onclick="applyAiPortion(1.0, 'ทานหมดจาน 100%')" style="flex:1; padding:6px 2px; font-size:11px; background:#eff6ff; border:1.5px solid var(--acc); color:var(--acc); font-weight:800; border-radius:8px;">${fcIcon('sparkles')} 100%</button>
+                        <button type="button" class="btn sm" onclick="applyAiPortion(1.0, 'ทานหมดจาน 100%')" style="flex:1; padding:6px 2px; font-size:11px; background:#eff6ff; border:1.5px solid var(--acc); color:var(--acc); font-weight:800; border-radius:8px;">${fcIcon('check-circle')} 100%</button>
                         <button type="button" class="btn sm" onclick="applyAiPortion(1.5, 'จานพิเศษ 1.5 เท่า')" style="flex:1; padding:6px 2px; font-size:11px; background:var(--card2); border:1px solid var(--line); color:var(--tx); font-weight:700; border-radius:8px;">+ พิเศษ</button>
                     </div>
 
@@ -914,18 +914,18 @@ async function processMultiImageAIFood(imagesArray = [], textNote = '') {
                             <input type="number" id="aiCal" value="${calVal}" oninput="syncAiHeroPillsFromInputs()" style="width:100%; padding:6px 8px; font-size:14px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                         </div>
                         <div>
-                            <label style="font-size:10.5px; font-weight:700; color:var(--acc2); display:block; margin-bottom:2px;">${fcIcon('utensils')} โปรตีน (g)</label>
+                            <label style="font-size:10.5px; font-weight:700; color:var(--acc2); display:block; margin-bottom:2px;">${fcIcon('drumstick')} โปรตีน (g)</label>
                             <input type="number" id="aiPro" value="${proVal}" oninput="syncAiHeroPillsFromInputs()" style="width:100%; padding:6px 8px; font-size:14px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                         </div>
                         <div>
-                            <label style="font-size:10.5px; font-weight:700; color:#3b82f6; display:block; margin-bottom:2px;">${fcIcon('utensils')} คาร์บ (g)</label>
+                            <label style="font-size:10.5px; font-weight:700; color:#3b82f6; display:block; margin-bottom:2px;">${fcIcon('wheat')} คาร์บ (g)</label>
                             <input type="number" id="aiCarbs" value="${carbsVal}" oninput="syncAiHeroPillsFromInputs()" style="width:100%; padding:6px 8px; font-size:14px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                         </div>
                     </div>
 
                     <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; margin-bottom:12px;">
                         <div>
-                            <label style="font-size:10.5px; font-weight:700; color:#10b981; display:block; margin-bottom:2px;">${fcIcon('sparkles')} ไขมัน (g)</label>
+                            <label style="font-size:10.5px; font-weight:700; color:#10b981; display:block; margin-bottom:2px;">${fcIcon('droplet')} ไขมัน (g)</label>
                             <input type="number" id="aiFat" value="${fatVal}" oninput="syncAiHeroPillsFromInputs()" style="width:100%; padding:6px 6px; font-size:13.5px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                         </div>
                         <div>
@@ -933,11 +933,11 @@ async function processMultiImageAIFood(imagesArray = [], textNote = '') {
                             <input type="number" step="0.5" id="aiFiber" value="${fiberVal}" oninput="syncAiHeroPillsFromInputs()" style="width:100%; padding:6px 6px; font-size:13.5px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                         </div>
                         <div>
-                            <label style="font-size:10.5px; font-weight:700; color:#ec4899; display:block; margin-bottom:2px;">${fcIcon('sparkles')} น้ำตาล (g)</label>
+                            <label style="font-size:10.5px; font-weight:700; color:#ec4899; display:block; margin-bottom:2px;">${fcIcon('candy')} น้ำตาล (g)</label>
                             <input type="number" id="aiSugar" value="${sugarVal}" style="width:100%; padding:6px 6px; font-size:13.5px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                         </div>
                         <div>
-                            <label style="font-size:10.5px; font-weight:700; color:#8b5cf6; display:block; margin-bottom:2px;">${fcIcon('sparkles')} โซเดียม</label>
+                            <label style="font-size:10.5px; font-weight:700; color:#8b5cf6; display:block; margin-bottom:2px;">${fcIcon('flask-conical')} โซเดียม</label>
                             <input type="number" id="aiSodium" value="${sodiumVal}" style="width:100%; padding:6px 6px; font-size:13.5px; font-weight:700; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--tx); box-sizing:border-box;">
                         </div>
                     </div>
@@ -1437,7 +1437,7 @@ function saveBodyCircumference() {
 
     const info = MEASURE_PARTS[pk];
     if (typeof fcAlert === 'function') {
-        fcAlert(`${fcIcon('sparkles')} บันทึกขนาด${info.name} ${formatCmWithInches(val)} ประจำสัปดาห์เรียบร้อยแล้ว!`);
+        fcAlert(`${fcIcon('check-circle')} บันทึกขนาด${info.name} ${formatCmWithInches(val)} ประจำสัปดาห์เรียบร้อยแล้ว!`);
     }
 }
 
@@ -1635,7 +1635,7 @@ async function editSpecificMeasurement(partKey, dateStr, currentVal) {
             render();
             if (typeof pushToCloud === 'function') pushToCloud();
             selectMeasurePart(partKey);
-            setTimeout(() => fcAlert(`${fcIcon('sparkles')} แก้ไขขนาด ${info.name} เป็น ${formatCmWithInches(num)} เรียบร้อยแล้ว`), 200);
+            setTimeout(() => fcAlert(`${fcIcon('check-circle')} แก้ไขขนาด ${info.name} เป็น ${formatCmWithInches(num)} เรียบร้อยแล้ว`), 200);
         }
     }
 }
@@ -1653,7 +1653,7 @@ async function deleteSpecificMeasurement(partKey, dateStr) {
         render();
         if (typeof pushToCloud === 'function') pushToCloud();
         selectMeasurePart(partKey);
-        setTimeout(() => fcAlert(`${fcIcon('sparkles')} ลบข้อมูลเรียบร้อยแล้ว`), 200);
+        setTimeout(() => fcAlert(`${fcIcon('trash')} ลบข้อมูลเรียบร้อยแล้ว`), 200);
     }
 }
 

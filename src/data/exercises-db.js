@@ -249,7 +249,7 @@ const CHALLENGES = [
 const BODY_FOCUS_PROGRAMS = [
     { id: 'abs', wKey: 'BF_ABS', label: fcIcon('flame') + ' หน้าท้อง', title: 'หน้าท้อง & แกนกลาง', sub: 'McGill Safe • 10-12 นาที', color: '#ea580c', img: 'cover_bf_abs.jpg' },
     { id: 'upper', wKey: 'BF_UPPER', label: fcIcon('dumbbell') + ' อก-แขน-ไหล่', title: 'อก แขน และไหล่', sub: 'DB 6 กก. / KB 4 กก. • 14 นาที', color: '#2563eb', img: 'cover_bf_upper.jpg' },
-    { id: 'lower', wKey: 'BF_LOWER', label: fcIcon('sparkles') + ' ขา-ก้น', title: 'ขา & ก้นกระชับ', sub: 'KB 8 กก. / เก้าอี้ • 14 นาที', color: '#059669', img: 'cover_bf_lower.jpg' },
+    { id: 'lower', wKey: 'BF_LOWER', label: fcIcon('flame') + ' ขา-ก้น', title: 'ขา & ก้นกระชับ', sub: 'KB 8 กก. / เก้าอี้ • 14 นาที', color: '#059669', img: 'cover_bf_lower.jpg' },
     { id: 'stretch', wKey: 'BF_STRETCH', label: fcIcon('activity') + ' ยืดเหยียดหลัง', title: 'ยืดเหยียดหลัง & คลายปวด', sub: 'คลายสะโพก-หลังล่าง • 10 นาที', color: '#7c3aed', img: 'cover_bf_stretch.jpg' }
 ];
 /* ============ PERIODIZED WEIGHT PROGRESSION (5 PHASES) ============ */
@@ -466,7 +466,7 @@ async function startMorningCardio() {
         ' บันทึกการเดินลู่ตอนเช้า',
         `คุณระบุเดินลู่ <b>${m} นาที</b> (~${kcal} kcal)<br>ต้องการดำเนินการอย่างไร?`,
         [
-            { id: 'log_now', label: fcIcon('sparkles') + ' บันทึกว่าเดินเสร็จแล้วทันที', sub: 'สำหรับกรณีเดินเสร็จแล้วจากบนลู่วิ่ง บันทึกลงประวัติทันทีโดยไม่ต้องจับเวลา' },
+            { id: 'log_now', label: fcIcon('footprints') + ' บันทึกว่าเดินเสร็จแล้วทันที', sub: 'สำหรับกรณีเดินเสร็จแล้วจากบนลู่วิ่ง บันทึกลงประวัติทันทีโดยไม่ต้องจับเวลา' },
             { id: 'timer', label: fcIcon('timer') + ' เปิดตัวจับเวลาเดินลู่ตอนนี้', sub: 'เปิดหน้าจอจับเวลานับถอยหลังพร้อมเสียงเตือน' }
         ]
     );
@@ -500,7 +500,7 @@ async function startMorningCardio() {
         save();
         render();
         autoSync();
-        await fcAlert(`${fcIcon('sparkles')} บันทึกการเดินลู่ตอนเช้า ${m} นาที (~${kcal} kcal) เรียบร้อยแล้ว!\n\nระบบได้ปรับหักลบเวลาเดินลู่ และตัดเดินวอร์ม/คูลดาวน์ออกจากโปรแกรมวันนี้ให้อัตโนมัติ`);
+        await fcAlert(`${fcIcon('footprints')} บันทึกการเดินลู่ตอนเช้า ${m} นาที (~${kcal} kcal) เรียบร้อยแล้ว!\n\nระบบได้ปรับหักลบเวลาเดินลู่ และตัดเดินวอร์ม/คูลดาวน์ออกจากโปรแกรมวันนี้ให้อัตโนมัติ`);
     } else {
         W.M.items[0].t = m * 60;
         W.M.kcal = kcal;

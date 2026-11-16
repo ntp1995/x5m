@@ -878,7 +878,7 @@ function toggleSuppSlotAll(slotId) {
     save();
     render();
     if (typeof pushToCloud === 'function') pushToCloud();
-    msg(targetState ? fcIcon('sparkles') + ' เช็กอาหารเสริมครบช่วงเวลานี้แล้ว!' : '↺ ยกเลิกการเช็กช่วงเวลานี้แล้ว');
+    msg(targetState ? fcIcon('check-circle') + ' เช็กอาหารเสริมครบช่วงเวลานี้แล้ว!' : '↺ ยกเลิกการเช็กช่วงเวลานี้แล้ว');
 }
 
 function setSuppMode(mode) {
@@ -982,7 +982,7 @@ async function editProbioticStock(ev, itemId = 'supp_night_probio') {
         save();
         render();
         if (typeof pushToCloud === 'function') pushToCloud();
-        msg(fcIcon('sparkles') + ' อัปเดตสต็อกเรียบร้อยแล้ว');
+        msg(fcIcon('package') + ' อัปเดตสต็อกเรียบร้อยแล้ว');
     }
 }
 
@@ -997,7 +997,7 @@ function toggleSuppItemActive(itemId, ev) {
     render();
     if (typeof pushToCloud === 'function') pushToCloud();
     msg(item.active
-        ? `${fcIcon('sparkles')}️ เปิดทาน "${item.name}" ในตารางประจำวันแล้ว`
+        ? `${fcIcon('check-circle')} เปิดทาน "${item.name}" ในตารางประจำวันแล้ว`
         : `${fcIcon('pause-circle')} พักการทาน "${item.name}" (หมดชั่วคราว) เรียบร้อยแล้ว`);
 }
 
@@ -1235,7 +1235,7 @@ async function openAddSupplementModal(editItemId = null) {
                 <button type="button" onclick="fillQuickPresetSupp('Milk Thistle (Silymarin)', '1 แคปซูล', 'liver_lipid', 'ฟื้นฟูตับ ลดไขมันพอกตับ', 'Silymarin Extract', '-')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">${fcIcon('shield-check')} Milk Thistle (เซฟตับ)</button>
                 <button type="button" onclick="fillQuickPresetSupp('NAC (N-Acetyl Cysteine) 600mg', '1 เม็ด', 'liver_lipid', 'ตั้งต้นกลูต้า ล้างพิษตับ', 'N-Acetyl Cysteine 600mg', '-')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">${fcIcon('shield-check')} NAC 600mg</button>
                 <button type="button" onclick="fillQuickPresetSupp('Ceramide / Rice Extract', '1 แคปซูล', 'skin', 'บำรุงความชุ่มชื้นและเกราะผิวระยะยาว', 'Rice Ceramide', '-')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">${fcIcon('sparkles')} Ceramide (เกราะผิว)</button>
-                <button type="button" onclick="fillQuickPresetSupp('Magnesium Glycinate', '1–2 แคปซูล', 'nerve_gut', 'คลายกล้ามเนื้อ หลับลึก', 'Magnesium Glycinate', '-')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">${fcIcon('sparkles')} Magnesium (หลับลึก)</button>
+                <button type="button" onclick="fillQuickPresetSupp('Magnesium Glycinate', '1–2 แคปซูล', 'nerve_gut', 'คลายกล้ามเนื้อ หลับลึก', 'Magnesium Glycinate', '-')" style="font-size:10.5px; font-weight:700; padding:4px 8px; border-radius:6px; background:var(--card2); border:1px solid var(--line); color:var(--tx); cursor:pointer;">${fcIcon('moon')} Magnesium (หลับลึก)</button>
             </div>
         </div>
     ` : '';
@@ -1380,7 +1380,7 @@ async function openAddSupplementModal(editItemId = null) {
         }
         existing.skipOnShift = finalSkipShift;
         existing.optional = finalOptional;
-        msg(`${fcIcon('sparkles')} อัปเดต "${finalName}" เรียบร้อยแล้ว`);
+        msg(`${fcIcon('check-circle')} อัปเดต "${finalName}" เรียบร้อยแล้ว`);
     } else {
         inv.push({
             id: 'supp_custom_' + Date.now(),
@@ -1399,7 +1399,7 @@ async function openAddSupplementModal(editItemId = null) {
             optional: finalOptional,
             active: true
         });
-        msg(`${fcIcon('sparkles')} เพิ่ม "${finalName}" ลงในตารางเรียบร้อยแล้ว`);
+        msg(`${fcIcon('plus')} เพิ่ม "${finalName}" ลงในตารางเรียบร้อยแล้ว`);
     }
 
     save();
@@ -1516,7 +1516,7 @@ function renderSupplementsUI() {
                     ${isOmad ? ' <span style="font-size:10.5px; color:#7c3aed; font-weight:700;">( OMAD มื้อเย็นเดียว)</span>' : ''}
                 </div>
                 <button class="btn sm" onclick="go('supp')" style="width:auto; flex:0 0 auto; padding:6px 12px; font-size:11.5px; background:var(--acc); color:#fff; font-weight:800; border-radius:8px; cursor:pointer;">
-                    ${fcIcon('pill')} เปิดตารางเช็กชื่อ ${fcIcon('sparkles')}
+                    ${fcIcon('pill')} เปิดตารางเช็กชื่อ
                 </button>
             </div>
         `;
@@ -1691,7 +1691,7 @@ function renderSupplementsUI() {
                             ${isCurrentWindow ? `<span style="background:${slot.color}22; color:${slot.color}; border:1px solid ${slot.color}55; font-size:10px; font-weight:800; padding:1px 7px; border-radius:99px;">${fcIcon('clock')} ช่วงเวลานี้</span>` : ''}
                         </div>
                         <div style="font-size:11.5px; color:var(--dim); margin-top:2px;">
-                            ${fcIcon('sparkles')} <b>${slot.timeHint}</b> • <span style="color:${slot.color}; font-weight:700;">${slot.badge}</span>
+                            ${fcIcon('clock')} <b>${slot.timeHint}</b> • <span style="color:${slot.color}; font-weight:700;">${slot.badge}</span>
                         </div>
                     </div>
                     <button type="button" class="btn sm" onclick="toggleSuppSlotAll('${slot.id}')" style="width:auto; flex:0 0 auto; padding:5px 10px; font-size:11px; font-weight:800; border-radius:8px; background:${slotAllDone ? 'rgba(16,185,129,0.16)' : 'var(--card2)'}; color:${slotAllDone ? '#059669' : 'var(--tx)'}; border:1px solid ${slotAllDone ? '#10b981' : 'var(--line)'}; cursor:pointer;">
@@ -1833,7 +1833,7 @@ function renderSupplementsUI() {
                     <div style="font-size:12px; font-weight:800; color:#1d4ed8; margin-top:4px;">${fcIcon('target')} เป้าหมายหลัก (Daily Routine):</div>
                     <div style="font-size:12px; color:#334155; line-height:1.6; margin-top:3px; font-weight:600;">
                         • คุมน้ำตาลและลดไขมันสะสม • บำรุงตับและข้อต่อ • เสริมสร้างกล้ามเนื้อ<br>
-                        <span style="color:#059669; font-weight:800;">${fcIcon('sparkles')} กฎเหล็ก:</span> ทานตามเวลา IF • เซฟตับ (ไม่เกินขนาด) • ดื่มน้ำเปล่าให้ถึงเป้าหมาย
+                        <span style="color:#059669; font-weight:800;">${fcIcon('shield-check')} กฎเหล็ก:</span> ทานตามเวลา IF • เซฟตับ (ไม่เกินขนาด) • ดื่มน้ำเปล่าให้ถึงเป้าหมาย
                     </div>
                 </div>
             </div>
@@ -1861,7 +1861,7 @@ function renderSupplementsUI() {
                     </div>
                 </div>
                 <div style="display:flex; gap:6px;">
-                    <button type="button" class="btn sm" onclick="checkAllSuppsToday(true)" style="width:auto; padding:6px 12px; font-size:11.5px; background:#10b981; color:#fff; font-weight:800; border-radius:10px; border:none; cursor:pointer; box-shadow:0 2px 6px rgba(16,185,129,0.3);">${fcIcon('sparkles')} เช็กครบทั้งวัน</button>
+                    <button type="button" class="btn sm" onclick="checkAllSuppsToday(true)" style="width:auto; padding:6px 12px; font-size:11.5px; background:#10b981; color:#fff; font-weight:800; border-radius:10px; border:none; cursor:pointer; box-shadow:0 2px 6px rgba(16,185,129,0.3);">${fcIcon('check-circle')} เช็กครบทั้งวัน</button>
                     <button type="button" class="btn sm" onclick="checkAllSuppsToday(false)" style="width:auto; padding:6px 9px; font-size:11px; background:#f1f5f9; color:#475569; font-weight:700; border-radius:10px; border:1px solid #cbd5e1; cursor:pointer;">↺ รีเซ็ต</button>
                 </div>
             </div>
@@ -1946,7 +1946,7 @@ function showW(k) {
     <div style="margin-top:5px;font-size:12.5px;font-weight:700;color:var(--acc)">
       ${it.sets>1?it.sets+' เซ็ต × ':''}${it.type==='time'?fmt(it.t):it.r}${e.side?' (ทั้ง 2 ข้าง)':''}${it.rest?' • พัก '+it.rest+' วิ':''}</div>
     <ul class="cue">${e.cue.map(c=>'<li>'+c+'</li>').join('')}</ul>
-    <a class="yt" href="javascript:void(0)" onclick="showExModal('${it.e}')">${fcIcon('sparkles')} ดูตัวอย่างท่านี้</a>
+    <a class="yt" href="javascript:void(0)" onclick="showExModal('${it.e}')">${fcIcon('video')} ดูตัวอย่างท่านี้</a>
     </div></div>`;
     });
     const outdoorDetailSwitcher = (['R', 'Z'].includes(k) || W[k].warm === 'lite') ? `
@@ -1963,7 +1963,7 @@ function showW(k) {
 
     document.getElementById('wDetail').innerHTML = `<div class="card">
     <div class="row"><h3>${W[k].ic} ${W[k].n}</h3><span class="tag b">~${estMin(k)} นาที</span></div>${outdoorDetailSwitcher}${h}
-    <button class="btn" style="margin-top:14px" onclick="startW('${k}')">${fcIcon('sparkles')} เริ่มเลย</button></div>`;
+    <button class="btn" style="margin-top:14px" onclick="startW('${k}')">${fcIcon('play')} เริ่มเลย</button></div>`;
 }
 function toggleBS() { D.bs = document.getElementById('bsMode').checked; save(); render() }
 
